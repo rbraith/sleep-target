@@ -25,8 +25,30 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+
+
+    // ***********************************************
+    // test deps
+    // ***********************************************
+    def espresso_version = "3.3.0"
+    def junit_version = "4.12"
+    def androidx_junit_version = "1.1.2"
+    def nav_testing_version = "2.3.1"
+
+    // test
+    testImplementation "junit:junit:$junit_version"
+    testImplementation "androidx.test.ext:junit:$androidx_junit_version"
+    testImplementation "org.robolectric:robolectric:4.4"
+    testImplementation "androidx.test.espresso:espresso-core:$espresso_version"
+    testImplementation "androidx.test.espresso:espresso-contrib:$espresso_version"
+    testImplementation "androidx.navigation:navigation-testing:$nav_testing_version"
+
+    // androidTest
+    androidTestImplementation "junit:junit:$junit_version"
+    androidTestImplementation "androidx.test.ext:junit:$androidx_junit_version"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_version"
+    androidTestImplementation "androidx.test.espresso:espresso-contrib:$espresso_version"
+    androidTestImplementation "androidx.navigation:navigation-testing:$nav_testing_version"
 
 }
