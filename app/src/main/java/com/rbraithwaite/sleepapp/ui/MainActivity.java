@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp;
+package com.rbraithwaite.sleepapp.ui;
 
 import android.os.Bundle;
 import android.view.Menu;
@@ -14,6 +14,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.rbraithwaite.sleepapp.R;
 
 public class MainActivity extends AppCompatActivity {
 
