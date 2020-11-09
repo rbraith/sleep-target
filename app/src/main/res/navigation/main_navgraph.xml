@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/main_navgraph"
+    app:startDestination="@id/nav_sleeptracker">
+
+    <fragment
+        android:id="@+id/nav_sleeptracker"
+        android:name="com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFragment"
+        android:label="SleepTrackerFragment" >
+        <action
+            android:id="@+id/action_sleepTracker_to_sessionArchive"
+            app:destination="@id/nav_session_archive" />
+    </fragment>
+    <fragment
+        android:id="@+id/nav_session_archive"
+        android:name="com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragment"
+        android:label="SessionArchiveFragment" />
+</navigation>
