@@ -54,6 +54,7 @@ dependencies {
     testImplementation "androidx.test.espresso:espresso-core:$espresso_version"
     testImplementation "androidx.test.espresso:espresso-contrib:$espresso_version"
     testImplementation "androidx.navigation:navigation-testing:$nav_testing_version"
+    testImplementation "org.hamcrest:hamcrest:2.2"
 
     // androidTest
     androidTestImplementation "junit:junit:$junit_version"
@@ -61,5 +62,5 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_version"
     androidTestImplementation "androidx.test.espresso:espresso-contrib:$espresso_version"
     androidTestImplementation "androidx.navigation:navigation-testing:$nav_testing_version"
-
+    androidTestImplementation "org.hamcrest:hamcrest:2.2"
 }
