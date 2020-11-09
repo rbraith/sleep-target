@@ -16,6 +16,7 @@ android {
 
     testOptions {
         unitTests {
+            // needed for robolectric, see: http://robolectric.org/getting-started/
             includeAndroidResources = true
         }
     }
