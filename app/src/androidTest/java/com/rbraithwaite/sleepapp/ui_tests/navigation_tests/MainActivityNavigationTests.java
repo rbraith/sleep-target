@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.navigation_tests;
+package com.rbraithwaite.sleepapp.ui_tests.navigation_tests;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
