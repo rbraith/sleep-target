@@ -156,7 +156,7 @@ public class SleepAppRepositoryTests
     }
     
     
-    // todo this test just duplicates getAllSleepSessionIds_returnEmptyListWhenNoIds
+    // TODO this test just duplicates getAllSleepSessionIds_returnEmptyListWhenNoIds
     @Test
     public void getAllSleepSessionIds_returnsAllIds()
     {
@@ -188,7 +188,7 @@ public class SleepAppRepositoryTests
         
         assertThat(liveData.getValue(), is(equalTo(expectedData)));
     }
-    // todo
+    // TODO
     //  null input
     //  negative input
 }

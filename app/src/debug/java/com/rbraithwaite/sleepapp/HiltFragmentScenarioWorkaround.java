@@ -14,8 +14,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 // for this is to launch a Hilt activity and then attach your fragment."
 //
 // https://stackoverflow.com/a/64620273
-// https://github.com/android/architecture-samples/blob/f2fd9ce969a431b20218f3ace38bbb95fd4d1151
-// /app/src/androidTest/java/com/example/android/architecture/blueprints/todoapp/HiltExt.kt
+// https://github.com/android/architecture-samples/blob/f2fd9ce969a431b20218f3ace38bbb95fd4d1151/app/src/androidTest/java/com/example/android/architecture/blueprints/todoapp/HiltExt.kt
 // All this does is create a bare-bones hilt activity containing the provided fragment.
 // You unfortunately lose the lifecycle-transition capabilities of FragmentScenario. I tried looking
 // at the FragmentScenario source, but its a final class so I don't think there's anything I can do.

@@ -5,7 +5,7 @@ import androidx.room.DatabaseView;
 
 import java.util.Date;
 
-// todo right now this is just getting all the sleep_session columns,
+// TODO right now this is just getting all the sleep_session columns,
 //  but this will eventually have data from other tables eg comment data
 
 @DatabaseView(

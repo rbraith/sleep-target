@@ -20,7 +20,7 @@ import java.util.List;
 public class SessionArchiveRecyclerViewAdapter
         extends RecyclerView.Adapter<SessionArchiveRecyclerViewAdapter.ViewHolder>
 {
-    // todo
+    // TODO
     //  consider retaining a cache of retrieved data points, to speed things up?
     
 //*********************************************************

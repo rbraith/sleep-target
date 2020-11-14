@@ -30,17 +30,6 @@ import static org.hamcrest.Matchers.is;
 @RunWith(AndroidJUnit4.class)
 public class SleepTrackerFragmentTests
 {
-//    @After
-//    public void teardown() {
-//        // todo
-//        //  consider using Android Test Orchestrator
-//        //  https://developer.android.com/training/testing/junit-runner
-//        .html#using-android-test-orchestrator
-//        //  https://stackoverflow.com/a/49552561
-//        TestUtils.resetDatabase();
-//        TestUtils.resetSharedPreferences();
-//    }
-
 //*********************************************************
 // private properties
 //*********************************************************
@@ -55,8 +44,6 @@ public class SleepTrackerFragmentTests
     public void sleepTrackerButtonTextChangesOnSessionStatus()
     {
         // GIVEN the user is on the sleep tracker screen
-//        FragmentScenario<SleepTrackerFragment> fragmentScenario = FragmentScenario
-//        .launchInContainer(SleepTrackerFragment.class);
         ActivityScenario<HiltFragmentScenarioWorkaround> scenario =
                 HiltFragmentScenarioWorkaround.launchFragmentInHiltContainer(SleepTrackerFragment.class);
         // AND there is no current session

@@ -43,7 +43,7 @@ public class SleepTrackerFragmentViewModel
 
     public LiveData<Boolean> inSleepSession(Context context)
     {
-        // todo
+        // TODO
         //  should i add an empty observer to inSleepSession just to guarantee that its active?
         if (mInSleepSession == null) {
             LiveData<Date> currentSleepSessionStartDate = getCurrentSleepSession(context);
@@ -81,7 +81,7 @@ public class SleepTrackerFragmentViewModel
             mRepository.addSleepSession(newSleepSession);
             
             // clear the current session in storage
-            // todo abstract this in the repo
+            // TODO abstract this in the repo
             mRepository.setCurrentSession(context, null);
         }
     }

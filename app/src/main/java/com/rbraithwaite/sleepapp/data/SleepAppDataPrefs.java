@@ -36,7 +36,7 @@ public class SleepAppDataPrefs
 //*********************************************************
 
     // made these public to allow tests to reset the shared prefs
-    // todo not ideal, find a better solution
+    // TODO not ideal, find a better solution
     public static final String PREFS_FILE_KEY = "com.rbraithwaite.sleepapp.PREFS_FILE_KEY";
     
 //*********************************************************

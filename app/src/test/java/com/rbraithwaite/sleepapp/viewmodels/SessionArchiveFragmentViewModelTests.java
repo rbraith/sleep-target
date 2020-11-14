@@ -85,7 +85,6 @@ public class SessionArchiveFragmentViewModelTests
         String expectedFormattedEndTime = "11:05 AM, Sep 7 2019";
         
         LiveData<SleepSessionData> mockLiveData = new MutableLiveData<>(mockData);
-//        when(mockRepository.getSleepSessionData(sessionID)).thenReturn(mockLiveData);
         when(mockRepository.getSleepSessionData(sessionID)).thenReturn(mockLiveData);
         
         LiveData<UISleepSessionData> retrievedUILiveData = viewModel.getSleepSessionData(sessionID);
