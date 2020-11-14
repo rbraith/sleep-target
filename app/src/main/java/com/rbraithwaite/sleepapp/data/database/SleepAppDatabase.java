@@ -14,11 +14,20 @@ import com.rbraithwaite.sleepapp.data.database.views.dao.SleepSessionDataDao;
         version = 1,
         entities = {SleepSessionEntity.class},
         views = {SleepSessionData.class}
-        )
+)
 @TypeConverters({DateConverter.class})
-public abstract class SleepAppDatabase extends RoomDatabase
+public abstract class SleepAppDatabase
+        extends RoomDatabase
 {
+//*********************************************************
+// public properties
+//*********************************************************
+
     public static String NAME = "sleepapp.db";
+    
+//*********************************************************
+// abstract
+//*********************************************************
 
     public abstract SleepSessionDao getSleepSessionDao();
     public abstract SleepSessionDataDao getSleepSessionDataDao();

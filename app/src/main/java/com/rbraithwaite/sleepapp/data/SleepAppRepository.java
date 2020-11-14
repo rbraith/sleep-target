@@ -4,7 +4,6 @@ import android.content.Context;
 
 import androidx.lifecycle.LiveData;
 
-
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
 import com.rbraithwaite.sleepapp.data.database.tables.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
@@ -19,9 +18,17 @@ import javax.inject.Singleton;
 @Singleton
 public class SleepAppRepository
 {
+//*********************************************************
+// private properties
+//*********************************************************
+
     private SleepAppDataPrefs mDataPrefs;
     private SleepAppDatabase mDatabase;
     private Executor mExecutor;
+    
+//*********************************************************
+// constructors
+//*********************************************************
 
     @Inject
     public SleepAppRepository(
@@ -33,30 +40,40 @@ public class SleepAppRepository
         mDatabase = database;
         mExecutor = executor;
     }
+    
+//*********************************************************
+// api
+//*********************************************************
 
     public void addSleepSession(final SleepSessionEntity sleepSession)
     {
-        mExecutor.execute(new Runnable() {
+        mExecutor.execute(new Runnable()
+        {
             @Override
-            public void run() {
+            public void run()
+            {
                 mDatabase.getSleepSessionDao().addSleepSession(sleepSession);
             }
         });
     }
-
-    public void setCurrentSession(Context context, Date startTime) {
+    
+    public void setCurrentSession(Context context, Date startTime)
+    {
         mDataPrefs.setCurrentSession(context, startTime);
     }
-
-    public LiveData<Date> getCurrentSession(Context context) {
+    
+    public LiveData<Date> getCurrentSession(Context context)
+    {
         return mDataPrefs.getCurrentSession(context);
     }
-
-    public LiveData<SleepSessionData> getSleepSessionData(int id) {
+    
+    public LiveData<SleepSessionData> getSleepSessionData(int id)
+    {
         return mDatabase.getSleepSessionDataDao().getSleepSessionData(id);
     }
-
-    public LiveData<List<Integer>> getAllSleepSessionDataIds() {
+    
+    public LiveData<List<Integer>> getAllSleepSessionDataIds()
+    {
         return mDatabase.getSleepSessionDataDao().getAllSleepSessionDataIds();
     }
 }

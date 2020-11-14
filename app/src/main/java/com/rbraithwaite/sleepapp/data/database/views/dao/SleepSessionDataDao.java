@@ -9,7 +9,12 @@ import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
 import java.util.List;
 
 @Dao
-public abstract class SleepSessionDataDao {
+public abstract class SleepSessionDataDao
+{
+//*********************************************************
+// abstract
+//*********************************************************
+
     @Query("SELECT session_id FROM view_sleep_session_data")
     public abstract LiveData<List<Integer>> getAllSleepSessionDataIds();
 

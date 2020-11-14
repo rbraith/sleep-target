@@ -13,13 +13,18 @@ import static org.hamcrest.Matchers.is;
 
 public class DateConverterTests
 {
-    @Test
-    public void twoWayConversionTest() {
-        Date testDate = new GregorianCalendar(2019, 8, 7).getTime();
+//*********************************************************
+// api
+//*********************************************************
 
+    @Test
+    public void twoWayConversionTest()
+    {
+        Date testDate = new GregorianCalendar(2019, 8, 7).getTime();
+        
         Date resultDate = DateConverter.convertDateFromMillis(
                 DateConverter.convertDateToMillis(testDate));
-
+        
         assertThat(resultDate, is(equalTo(testDate)));
     }
 }

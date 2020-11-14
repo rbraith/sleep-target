@@ -1,14 +1,12 @@
 package com.rbraithwaite.sleepapp.ui;
 
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
@@ -19,7 +17,12 @@ import com.rbraithwaite.sleepapp.R;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class MainActivity extends AppCompatActivity {
+public class MainActivity
+        extends AppCompatActivity
+{
+//*********************************************************
+// private properties
+//*********************************************************
 
     private NavController mNavController;
     private AppBarConfiguration mAppBarConfiguration;
@@ -27,10 +30,12 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView mBottomNavigationView;
 
 //*********************************************************
-// Lifecycle callbacks
+// overrides
 //*********************************************************
+
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.main_activity);
@@ -42,29 +47,32 @@ public class MainActivity extends AppCompatActivity {
         initializeNavigation();
     }
 
-//*********************************************************
-// AppCompatActivity overrides
-//*********************************************************
     @Override
-    public boolean onSupportNavigateUp() {
+    public boolean onSupportNavigateUp()
+    {
         return NavigationUI.navigateUp(mNavController, mAppBarConfiguration)
-                || super.onSupportNavigateUp();
+               || super.onSupportNavigateUp();
     }
 
 //*********************************************************
-// MainActivity api
+// api
 //*********************************************************
-    public void setBottomNavVisibility(boolean visibility) {
+
+    public void setBottomNavVisibility(boolean visibility)
+    {
         mBottomNavigationView.setVisibility(visibility ? View.VISIBLE : View.GONE);
     }
 
 
+
 //*********************************************************
-// private
+// private methods
 //*********************************************************
 
-    private void initializeNavigation() {
-        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.main_navhost);
+    private void initializeNavigation()
+    {
+        NavHostFragment navHostFragment =
+                (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.main_navhost);
         mNavController = navHostFragment.getNavController();
         mAppBarConfiguration = new AppBarConfiguration.Builder(R.id.nav_sleeptracker).build();
         NavigationUI.setupActionBarWithNavController(this, mNavController, mAppBarConfiguration);

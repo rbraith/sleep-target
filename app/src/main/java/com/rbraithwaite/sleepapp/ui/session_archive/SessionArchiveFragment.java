@@ -7,38 +7,44 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.rbraithwaite.sleepapp.ui.MainActivity;
 import com.rbraithwaite.sleepapp.R;
-import com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFragmentViewModel;
+import com.rbraithwaite.sleepapp.ui.MainActivity;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class SessionArchiveFragment extends Fragment
+public class SessionArchiveFragment
+        extends Fragment
 {
+//*********************************************************
+// private properties
+//*********************************************************
+
     private SessionArchiveFragmentViewModel mViewModel;
-
+    
     private SessionArchiveRecyclerViewAdapter mRecyclerViewAdapter;
+    
+//*********************************************************
+// overrides
+//*********************************************************
 
-//*********************************************************
-// Lifecycle callbacks
-//*********************************************************
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState)
     {
         return inflater.inflate(R.layout.session_archive_fragment, container, false);
     }
-
+    
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
     {
@@ -46,24 +52,25 @@ public class SessionArchiveFragment extends Fragment
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(getRecyclerViewAdapter());
     }
-
+    
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState)
     {
         super.onActivityCreated(savedInstanceState);
         setMainActivityBottomNavVisibility(false);
     }
-
+    
     @Override
     public void onDestroyView()
     {
         super.onDestroyView();
-
+        
         setMainActivityBottomNavVisibility(true);
     }
 
+    
 //*********************************************************
-// SessionArchiveFragment API
+// api
 //*********************************************************
 
     public SessionArchiveRecyclerViewAdapter getRecyclerViewAdapter()
@@ -71,9 +78,11 @@ public class SessionArchiveFragment extends Fragment
         if (mRecyclerViewAdapter == null) {
             mRecyclerViewAdapter = new SessionArchiveRecyclerViewAdapter(
                     getViewModelWithActivity(),
-                    new SessionArchiveRecyclerViewAdapter.LifeCycleOwnerProvider() {
+                    new SessionArchiveRecyclerViewAdapter.LifeCycleOwnerProvider()
+                    {
                         @Override
-                        public LifecycleOwner getLifeCycleOwner() {
+                        public LifecycleOwner getLifeCycleOwner()
+                        {
                             return SessionArchiveFragment.this;
                         }
                     });
@@ -81,8 +90,9 @@ public class SessionArchiveFragment extends Fragment
         return mRecyclerViewAdapter;
     }
 
+    
 //*********************************************************
-// private
+// private methods
 //*********************************************************
 
     private void setMainActivityBottomNavVisibility(boolean visibility)
@@ -95,14 +105,15 @@ public class SessionArchiveFragment extends Fragment
             ((MainActivity) activity).setBottomNavVisibility(visibility);
         }
     }
-
+    
     // TODO
     //  duplicate code in SleepTrackerFragment
     //  consider making a generic base fragment w/ common viewmodel ops
     private SessionArchiveFragmentViewModel getViewModelWithActivity()
     {
         if (mViewModel == null) {
-            mViewModel = new ViewModelProvider(requireActivity()).get(SessionArchiveFragmentViewModel.class);
+            mViewModel =
+                    new ViewModelProvider(requireActivity()).get(SessionArchiveFragmentViewModel.class);
         }
         return mViewModel;
     }

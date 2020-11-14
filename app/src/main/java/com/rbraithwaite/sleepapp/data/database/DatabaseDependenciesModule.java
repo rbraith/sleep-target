@@ -19,15 +19,21 @@ import dagger.hilt.android.qualifiers.ApplicationContext;
 @InstallIn(ApplicationComponent.class)
 public class DatabaseDependenciesModule
 {
+//*********************************************************
+// api
+//*********************************************************
+
     @Singleton
     @Provides
-    public static SleepAppDatabase provideSleepAppDatabase(@ApplicationContext Context context) {
+    public static SleepAppDatabase provideSleepAppDatabase(@ApplicationContext Context context)
+    {
         return Room.databaseBuilder(context, SleepAppDatabase.class, SleepAppDatabase.NAME).build();
     }
 
     @Singleton
     @Provides
-    public static Executor provideExecutorService() {
+    public static Executor provideExecutorService()
+    {
         return Executors.newFixedThreadPool(4);
     }
 }

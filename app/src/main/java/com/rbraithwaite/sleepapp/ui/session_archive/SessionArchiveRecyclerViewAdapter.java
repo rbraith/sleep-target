@@ -15,26 +15,63 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.session_archive.data.UISleepSessionData;
 
-import org.w3c.dom.Text;
-
 import java.util.List;
 
-public class SessionArchiveRecyclerViewAdapter extends RecyclerView.Adapter<SessionArchiveRecyclerViewAdapter.ViewHolder>
+public class SessionArchiveRecyclerViewAdapter
+        extends RecyclerView.Adapter<SessionArchiveRecyclerViewAdapter.ViewHolder>
 {
     // todo
     //  consider retaining a cache of retrieved data points, to speed things up?
+    
+//*********************************************************
+// private properties
+//*********************************************************
+
+    private LifeCycleOwnerProvider mLifeCycleOwnerProvider;
+    private SessionArchiveFragmentViewModel mViewModel;
+    private LiveData<List<Integer>> mSleepSessionDataIds;
+
+//*********************************************************
+// private constants
+//*********************************************************
 
     private static final String TAG = "RecyclerViewAdapter";
+    
+
+//*********************************************************
+// public helpers
+//*********************************************************
 
     // inspired by https://stackoverflow.com/a/45336315
     public interface LifeCycleOwnerProvider
     {
         public LifecycleOwner getLifeCycleOwner();
     }
+    
+//*********************************************************
+// package helpers
+//*********************************************************
 
-    private LifeCycleOwnerProvider mLifeCycleOwnerProvider;
-    private SessionArchiveFragmentViewModel mViewModel;
-    private LiveData<List<Integer>> mSleepSessionDataIds;
+    static class ViewHolder
+            extends RecyclerView.ViewHolder
+    {
+        TextView startTime;
+        TextView stopTime;
+        TextView duration;
+        
+        public ViewHolder(@NonNull View itemView)
+        {
+            super(itemView);
+            
+            this.startTime = itemView.findViewById(R.id.session_archive_list_item_start_VALUE);
+            this.stopTime = itemView.findViewById(R.id.session_archive_list_item_stop_VALUE);
+            this.duration = itemView.findViewById(R.id.session_archive_list_item_duration_VALUE);
+        }
+    }
+    
+//*********************************************************
+// constructors
+//*********************************************************
 
     public SessionArchiveRecyclerViewAdapter(
             SessionArchiveFragmentViewModel viewModel,
@@ -42,72 +79,70 @@ public class SessionArchiveRecyclerViewAdapter extends RecyclerView.Adapter<Sess
     {
         mViewModel = viewModel;
         mLifeCycleOwnerProvider = lifeCycleOwnerProvider;
-
+        
         mSleepSessionDataIds = mViewModel.getAllSleepSessionDataIds();
         mSleepSessionDataIds.observe(
                 mLifeCycleOwnerProvider.getLifeCycleOwner(),
-                new Observer<List<Integer>>() {
+                new Observer<List<Integer>>()
+                {
                     @Override
-                    public void onChanged(List<Integer> integers) {
+                    public void onChanged(List<Integer> integers)
+                    {
                         notifyDataSetChanged();
                     }
                 });
     }
+    
+//*********************************************************
+// overrides
+//*********************************************************
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
     {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.session_archive_list_item, parent, false);
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.session_archive_list_item, parent, false);
         return new ViewHolder(view);
     }
-
+    
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position)
     {
         bindToViewModel(holder, position);
     }
-
+    
     @Override
     public int getItemCount()
     {
         List<Integer> ids = mSleepSessionDataIds.getValue();
         if (ids == null) { return 0; }
-
+        
         int itemCount = ids.size();
         Log.d(TAG, "getItemCount: itemCount is " + itemCount);
-
+        
         return itemCount;
     }
-
-    static class ViewHolder extends RecyclerView.ViewHolder
-    {
-        TextView startTime;
-        TextView stopTime;
-        TextView duration;
-
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-
-            this.startTime = itemView.findViewById(R.id.session_archive_list_item_start_VALUE);
-            this.stopTime = itemView.findViewById(R.id.session_archive_list_item_stop_VALUE);
-            this.duration = itemView.findViewById(R.id.session_archive_list_item_duration_VALUE);
-        }
-    }
+    
+//*********************************************************
+// private methods
+//*********************************************************
 
     private void bindToViewModel(final ViewHolder viewHolder, final int position)
     {
         LiveData<UISleepSessionData> uiSleepSessionData = mViewModel.getSleepSessionData(
                 mSleepSessionDataIds.getValue().get(position));
         LifecycleOwner lifecycleOwner = mLifeCycleOwnerProvider.getLifeCycleOwner();
-
+        
         // I thought the new Observer here might leak memory and cause duplicate updates, but
         // getSleepSession data provides a new livedata instance so I should be ok?
         uiSleepSessionData.observe(
                 lifecycleOwner,
-                new Observer<UISleepSessionData>() {
+                new Observer<UISleepSessionData>()
+                {
                     @Override
-                    public void onChanged(UISleepSessionData uiSleepSessionData) {
+                    public void onChanged(UISleepSessionData uiSleepSessionData)
+                    {
                         viewHolder.startTime.setText(uiSleepSessionData.startTime);
                         viewHolder.stopTime.setText(uiSleepSessionData.endTime);
                         viewHolder.duration.setText(uiSleepSessionData.sessionDuration);

@@ -1,11 +1,6 @@
 package com.rbraithwaite.sleepapp.ui_tests;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.testing.FragmentScenario;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
@@ -14,17 +9,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.rbraithwaite.sleepapp.HiltFragmentScenarioWorkaround;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.TestUtils;
-import com.rbraithwaite.sleepapp.data.SleepAppDataPrefs;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragment;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFragment;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import kotlin.jvm.internal.MagicApiIntrinsics;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
@@ -44,16 +34,29 @@ public class SleepTrackerFragmentTests
 //    public void teardown() {
 //        // todo
 //        //  consider using Android Test Orchestrator
-//        //  https://developer.android.com/training/testing/junit-runner.html#using-android-test-orchestrator
+//        //  https://developer.android.com/training/testing/junit-runner
+//        .html#using-android-test-orchestrator
 //        //  https://stackoverflow.com/a/49552561
 //        TestUtils.resetDatabase();
 //        TestUtils.resetSharedPreferences();
 //    }
 
+//*********************************************************
+// private properties
+//*********************************************************
+
+    private MutableLiveData<Integer> sessionArchiveCount = new MutableLiveData<>(null);
+
+//*********************************************************
+// api
+//*********************************************************
+
     @Test
-    public void sleepTrackerButtonTextChangesOnSessionStatus() {
+    public void sleepTrackerButtonTextChangesOnSessionStatus()
+    {
         // GIVEN the user is on the sleep tracker screen
-//        FragmentScenario<SleepTrackerFragment> fragmentScenario = FragmentScenario.launchInContainer(SleepTrackerFragment.class);
+//        FragmentScenario<SleepTrackerFragment> fragmentScenario = FragmentScenario
+//        .launchInContainer(SleepTrackerFragment.class);
         ActivityScenario<HiltFragmentScenarioWorkaround> scenario =
                 HiltFragmentScenarioWorkaround.launchFragmentInHiltContainer(SleepTrackerFragment.class);
         // AND there is no current session
@@ -76,7 +79,8 @@ public class SleepTrackerFragmentTests
     }
 
     @Test
-    public void addSessionToArchiveWithSleepTrackerButton() throws InterruptedException {
+    public void addSessionToArchiveWithSleepTrackerButton() throws InterruptedException
+    {
         ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
 
         TestUtils.InstrumentationLiveDataSynchronizer<Integer> synchronizer =
@@ -105,23 +109,33 @@ public class SleepTrackerFragmentTests
         assertThat(updatedCount, is(greaterThan(initialCount)));
     }
 
-    private void navigateFromSleepTrackerToSessionArchive() {
+//*********************************************************
+// private methods
+//*********************************************************
+
+    private void navigateFromSleepTrackerToSessionArchive()
+    {
         openActionBarOverflowOrOptionsMenu(ApplicationProvider.getApplicationContext());
         onView(withText("Session Archive")).perform(click());
     }
 
-    private MutableLiveData<Integer> sessionArchiveCount = new MutableLiveData<>(null);
     private void updateSessionArchiveCount(
             ActivityScenario<MainActivity> scenario,
             TestUtils.InstrumentationLiveDataSynchronizer<Integer> synchronizer)
     {
         // assumes session archive fragment is open
-        scenario.onActivity(new ActivityScenario.ActivityAction<MainActivity>() {
+        scenario.onActivity(new ActivityScenario.ActivityAction<MainActivity>()
+        {
             @Override
-            public void perform(MainActivity activity) {
+            public void perform(MainActivity activity)
+            {
                 // https://stackoverflow.com/a/59279744
-                Fragment navHostFragment = activity.getSupportFragmentManager().findFragmentById(R.id.main_navhost);
-                SessionArchiveFragment fragment = (SessionArchiveFragment) navHostFragment.getChildFragmentManager().getFragments().get(0);
+                Fragment navHostFragment =
+                        activity.getSupportFragmentManager().findFragmentById(R.id.main_navhost);
+                SessionArchiveFragment fragment =
+                        (SessionArchiveFragment) navHostFragment.getChildFragmentManager()
+                                .getFragments()
+                                .get(0);
 
                 sessionArchiveCount.setValue(fragment.getRecyclerViewAdapter().getItemCount());
             }

@@ -13,7 +13,6 @@ import com.rbraithwaite.sleepapp.data.database.tables.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
 import com.rbraithwaite.sleepapp.data.database.views.dao.SleepSessionDataDao;
 
-import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -25,39 +24,52 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 @RunWith(AndroidJUnit4.class)
-public class SleepSessionDataDaoTests {
+public class SleepSessionDataDaoTests
+{
+//*********************************************************
+// private properties
+//*********************************************************
 
     private SleepAppDatabase database;
     private SleepSessionDataDao sleepSessionDataDao;
+
+//*********************************************************
+// public properties
+//*********************************************************
 
     @Rule
     // protection against potentially infinitely blocked threads
     public Timeout timeout = new Timeout(10, TimeUnit.SECONDS);
 
+//*********************************************************
+// api
+//*********************************************************
+
     @Before
-    public void setup() {
+    public void setup()
+    {
         Context context = ApplicationProvider.getApplicationContext();
         database = Room.inMemoryDatabaseBuilder(context, SleepAppDatabase.class).build();
         sleepSessionDataDao = database.getSleepSessionDataDao();
     }
 
     @After
-    public void teardown() {
+    public void teardown()
+    {
         database.close();
         database = null;
     }
 
     @Test
-    public void getAllSleepSessionDataIds_returnsEmptyListWhenViewIsEmpty() {
+    public void getAllSleepSessionDataIds_returnsEmptyListWhenViewIsEmpty()
+    {
         LiveData<List<Integer>> ids = sleepSessionDataDao.getAllSleepSessionDataIds();
 
         TestUtils.InstrumentationLiveDataSynchronizer<List<Integer>> synchronizer =
@@ -67,7 +79,9 @@ public class SleepSessionDataDaoTests {
     }
 
     @Test
-    public void getAllSleepSessionDataIds_LiveDataUpdatesWhenSleepSessionIsAdded() throws InterruptedException {
+    public void getAllSleepSessionDataIds_LiveDataUpdatesWhenSleepSessionIsAdded() throws
+            InterruptedException
+    {
         LiveData<List<Integer>> ids = sleepSessionDataDao.getAllSleepSessionDataIds();
 
         TestUtils.InstrumentationLiveDataSynchronizer<List<Integer>> synchronizer =
@@ -77,7 +91,8 @@ public class SleepSessionDataDaoTests {
         assertThat(ids.getValue().size(), is(0));
 
         // assert livedata was updated
-        int id = (int) database.getSleepSessionDao().addSleepSession(TestUtils.ArbitraryData.getSleepSessionEntity());
+        int id = (int) database.getSleepSessionDao()
+                .addSleepSession(TestUtils.ArbitraryData.getSleepSessionEntity());
         assertThat(id, is(not(0)));
 
         synchronizer.sync();
@@ -86,7 +101,8 @@ public class SleepSessionDataDaoTests {
     }
 
     @Test
-    public void getSleepSessionData_returnsNullWhenBadId() {
+    public void getSleepSessionData_returnsNullWhenBadId()
+    {
         int badId = 0; // bad since db is empty
         LiveData<SleepSessionData> sleepSession = sleepSessionDataDao.getSleepSessionData(badId);
 
@@ -97,7 +113,8 @@ public class SleepSessionDataDaoTests {
     }
 
     @Test
-    public void getSleepSessionData_positiveInput() {
+    public void getSleepSessionData_positiveInput()
+    {
         SleepSessionEntity expectedData = TestUtils.ArbitraryData.getSleepSessionEntity();
         int id = (int) database.getSleepSessionDao().addSleepSession(expectedData);
 
@@ -114,7 +131,8 @@ public class SleepSessionDataDaoTests {
     }
 
     @Test
-    public void getSleepSessionData_updatesNullLiveData() {
+    public void getSleepSessionData_updatesNullLiveData()
+    {
         int id = 1;
 
         LiveData<SleepSessionData> sleepSessionLiveData

@@ -23,42 +23,63 @@ import com.rbraithwaite.sleepapp.R;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class SleepTrackerFragment extends Fragment {
+public class SleepTrackerFragment
+        extends Fragment
+{
+//*********************************************************
+// private properties
+//*********************************************************
 
     private SleepTrackerFragmentViewModel mViewModel;
 
-    public SleepTrackerFragment() {
+//*********************************************************
+// constructors
+//*********************************************************
+
+    public SleepTrackerFragment()
+    {
         setHasOptionsMenu(true);
     }
 
+
 //*********************************************************
-// Lifecycle callbacks
+// overrides
 //*********************************************************
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState)
+    {
         return inflater.inflate(R.layout.sleep_fragment, container, false);
     }
 
     @Override
-    public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState)
+    {
         final Button sleepTrackerButton = view.findViewById(R.id.sleep_tracker_button);
 
-        getViewModelWithActivity().inSleepSession(requireContext()).observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean inSleepSession) {
-                if (inSleepSession) {
-                    sleepTrackerButton.setText(R.string.sleep_tracker_button_stop);
-                } else {
-                    sleepTrackerButton.setText(R.string.sleep_tracker_button_start);
-                }
-            }
-        });
+        getViewModelWithActivity().inSleepSession(requireContext())
+                .observe(getViewLifecycleOwner(), new Observer<Boolean>()
+                {
+                    @Override
+                    public void onChanged(Boolean inSleepSession)
+                    {
+                        if (inSleepSession) {
+                            sleepTrackerButton.setText(R.string.sleep_tracker_button_stop);
+                        } else {
+                            sleepTrackerButton.setText(R.string.sleep_tracker_button_start);
+                        }
+                    }
+                });
 
-        sleepTrackerButton.setOnClickListener(new View.OnClickListener() {
+        sleepTrackerButton.setOnClickListener(new View.OnClickListener()
+        {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v)
+            {
                 SleepTrackerFragmentViewModel viewModel = getViewModelWithActivity();
                 Boolean inSleepSession = viewModel.inSleepSession(requireContext()).getValue();
                 if (inSleepSession) {
@@ -70,33 +91,36 @@ public class SleepTrackerFragment extends Fragment {
         });
     }
 
-//*********************************************************
-// Fragment overrides
-//*********************************************************
 
     @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater)
+    {
         inflater.inflate(R.menu.sleeptracker_menu, menu);
     }
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item)
+    {
         switch (item.getItemId()) {
-            default:
-                // handle nav menu items
-                NavController navController = Navigation.findNavController(requireActivity(), R.id.main_navhost);
-                return NavigationUI.onNavDestinationSelected(item, navController)
-                        || super.onOptionsItemSelected(item);
+        default:
+            // handle nav menu items
+            NavController navController =
+                    Navigation.findNavController(requireActivity(), R.id.main_navhost);
+            return NavigationUI.onNavDestinationSelected(item, navController)
+                   || super.onOptionsItemSelected(item);
         }
     }
 
+
 //*********************************************************
-// private
+// private methods
 //*********************************************************
 
-    private SleepTrackerFragmentViewModel getViewModelWithActivity() {
+    private SleepTrackerFragmentViewModel getViewModelWithActivity()
+    {
         if (mViewModel == null) {
-            mViewModel = new ViewModelProvider(requireActivity()).get(SleepTrackerFragmentViewModel.class);
+            mViewModel =
+                    new ViewModelProvider(requireActivity()).get(SleepTrackerFragmentViewModel.class);
         }
         return mViewModel;
     }
