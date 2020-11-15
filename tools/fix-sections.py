@@ -44,7 +44,7 @@ the ones used to reformat and rearrange the code. (ie, recursive
 subdirectories and VCS mask)
 """
 
-USAGE = "python -m fix-sections <path> [--sub|--vcs]"
+USAGE = "python -m fix-sections <path>... [--sub|--vcs]"
 
 PREFIX_SECTION_HEADER = "//!section!"
 PREFIX_SECTION_END = "//!end!"
@@ -64,7 +64,7 @@ def initArgParser():
         usage=USAGE,
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("path", help="Can be a directory or file. Should be absolute. Should match what was reformatted in Android Studio.")
+    parser.add_argument("path", nargs="+", help="Can be a directory or file. Should be absolute. Should match what was reformatted in Android Studio.")
     parser.add_argument("-s", "--sub", action="store_true", help="If the path is a directory, apply this script recursively to all subdirs.")
     parser.add_argument("-v", "--vcs", action="store_true", help="Only apply this script to changed files in the repo index.")
 
@@ -79,16 +79,20 @@ def validatePathExists(path:str):
         sys.exit(1)
 
 #_____________________________________________________________________________________________
-def collectJavaFiles(path:str, searchSubdirs:bool, vcsOnly:bool)->list:
+def collectJavaFiles(paths:list, searchSubdirs:bool, vcsOnly:bool)->set:
     """Collects a list of java files which match the provided args, and have been rearranged"""
 
-    files = []
-    # path is file
-    if os.path.isfile(path):
-        files.append(os.path.abspath(path))
-    # path is dir
-    elif searchSubdirs: files = getJavaFilesFromTree(path)
-    else: files = getJavaFilesFromDir(path)
+    files = set()
+
+    for path in paths:
+        # path is file
+        if os.path.isfile(path):
+            files.add(os.path.abspath(path))
+        # path is dir
+        elif searchSubdirs: 
+            files.update(getJavaFilesFromTree(path))
+        else: 
+            files.update(getJavaFilesFromDir(path))
 
     if vcsOnly: files = filterVcsOnly(files)
 
@@ -130,33 +134,33 @@ def getJavaFilesFromDir(d:str)->list:
     return [os.path.join(os.path.abspath(d), f) for f in filenames if isJavaFile(f)]
 
 #_____________________________________________________________________________________________
-def filterVcsOnly(fileList:list)->list:
+def filterVcsOnly(fileList:set)->set:
     """only returns files which have changed from the last commit"""
 
     changedFiles = getChangedJavaFilesInRepo()
-    return [f for f in fileList if f in changedFiles]
+    return {f for f in fileList if f in changedFiles}
 
 
 #_____________________________________________________________________________________________
 def getChangedJavaFilesInRepo()->list:
-    gitOuput = str(
+    gitOutput = str(
         subprocess.check_output("git diff --name-only".split(), stderr=subprocess.DEVNULL),
         encoding="utf-8")
-    javaFiles = [os.path.abspath(filename) for filename in gitOuput.split() if isJavaFile(filename)]
+    javaFiles = [os.path.abspath(filename) for filename in gitOutput.split() if isJavaFile(filename)]
 
     return javaFiles
 
 #_____________________________________________________________________________________________
-def filterRearrangedOnly(fileList:list)->list:
+def filterRearrangedOnly(fileList:set)->set:
     def fileWasRearranged(line:str)->bool:
         return isSectionHeader(line)
 
-    result = []
+    result = set()
     for f in fileList:
         with open(f) as javaFile:
             for line in javaFile:
                 if fileWasRearranged(line):
-                    result.append(f)
+                    result.add(f)
                     break
     return result
 
@@ -271,7 +275,8 @@ if __name__ == "__main__":
     parser = initArgParser()
     args = parser.parse_args()
 
-    validatePathExists(args.path)
+    for p in args.path:
+        validatePathExists(p)
 
     filelist = collectJavaFiles(args.path, args.sub, args.vcs)
 
