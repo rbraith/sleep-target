@@ -7,6 +7,8 @@ import androidx.test.core.app.ActivityScenario;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
+// REFACTOR [20-11-14 4:37PM] -- idk why this is in debug, try putting it into sharedTest?
+//  maybe it needs to stay in debug since the androidTestImplementation is debugImplementation now?
 // https://dagger.dev/hilt/testing
 // "Warning:Hilt does not currently support FragmentScenario because there is no way to specify an
 // activity class, and Hilt requires a Hilt fragment to be contained in a Hilt activity. One
@@ -14,7 +16,8 @@ import dagger.hilt.android.AndroidEntryPoint;
 // for this is to launch a Hilt activity and then attach your fragment."
 //
 // https://stackoverflow.com/a/64620273
-// https://github.com/android/architecture-samples/blob/f2fd9ce969a431b20218f3ace38bbb95fd4d1151/app/src/androidTest/java/com/example/android/architecture/blueprints/todoapp/HiltExt.kt
+// https://github.com/android/architecture-samples/blob/f2fd9ce969a431b20218f3ace38bbb95fd4d1151
+// /app/src/androidTest/java/com/example/android/architecture/blueprints/todoapp/HiltExt.kt
 // All this does is create a bare-bones hilt activity containing the provided fragment.
 // You unfortunately lose the lifecycle-transition capabilities of FragmentScenario. I tried looking
 // at the FragmentScenario source, but its a final class so I don't think there's anything I can do.
@@ -28,7 +31,7 @@ public class HiltFragmentScenarioWorkaround
 //*********************************************************
 
     private static final String FRAGMENT_TAG = "hilt fragment";
-    
+
 //*********************************************************
 // api
 //*********************************************************

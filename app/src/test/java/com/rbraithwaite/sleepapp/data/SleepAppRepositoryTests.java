@@ -22,7 +22,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -49,18 +48,9 @@ public class SleepAppRepositoryTests
     SleepAppDataPrefs mockPrefs;
     SleepAppDatabase mockDatabase;
     
-    Executor synchronousExecutor = new Executor()
-    {
-        @Override
-        public void execute(Runnable command)
-        {
-            command.run();
-        }
-    };
-    
     SleepAppRepository repository;
     Context context;
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -70,6 +60,7 @@ public class SleepAppRepositoryTests
     {
         mockPrefs = mock(SleepAppDataPrefs.class);
         mockDatabase = mock(SleepAppDatabase.class);
+        Executor synchronousExecutor = new TestUtils.SynchronizedExecutor();
         repository = new SleepAppRepository(mockPrefs, mockDatabase, synchronousExecutor);
         
         context = ApplicationProvider.getApplicationContext();
@@ -82,6 +73,21 @@ public class SleepAppRepositoryTests
         mockDatabase = null;
         repository = null;
         context = null;
+    }
+    
+    @Test
+    public void setCurrentSession_setsCurrentSession()
+    {
+        Date testStartTime = TestUtils.ArbitraryData.getDate();
+        repository.setCurrentSession(context, testStartTime);
+        verify(mockPrefs, times(1)).setCurrentSession(context, testStartTime);
+    }
+    
+    @Test
+    public void clearCurrentSession_callsPrefs()
+    {
+        repository.clearCurrentSession(context);
+        verify(mockPrefs, times(1)).setCurrentSession(context, null);
     }
     
     
@@ -156,11 +162,12 @@ public class SleepAppRepositoryTests
     }
     
     
-    // TODO this test just duplicates getAllSleepSessionIds_returnEmptyListWhenNoIds
+    // REFACTOR [20-11-14 8:08PM] -- this test just duplicates
+    //  getAllSleepSessionIds_returnEmptyListWhenNoIds
     @Test
     public void getAllSleepSessionIds_returnsAllIds()
     {
-        List<Integer> testIdData = Arrays.asList(1, 2, 3, 4);
+        List<Integer> testIdData = TestUtils.ArbitraryData.getIdList();
         
         SleepSessionDataDao mockSleepSessionDataDao = mock(SleepSessionDataDao.class);
         when(mockSleepSessionDataDao.getAllSleepSessionDataIds())

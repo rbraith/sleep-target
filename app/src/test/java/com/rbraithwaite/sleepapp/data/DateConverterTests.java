@@ -1,6 +1,6 @@
 package com.rbraithwaite.sleepapp.data;
 
-import com.rbraithwaite.sleepapp.data.database.convert.DateConverter;
+import com.rbraithwaite.sleepapp.data.convert.DateConverter;
 
 import org.junit.Test;
 

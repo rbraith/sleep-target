@@ -2,17 +2,17 @@ package com.rbraithwaite.sleepapp.ui.sleep_tracker;
 
 import android.content.Context;
 
+import androidx.arch.core.util.Function;
 import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.Observer;
+import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.data.SleepAppRepository;
 import com.rbraithwaite.sleepapp.data.database.tables.SleepSessionEntity;
+import com.rbraithwaite.sleepapp.utils.DateUtils;
 
 import java.util.Date;
-import java.util.GregorianCalendar;
 
 public class SleepTrackerFragmentViewModel
         extends ViewModel
@@ -25,7 +25,7 @@ public class SleepTrackerFragmentViewModel
     
     private LiveData<Date> mCurrentSleepSession;
     private LiveData<Boolean> mInSleepSession;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -36,61 +36,68 @@ public class SleepTrackerFragmentViewModel
         mRepository = repository;
     }
 
-    
+
 //*********************************************************
 // api
 //*********************************************************
 
     public LiveData<Boolean> inSleepSession(Context context)
     {
-        // TODO
-        //  should i add an empty observer to inSleepSession just to guarantee that its active?
         if (mInSleepSession == null) {
-            LiveData<Date> currentSleepSessionStartDate = getCurrentSleepSession(context);
-            final MediatorLiveData<Boolean> mediator = new MediatorLiveData<Boolean>();
-            mediator.addSource(currentSleepSessionStartDate, new Observer<Date>()
-            {
-                @Override
-                public void onChanged(Date date)
-                {
-                    mediator.setValue((date != null));
-                }
-            });
-            mInSleepSession = mediator;
+            mInSleepSession = Transformations.map(
+                    getCurrentSleepSession(context),
+                    new Function<Date, Boolean>()
+                    {
+                        @Override
+                        public Boolean apply(Date input)
+                        {
+                            return (input != null);
+                        }
+                    }
+            );
         }
         return mInSleepSession;
     }
     
+    /**
+     * If a new session is started while one is currently ongoing, the ongoing session is discarded.
+     * If you want to retain that session instead, call
+     * {@link SleepTrackerFragmentViewModel#endSleepSession(Context)}
+     * .
+     *
+     * @param context This is needed to persist the current session information
+     */
     public void startSleepSession(Context context)
     {
-        mRepository.setCurrentSession(context, new GregorianCalendar().getTime());
+        mRepository.setCurrentSession(context, DateUtils.getNow());
     }
     
     public void endSleepSession(Context context)
     {
+        // TODO [20-11-14 5:43PM] -- add an internal observer to inSleepSession to
+        //  guarantee its active here?
         if (inSleepSession(context).getValue()) {
-            Date currentSessionEnd = new GregorianCalendar().getTime();
             Date currentSessionStart = getCurrentSleepSession(context).getValue();
+            long durationMillis = calculateDurationMillis(currentSessionStart, DateUtils.getNow());
             
-            long durationMillis = currentSessionEnd.getTime() - currentSessionStart.getTime();
+            mRepository.addSleepSession(SleepSessionEntity.create(
+                    currentSessionStart,
+                    durationMillis));
             
-            SleepSessionEntity newSleepSession = new SleepSessionEntity();
-            newSleepSession.startTime = currentSessionStart;
-            newSleepSession.duration = durationMillis;
-            
-            mRepository.addSleepSession(newSleepSession);
-            
-            // clear the current session in storage
-            // TODO abstract this in the repo
-            mRepository.setCurrentSession(context, null);
+            mRepository.clearCurrentSession(context);
         }
     }
 
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
 
+    private long calculateDurationMillis(Date start, Date end)
+    {
+        return end.getTime() - start.getTime();
+    }
+    
     private LiveData<Date> getCurrentSleepSession(Context context)
     {
         if (mCurrentSleepSession == null) {

@@ -30,7 +30,7 @@ public class SessionArchiveFragment
     private SessionArchiveFragmentViewModel mViewModel;
     
     private SessionArchiveRecyclerViewAdapter mRecyclerViewAdapter;
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -48,9 +48,7 @@ public class SessionArchiveFragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
     {
-        RecyclerView recyclerView = view.findViewById(R.id.session_archive_list);
-        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        recyclerView.setAdapter(getRecyclerViewAdapter());
+        initRecyclerView(view);
     }
     
     @Override
@@ -68,7 +66,7 @@ public class SessionArchiveFragment
         setMainActivityBottomNavVisibility(true);
     }
 
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -90,24 +88,30 @@ public class SessionArchiveFragment
         return mRecyclerViewAdapter;
     }
 
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
 
+    private void initRecyclerView(@NonNull View fragmentRoot)
+    {
+        RecyclerView recyclerView = fragmentRoot.findViewById(R.id.session_archive_list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        recyclerView.setAdapter(getRecyclerViewAdapter());
+    }
+    
     private void setMainActivityBottomNavVisibility(boolean visibility)
     {
         FragmentActivity activity = getActivity();
         // its possible this fragment will not be inside a MainActivity (eg it could
         // be inside a test-specific activity)
-        // TODO type check (code smell)
+        // SMELL [20-11-14 5:05PM] -- type check.
         if (activity instanceof MainActivity) {
             ((MainActivity) activity).setBottomNavVisibility(visibility);
         }
     }
     
-    // TODO
-    //  duplicate code in SleepTrackerFragment
+    // REFACTOR [20-11-14 5:06PM] -- duplicate code in SleepTrackerFragment
     //  consider making a generic base fragment w/ common viewmodel ops
     private SessionArchiveFragmentViewModel getViewModelWithActivity()
     {

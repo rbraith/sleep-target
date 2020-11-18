@@ -16,7 +16,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -36,7 +35,7 @@ public class SessionArchiveFragmentViewModelTests
 
     SleepAppRepository mockRepository;
     SessionArchiveFragmentViewModel viewModel;
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -88,6 +87,9 @@ public class SessionArchiveFragmentViewModelTests
         when(mockRepository.getSleepSessionData(sessionID)).thenReturn(mockLiveData);
         
         LiveData<UISleepSessionData> retrievedUILiveData = viewModel.getSleepSessionData(sessionID);
+        // REFACTOR [20-11-14 7:50PM] -- consider grouping LiveData utils into TestUtils
+        //  .LiveDataUtils
+        //  (this would include the synchronizers)
         TestUtils.activateLocalLiveData(retrievedUILiveData);
         
         UISleepSessionData retrievedUIData = retrievedUILiveData.getValue();
@@ -111,7 +113,7 @@ public class SessionArchiveFragmentViewModelTests
     public void getAllSleepSessionIds_returnsIds()
     {
         LiveData<List<Integer>> testList =
-                new MutableLiveData<List<Integer>>(Arrays.asList(1, 2, 3));
+                new MutableLiveData<>(TestUtils.ArbitraryData.getIdList());
         when(mockRepository.getAllSleepSessionDataIds()).thenReturn(testList);
         LiveData<List<Integer>> ids = viewModel.getAllSleepSessionDataIds();
         

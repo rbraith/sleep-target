@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.rbraithwaite.sleepapp.data.database.convert.DateConverter;
+import com.rbraithwaite.sleepapp.data.convert.DateConverter;
 
 import java.util.Date;
 import java.util.concurrent.Executor;
@@ -35,10 +35,10 @@ public class SleepAppDataPrefs
 // public constants
 //*********************************************************
 
-    // made these public to allow tests to reset the shared prefs
-    // TODO not ideal, find a better solution
+    // HACK [20-11-14 8:06PM] -- made this public to allow tests to reset the shared prefs
+    //  not ideal, find a better solution.
     public static final String PREFS_FILE_KEY = "com.rbraithwaite.sleepapp.PREFS_FILE_KEY";
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -48,6 +48,7 @@ public class SleepAppDataPrefs
     {
         mExecutor = executor;
     }
+
 
 //*********************************************************
 // api
@@ -90,6 +91,7 @@ public class SleepAppDataPrefs
             public void run()
             {
                 Date result = null;
+                // SMELL [20-11-14 4:58PM] -- race condition between here and setCurrentSession?
                 long currentSessionStartDate =
                         getSharedPrefs(context).getLong(CURRENT_SESSION_KEY, NULL_VAL);
                 if (currentSessionStartDate != NULL_VAL) {
@@ -101,7 +103,7 @@ public class SleepAppDataPrefs
         return mCurrentSession;
     }
 
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

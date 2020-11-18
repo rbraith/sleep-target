@@ -8,12 +8,14 @@ import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.data.SleepAppRepository;
 import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
+import com.rbraithwaite.sleepapp.ui.Constants;
+import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_archive.data.UISleepSessionData;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Locale;
 
 public class SessionArchiveFragmentViewModel
         extends ViewModel
@@ -23,7 +25,7 @@ public class SessionArchiveFragmentViewModel
 //*********************************************************
 
     private SleepAppRepository mRepository;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -33,7 +35,7 @@ public class SessionArchiveFragmentViewModel
     {
         mRepository = repository;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -58,11 +60,12 @@ public class SessionArchiveFragmentViewModel
         return mRepository.getAllSleepSessionDataIds();
     }
 
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
 
+    // REFACTOR [20-11-15 3:54PM] -- consider extracting this method?
     private UISleepSessionData convertSleepSessionDataToUI(SleepSessionData data)
     {
         if (data == null) {
@@ -70,31 +73,17 @@ public class SessionArchiveFragmentViewModel
         }
         
         SimpleDateFormat sleepSessionTimeFormat =
-                new SimpleDateFormat("h:mm a, MMM d yyyy", Locale.CANADA);
-        
-        UISleepSessionData uiData = new UISleepSessionData();
-        uiData.startTime = sleepSessionTimeFormat.format(data.startTime);
-        
-        // calculate end date
-        GregorianCalendar calendar = new GregorianCalendar();
-        calendar.setTimeInMillis(data.startTime.getTime() + data.duration);
-        
-        uiData.endTime = sleepSessionTimeFormat.format(calendar.getTime());
-        
-        uiData.sessionDuration = formatSessionDuration(data.duration);
-        
-        return uiData;
+                new SimpleDateFormat(Constants.STANDARD_DATE_FORMAT, Constants.STANDARD_LOCALE);
+        return UISleepSessionData.create(
+                sleepSessionTimeFormat.format(data.startTime),
+                sleepSessionTimeFormat.format(calculateEndTime(data.startTime, data.duration)),
+                new DurationFormatter().formatDurationMillis(data.duration));
     }
     
-    private String formatSessionDuration(long sessionDurationMillis)
+    private Date calculateEndTime(Date startTime, long durationMillis)
     {
-        long durationAsSeconds = sessionDurationMillis / 1000L;
-        
-        long durationAsMinutes = durationAsSeconds / 60;
-        long seconds = durationAsSeconds % 60;
-        long minutes = durationAsMinutes % 60;
-        long hours = durationAsMinutes / 60;
-        
-        return String.format(Locale.CANADA, "%dh %02dm %02ds", hours, minutes, seconds);
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTimeInMillis(startTime.getTime() + durationMillis);
+        return calendar.getTime();
     }
 }

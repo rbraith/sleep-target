@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey;
 
 import java.util.Date;
 
-@Entity(tableName = "sleep_sessions")
+@Entity(tableName = SleepSessionContract.TABLE_NAME)
 public class SleepSessionEntity
 {
 //*********************************************************
@@ -15,11 +15,23 @@ public class SleepSessionEntity
 //*********************************************************
 
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "id")
+    @ColumnInfo(name = SleepSessionContract.Columns.ID)
     public int id;
     
-    @ColumnInfo(name = "start_time")
+    @ColumnInfo(name = SleepSessionContract.Columns.START_TIME)
     public Date startTime;
-    @ColumnInfo(name = "duration")
+    @ColumnInfo(name = SleepSessionContract.Columns.DURATION)
     public long duration;
+    
+//*********************************************************
+// api
+//*********************************************************
+
+    public static SleepSessionEntity create(Date startTime, long duration)
+    {
+        SleepSessionEntity entity = new SleepSessionEntity();
+        entity.startTime = startTime;
+        entity.duration = duration;
+        return entity;
+    }
 }

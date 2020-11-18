@@ -37,7 +37,7 @@ public class SleepSessionDaoTests
 
     private SleepAppDatabase database;
     private SleepSessionDao sleepSessionDao;
-    
+
 //*********************************************************
 // public properties
 //*********************************************************
@@ -45,7 +45,7 @@ public class SleepSessionDaoTests
     @Rule
     // protection against potentially infinitely blocked threads
     public Timeout timeout = new Timeout(10, TimeUnit.SECONDS);
-    
+
 //*********************************************************
 // api
 //*********************************************************

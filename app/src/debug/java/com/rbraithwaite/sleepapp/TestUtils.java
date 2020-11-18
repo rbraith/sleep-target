@@ -13,8 +13,10 @@ import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
 import com.rbraithwaite.sleepapp.data.database.tables.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 public class TestUtils
@@ -102,6 +104,8 @@ public class TestUtils
      */
     public static class ArbitraryData
     {
+        public static List<Integer> getIdList() { return Arrays.asList(1, 2, 3, 4, 5); }
+        
         public static Date getDate()
         {
             return new GregorianCalendar(2019, 8, 7, 6, 5).getTime();
@@ -128,6 +132,7 @@ public class TestUtils
         public static long getDurationMillis() {return 5000L;}
     }
 
+
 //*********************************************************
 // package helpers
 //*********************************************************
@@ -139,6 +144,7 @@ public class TestUtils
     static abstract class LiveDataSynchronizerBase<T>
     {
         private ThreadBlocker mBlocker = new ThreadBlocker();
+
 
         
         /**
@@ -165,12 +171,14 @@ public class TestUtils
         //      "If LiveData already has data set, it will be delivered to the observer."
         public abstract void attachObserver(LiveData<T> liveData, Observer<T> observer);
 
+
         
         /**
          * Blocks the current thread until the database has updated the LiveData.
          */
         public void sync() { mBlocker.blockThread(); }
     }
+
 
 //*********************************************************
 // api

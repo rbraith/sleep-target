@@ -55,12 +55,38 @@ public class SleepTrackerFragment
     {
         return inflater.inflate(R.layout.sleep_fragment, container, false);
     }
-
+    
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState)
     {
-        final Button sleepTrackerButton = view.findViewById(R.id.sleep_tracker_button);
+        initSleepTrackerButton(view);
+    }
+    
+    
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater)
+    {
+        inflater.inflate(R.menu.sleeptracker_menu, menu);
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item)
+    {
+        switch (item.getItemId()) {
+        default:
+            return handleNavigationMenuItem(item);
+        }
+    }
 
+
+//*********************************************************
+// private methods
+//*********************************************************
+
+    private void initSleepTrackerButton(View fragmentRoot)
+    {
+        final Button sleepTrackerButton = fragmentRoot.findViewById(R.id.sleep_tracker_button);
+        
         getViewModelWithActivity().inSleepSession(requireContext())
                 .observe(getViewLifecycleOwner(), new Observer<Boolean>()
                 {
@@ -74,7 +100,7 @@ public class SleepTrackerFragment
                         }
                     }
                 });
-
+        
         sleepTrackerButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -90,32 +116,17 @@ public class SleepTrackerFragment
             }
         });
     }
-
-
-    @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater)
+    
+    // REFACTOR [20-11-15 1:55AM] -- should extract this as a general utility.
+    private boolean handleNavigationMenuItem(MenuItem item)
     {
-        inflater.inflate(R.menu.sleeptracker_menu, menu);
+        NavController navController =
+                Navigation.findNavController(requireActivity(), R.id.main_navhost);
+        return NavigationUI.onNavDestinationSelected(item, navController)
+               || super.onOptionsItemSelected(item);
     }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item)
-    {
-        switch (item.getItemId()) {
-        default:
-            // handle nav menu items
-            NavController navController =
-                    Navigation.findNavController(requireActivity(), R.id.main_navhost);
-            return NavigationUI.onNavDestinationSelected(item, navController)
-                   || super.onOptionsItemSelected(item);
-        }
-    }
-
-
-//*********************************************************
-// private methods
-//*********************************************************
-
+    
+    // REFACTOR [20-11-14 5:35PM] -- see SessionArchiveFragment.getViewModelWithActivity
     private SleepTrackerFragmentViewModel getViewModelWithActivity()
     {
         if (mViewModel == null) {

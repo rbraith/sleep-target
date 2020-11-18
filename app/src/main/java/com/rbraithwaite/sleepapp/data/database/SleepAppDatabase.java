@@ -4,7 +4,7 @@ import androidx.room.Database;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
-import com.rbraithwaite.sleepapp.data.database.convert.DateConverter;
+import com.rbraithwaite.sleepapp.data.convert.DateConverter;
 import com.rbraithwaite.sleepapp.data.database.tables.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.dao.SleepSessionDao;
 import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
@@ -24,7 +24,7 @@ public abstract class SleepAppDatabase
 //*********************************************************
 
     public static String NAME = "sleepapp.db";
-    
+
 //*********************************************************
 // abstract
 //*********************************************************

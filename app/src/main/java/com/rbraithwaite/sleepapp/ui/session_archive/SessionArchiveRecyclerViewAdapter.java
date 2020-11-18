@@ -20,9 +20,9 @@ import java.util.List;
 public class SessionArchiveRecyclerViewAdapter
         extends RecyclerView.Adapter<SessionArchiveRecyclerViewAdapter.ViewHolder>
 {
-    // TODO
-    //  consider retaining a cache of retrieved data points, to speed things up?
-    
+    // OPTIMIZE [20-11-14 5:20PM] -- consider retaining a cache of retrieved data
+    //  points, to speed things up?
+
 //*********************************************************
 // private properties
 //*********************************************************
@@ -36,7 +36,7 @@ public class SessionArchiveRecyclerViewAdapter
 //*********************************************************
 
     private static final String TAG = "RecyclerViewAdapter";
-    
+
 
 //*********************************************************
 // public helpers
@@ -47,7 +47,7 @@ public class SessionArchiveRecyclerViewAdapter
     {
         public LifecycleOwner getLifeCycleOwner();
     }
-    
+
 //*********************************************************
 // package helpers
 //*********************************************************
@@ -68,7 +68,7 @@ public class SessionArchiveRecyclerViewAdapter
             this.duration = itemView.findViewById(R.id.session_archive_list_item_duration_VALUE);
         }
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -92,7 +92,7 @@ public class SessionArchiveRecyclerViewAdapter
                     }
                 });
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -109,6 +109,9 @@ public class SessionArchiveRecyclerViewAdapter
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position)
     {
+        // REFACTOR [20-11-14 5:22PM] -- to make more OO, add this as a method in ViewHolder
+        //  ViewHolder might need a LifeCycleProvider ctor dependency in this case.
+        //  ehhhh maybe don't do this..... since bindToViewModel calls notifyItemChanged
         bindToViewModel(holder, position);
     }
     
@@ -123,7 +126,7 @@ public class SessionArchiveRecyclerViewAdapter
         
         return itemCount;
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

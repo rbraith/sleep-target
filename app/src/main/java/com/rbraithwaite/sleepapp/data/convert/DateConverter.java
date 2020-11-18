@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.data.database.convert;
+package com.rbraithwaite.sleepapp.data.convert;
 
 import androidx.room.TypeConverter;
 

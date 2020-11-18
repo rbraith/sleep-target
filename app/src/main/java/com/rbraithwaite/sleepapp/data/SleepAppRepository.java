@@ -25,7 +25,7 @@ public class SleepAppRepository
     private SleepAppDataPrefs mDataPrefs;
     private SleepAppDatabase mDatabase;
     private Executor mExecutor;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -40,7 +40,7 @@ public class SleepAppRepository
         mDatabase = database;
         mExecutor = executor;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -60,6 +60,11 @@ public class SleepAppRepository
     public void setCurrentSession(Context context, Date startTime)
     {
         mDataPrefs.setCurrentSession(context, startTime);
+    }
+    
+    public void clearCurrentSession(Context context)
+    {
+        setCurrentSession(context, null);
     }
     
     public LiveData<Date> getCurrentSession(Context context)
