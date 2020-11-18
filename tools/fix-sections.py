@@ -67,6 +67,7 @@ def initArgParser():
     parser.add_argument("path", nargs="+", help="Can be a directory or file. Should be absolute. Should match what was reformatted in Android Studio.")
     parser.add_argument("-s", "--sub", action="store_true", help="If the path is a directory, apply this script recursively to all subdirs.")
     parser.add_argument("-v", "--vcs", action="store_true", help="Only apply this script to changed files in the repo index.")
+    parser.add_argument("-c", "--clear", action="store_true", help="Delete existing section headers then quit.")
 
     return parser
 
@@ -189,7 +190,11 @@ def clearExistingSectionHeaders(lines:list)->list:
 
         if isExistingHeaderStart(line):
             # skip existing header
-            i += 2
+            i += 3
+            # fix for bug where fix-sections keeps adding more blank lines on iterative calls
+            # (basically, remove instances of blank lines added from processSectionRules())
+            if i < linesLength and not lines[i].isspace():
+                updatedLines.append(lines[i])
         else:
             # retain all other lines
             updatedLines.append(line)
@@ -280,6 +285,24 @@ if __name__ == "__main__":
 
     filelist = collectJavaFiles(args.path, args.sub, args.vcs)
 
+    # ________________________________________ clear headers only
+    if args.clear:
+        for f in filelist:
+            updatedLines = []
+            with open(f) as ff:
+                updatedLines = clearExistingSectionHeaders(ff.readlines())
+            with open(f, "w") as ff:
+                ff.writelines(updatedLines)
+                
+        print("\n".join([
+            "Cleared section headers in these files:",
+            "---------------------------------------------------------"
+        ]))
+        for f in fixedFiles: print(f)
+
+        sys.exit()
+
+    # ________________________________________ process files
     invalidFiles = []
     fixedFiles = []
     for f in filelist: 
