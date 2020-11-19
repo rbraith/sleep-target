@@ -1,10 +1,13 @@
 package com.rbraithwaite.sleepapp;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
+import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -25,6 +28,10 @@ public class TestUtils
 // public helpers
 //*********************************************************
 
+    public interface SyncedActivityAction<T extends Activity>
+    {
+        void perform(T activity);
+    }
     
     /**
      * Mainly use this to set external objs from within anon class overrides. Analogous to double
@@ -97,7 +104,8 @@ public class TestUtils
             observeLiveDataOnMainThread(liveData, observer, null);
         }
     }
-    
+
+
     /**
      * Provides fixed, arbitrary data for cases where the specific details of the data aren't
      * important.
@@ -132,8 +140,6 @@ public class TestUtils
         public static long getDurationMillis() {return 5000L;}
     }
 
-
-
 //*********************************************************
 // package helpers
 //*********************************************************
@@ -145,6 +151,7 @@ public class TestUtils
     static abstract class LiveDataSynchronizerBase<T>
     {
         private ThreadBlocker mBlocker = new ThreadBlocker();
+
 
         
         /**
@@ -171,17 +178,76 @@ public class TestUtils
         //      "If LiveData already has data set, it will be delivered to the observer."
         public abstract void attachObserver(LiveData<T> liveData, Observer<T> observer);
 
+
         
         /**
          * Blocks the current thread until the database has updated the LiveData.
          */
         public void sync() { mBlocker.blockThread(); }
     }
-
-
+    
 //*********************************************************
 // api
 //*********************************************************
+
+    public static <T extends Activity> void performSyncedActivityAction(
+            ActivityScenario<T> scenario,
+            final SyncedActivityAction<T> syncedActivityAction)
+    {
+        final ThreadBlocker blocker = new ThreadBlocker();
+        scenario.onActivity(new ActivityScenario.ActivityAction<T>()
+        {
+            @Override
+            public void perform(T activity)
+            {
+                syncedActivityAction.perform(activity);
+                blocker.unblockThread();
+            }
+        });
+        blocker.blockThread();
+    }
+    
+    /**
+     * @return false if the activity was already at the desiredOrientation
+     */
+    public static <T extends Activity> boolean rotateActivitySynced(
+            ActivityScenario<T> scenario,
+            final int desiredOrientation)
+    {
+        final TestUtils.DoubleRef<Boolean> inDesiredOrientation = new TestUtils.DoubleRef<>(false);
+        TestUtils.SyncedActivityAction<T> checkInDesiredOrientation =
+                new TestUtils.SyncedActivityAction<T>()
+                {
+                    @Override
+                    public void perform(T activity)
+                    {
+                        inDesiredOrientation.ref =
+                                (activity.getResources().getConfiguration().orientation ==
+                                 desiredOrientation);
+                    }
+                };
+        
+        // check if already oriented
+        performSyncedActivityAction(scenario, checkInDesiredOrientation);
+        if (inDesiredOrientation.ref) {return true;}
+        
+        // perform orientation change
+        performSyncedActivityAction(scenario, new SyncedActivityAction<T>()
+        {
+            @Override
+            public void perform(T activity)
+            {
+                activity.setRequestedOrientation(desiredOrientation);
+            }
+        });
+        // wait for orientation change
+        while (!inDesiredOrientation.ref &&
+               !scenario.getState().isAtLeast(Lifecycle.State.RESUMED)) {
+            TestUtils.performSyncedActivityAction(scenario, checkInDesiredOrientation);
+        }
+        return true;
+    }
+
 
     public static void runOnMainSync(Runnable runner)
     {

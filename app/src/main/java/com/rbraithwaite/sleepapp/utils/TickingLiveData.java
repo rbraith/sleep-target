@@ -27,7 +27,7 @@ public abstract class TickingLiveData<T>
 //*********************************************************
 
     public static final String THREAD_NAME = "TickingLiveData";
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -39,9 +39,9 @@ public abstract class TickingLiveData<T>
     
     public TickingLiveData(long frequencyMillis)
     {
-        mHandlerThread = new HandlerThread(THREAD_NAME);
         mFrequencyMillis = frequencyMillis;
     }
+
 
 //*********************************************************
 // abstract
@@ -52,7 +52,7 @@ public abstract class TickingLiveData<T>
      * The return value of this method updates the LiveData on each tick.
      */
     public abstract T onTick();
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -68,13 +68,14 @@ public abstract class TickingLiveData<T>
     {
         stopTicking();
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
 
     private synchronized void startTicking()
     {
+        mHandlerThread = new HandlerThread(THREAD_NAME);
         mHandlerThread.start();
         
         // the thread needs to be started before accessing its looper
@@ -95,5 +96,8 @@ public abstract class TickingLiveData<T>
         // null token removes all
         mHandler.removeCallbacksAndMessages(null);
         mHandlerThread.quit();
+        
+        mHandler = null;
+        mHandlerThread = null;
     }
 }
