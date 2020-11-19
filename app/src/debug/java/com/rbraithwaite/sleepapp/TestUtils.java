@@ -133,6 +133,7 @@ public class TestUtils
     }
 
 
+
 //*********************************************************
 // package helpers
 //*********************************************************
@@ -144,7 +145,6 @@ public class TestUtils
     static abstract class LiveDataSynchronizerBase<T>
     {
         private ThreadBlocker mBlocker = new ThreadBlocker();
-
 
         
         /**
@@ -171,7 +171,6 @@ public class TestUtils
         //      "If LiveData already has data set, it will be delivered to the observer."
         public abstract void attachObserver(LiveData<T> liveData, Observer<T> observer);
 
-
         
         /**
          * Blocks the current thread until the database has updated the LiveData.
@@ -184,6 +183,10 @@ public class TestUtils
 // api
 //*********************************************************
 
+    public static void runOnMainSync(Runnable runner)
+    {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(runner);
+    }
     
     /**
      * Resets the database for instumentation tests.
@@ -225,7 +228,7 @@ public class TestUtils
                 }
             }
         };
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable()
+        runOnMainSync(new Runnable()
         {
             @Override
             public void run()
@@ -243,7 +246,7 @@ public class TestUtils
             final Observer<T> observer)
     {
         final ThreadBlocker blocker = new ThreadBlocker();
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable()
+        runOnMainSync(new Runnable()
         {
             @Override
             public void run()

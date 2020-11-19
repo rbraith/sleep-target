@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -60,6 +61,7 @@ public class SleepTrackerFragment
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState)
     {
         initSleepTrackerButton(view);
+        initSessionTimeDisplay(view);
     }
     
     
@@ -83,6 +85,22 @@ public class SleepTrackerFragment
 // private methods
 //*********************************************************
 
+    private void initSessionTimeDisplay(View fragmentRoot)
+    {
+        final TextView currentSessionTime =
+                fragmentRoot.findViewById(R.id.sleep_tracker_session_time);
+        getViewModelWithActivity().getCurrentSleepSessionDuration(requireContext()).observe(
+                getViewLifecycleOwner(),
+                new Observer<String>()
+                {
+                    @Override
+                    public void onChanged(String durationText)
+                    {
+                        currentSessionTime.setText(durationText);
+                    }
+                });
+    }
+    
     private void initSleepTrackerButton(View fragmentRoot)
     {
         final Button sleepTrackerButton = fragmentRoot.findViewById(R.id.sleep_tracker_button);

@@ -8,6 +8,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.rbraithwaite.sleepapp.HiltFragmentScenarioWorkaround;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
+import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragment;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFragment;
 
@@ -27,6 +28,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 @RunWith(AndroidJUnit4.class)
 public class SleepTrackerFragmentTests
@@ -86,6 +88,38 @@ public class SleepTrackerFragmentTests
         // THEN the user should see the archive updated with that new session
         int updatedCount = getSessionArchiveCount(scenario);
         assertThat(updatedCount, is(greaterThan(initialCount)));
+    }
+    
+    @Test
+    public void currentSessionTimeDisplay_isZeroWhenNoSession()
+    {
+        // GIVEN the user is on the sleep tracker screen
+        // WHEN there is no current session
+        ActivityScenario<HiltFragmentScenarioWorkaround> scenario =
+                HiltFragmentScenarioWorkaround.launchFragmentInHiltContainer(SleepTrackerFragment.class);
+        
+        // THEN the time display is zeroed out
+        DurationFormatter durationFormatter = new DurationFormatter();
+        onView(withId(R.id.sleep_tracker_session_time))
+                .check(matches(withText(durationFormatter.formatDurationMillis(0))));
+    }
+    
+    @Test
+    public void currentSessionTimeDisplay_updatesWhenInSession() throws InterruptedException
+    {
+        // GIVEN the user is on the sleep tracker screen
+        ActivityScenario<HiltFragmentScenarioWorkaround> scenario =
+                HiltFragmentScenarioWorkaround.launchFragmentInHiltContainer(SleepTrackerFragment.class);
+        
+        // WHEN the user is in a session
+        onView(withId(R.id.sleep_tracker_button)).perform(click());
+        Thread.sleep(1100); // give enough time (>1s) for display to update
+        
+        // THEN the time display reflects the current session duration
+        // (just testing that it is not zero)
+        DurationFormatter durationFormatter = new DurationFormatter();
+        onView(withId(R.id.sleep_tracker_session_time))
+                .check(matches(not(withText(durationFormatter.formatDurationMillis(0)))));
     }
 
 //*********************************************************

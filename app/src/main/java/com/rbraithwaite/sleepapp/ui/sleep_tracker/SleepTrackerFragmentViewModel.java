@@ -5,14 +5,19 @@ import android.content.Context;
 import androidx.arch.core.util.Function;
 import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.data.SleepAppRepository;
 import com.rbraithwaite.sleepapp.data.database.tables.SleepSessionEntity;
+import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
+import com.rbraithwaite.sleepapp.utils.TickingLiveData;
 
 import java.util.Date;
+
+//import java.util.logging.Handler;
 
 public class SleepTrackerFragmentViewModel
         extends ViewModel
@@ -25,6 +30,7 @@ public class SleepTrackerFragmentViewModel
     
     private LiveData<Date> mCurrentSleepSession;
     private LiveData<Boolean> mInSleepSession;
+    private LiveData<String> mCurrentSleepSessionDuration;
 
 //*********************************************************
 // constructors
@@ -86,6 +92,49 @@ public class SleepTrackerFragmentViewModel
             
             mRepository.clearCurrentSession(context);
         }
+    }
+    
+    public LiveData<String> getCurrentSleepSessionDuration(Context context)
+    {
+        if (mCurrentSleepSessionDuration != null) {
+            return mCurrentSleepSessionDuration;
+        }
+        
+        // This works with the TickingLiveData because MediatorLiveData "correctly propagates its
+        // active/inactive states down to source LiveData objects."
+        // https://developer.android.com/reference/androidx/lifecycle/MediatorLiveData
+        mCurrentSleepSessionDuration = Transformations.switchMap(
+                getCurrentSleepSession(context),
+                new Function<Date, androidx.lifecycle.LiveData<String>>()
+                {
+                    @Override
+                    public androidx.lifecycle.LiveData<String> apply(Date input)
+                    {
+                        final Date currentSleepSessionStart = input;
+                        final DurationFormatter durationFormatter = new DurationFormatter();
+                        
+                        if (currentSleepSessionStart == null) {
+                            return new MutableLiveData<>(new DurationFormatter().formatDurationMillis(
+                                    0));
+                        } else {
+                            return new TickingLiveData<String>()
+                            {
+                                @Override
+                                public String onTick()
+                                {
+                                    return durationFormatter.formatDurationMillis(
+                                            calculateDurationMillis(
+                                                    currentSleepSessionStart,
+                                                    DateUtils.getNow()
+                                            ));
+                                }
+                            };
+                        }
+                    }
+                }
+        );
+        
+        return mCurrentSleepSessionDuration;
     }
 
 
