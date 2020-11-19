@@ -11,6 +11,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.rbraithwaite.sleepapp.TestUtils;
 import com.rbraithwaite.sleepapp.data.SleepAppRepository;
 import com.rbraithwaite.sleepapp.data.database.tables.SleepSessionEntity;
+import com.rbraithwaite.sleepapp.ui.Constants;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFragmentViewModel;
 import com.rbraithwaite.sleepapp.utils.TickingLiveData;
@@ -25,6 +26,7 @@ import org.mockito.stubbing.Answer;
 import org.robolectric.shadow.api.Shadow;
 import org.robolectric.shadows.ShadowLooper;
 
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 
@@ -33,6 +35,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -53,7 +56,7 @@ public class SleepTrackerFragmentViewModelTests
     private SleepTrackerFragmentViewModel viewModel;
     private SleepAppRepository mockRepository;
     private Context context;
-
+    
     // TODO [20-11-18 8:23PM] -- try replacing uses of livedata synchronizers (TestUtils) with
     //  InstantTaskExecutorRule
     //  requires this dep in gradle: testImplementation "android.arch.core:core-testing:1.1.1"
@@ -65,7 +68,7 @@ public class SleepTrackerFragmentViewModelTests
     //  https://stackoverflow.com/a/57843898
 //    @Rule
 //    public InstantTaskExecutorRule instantExecutorRule = new InstantTaskExecutorRule();
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -84,6 +87,32 @@ public class SleepTrackerFragmentViewModelTests
         mockRepository = null;
         viewModel = null;
         context = null;
+    }
+    
+    @Test
+    public void getSessionStartTime_returnsTheStartTimeWhenThereIsASession()
+    {
+        Date testDate = TestUtils.ArbitraryData.getDate();
+        when(mockRepository.getCurrentSession(any(Context.class))).thenReturn(new MutableLiveData<Date>(
+                testDate));
+        
+        String expected = new SimpleDateFormat(Constants.STANDARD_DATE_FORMAT,
+                                               Constants.STANDARD_LOCALE).format(testDate);
+        
+        String testStartTime = viewModel.getSessionStartTime(context);
+        
+        assertThat(testStartTime, is(equalTo(expected)));
+    }
+    
+    @Test
+    public void getSessionStartTime_returnsNullWhenNoSession()
+    {
+        when(mockRepository.getCurrentSession(any(Context.class))).thenReturn(new MutableLiveData<Date>(
+                null));
+        
+        String testStartTime = viewModel.getSessionStartTime(context);
+        
+        assertThat(testStartTime, is(nullValue()));
     }
     
     @Test

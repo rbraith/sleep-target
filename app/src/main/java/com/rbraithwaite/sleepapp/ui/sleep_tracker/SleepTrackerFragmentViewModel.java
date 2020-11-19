@@ -11,10 +11,12 @@ import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.data.SleepAppRepository;
 import com.rbraithwaite.sleepapp.data.database.tables.SleepSessionEntity;
+import com.rbraithwaite.sleepapp.ui.Constants;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
 import com.rbraithwaite.sleepapp.utils.TickingLiveData;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 //import java.util.logging.Handler;
@@ -135,6 +137,16 @@ public class SleepTrackerFragmentViewModel
         );
         
         return mCurrentSleepSessionDuration;
+    }
+    
+    public String getSessionStartTime(Context context)
+    {
+        Date startTime = getCurrentSleepSession(context).getValue();
+        if (startTime == null) {
+            return null;
+        }
+        return new SimpleDateFormat(Constants.STANDARD_DATE_FORMAT,
+                                    Constants.STANDARD_LOCALE).format(startTime);
     }
 
 

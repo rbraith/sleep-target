@@ -30,4 +30,21 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:text="1h 23m 45s" />
+
+    <TextView
+        android:id="@+id/sleep_tracker_start_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/sleep_tracker_session_time"
+        app:layout_constraintStart_toStartOf="@+id/sleep_tracker_session_time"
+        tools:text="Tues, Jan 15 2018" />
+
+    <TextView
+        android:id="@+id/sleep_tracker_started_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Started:"
+        app:layout_constraintBottom_toTopOf="@+id/sleep_tracker_start_time"
+        app:layout_constraintStart_toStartOf="@+id/sleep_tracker_start_time" />
 </androidx.constraintlayout.widget.ConstraintLayout>

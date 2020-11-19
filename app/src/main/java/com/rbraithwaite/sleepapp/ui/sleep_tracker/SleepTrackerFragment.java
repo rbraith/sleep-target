@@ -1,5 +1,6 @@
 package com.rbraithwaite.sleepapp.ui.sleep_tracker;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -62,6 +63,7 @@ public class SleepTrackerFragment
     {
         initSleepTrackerButton(view);
         initSessionTimeDisplay(view);
+        initSessionStartTime(view);
     }
     
     
@@ -85,6 +87,37 @@ public class SleepTrackerFragment
 // private methods
 //*********************************************************
 
+    // REFACTOR [20-11-19 3:08AM] -- this shares the inSleepSession LiveData with
+    //  initSleepTrackerButton() - consider combining the two into some new method?
+    //  maybe bindInSleepSession()??
+    //  or consider returning the session start time as LiveData and binding to that instead?
+    //      the condition would be on whether the Date value was null or not
+    private void initSessionStartTime(View fragmentRoot)
+    {
+        final TextView startedText = fragmentRoot.findViewById(R.id.sleep_tracker_started_text);
+        final TextView sessionStartTime = fragmentRoot.findViewById(R.id.sleep_tracker_start_time);
+        final SleepTrackerFragmentViewModel viewModel = getViewModelWithActivity();
+        final Context context = requireContext();
+        viewModel.inSleepSession(context).observe(
+                getViewLifecycleOwner(),
+                new Observer<Boolean>()
+                {
+                    @Override
+                    public void onChanged(Boolean inSleepSession)
+                    {
+                        if (inSleepSession) {
+                            startedText.setVisibility(View.VISIBLE);
+                            sessionStartTime.setVisibility(View.VISIBLE);
+                            sessionStartTime.setText(viewModel.getSessionStartTime(context));
+                        } else {
+                            startedText.setVisibility(View.GONE);
+                            sessionStartTime.setVisibility(View.GONE);
+                        }
+                    }
+                }
+        );
+    }
+    
     private void initSessionTimeDisplay(View fragmentRoot)
     {
         final TextView currentSessionTime =

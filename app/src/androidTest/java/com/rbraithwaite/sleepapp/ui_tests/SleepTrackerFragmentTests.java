@@ -23,9 +23,11 @@ import static androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.assertThat;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -37,6 +39,37 @@ public class SleepTrackerFragmentTests
 // api
 //*********************************************************
 
+    @Test
+    public void sessionStartTime_notDisplayedWhenNotInSession()
+    {
+        // GIVEN the user is on the sleep tracker screen
+        // WHEN there is no current session
+        ActivityScenario<HiltFragmentScenarioWorkaround> scenario =
+                HiltFragmentScenarioWorkaround.launchFragmentInHiltContainer(SleepTrackerFragment.class);
+        
+        // THEN the current session start time is not displayed
+        onView(withId(R.id.sleep_tracker_start_time)).check(matches(not(isDisplayed())));
+        onView(withId(R.id.sleep_tracker_started_text)).check(matches(not(isDisplayed())));
+    }
+    
+    @Test
+    public void sessionStartTime_isDisplayedWhenInSession()
+    {
+        // GIVEN the user is on the sleep tracker screen
+        // AND there is no session
+        ActivityScenario<HiltFragmentScenarioWorkaround> scenario =
+                HiltFragmentScenarioWorkaround.launchFragmentInHiltContainer(SleepTrackerFragment.class);
+        
+        // WHEN the user starts a session
+        onView(withId(R.id.sleep_tracker_button)).perform(click());
+        
+        // THEN the current session start time is displayed
+        onView(withId(R.id.sleep_tracker_start_time)).check(matches(isDisplayed()));
+        // the start time is displayed and isn't an empty string
+        onView(withId(R.id.sleep_tracker_started_text)).check(matches(allOf(isDisplayed(),
+                                                                            not(withText("")))));
+    }
+    
     @Test
     public void sleepTrackerButtonTextChangesOnSessionStatus()
     {
