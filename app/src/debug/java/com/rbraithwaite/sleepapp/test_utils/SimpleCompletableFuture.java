@@ -109,6 +109,8 @@ public class SimpleCompletableFuture<T>
 
     public synchronized void complete(T value)
     {
+        // TODO [20-11-20 5:44PM] -- wrap this in 'if (!mIsDone) {...}' ??
+        //  maybe have it return a bool - false if already was done?
         mValue = value;
         mIsDone = true;
     }
