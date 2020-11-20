@@ -7,21 +7,22 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.rbraithwaite.sleepapp.R;
-import com.rbraithwaite.sleepapp.ui.MainActivity;
+import com.rbraithwaite.sleepapp.ui.BaseFragment;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class SessionArchiveFragment
-        extends Fragment
+        extends BaseFragment
 {
 //*********************************************************
 // private properties
@@ -30,6 +31,12 @@ public class SessionArchiveFragment
     private SessionArchiveFragmentViewModel mViewModel;
     
     private SessionArchiveRecyclerViewAdapter mRecyclerViewAdapter;
+
+//*********************************************************
+// private constants
+//*********************************************************
+
+    private static final String TAG = "SessionArchiveFragment";
 
 //*********************************************************
 // overrides
@@ -49,23 +56,11 @@ public class SessionArchiveFragment
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
     {
         initRecyclerView(view);
+        initFloatingActionButton(view);
     }
     
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState)
-    {
-        super.onActivityCreated(savedInstanceState);
-        setMainActivityBottomNavVisibility(false);
-    }
-    
-    @Override
-    public void onDestroyView()
-    {
-        super.onDestroyView();
-        
-        setMainActivityBottomNavVisibility(true);
-    }
-
+    protected boolean getBottomNavVisibility() { return false; }
 
 //*********************************************************
 // api
@@ -93,22 +88,29 @@ public class SessionArchiveFragment
 // private methods
 //*********************************************************
 
+    private void initFloatingActionButton(View fragmentRoot)
+    {
+        FloatingActionButton floatingActionButton =
+                fragmentRoot.findViewById(R.id.session_archive_fab);
+        floatingActionButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                // TODO [20-11-19 9:27PM] -- will be passing data to this eventually
+                //  https://developer.android.com/guide/navigation/navigation-pass-data#Safe-args.
+                NavDirections toAddSessionFragment =
+                        SessionArchiveFragmentDirections.actionSessionArchiveToSessionEdit();
+                Navigation.findNavController(v).navigate(toAddSessionFragment);
+            }
+        });
+    }
+    
     private void initRecyclerView(@NonNull View fragmentRoot)
     {
         RecyclerView recyclerView = fragmentRoot.findViewById(R.id.session_archive_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(getRecyclerViewAdapter());
-    }
-    
-    private void setMainActivityBottomNavVisibility(boolean visibility)
-    {
-        FragmentActivity activity = getActivity();
-        // its possible this fragment will not be inside a MainActivity (eg it could
-        // be inside a test-specific activity)
-        // SMELL [20-11-14 5:05PM] -- type check.
-        if (activity instanceof MainActivity) {
-            ((MainActivity) activity).setBottomNavVisibility(visibility);
-        }
     }
     
     // REFACTOR [20-11-14 5:06PM] -- duplicate code in SleepTrackerFragment

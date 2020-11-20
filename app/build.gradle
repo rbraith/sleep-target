@@ -5,6 +5,8 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'dagger.hilt.android.plugin'
 
+apply plugin: 'androidx.navigation.safeargs'
+
 android {
     compileSdkVersion 29
     buildToolsVersion "30.0.2"
@@ -20,6 +22,9 @@ android {
 
         // have Android Test Orchestrator clear the package data after each test
         testInstrumentationRunnerArguments clearPackageData: 'true'
+
+        // needed for vector drawables to work
+        vectorDrawables.useSupportLibrary = true
     }
 
     testOptions {

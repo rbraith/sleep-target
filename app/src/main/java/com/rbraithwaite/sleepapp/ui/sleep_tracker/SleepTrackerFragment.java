@@ -13,7 +13,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -21,12 +20,13 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
 import com.rbraithwaite.sleepapp.R;
+import com.rbraithwaite.sleepapp.ui.BaseFragment;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class SleepTrackerFragment
-        extends Fragment
+        extends BaseFragment
 {
 //*********************************************************
 // private properties
@@ -81,7 +81,9 @@ public class SleepTrackerFragment
             return handleNavigationMenuItem(item);
         }
     }
-
+    
+    @Override
+    protected boolean getBottomNavVisibility() { return true; }
 
 //*********************************************************
 // private methods

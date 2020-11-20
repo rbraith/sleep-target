@@ -25,9 +25,15 @@ public class MainActivity
 //*********************************************************
 
     private NavController mNavController;
+    
     private AppBarConfiguration mAppBarConfiguration;
-
     private BottomNavigationView mBottomNavigationView;
+
+//*********************************************************
+// private constants
+//*********************************************************
+
+    private static final String TAG = "MainActivity";
 
 //*********************************************************
 // overrides
@@ -37,16 +43,16 @@ public class MainActivity
     protected void onCreate(@Nullable Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-
+        
         setContentView(R.layout.main_activity);
         Toolbar toolbar = findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
-
+        
         mBottomNavigationView = findViewById(R.id.main_bottomnav);
-
+        
         initializeNavigation();
     }
-
+    
     @Override
     public boolean onSupportNavigateUp()
     {
@@ -62,7 +68,6 @@ public class MainActivity
     {
         mBottomNavigationView.setVisibility(visibility ? View.VISIBLE : View.GONE);
     }
-
 
 
 //*********************************************************
