@@ -12,11 +12,18 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 
+
 /**
  * Use this class for when the *means* of the navigation is not important.
  */
 public class UITestNavigate
 {
+//*********************************************************
+// constructors
+//*********************************************************
+
+    private UITestNavigate() {/* No instantiation */}
+
 //*********************************************************
 // api
 //*********************************************************

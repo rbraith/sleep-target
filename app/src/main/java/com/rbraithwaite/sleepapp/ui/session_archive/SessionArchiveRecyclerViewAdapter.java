@@ -115,6 +115,9 @@ public class SessionArchiveRecyclerViewAdapter
         bindToViewModel(holder, position);
     }
     
+    // BUG [20-11-23 3:17AM] -- investigate why this is being called so much (every frame?)
+    //  might be some kind of LiveData update problem - eg mViewModel.getAllSleepSessionDataIds()
+    //  Try adding a log to the observer in SessionArchiveRecyclerViewAdapter ctor.
     @Override
     public int getItemCount()
     {

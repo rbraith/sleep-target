@@ -2,4 +2,6 @@
     <string name="app_name">SleepApp</string>
     <string name="sleep_tracker_button_start">Start Sleep Session</string>
     <string name="sleep_tracker_button_stop">End Sleep Session</string>
+    <string name="session_edit_start_time_name">Start time:</string>
+    <string name="session_edit_end_time_name">End time:</string>
 </resources>

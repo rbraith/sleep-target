@@ -8,6 +8,7 @@ import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestNavigate;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
+import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,8 +23,10 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -51,7 +54,22 @@ public class MainActivityNavigationTests
         // AND the bottom nav bar is not displayed
         onView(withId(R.id.main_bottomnav)).check(matches(not(isDisplayed())));
         // AND the input fields are displayed with default values
-        // TODO [20-11-19 10:22PM] -- define this
+        onView(allOf(withParent(withId(R.id.session_edit_start_time)), withId(R.id.name))).check(
+                matches(withText(R.string.session_edit_start_time_name)));
+        onView(allOf(withParent(withId(R.id.session_edit_end_time)), withId(R.id.name))).check(
+                matches(withText(R.string.session_edit_end_time_name)));
+        
+        onView(allOf(withParent(withId(R.id.session_edit_start_time)), withId(R.id.date))).check(
+                matches(not(withText(""))));
+        onView(allOf(withParent(withId(R.id.session_edit_end_time)), withId(R.id.date))).check(
+                matches(not(withText(""))));
+        onView(allOf(withParent(withId(R.id.session_edit_start_time)), withId(R.id.time))).check(
+                matches(not(withText(""))));
+        onView(allOf(withParent(withId(R.id.session_edit_end_time)), withId(R.id.time))).check(
+                matches(not(withText(""))));
+        
+        onView(withId(R.id.session_edit_duration)).check(matches(withText(new DurationFormatter().formatDurationMillis(
+                0))));
     }
     
     @Test

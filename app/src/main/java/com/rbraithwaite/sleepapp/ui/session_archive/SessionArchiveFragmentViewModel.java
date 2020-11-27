@@ -11,6 +11,7 @@ import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
 import com.rbraithwaite.sleepapp.ui.Constants;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_archive.data.UISleepSessionData;
+import com.rbraithwaite.sleepapp.utils.DateUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -59,6 +60,13 @@ public class SessionArchiveFragmentViewModel
     {
         return mRepository.getAllSleepSessionDataIds();
     }
+    
+    // TODO [20-11-22 8:29PM] -- consider ways I could test this? At the time
+    //  I figured it was too simple to test, and testing 'now' datetimes seems brittle.
+    public Long getDefaultAddSessionFragmentDateTime()
+    {
+        return DateUtils.getNow().getTime();
+    }
 
 
 //*********************************************************
@@ -73,7 +81,8 @@ public class SessionArchiveFragmentViewModel
         }
         
         SimpleDateFormat sleepSessionTimeFormat =
-                new SimpleDateFormat(Constants.STANDARD_DATE_FORMAT, Constants.STANDARD_LOCALE);
+                new SimpleDateFormat(Constants.STANDARD_FORMAT_FULL_DATE,
+                                     Constants.STANDARD_LOCALE);
         return UISleepSessionData.create(
                 sleepSessionTimeFormat.format(data.startTime),
                 sleepSessionTimeFormat.format(calculateEndTime(data.startTime, data.duration)),

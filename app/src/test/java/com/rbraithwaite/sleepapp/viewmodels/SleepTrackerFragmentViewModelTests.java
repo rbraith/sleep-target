@@ -96,7 +96,7 @@ public class SleepTrackerFragmentViewModelTests
         when(mockRepository.getCurrentSession(any(Context.class))).thenReturn(new MutableLiveData<Date>(
                 testDate));
         
-        String expected = new SimpleDateFormat(Constants.STANDARD_DATE_FORMAT,
+        String expected = new SimpleDateFormat(Constants.STANDARD_FORMAT_FULL_DATE,
                                                Constants.STANDARD_LOCALE).format(testDate);
         
         String testStartTime = viewModel.getSessionStartTime(context);

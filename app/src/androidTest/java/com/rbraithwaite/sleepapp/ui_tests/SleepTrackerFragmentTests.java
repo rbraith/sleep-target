@@ -3,8 +3,8 @@ package com.rbraithwaite.sleepapp.ui_tests;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.rbraithwaite.sleepapp.HiltFragmentScenarioWorkaround;
 import com.rbraithwaite.sleepapp.R;
+import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestNavigate;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
@@ -41,8 +41,8 @@ public class SleepTrackerFragmentTests
     {
         // GIVEN the user is on the sleep tracker screen
         // WHEN there is no current session
-        ActivityScenario<HiltFragmentScenarioWorkaround> scenario =
-                HiltFragmentScenarioWorkaround.launchFragmentInHiltContainer(SleepTrackerFragment.class);
+        HiltFragmentTestHelper<SleepTrackerFragment> testHelper =
+                HiltFragmentTestHelper.launchFragment(SleepTrackerFragment.class);
         
         // THEN the current session start time is not displayed
         onView(withId(R.id.sleep_tracker_start_time)).check(matches(not(isDisplayed())));
@@ -54,8 +54,8 @@ public class SleepTrackerFragmentTests
     {
         // GIVEN the user is on the sleep tracker screen
         // AND there is no session
-        ActivityScenario<HiltFragmentScenarioWorkaround> scenario =
-                HiltFragmentScenarioWorkaround.launchFragmentInHiltContainer(SleepTrackerFragment.class);
+        HiltFragmentTestHelper<SleepTrackerFragment> testHelper =
+                HiltFragmentTestHelper.launchFragment(SleepTrackerFragment.class);
         
         // WHEN the user starts a session
         onView(withId(R.id.sleep_tracker_button)).perform(click());
@@ -71,8 +71,9 @@ public class SleepTrackerFragmentTests
     public void sleepTrackerButtonTextChangesOnSessionStatus()
     {
         // GIVEN the user is on the sleep tracker screen
-        ActivityScenario<HiltFragmentScenarioWorkaround> scenario =
-                HiltFragmentScenarioWorkaround.launchFragmentInHiltContainer(SleepTrackerFragment.class);
+        HiltFragmentTestHelper<SleepTrackerFragment> testHelper =
+                HiltFragmentTestHelper.launchFragment(SleepTrackerFragment.class);
+        
         // AND there is no current session
         onView(withId(R.id.sleep_tracker_button)).check(matches(withText(R.string.sleep_tracker_button_start)));
         
@@ -124,8 +125,8 @@ public class SleepTrackerFragmentTests
     {
         // GIVEN the user is on the sleep tracker screen
         // WHEN there is no current session
-        ActivityScenario<HiltFragmentScenarioWorkaround> scenario =
-                HiltFragmentScenarioWorkaround.launchFragmentInHiltContainer(SleepTrackerFragment.class);
+        HiltFragmentTestHelper<SleepTrackerFragment> testHelper =
+                HiltFragmentTestHelper.launchFragment(SleepTrackerFragment.class);
         
         // THEN the time display is zeroed out
         DurationFormatter durationFormatter = new DurationFormatter();
@@ -137,8 +138,8 @@ public class SleepTrackerFragmentTests
     public void currentSessionTimeDisplay_updatesWhenInSession() throws InterruptedException
     {
         // GIVEN the user is on the sleep tracker screen
-        ActivityScenario<HiltFragmentScenarioWorkaround> scenario =
-                HiltFragmentScenarioWorkaround.launchFragmentInHiltContainer(SleepTrackerFragment.class);
+        HiltFragmentTestHelper<SleepTrackerFragment> testHelper =
+                HiltFragmentTestHelper.launchFragment(SleepTrackerFragment.class);
         
         // WHEN the user is in a session
         onView(withId(R.id.sleep_tracker_button)).perform(click());

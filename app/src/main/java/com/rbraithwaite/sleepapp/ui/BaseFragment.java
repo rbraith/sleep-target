@@ -5,15 +5,25 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 
-public abstract class BaseFragment
+public abstract class BaseFragment<V extends ViewModel>
         extends Fragment
 {
+//*********************************************************
+// private properties
+//*********************************************************
+
+    private V mViewModel;
+    
 //*********************************************************
 // abstract
 //*********************************************************
 
     protected abstract boolean getBottomNavVisibility();
+    
+    protected abstract Class<V> getViewModelClass();
     
 //*********************************************************
 // overrides
@@ -25,7 +35,21 @@ public abstract class BaseFragment
         super.onActivityCreated(savedInstanceState);
         setMainActivityBottomNavVisibility(getBottomNavVisibility());
     }
-    
+
+//*********************************************************
+// protected api
+//*********************************************************
+
+    //    protected abstract <V extends ViewModel> Class<V> getViewModelType();
+//
+    protected V getViewModel()
+    {
+        if (mViewModel == null) {
+            mViewModel = new ViewModelProvider(requireActivity()).get(getViewModelClass());
+        }
+        return mViewModel;
+    }
+
 //*********************************************************
 // private methods
 //*********************************************************

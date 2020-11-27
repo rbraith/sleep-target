@@ -10,15 +10,16 @@ public class DurationFormatter
 //*********************************************************
 // private properties
 //*********************************************************
-    
+
     private String mFormat;
     private Locale mLocale;
-    
+
 //*********************************************************
 // private constants
 //*********************************************************
 
     private static final Pattern formatPattern = Pattern.compile(".*%\\d*d.*%\\d*d.*%\\d*d");
+
 
 //*********************************************************
 // constructors
@@ -45,9 +46,10 @@ public class DurationFormatter
      */
     public DurationFormatter()
     {
-        mFormat = Constants.STANDARD_DURATION_FORMAT;
+        mFormat = Constants.STANDARD_FORMAT_DURATION;
         mLocale = Constants.STANDARD_LOCALE;
     }
+
 
 //*********************************************************
 // api
@@ -77,8 +79,7 @@ public class DurationFormatter
         
         return String.format(mLocale, mFormat, hours, minutes, seconds);
     }
-    
-    
+
 
 //*********************************************************
 // private methods

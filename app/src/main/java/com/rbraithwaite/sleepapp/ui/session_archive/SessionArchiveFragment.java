@@ -8,8 +8,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,7 +20,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class SessionArchiveFragment
-        extends BaseFragment
+        extends BaseFragment<SessionArchiveFragmentViewModel>
 {
 //*********************************************************
 // private properties
@@ -61,7 +59,10 @@ public class SessionArchiveFragment
     
     @Override
     protected boolean getBottomNavVisibility() { return false; }
-
+    
+    @Override
+    protected Class<SessionArchiveFragmentViewModel> getViewModelClass() { return SessionArchiveFragmentViewModel.class; }
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -70,7 +71,7 @@ public class SessionArchiveFragment
     {
         if (mRecyclerViewAdapter == null) {
             mRecyclerViewAdapter = new SessionArchiveRecyclerViewAdapter(
-                    getViewModelWithActivity(),
+                    getViewModel(),
                     new SessionArchiveRecyclerViewAdapter.LifeCycleOwnerProvider()
                     {
                         @Override
@@ -97,13 +98,20 @@ public class SessionArchiveFragment
             @Override
             public void onClick(View v)
             {
-                // TODO [20-11-19 9:27PM] -- will be passing data to this eventually
-                //  https://developer.android.com/guide/navigation/navigation-pass-data#Safe-args.
-                NavDirections toAddSessionFragment =
-                        SessionArchiveFragmentDirections.actionSessionArchiveToSessionEdit();
-                Navigation.findNavController(v).navigate(toAddSessionFragment);
+                Navigation.findNavController(v).navigate(toAddSessionFragment());
             }
         });
+    }
+    
+    /**
+     * Generates SafeArgs action for navigating to the AddSessionFragment. This is meant to be used
+     * in conjunction with NavController.navigate()
+     */
+    private SessionArchiveFragmentDirections.ActionSessionArchiveToSessionEdit toAddSessionFragment()
+    {
+        long defaultDateTime = getViewModel().getDefaultAddSessionFragmentDateTime();
+        return SessionArchiveFragmentDirections.actionSessionArchiveToSessionEdit(
+                defaultDateTime, defaultDateTime);
     }
     
     private void initRecyclerView(@NonNull View fragmentRoot)
@@ -111,16 +119,5 @@ public class SessionArchiveFragment
         RecyclerView recyclerView = fragmentRoot.findViewById(R.id.session_archive_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(getRecyclerViewAdapter());
-    }
-    
-    // REFACTOR [20-11-14 5:06PM] -- duplicate code in SleepTrackerFragment
-    //  consider making a generic base fragment w/ common viewmodel ops
-    private SessionArchiveFragmentViewModel getViewModelWithActivity()
-    {
-        if (mViewModel == null) {
-            mViewModel =
-                    new ViewModelProvider(requireActivity()).get(SessionArchiveFragmentViewModel.class);
-        }
-        return mViewModel;
     }
 }

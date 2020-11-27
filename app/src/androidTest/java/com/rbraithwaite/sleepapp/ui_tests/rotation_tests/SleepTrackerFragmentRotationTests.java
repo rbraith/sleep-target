@@ -3,11 +3,10 @@ package com.rbraithwaite.sleepapp.ui_tests.rotation_tests;
 import android.content.pm.ActivityInfo;
 import android.widget.TextView;
 
-import androidx.test.core.app.ActivityScenario;
-
-import com.rbraithwaite.sleepapp.HiltFragmentScenarioWorkaround;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.TestUtils;
+import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentActivity;
+import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFragment;
 
@@ -35,7 +34,7 @@ public class SleepTrackerFragmentRotationTests
     @Rule
     // protection against potentially infinitely blocked threads
     public Timeout timeout = new Timeout(15, TimeUnit.SECONDS);
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -45,18 +44,22 @@ public class SleepTrackerFragmentRotationTests
     public void currentSessionDisplay_persistsAcrossOrientationChange() throws InterruptedException
     {
         // GIVEN the user has an ongoing sleep session
-        ActivityScenario<HiltFragmentScenarioWorkaround> scenario =
-                HiltFragmentScenarioWorkaround.launchFragmentInHiltContainer(SleepTrackerFragment.class);
+        HiltFragmentTestHelper<SleepTrackerFragment>
+                testHelper = HiltFragmentTestHelper.launchFragment(SleepTrackerFragment.class);
+        
         onView(withId(R.id.sleep_tracker_button)).perform(click());
         Thread.sleep(1100); // give the session time display time to update (1s)
         final TestUtils.DoubleRef<String> expectedStartTimeText = new TestUtils.DoubleRef<>(null);
         // get the start time text
+        // REFACTOR [20-11-22 9:44PM] -- consider making this HiltFragmentTestHelper
+        //  .performSyncedActivityAction?
+        //  (tell don't ask)
         TestUtils.performSyncedActivityAction(
-                scenario,
-                new TestUtils.SyncedActivityAction<HiltFragmentScenarioWorkaround>()
+                testHelper.getScenario(),
+                new TestUtils.SyncedActivityAction<HiltFragmentActivity>()
                 {
                     @Override
-                    public void perform(HiltFragmentScenarioWorkaround activity)
+                    public void perform(HiltFragmentActivity activity)
                     {
                         expectedStartTimeText.ref =
                                 ((TextView) activity.findViewById(R.id.sleep_tracker_start_time))
@@ -65,7 +68,11 @@ public class SleepTrackerFragmentRotationTests
                 });
         
         // WHEN the device is rotated
-        TestUtils.rotateActivitySynced(scenario, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        // REFACTOR [20-11-22 9:46PM] -- consider making this HiltFragmentTestHelper
+        //  .rotateActivitySynced?
+        //  (tell don't ask)
+        TestUtils.rotateActivitySynced(testHelper.getScenario(),
+                                       ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         
         // THEN the sleep session and its displayed information persist
         onView(withId(R.id.sleep_tracker_start_time))

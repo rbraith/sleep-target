@@ -14,7 +14,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
@@ -26,7 +25,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class SleepTrackerFragment
-        extends BaseFragment
+        extends BaseFragment<SleepTrackerFragmentViewModel>
 {
 //*********************************************************
 // private properties
@@ -84,7 +83,10 @@ public class SleepTrackerFragment
     
     @Override
     protected boolean getBottomNavVisibility() { return true; }
-
+    
+    @Override
+    protected Class<SleepTrackerFragmentViewModel> getViewModelClass() { return SleepTrackerFragmentViewModel.class; }
+    
 //*********************************************************
 // private methods
 //*********************************************************
@@ -98,7 +100,7 @@ public class SleepTrackerFragment
     {
         final TextView startedText = fragmentRoot.findViewById(R.id.sleep_tracker_started_text);
         final TextView sessionStartTime = fragmentRoot.findViewById(R.id.sleep_tracker_start_time);
-        final SleepTrackerFragmentViewModel viewModel = getViewModelWithActivity();
+        final SleepTrackerFragmentViewModel viewModel = getViewModel();
         final Context context = requireContext();
         viewModel.inSleepSession(context).observe(
                 getViewLifecycleOwner(),
@@ -124,7 +126,7 @@ public class SleepTrackerFragment
     {
         final TextView currentSessionTime =
                 fragmentRoot.findViewById(R.id.sleep_tracker_session_time);
-        getViewModelWithActivity().getCurrentSleepSessionDuration(requireContext()).observe(
+        getViewModel().getCurrentSleepSessionDuration(requireContext()).observe(
                 getViewLifecycleOwner(),
                 new Observer<String>()
                 {
@@ -140,7 +142,7 @@ public class SleepTrackerFragment
     {
         final Button sleepTrackerButton = fragmentRoot.findViewById(R.id.sleep_tracker_button);
         
-        getViewModelWithActivity().inSleepSession(requireContext())
+        getViewModel().inSleepSession(requireContext())
                 .observe(getViewLifecycleOwner(), new Observer<Boolean>()
                 {
                     @Override
@@ -159,7 +161,7 @@ public class SleepTrackerFragment
             @Override
             public void onClick(View v)
             {
-                SleepTrackerFragmentViewModel viewModel = getViewModelWithActivity();
+                SleepTrackerFragmentViewModel viewModel = getViewModel();
                 Boolean inSleepSession = viewModel.inSleepSession(requireContext()).getValue();
                 if (inSleepSession) {
                     viewModel.endSleepSession(requireContext());
@@ -177,15 +179,5 @@ public class SleepTrackerFragment
                 Navigation.findNavController(requireActivity(), R.id.main_navhost);
         return NavigationUI.onNavDestinationSelected(item, navController)
                || super.onOptionsItemSelected(item);
-    }
-    
-    // REFACTOR [20-11-14 5:35PM] -- see SessionArchiveFragment.getViewModelWithActivity
-    private SleepTrackerFragmentViewModel getViewModelWithActivity()
-    {
-        if (mViewModel == null) {
-            mViewModel =
-                    new ViewModelProvider(requireActivity()).get(SleepTrackerFragmentViewModel.class);
-        }
-        return mViewModel;
     }
 }

@@ -145,7 +145,7 @@ public class SleepTrackerFragmentViewModel
         if (startTime == null) {
             return null;
         }
-        return new SimpleDateFormat(Constants.STANDARD_DATE_FORMAT,
+        return new SimpleDateFormat(Constants.STANDARD_FORMAT_FULL_DATE,
                                     Constants.STANDARD_LOCALE).format(startTime);
     }
 

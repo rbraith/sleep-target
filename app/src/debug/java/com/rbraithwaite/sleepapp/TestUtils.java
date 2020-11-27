@@ -32,7 +32,7 @@ public class TestUtils
     {
         void perform(T activity);
     }
-    
+
     /**
      * Mainly use this to set external objs from within anon class overrides. Analogous to double
      * pointer behavior.
@@ -104,8 +104,7 @@ public class TestUtils
             observeLiveDataOnMainThread(liveData, observer, null);
         }
     }
-
-
+    
     /**
      * Provides fixed, arbitrary data for cases where the specific details of the data aren't
      * important.
@@ -185,7 +184,14 @@ public class TestUtils
          */
         public void sync() { mBlocker.blockThread(); }
     }
+
     
+//*********************************************************
+// constructors
+//*********************************************************
+
+    private TestUtils() {/* No instantiation */}
+
 //*********************************************************
 // api
 //*********************************************************
@@ -247,8 +253,8 @@ public class TestUtils
         }
         return true;
     }
-
-
+    
+    
     public static void runOnMainSync(Runnable runner)
     {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(runner);
