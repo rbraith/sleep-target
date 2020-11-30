@@ -6,6 +6,10 @@
         <activity
             android:name=".test_utils.ui.HiltFragmentActivity"
             android:exported="false"/>
+        <activity
+            android:name=".test_utils.ui.DialogTestHelper$Activity"
+            android:exported="false"/>
+
     </application>
 
 </manifest>

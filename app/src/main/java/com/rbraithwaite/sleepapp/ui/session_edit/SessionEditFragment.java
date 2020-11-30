@@ -12,6 +12,8 @@ import androidx.lifecycle.Observer;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
+import com.rbraithwaite.sleepapp.ui.dialog.DatePickerFragment;
+import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragmentDirections;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -24,7 +26,9 @@ public class SessionEditFragment
 //*********************************************************
 
     private static final String TAG = "SessionEditFragment";
-
+    
+    private static final String DIALOG_START_DATE_PICKER = "StartDatePicker";
+    
 //*********************************************************
 // overrides
 //*********************************************************
@@ -42,11 +46,12 @@ public class SessionEditFragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
     {
-        initStartTime(view.findViewById(R.id.session_edit_start_time));
+        SessionEditFragmentArgs args = SessionEditFragmentArgs.fromBundle(getArguments());
+        
+        initStartTime(view.findViewById(R.id.session_edit_start_time), args.getStartTime());
         initEndTime(view.findViewById(R.id.session_edit_end_time));
         initSessionDuration(view);
         
-        SessionEditFragmentArgs args = SessionEditFragmentArgs.fromBundle(getArguments());
         initInputFieldValues(args);
     }
     
@@ -55,6 +60,23 @@ public class SessionEditFragment
     
     @Override
     protected Class<SessionEditFragmentViewModel> getViewModelClass() { return SessionEditFragmentViewModel.class; }
+
+//*********************************************************
+// api
+//*********************************************************
+
+    public static Bundle createArguments(long startDateMillis, long endDateMillis)
+    {
+        // use SafeArgs action so that the Bundle works when it is eventually used with
+        // SessionEditFragmentArgs.fromBundle()
+        // TODO [20-11-28 10:30PM] -- SafeArgs uses the argument names defined in the navgraph as
+        //  the Bundle keys - consider redefining those keys here and just making my own Bundle?
+        //  problem: the argument names would be hardcoded though, I can't seem to find a way to
+        //  get a reference to the names defined in the navgraph, but I should investigate more.
+        return SessionArchiveFragmentDirections
+                .actionSessionArchiveToSessionEdit(startDateMillis, endDateMillis)
+                .getArguments();
+    }
     
 //*********************************************************
 // private methods
@@ -81,16 +103,30 @@ public class SessionEditFragment
                 });
     }
     
-    private void initStartTime(View startTimeLayout)
+    private void initStartTime(View startTimeLayout, final long startTimeMillis)
     {
         // init label
         TextView startTimeName = startTimeLayout.findViewById(R.id.name);
         startTimeName.setText(R.string.session_edit_start_time_name);
         
-        // bind input fields
         final TextView startTime = startTimeLayout.findViewById(R.id.time);
         final TextView startDate = startTimeLayout.findViewById(R.id.date);
         
+        // set up dialog listeners
+        startDate.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                DatePickerFragment datePicker = new DatePickerFragment();
+                datePicker.setArguments(DatePickerFragment.createArguments(startTimeMillis));
+                datePicker.show(getChildFragmentManager(), DIALOG_START_DATE_PICKER);
+            }
+        });
+        
+        // TODO [20-11-29 7:05PM] -- startTime.setOnClick...
+        
+        // bind input fields
         getViewModel().getStartTime().observe(getViewLifecycleOwner(), new Observer<String>()
         {
             @Override

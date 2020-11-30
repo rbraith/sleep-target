@@ -1,7 +1,10 @@
 package com.rbraithwaite.sleepapp.test_utils.ui;
 
+import android.widget.DatePicker;
+
 import androidx.fragment.app.Fragment;
 import androidx.test.core.app.ActivityScenario;
+import androidx.test.espresso.ViewInteraction;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.test_utils.SimpleCompletableFuture;
@@ -9,6 +12,10 @@ import com.rbraithwaite.sleepapp.ui.MainActivity;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragment;
 
 import java.util.concurrent.ExecutionException;
+
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
+import static org.hamcrest.Matchers.equalTo;
 
 public class UITestUtils
 {
@@ -22,6 +29,10 @@ public class UITestUtils
 // api
 //*********************************************************
 
+    public static ViewInteraction onDatePicker()
+    {
+        return onView(withClassName(equalTo(DatePicker.class.getName())));
+    }
     
     /**
      * Assumes that the session archive fragment is displayed.

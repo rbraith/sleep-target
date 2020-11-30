@@ -2,26 +2,31 @@ package com.rbraithwaite.sleepapp.ui_tests;
 
 import android.os.Bundle;
 
+import androidx.test.espresso.ViewInteraction;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
-import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragmentDirections;
 import com.rbraithwaite.sleepapp.ui.session_edit.SessionEditFragment;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoMatchers.datePickerWithDate;
+import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.onDatePicker;
 import static org.hamcrest.Matchers.allOf;
 
 @RunWith(AndroidJUnit4.class)
@@ -31,6 +36,35 @@ public class SessionEditFragmentTests
 // api
 //*********************************************************
 
+    @Test
+    public void startDate_displaysCorrectDialogWhenPressed()
+    {
+        // GIVEN the user has the session edit fragment open
+        GregorianCalendar calendar = new GregorianCalendar(2019, 8, 7, 6, 5);
+        long testDate = calendar.getTimeInMillis();
+        
+        Bundle args = SessionEditFragment.createArguments(testDate, testDate);
+        HiltFragmentTestHelper<SessionEditFragment> testHelper
+                = HiltFragmentTestHelper.launchFragmentWithArgs(SessionEditFragment.class, args);
+        
+        // WHEN the user presses the start date text view
+        onStartDateTextView().perform(click());
+        
+        // THEN a DatePickerDialog is displayed
+        onDatePicker().check(matches(isDisplayed()));
+        // AND the dialog values match the start date text
+        onDatePicker().check(matches(datePickerWithDate(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH))));
+    }
+    
+    // TODO [20-11-28 9:10PM] -- startTime_displaysCorrectDialogWhenPressed.
+    // TODO [20-11-28 9:10PM] -- endDate_displaysCorrectDialogWhenPressed.
+    // TODO [20-11-28 9:10PM] -- endTime_displaysCorrectDialogWhenPressed.
+    // TODO [20-11-29 7:21PM] -- test that dialog is retained (with correct values) across device
+    //  rotation.
+    
     @Test
     public void argsAreProperlyDisplayed()
     {
@@ -42,27 +76,49 @@ public class SessionEditFragmentTests
         calendar.add(GregorianCalendar.MINUTE, 25);
         Date testEndTime = calendar.getTime();
         
-        Bundle args = SessionArchiveFragmentDirections
-                .actionSessionArchiveToSessionEdit(testStartTime.getTime(), testEndTime.getTime())
-                .getArguments();
-        
         HiltFragmentTestHelper<SessionEditFragment> testHelper
-                = HiltFragmentTestHelper.launchFragmentWithArgs(SessionEditFragment.class, args);
+                = HiltFragmentTestHelper.launchFragmentWithArgs(
+                SessionEditFragment.class,
+                SessionEditFragment.createArguments(testStartTime.getTime(),
+                                                    testEndTime.getTime()));
         
         DateTimeFormatter formatter = new DateTimeFormatter();
         
-        onView(allOf(withParent(withId(R.id.session_edit_start_time)), withId(R.id.date)))
-                .check(matches(withText(formatter.formatDate(testStartTime))));
-        onView(allOf(withParent(withId(R.id.session_edit_end_time)), withId(R.id.date)))
-                .check(matches(withText(formatter.formatDate(testEndTime))));
+        onStartDateTextView().check(matches(withText(formatter.formatDate(testStartTime))));
+        onEndDateTextView().check(matches(withText(formatter.formatDate(testEndTime))));
         
-        onView(allOf(withParent(withId(R.id.session_edit_start_time)), withId(R.id.time)))
-                .check(matches(withText(formatter.formatTimeOfDay(testStartTime))));
-        onView(allOf(withParent(withId(R.id.session_edit_end_time)), withId(R.id.time)))
-                .check(matches(withText(formatter.formatTimeOfDay(testEndTime))));
+        onStartTimeTextView().check(matches(withText(formatter.formatTimeOfDay(testStartTime))));
+        onEndTimeTextView().check(matches(withText(formatter.formatTimeOfDay(testEndTime))));
         
         onView(withId(R.id.session_edit_duration))
                 .check(matches(withText(new DurationFormatter().formatDurationMillis(
                         testEndTime.getTime() - testStartTime.getTime()))));
+    }
+    
+//*********************************************************
+// private methods
+//*********************************************************
+
+    private ViewInteraction onStartDateTextView()
+    {
+        return onView(allOf(withParent(withId(R.id.session_edit_start_time)), withId(R.id.date)));
+    }
+    
+    private ViewInteraction onEndDateTextView()
+    {
+        return onView(allOf(withParent(withId(R.id.session_edit_end_time)), withId(R.id.date)));
+    }
+    
+    private ViewInteraction onStartTimeTextView()
+    {
+        return onView(allOf(withParent(withId(R.id.session_edit_start_time)), withId(R.id.time)));
+    }
+    
+    // TODO [20-11-28 10:17PM] -- test fragment arg variations
+    //  start null, end null, both null, start after end
+    
+    private ViewInteraction onEndTimeTextView()
+    {
+        return onView(allOf(withParent(withId(R.id.session_edit_end_time)), withId(R.id.time)));
     }
 }
