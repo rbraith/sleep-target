@@ -6,7 +6,9 @@ import androidx.test.espresso.ViewInteraction;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.R;
+import com.rbraithwaite.sleepapp.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
+import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_edit.SessionEditFragment;
@@ -25,6 +27,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoActions.setDatePickerDate;
 import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoMatchers.datePickerWithDate;
 import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.onDatePicker;
 import static org.hamcrest.Matchers.allOf;
@@ -36,6 +39,45 @@ public class SessionEditFragmentTests
 // api
 //*********************************************************
 
+    @Test
+    public void startDate_updatesWhenPositiveDialogIsConfirmed()
+    {
+        // GIVEN the user has the start date dialog open
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTime(TestUtils.ArbitraryData.getDate());
+        Date originalDate = calendar.getTime();
+        
+        Bundle args = SessionEditFragment.createArguments(calendar.getTimeInMillis(),
+                                                          calendar.getTimeInMillis());
+        HiltFragmentTestHelper<SessionEditFragment> testHelper
+                = HiltFragmentTestHelper.launchFragmentWithArgs(SessionEditFragment.class, args);
+        
+        onStartDateTextView().perform(click());
+        
+        // WHEN the user changes the date and confirms the dialog
+        calendar.set(Calendar.DAY_OF_MONTH,
+                     calendar.get(Calendar.DAY_OF_MONTH) - 1); // set start back one day
+        Date newDate = calendar.getTime();
+        onDatePicker().perform(setDatePickerDate(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)));
+        
+        UITestUtils.pressDialogOK();
+        
+        // THEN the start date text is updated
+        onStartDateTextView().check(matches(withText(new DateTimeFormatter().formatDate(calendar.getTime()))));
+        // AND the session duration text is updated
+        onView(withId(R.id.session_edit_duration))
+                .check(matches(withText(new DurationFormatter().formatDurationMillis(
+                        originalDate.getTime() - newDate.getTime()))));
+    }
+    
+    // TODO [20-11-29 9:08PM] -- start date does not update when negative dialog is confirmed
+    //  (ie start comes after end).
+    
+    // TODO [20-12-1 12:03AM] -- dialog reflects new set start date when opened.
+    
     @Test
     public void startDate_displaysCorrectDialogWhenPressed()
     {
@@ -64,6 +106,9 @@ public class SessionEditFragmentTests
     // TODO [20-11-28 9:10PM] -- endTime_displaysCorrectDialogWhenPressed.
     // TODO [20-11-29 7:21PM] -- test that dialog is retained (with correct values) across device
     //  rotation.
+    
+    // TODO [20-11-28 10:17PM] -- test fragment arg variations
+    //  start null, end null, both null, start after end
     
     @Test
     public void argsAreProperlyDisplayed()
@@ -94,7 +139,7 @@ public class SessionEditFragmentTests
                 .check(matches(withText(new DurationFormatter().formatDurationMillis(
                         testEndTime.getTime() - testStartTime.getTime()))));
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -113,9 +158,6 @@ public class SessionEditFragmentTests
     {
         return onView(allOf(withParent(withId(R.id.session_edit_start_time)), withId(R.id.time)));
     }
-    
-    // TODO [20-11-28 10:17PM] -- test fragment arg variations
-    //  start null, end null, both null, start after end
     
     private ViewInteraction onEndTimeTextView()
     {

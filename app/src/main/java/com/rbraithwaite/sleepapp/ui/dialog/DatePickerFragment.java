@@ -17,10 +17,25 @@ public class DatePickerFragment
         implements DatePickerDialog.OnDateSetListener
 {
 //*********************************************************
+// private properties
+//*********************************************************
+
+    private OnDateSetListener mListener;
+
+//*********************************************************
 // private constants
 //*********************************************************
 
     private static final String ARG_DATE = "date";
+
+//*********************************************************
+// public helpers
+//*********************************************************
+
+    public interface OnDateSetListener
+    {
+        void onDateSet(DatePicker view, int year, int month, int dayOfMonth);
+    }
     
 //*********************************************************
 // overrides
@@ -40,12 +55,13 @@ public class DatePickerFragment
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH));
     }
-    
+
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth)
     {
-        // TO IMPLEMENT
-        throw new UnsupportedOperationException("Not implemented yet.");
+        if (mListener != null) {
+            mListener.onDateSet(view, year, month, dayOfMonth);
+        }
     }
     
 //*********************************************************
@@ -57,5 +73,10 @@ public class DatePickerFragment
         Bundle args = new Bundle();
         args.putLong(ARG_DATE, dateMillis);
         return args;
+    }
+    
+    public void setOnDateSetListener(DatePickerFragment.OnDateSetListener listener)
+    {
+        mListener = listener;
     }
 }

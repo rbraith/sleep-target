@@ -21,6 +21,12 @@ public class DialogTestHelper<DialogType extends DialogFragment>
     private ActivityScenario<DialogTestHelper.Activity> mScenario;
     
 //*********************************************************
+// public constants
+//*********************************************************
+
+    public static final String DIALOG_TAG = "test dialog";
+
+//*********************************************************
 // public helpers
 //*********************************************************
 
@@ -45,10 +51,37 @@ public class DialogTestHelper<DialogType extends DialogFragment>
                 });
     }
     
+    private DialogTestHelper(final DialogType dialogInstance)
+    {
+        mScenario = ActivityScenario.launch(DialogTestHelper.Activity.class);
+        TestUtils.performSyncedActivityAction(
+                mScenario,
+                new TestUtils.SyncedActivityAction<Activity>()
+                {
+                    @Override
+                    public void perform(Activity activity)
+                    {
+                        dialogInstance.show(activity.getSupportFragmentManager(), DIALOG_TAG);
+                    }
+                }
+        );
+    }
+
 //*********************************************************
 // api
 //*********************************************************
 
+    
+    /**
+     * I needed this as some dialogs (eg DatePickerFragment) required initialization logic outside
+     * of the provided arguments. (eg DatePickerFragment.setOnDateSetListener)
+     */
+    public static <DialogType extends DialogFragment> DialogTestHelper<DialogType> launchProvidedInstance(
+            DialogType instance)
+    {
+        return new DialogTestHelper<>(instance);
+    }
+    
     public static <DialogType extends DialogFragment> DialogTestHelper<DialogType> launchDialog(
             final Class<DialogType> dialogType)
     {
@@ -66,7 +99,7 @@ public class DialogTestHelper<DialogType extends DialogFragment>
     {
         return mScenario;
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -81,7 +114,7 @@ public class DialogTestHelper<DialogType extends DialogFragment>
             if (args != null) {
                 dialog.setArguments(args);
             }
-            dialog.show(activity.getSupportFragmentManager(), "test dialog");
+            dialog.show(activity.getSupportFragmentManager(), DIALOG_TAG);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (InstantiationException e) {

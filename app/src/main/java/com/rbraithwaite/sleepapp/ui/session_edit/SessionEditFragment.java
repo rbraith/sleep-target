@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.DatePicker;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -28,7 +29,7 @@ public class SessionEditFragment
     private static final String TAG = "SessionEditFragment";
     
     private static final String DIALOG_START_DATE_PICKER = "StartDatePicker";
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -77,7 +78,7 @@ public class SessionEditFragment
                 .actionSessionArchiveToSessionEdit(startDateMillis, endDateMillis)
                 .getArguments();
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -120,6 +121,14 @@ public class SessionEditFragment
             {
                 DatePickerFragment datePicker = new DatePickerFragment();
                 datePicker.setArguments(DatePickerFragment.createArguments(startTimeMillis));
+                datePicker.setOnDateSetListener(new DatePickerFragment.OnDateSetListener()
+                {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth)
+                    {
+                        getViewModel().setStartDate(year, month, dayOfMonth);
+                    }
+                });
                 datePicker.show(getChildFragmentManager(), DIALOG_START_DATE_PICKER);
             }
         });

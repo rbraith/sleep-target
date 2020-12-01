@@ -13,7 +13,9 @@ import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 public class SessionEditFragmentViewModel
         extends ViewModel
@@ -23,16 +25,28 @@ public class SessionEditFragmentViewModel
 //*********************************************************
 
     LiveData<String> mStartTime;
+    
     LiveData<String> mStartDate;
     LiveData<String> mEndTime;
     LiveData<String> mEndDate;
-    
     LiveData<String> mSessionDuration;
-    
     MutableLiveData<Long> mStartDateTime;
     MutableLiveData<Long> mEndDateTime;
     
-    
+//*********************************************************
+// public helpers
+//*********************************************************
+
+    public static class InvalidDateTimeException
+            extends RuntimeException
+    {
+        public InvalidDateTimeException(String message)
+        {
+            super(message);
+        }
+    }
+
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -41,7 +55,7 @@ public class SessionEditFragmentViewModel
     public SessionEditFragmentViewModel()
     {
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -98,10 +112,44 @@ public class SessionEditFragmentViewModel
         return lazyInitLiveDateTime(mStartDate, getStartDateTime(), DateTimeFormatType.DATE);
     }
     
+    public void setStartDate(int year, int month, int dayOfMonth)
+    {
+        // update the start date
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTimeInMillis(getStartDateTime().getValue());
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.MONTH, month);
+        calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+        
+        if (isInvalidStartDateTime(calendar.getTimeInMillis())) {
+            throw new InvalidDateTimeException(String.format(
+                    "Invalid start date: %s",
+                    new DateTimeFormatter().formatDate(calendar.getTime())));
+        }
+        
+        // OPTIMIZE [20-11-30 11:19PM] -- consider doing nothing if the new date
+        //  matches the old.
+        
+        // set the new date
+        setStartDateTime(calendar.getTimeInMillis());
+    }
+    
 //*********************************************************
 // private methods
 //*********************************************************
 
+    private boolean isInvalidStartDateTime(long startDateTime)
+    {
+        Long endDateTime = getEndDateTime().getValue();
+        // REFACTOR [20-11-30 11:59PM] -- consider making a higher order isInvalidStartEnd(start,
+        //  end).
+        if (endDateTime == null) {
+            // if there is no end datetime then it doesn't matter what the start datetime is
+            return false;
+        }
+        return (startDateTime > endDateTime);
+    }
+    
     // REFACTOR [20-11-27 12:14AM] -- extract this for reuse
     //  consider though: the "returning 0 on null values" is kind of a
     //  special behaviour for SessionEditFragmentViewModel (for setting the session duration
@@ -142,7 +190,7 @@ public class SessionEditFragmentViewModel
         }
         return target;
     }
-    
+
     private String formatDateTimeMillisFromType(long dateMillis, DateTimeFormatType formatType)
     {
         DateTimeFormatter formatter = new DateTimeFormatter();
@@ -188,7 +236,7 @@ public class SessionEditFragmentViewModel
         //  the values).
         getEndDateTime().setValue(endTime);
     }
-    
+
 //*********************************************************
 // private helpers
 //*********************************************************

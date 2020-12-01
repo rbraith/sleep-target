@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
@@ -29,7 +30,7 @@ public class SessionEditFragmentViewModelTests
 //*********************************************************
 
     SessionEditFragmentViewModel viewModel;
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -45,6 +46,83 @@ public class SessionEditFragmentViewModelTests
     {
         viewModel = null;
     }
+    
+    @Test
+    public void setStartDate_leavesTimeOfDayUnchanged()
+    {
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTime(TestUtils.ArbitraryData.getDate());
+        
+        viewModel.setStartDateTime(calendar.getTimeInMillis());
+        
+        LiveData<String> startTime = viewModel.getStartTime();
+        TestUtils.LocalLiveDataSynchronizer<String> synchronizer =
+                new TestUtils.LocalLiveDataSynchronizer<>(startTime);
+        
+        String originalStartTime = startTime.getValue();
+        
+        // update the start date
+        calendar.add(Calendar.DAY_OF_MONTH, 3);
+        viewModel.setStartDate(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH));
+        
+        // SMELL [20-11-30 11:07PM] -- should setStartDate not be notifying the time of day
+        //  LiveData? Right now this happens because internally both track the same
+        //  getStartDateTime long.
+        //  If setStartDate doesn't notify the time of day LiveData, then this sync won't work,
+        //  and the test will need to be fixed
+        //  This would end up needing to be a pretty big refactor now that I think about it
+        //      It would require keeping the Date & TimeOfDay values separate internally.
+        synchronizer.sync();
+        assertThat(startTime.getValue(), is(equalTo(originalStartTime)));
+    }
+    
+    @Test
+    public void setStartDate_updatesStartDate()
+    {
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTime(TestUtils.ArbitraryData.getDate());
+        
+        viewModel.setStartDateTime(calendar.getTimeInMillis());
+        LiveData<String> startDate = viewModel.getStartDate();
+        TestUtils.LocalLiveDataSynchronizer<String> synchronizer =
+                new TestUtils.LocalLiveDataSynchronizer<>(startDate);
+        
+        DateTimeFormatter formatter = new DateTimeFormatter();
+        
+        assertThat(startDate.getValue(), is(equalTo(formatter.formatDate(calendar.getTime()))));
+        
+        calendar.add(Calendar.DAY_OF_MONTH, 3);
+        viewModel.setStartDate(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH));
+        
+        synchronizer.sync();
+        assertThat(startDate.getValue(), is(equalTo(formatter.formatDate(calendar.getTime()))));
+    }
+    
+    @Test(expected = SessionEditFragmentViewModel.InvalidDateTimeException.class)
+    public void setStartDate_throwsIfStartIsAfterEnd()
+    {
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTime(TestUtils.ArbitraryData.getDate());
+        
+        viewModel.setStartDateTime(calendar.getTimeInMillis());
+        viewModel.setEndDateTime(calendar.getTimeInMillis());
+        
+        // set start after end
+        calendar.add(Calendar.MONTH, 1);
+        viewModel.setStartDate(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH));
+    }
+    
+    // TODO [20-12-1 12:01AM] -- test needed for setStartDate being called without
+    //  setStartDateTime first being called.
     
     @Test
     public void sessionDuration_updatesWhenStartAndEndChange()

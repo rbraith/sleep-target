@@ -14,7 +14,10 @@ import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragment;
 import java.util.concurrent.ExecutionException;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static org.hamcrest.Matchers.equalTo;
 
 public class UITestUtils
@@ -29,9 +32,16 @@ public class UITestUtils
 // api
 //*********************************************************
 
+    public static void pressDialogOK()
+    {
+        // button1 is dialog positive btn
+        onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(click());
+    }
+    
     public static ViewInteraction onDatePicker()
     {
         return onView(withClassName(equalTo(DatePicker.class.getName())));
+//        return onView(isAssignableFrom(DatePicker.class));
     }
     
     /**
