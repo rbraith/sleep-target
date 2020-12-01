@@ -73,9 +73,6 @@ public class SessionEditFragmentTests
                         originalDate.getTime() - newDate.getTime()))));
     }
     
-    // TODO [20-11-29 9:08PM] -- start date does not update when negative dialog is confirmed
-    //  (ie start comes after end).
-    
     // TODO [20-12-1 12:03AM] -- dialog reflects new set start date when opened.
     
     @Test

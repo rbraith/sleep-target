@@ -19,7 +19,7 @@ public class DialogTestHelper<DialogType extends DialogFragment>
 //*********************************************************
 
     private ActivityScenario<DialogTestHelper.Activity> mScenario;
-    
+
 //*********************************************************
 // public constants
 //*********************************************************
@@ -30,9 +30,14 @@ public class DialogTestHelper<DialogType extends DialogFragment>
 // public helpers
 //*********************************************************
 
+    public interface SyncedDialogAction<D extends DialogFragment>
+    {
+        public void perform(D dialogFragment);
+    }
+
     public static class Activity
             extends AppCompatActivity {}
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -50,7 +55,7 @@ public class DialogTestHelper<DialogType extends DialogFragment>
                     }
                 });
     }
-    
+
     private DialogTestHelper(final DialogType dialogInstance)
     {
         mScenario = ActivityScenario.launch(DialogTestHelper.Activity.class);
@@ -81,7 +86,7 @@ public class DialogTestHelper<DialogType extends DialogFragment>
     {
         return new DialogTestHelper<>(instance);
     }
-    
+
     public static <DialogType extends DialogFragment> DialogTestHelper<DialogType> launchDialog(
             final Class<DialogType> dialogType)
     {
@@ -93,6 +98,23 @@ public class DialogTestHelper<DialogType extends DialogFragment>
             final Bundle args)
     {
         return new DialogTestHelper<>(dialogType, args);
+    }
+    
+    public void performSyncedDialogAction(final SyncedDialogAction<DialogType> syncedDialogAction)
+    {
+        TestUtils.performSyncedActivityAction(
+                mScenario,
+                new TestUtils.SyncedActivityAction<DialogTestHelper.Activity>()
+                {
+                    @Override
+                    public void perform(DialogTestHelper.Activity activity)
+                    {
+                        DialogType dialog = (DialogType) activity.getSupportFragmentManager()
+                                .findFragmentByTag(DIALOG_TAG);
+                        syncedDialogAction.perform(dialog);
+                    }
+                }
+        );
     }
     
     public ActivityScenario<DialogTestHelper.Activity> getScenario()

@@ -48,8 +48,12 @@ public class SessionEditFragment
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
     {
         SessionEditFragmentArgs args = SessionEditFragmentArgs.fromBundle(getArguments());
+        long startTimeMillis = args.getStartTime();
+        long endTimeMillis = args.getEndTime();
         
-        initStartTime(view.findViewById(R.id.session_edit_start_time), args.getStartTime());
+        initStartTime(view.findViewById(R.id.session_edit_start_time),
+                      startTimeMillis,
+                      endTimeMillis);
         initEndTime(view.findViewById(R.id.session_edit_end_time));
         initSessionDuration(view);
         
@@ -83,6 +87,7 @@ public class SessionEditFragment
 // private methods
 //*********************************************************
 
+    // REFACTOR [20-12-1 2:09AM] -- the params should be start & end time millis.
     private void initInputFieldValues(SessionEditFragmentArgs args)
     {
         getViewModel().setStartDateTime(args.getStartTime());
@@ -104,7 +109,10 @@ public class SessionEditFragment
                 });
     }
     
-    private void initStartTime(View startTimeLayout, final long startTimeMillis)
+    private void initStartTime(
+            View startTimeLayout,
+            final long startTimeMillis,
+            final long endTimeMillis)
     {
         // init label
         TextView startTimeName = startTimeLayout.findViewById(R.id.name);
@@ -113,6 +121,8 @@ public class SessionEditFragment
         final TextView startTime = startTimeLayout.findViewById(R.id.time);
         final TextView startDate = startTimeLayout.findViewById(R.id.date);
         
+        final SessionEditFragmentViewModel viewModel = getViewModel();
+        
         // set up dialog listeners
         startDate.setOnClickListener(new View.OnClickListener()
         {
@@ -120,13 +130,16 @@ public class SessionEditFragment
             public void onClick(View v)
             {
                 DatePickerFragment datePicker = new DatePickerFragment();
-                datePicker.setArguments(DatePickerFragment.createArguments(startTimeMillis));
+                datePicker.setArguments(DatePickerFragment.createArguments(
+                        startTimeMillis,
+                        null,
+                        endTimeMillis));
                 datePicker.setOnDateSetListener(new DatePickerFragment.OnDateSetListener()
                 {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth)
                     {
-                        getViewModel().setStartDate(year, month, dayOfMonth);
+                        viewModel.setStartDate(year, month, dayOfMonth);
                     }
                 });
                 datePicker.show(getChildFragmentManager(), DIALOG_START_DATE_PICKER);
