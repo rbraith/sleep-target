@@ -98,6 +98,38 @@ public class SessionEditFragmentTests
                 calendar.get(Calendar.DAY_OF_MONTH))));
     }
     
+    @Test
+    public void startDateDialog_reflectsUpdatedStartDate()
+    {
+        // GIVEN the user updates the start date from the dialog
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTime(TestUtils.ArbitraryData.getDate());
+        
+        Bundle args = SessionEditFragment.createArguments(calendar.getTimeInMillis(),
+                                                          calendar.getTimeInMillis());
+        HiltFragmentTestHelper<SessionEditFragment> testHelper
+                = HiltFragmentTestHelper.launchFragmentWithArgs(SessionEditFragment.class, args);
+        
+        onStartDateTextView().perform(click());
+        
+        calendar.add(Calendar.DAY_OF_YEAR, -5);
+        onDatePicker().perform(setDatePickerDate(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)));
+        
+        UITestUtils.pressDialogOK();
+        
+        // WHEN the user reopens the dialog
+        onStartDateTextView().perform(click());
+        
+        // THEN the dialog reflects the current start date
+        onDatePicker().check(matches(datePickerWithDate(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH))));
+    }
+    
     // TODO [20-11-28 9:10PM] -- startTime_displaysCorrectDialogWhenPressed.
     // TODO [20-11-28 9:10PM] -- endDate_displaysCorrectDialogWhenPressed.
     // TODO [20-11-28 9:10PM] -- endTime_displaysCorrectDialogWhenPressed.

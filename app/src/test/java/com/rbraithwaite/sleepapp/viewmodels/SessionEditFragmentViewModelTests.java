@@ -48,6 +48,44 @@ public class SessionEditFragmentViewModelTests
     }
     
     @Test
+    public void getEndDateTime_isNullWhenNotSet()
+    {
+        assertThat(viewModel.getEndDateTime().getValue(), is(nullValue()));
+    }
+    
+    @Test
+    public void getStartDateTime_isNullWhenNotSet()
+    {
+        assertThat(viewModel.getStartDateTime().getValue(), is(nullValue()));
+    }
+    
+    @Test
+    public void setStartDateTime_updates_getStartDateTime()
+    {
+        Date testDate = TestUtils.ArbitraryData.getDate();
+        
+        viewModel.setStartDateTime(testDate.getTime());
+        
+        LiveData<Long> startDateTime = viewModel.getStartDateTime();
+        TestUtils.activateLocalLiveData(startDateTime);
+        
+        assertThat(startDateTime.getValue(), is(equalTo(testDate.getTime())));
+    }
+    
+    @Test
+    public void setEndDateTime_updates_getEndDateTime()
+    {
+        Date testDate = TestUtils.ArbitraryData.getDate();
+        
+        viewModel.setEndDateTime(testDate.getTime());
+        
+        LiveData<Long> endDateTime = viewModel.getEndDateTime();
+        TestUtils.activateLocalLiveData(endDateTime);
+        
+        assertThat(endDateTime.getValue(), is(equalTo(testDate.getTime())));
+    }
+    
+    @Test
     public void setStartDate_leavesTimeOfDayUnchanged()
     {
         GregorianCalendar calendar = new GregorianCalendar();

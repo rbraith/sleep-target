@@ -32,7 +32,7 @@ public class SessionEditFragmentViewModel
     LiveData<String> mSessionDuration;
     MutableLiveData<Long> mStartDateTime;
     MutableLiveData<Long> mEndDateTime;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -67,23 +67,25 @@ public class SessionEditFragmentViewModel
         if (mSessionDuration == null) {
             final MediatorLiveData<String> mediatorLiveData = new MediatorLiveData<>();
             // update on start changed
-            mediatorLiveData.addSource(getStartDateTime(), new Observer<Long>()
+            mediatorLiveData.addSource(getStartDateTimeMutable(), new Observer<Long>()
             {
                 @Override
                 public void onChanged(Long newStartTime)
                 {
                     mediatorLiveData.setValue(formatter.formatDurationMillis(
-                            computeDurationMillis(newStartTime, getEndDateTime().getValue())));
+                            computeDurationMillis(newStartTime,
+                                                  getEndDateTimeMutable().getValue())));
                 }
             });
             // update on end changed
-            mediatorLiveData.addSource(getEndDateTime(), new Observer<Long>()
+            mediatorLiveData.addSource(getEndDateTimeMutable(), new Observer<Long>()
             {
                 @Override
                 public void onChanged(Long newEndTime)
                 {
                     mediatorLiveData.setValue(formatter.formatDurationMillis(
-                            computeDurationMillis(getStartDateTime().getValue(), newEndTime)));
+                            computeDurationMillis(getStartDateTimeMutable().getValue(),
+                                                  newEndTime)));
                 }
             });
             mSessionDuration = mediatorLiveData;
@@ -94,29 +96,33 @@ public class SessionEditFragmentViewModel
     
     public LiveData<String> getStartTime()
     {
-        return lazyInitLiveDateTime(mStartTime, getStartDateTime(), DateTimeFormatType.TIME_OF_DAY);
+        return lazyInitLiveDateTime(mStartTime,
+                                    getStartDateTimeMutable(),
+                                    DateTimeFormatType.TIME_OF_DAY);
     }
     
     public LiveData<String> getEndTime()
     {
-        return lazyInitLiveDateTime(mEndTime, getEndDateTime(), DateTimeFormatType.TIME_OF_DAY);
+        return lazyInitLiveDateTime(mEndTime,
+                                    getEndDateTimeMutable(),
+                                    DateTimeFormatType.TIME_OF_DAY);
     }
     
     public LiveData<String> getEndDate()
     {
-        return lazyInitLiveDateTime(mEndDate, getEndDateTime(), DateTimeFormatType.DATE);
+        return lazyInitLiveDateTime(mEndDate, getEndDateTimeMutable(), DateTimeFormatType.DATE);
     }
     
     public LiveData<String> getStartDate()
     {
-        return lazyInitLiveDateTime(mStartDate, getStartDateTime(), DateTimeFormatType.DATE);
+        return lazyInitLiveDateTime(mStartDate, getStartDateTimeMutable(), DateTimeFormatType.DATE);
     }
     
     public void setStartDate(int year, int month, int dayOfMonth)
     {
         // update the start date
         GregorianCalendar calendar = new GregorianCalendar();
-        calendar.setTimeInMillis(getStartDateTime().getValue());
+        calendar.setTimeInMillis(getStartDateTimeMutable().getValue());
         calendar.set(Calendar.YEAR, year);
         calendar.set(Calendar.MONTH, month);
         calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
@@ -133,6 +139,32 @@ public class SessionEditFragmentViewModel
         // set the new date
         setStartDateTime(calendar.getTimeInMillis());
     }
+
+    public LiveData<Long> getEndDateTime()
+    {
+        return getEndDateTimeMutable();
+    }
+    
+    public void setEndDateTime(long endTime)
+    {
+        // TODO [20-11-23 3:23AM] -- verify end time is after or equal to start time.
+        //  (leaving this for now - this becomes relevant when I implement user input to change
+        //  the values).
+        getEndDateTimeMutable().setValue(endTime);
+    }
+    
+    public LiveData<Long> getStartDateTime()
+    {
+        return getStartDateTimeMutable();
+    }
+    
+    public void setStartDateTime(long startTime)
+    {
+        // TODO [20-11-23 2:52AM] -- verify startTime is before or equal to end time.
+        //  (leaving this for now - this becomes relevant when I implement user input to change
+        //  the values).
+        getStartDateTimeMutable().setValue(startTime);
+    }
     
 //*********************************************************
 // private methods
@@ -140,7 +172,7 @@ public class SessionEditFragmentViewModel
 
     private boolean isInvalidStartDateTime(long startDateTime)
     {
-        Long endDateTime = getEndDateTime().getValue();
+        Long endDateTime = getEndDateTimeMutable().getValue();
         // REFACTOR [20-11-30 11:59PM] -- consider making a higher order isInvalidStartEnd(start,
         //  end).
         if (endDateTime == null) {
@@ -190,7 +222,7 @@ public class SessionEditFragmentViewModel
         }
         return target;
     }
-
+    
     private String formatDateTimeMillisFromType(long dateMillis, DateTimeFormatType formatType)
     {
         DateTimeFormatter formatter = new DateTimeFormatter();
@@ -205,7 +237,7 @@ public class SessionEditFragmentViewModel
         }
     }
     
-    private MutableLiveData<Long> getStartDateTime()
+    private MutableLiveData<Long> getStartDateTimeMutable()
     {
         if (mStartDateTime == null) {
             mStartDateTime = new MutableLiveData<>(null);
@@ -213,28 +245,12 @@ public class SessionEditFragmentViewModel
         return mStartDateTime;
     }
     
-    public void setStartDateTime(long startTime)
-    {
-        // TODO [20-11-23 2:52AM] -- verify startTime is before or equal to end time.
-        //  (leaving this for now - this becomes relevant when I implement user input to change
-        //  the values).
-        getStartDateTime().setValue(startTime);
-    }
-    
-    private MutableLiveData<Long> getEndDateTime()
+    private MutableLiveData<Long> getEndDateTimeMutable()
     {
         if (mEndDateTime == null) {
             mEndDateTime = new MutableLiveData<>(null);
         }
         return mEndDateTime;
-    }
-    
-    public void setEndDateTime(long endTime)
-    {
-        // TODO [20-11-23 3:23AM] -- verify end time is after or equal to start time.
-        //  (leaving this for now - this becomes relevant when I implement user input to change
-        //  the values).
-        getEndDateTime().setValue(endTime);
     }
 
 //*********************************************************
