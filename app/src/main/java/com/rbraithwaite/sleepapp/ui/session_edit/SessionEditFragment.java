@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -156,8 +157,16 @@ public class SessionEditFragment
                 //  DatePickerFragment
                 //  to use max/min date values (as it originally did - see DatePickerFragment &
                 //  SessionEditFragment.initStartTime() in commit [main c3d7e12])
-                timePicker.setArguments(TimePickerFragment.createArguments(viewModel.getStartDateTime()
-                                                                                   .getValue()));
+                timePicker.setArguments(TimePickerFragment.createArguments(
+                        viewModel.getStartDateTime().getValue()));
+                timePicker.setOnTimeSetListener(new TimePickerFragment.OnTimeSetListener()
+                {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute)
+                    {
+                        viewModel.setStartTime(hourOfDay, minute);
+                    }
+                });
                 timePicker.show(getChildFragmentManager(), DIALOG_START_TIME_PICKER);
             }
         });

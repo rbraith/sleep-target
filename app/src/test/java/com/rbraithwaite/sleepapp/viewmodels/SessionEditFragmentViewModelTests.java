@@ -161,6 +161,97 @@ public class SessionEditFragmentViewModelTests
     
     // TODO [20-12-1 12:01AM] -- test needed for setStartDate being called without
     //  setStartDateTime first being called.
+    // TODO [20-12-6 8:20PM] -- test needed for setStartTime being called without
+    //  setStartDateTime first being called.
+    
+    @Test
+    public void setStartTime_leavesDateUnchanged()
+    {
+        // set startDateTime
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTime(TestUtils.ArbitraryData.getDate());
+        
+        viewModel.setStartDateTime(calendar.getTimeInMillis());
+        
+        // begin watching getStartDate
+        LiveData<String> startDate = viewModel.getStartDate();
+        TestUtils.LocalLiveDataSynchronizer<String> synchronizer =
+                new TestUtils.LocalLiveDataSynchronizer<>(startDate);
+        
+        String originalStartDate = startDate.getValue();
+        
+        // update setStartTime
+        calendar.add(Calendar.MINUTE, 15);
+        viewModel.setStartTime(calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
+        
+        // assert getStartDate is the same
+        // SMELL [20-12-6 8:31PM] -- see smell in setStartDate_leavesTimeOfDayUnchanged.
+        synchronizer.sync();
+        assertThat(startDate.getValue(), is(equalTo(originalStartDate)));
+    }
+    
+    @Test
+    public void setStartTime_updatesStartTime()
+    {
+        // set startdatetime
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTime(TestUtils.ArbitraryData.getDate());
+        
+        viewModel.setStartDateTime(calendar.getTimeInMillis());
+        
+        // watch start time
+        LiveData<String> startTime = viewModel.getStartTime();
+        TestUtils.LocalLiveDataSynchronizer<String> synchronizer =
+                new TestUtils.LocalLiveDataSynchronizer<>(startTime);
+        
+        // set start time
+        calendar.add(Calendar.MINUTE, 15);
+        viewModel.setStartTime(calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
+        
+        // start time changes
+        synchronizer.sync();
+        assertThat(startTime.getValue(),
+                   is(equalTo(new DateTimeFormatter().formatTimeOfDay(calendar.getTime()))));
+    }
+    
+    @Test
+    public void setStartTime_updatesStartDateTime()
+    {
+        // set startdatetime
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTime(TestUtils.ArbitraryData.getDate());
+        
+        viewModel.setStartDateTime(calendar.getTimeInMillis());
+        
+        // watch startdatetime
+        LiveData<Long> startDateTime = viewModel.getStartDateTime();
+        TestUtils.LocalLiveDataSynchronizer<Long> synchronizer =
+                new TestUtils.LocalLiveDataSynchronizer<>(startDateTime);
+        
+        // set start time
+        calendar.add(Calendar.MINUTE, 15);
+        viewModel.setStartTime(calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
+        
+        // start time changes
+        synchronizer.sync();
+        assertThat(startDateTime.getValue(), is(equalTo(calendar.getTimeInMillis())));
+    }
+    
+    @Test(expected = SessionEditFragmentViewModel.InvalidDateTimeException.class)
+    public void setStartTime_throwsIfStartIsAfterEnd()
+    {
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTime(TestUtils.ArbitraryData.getDate());
+        
+        viewModel.setStartDateTime(calendar.getTimeInMillis());
+        viewModel.setEndDateTime(calendar.getTimeInMillis());
+        
+        // set start after end
+        calendar.add(Calendar.HOUR_OF_DAY, 1);
+        viewModel.setStartTime(
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE));
+    }
     
     @Test
     public void sessionDuration_updatesWhenStartAndEndChange()

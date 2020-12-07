@@ -3,6 +3,7 @@ package com.rbraithwaite.sleepapp.ui_tests;
 import android.os.Bundle;
 
 import androidx.test.espresso.ViewInteraction;
+import androidx.test.espresso.contrib.PickerActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.R;
@@ -73,6 +74,38 @@ public class SessionEditFragmentTests
         onView(withId(R.id.session_edit_duration))
                 .check(matches(withText(new DurationFormatter().formatDurationMillis(
                         originalDate.getTime() - newDate.getTime()))));
+    }
+    
+    @Test
+    public void startTime_updatesWhenPositiveDialogIsConfirmed()
+    {
+        // GIVEN the user has the start time dialog open
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTime(TestUtils.ArbitraryData.getDate());
+        Date originalDate = calendar.getTime();
+        
+        Bundle args = SessionEditFragment.createArguments(calendar.getTimeInMillis(),
+                                                          calendar.getTimeInMillis());
+        HiltFragmentTestHelper<SessionEditFragment> testHelper
+                = HiltFragmentTestHelper.launchFragmentWithArgs(SessionEditFragment.class, args);
+        
+        onStartTimeTextView().perform(click());
+        
+        // WHEN the user changes the time and confirms the dialog
+        // positive change, the start time remains before the end time
+        calendar.add(Calendar.HOUR_OF_DAY, -1);
+        onTimePicker().perform(PickerActions.setTime(
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE)));
+        UITestUtils.pressDialogOK();
+        
+        // THEN the start time is updated
+        onStartTimeTextView().check(matches(withText(new DateTimeFormatter().formatTimeOfDay(
+                calendar.getTime()))));
+        // AND the session duration text is updated
+        onView(withId(R.id.session_edit_duration))
+                .check(matches(withText(new DurationFormatter().formatDurationMillis(
+                        originalDate.getTime() - calendar.getTime().getTime()))));
     }
     
     // TODO [20-12-1 12:03AM] -- dialog reflects new set start date when opened.

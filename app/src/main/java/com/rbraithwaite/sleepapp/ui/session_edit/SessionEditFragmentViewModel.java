@@ -25,11 +25,11 @@ public class SessionEditFragmentViewModel
 //*********************************************************
 
     LiveData<String> mStartTime;
-    
     LiveData<String> mStartDate;
     LiveData<String> mEndTime;
     LiveData<String> mEndDate;
     LiveData<String> mSessionDuration;
+    
     MutableLiveData<Long> mStartDateTime;
     MutableLiveData<Long> mEndDateTime;
 
@@ -122,6 +122,7 @@ public class SessionEditFragmentViewModel
     {
         // update the start date
         GregorianCalendar calendar = new GregorianCalendar();
+        // REFACTOR [20-12-6 8:37PM] -- this doesn't need to be mutable - use getStartDateTime.
         calendar.setTimeInMillis(getStartDateTimeMutable().getValue());
         calendar.set(Calendar.YEAR, year);
         calendar.set(Calendar.MONTH, month);
@@ -139,7 +140,29 @@ public class SessionEditFragmentViewModel
         // set the new date
         setStartDateTime(calendar.getTimeInMillis());
     }
-
+    
+    public void setStartTime(int hourOfDay, int minute)
+    {
+        // REFACTOR [20-12-6 8:35PM] -- this essentially duplicates the logic of
+        //  setStartDate - consider possibilities for reducing that repetition.
+        
+        // OPTIMIZE [20-12-6 8:36PM] -- consider doing nothing if the new time matches the old.
+        
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTimeInMillis(getStartDateTime().getValue());
+        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+        calendar.set(Calendar.MINUTE, minute);
+        
+        if (isInvalidStartDateTime(calendar.getTimeInMillis())) {
+            throw new InvalidDateTimeException(String.format(
+                    "Invalid start time: %s (start) > %s (end)",
+                    new DateTimeFormatter().formatTimeOfDay(calendar.getTime()),
+                    getEndTime()));
+        }
+        
+        setStartDateTime(calendar.getTimeInMillis());
+    }
+    
     public LiveData<Long> getEndDateTime()
     {
         return getEndDateTimeMutable();
@@ -165,7 +188,7 @@ public class SessionEditFragmentViewModel
         //  the values).
         getStartDateTimeMutable().setValue(startTime);
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

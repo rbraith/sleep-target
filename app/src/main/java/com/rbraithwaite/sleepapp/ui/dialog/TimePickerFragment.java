@@ -17,10 +17,25 @@ public class TimePickerFragment
         implements TimePickerDialog.OnTimeSetListener
 {
 //*********************************************************
+// private properties
+//*********************************************************
+
+    private OnTimeSetListener mListener;
+
+//*********************************************************
 // private constants
 //*********************************************************
 
     private static final String ARG_DATETIME = "datetime";
+
+//*********************************************************
+// public helpers
+//*********************************************************
+
+    public interface OnTimeSetListener
+    {
+        void onTimeSet(TimePicker view, int hourOfDay, int minute);
+    }
     
 //*********************************************************
 // overrides
@@ -42,12 +57,13 @@ public class TimePickerFragment
                 calendar.get(Calendar.MINUTE),
                 false);
     }
-    
+
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute)
     {
-        // TO IMPLEMENT
-        throw new UnsupportedOperationException("Not implemented yet.");
+        if (mListener != null) {
+            mListener.onTimeSet(view, hourOfDay, minute);
+        }
     }
     
 //*********************************************************
@@ -59,5 +75,10 @@ public class TimePickerFragment
         Bundle args = new Bundle();
         args.putLong(ARG_DATETIME, dateTimeMillis);
         return args;
+    }
+    
+    public void setOnTimeSetListener(OnTimeSetListener listener)
+    {
+        mListener = listener;
     }
 }
