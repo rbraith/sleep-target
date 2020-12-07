@@ -1,6 +1,7 @@
 package com.rbraithwaite.sleepapp.test_utils.ui;
 
 import android.widget.DatePicker;
+import android.widget.TimePicker;
 
 import androidx.fragment.app.Fragment;
 import androidx.test.core.app.ActivityScenario;
@@ -38,10 +39,17 @@ public class UITestUtils
         onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(click());
     }
     
+    // TODO [20-12-5 8:09PM] -- pressDialogCancel()
+    
     public static ViewInteraction onDatePicker()
     {
         return onView(withClassName(equalTo(DatePicker.class.getName())));
 //        return onView(isAssignableFrom(DatePicker.class));
+    }
+    
+    public static ViewInteraction onTimePicker()
+    {
+        return onView(withClassName(equalTo(TimePicker.class.getName())));
     }
     
     /**

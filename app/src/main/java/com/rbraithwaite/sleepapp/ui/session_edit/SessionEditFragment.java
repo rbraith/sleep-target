@@ -14,6 +14,7 @@ import androidx.lifecycle.Observer;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
 import com.rbraithwaite.sleepapp.ui.dialog.DatePickerFragment;
+import com.rbraithwaite.sleepapp.ui.dialog.TimePickerFragment;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragmentDirections;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -29,6 +30,7 @@ public class SessionEditFragment
     private static final String TAG = "SessionEditFragment";
     
     private static final String DIALOG_START_DATE_PICKER = "StartDatePicker";
+    private static final String DIALOG_START_TIME_PICKER = "StartTimePicker";
 
 //*********************************************************
 // overrides
@@ -137,7 +139,28 @@ public class SessionEditFragment
             }
         });
         
-        // TODO [20-11-29 7:05PM] -- startTime.setOnClick...
+        startTime.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                TimePickerFragment timePicker = new TimePickerFragment();
+                // IDEA [20-12-5 8:36PM] -- consider creating a custom TimePickerDialog which has
+                //  max/min times (instead of allowing user to pick any time)
+                //  https://stackoverflow.com/a/16942630
+                //  I decided not to go with this idea for now since I would need to find a way
+                //  to grey-out un-selectable times in order to match the behaviour of
+                //  DatePicker.maxDate(), minDate()
+                //  --
+                //  Note: If I were to go with this behaviour, I would need to rework
+                //  DatePickerFragment
+                //  to use max/min date values (as it originally did - see DatePickerFragment &
+                //  SessionEditFragment.initStartTime() in commit [main c3d7e12])
+                timePicker.setArguments(TimePickerFragment.createArguments(viewModel.getStartDateTime()
+                                                                                   .getValue()));
+                timePicker.show(getChildFragmentManager(), DIALOG_START_TIME_PICKER);
+            }
+        });
         
         // bind input fields
         getViewModel().getStartTime().observe(getViewLifecycleOwner(), new Observer<String>()

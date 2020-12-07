@@ -29,7 +29,9 @@ import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoActions.setDatePickerDate;
 import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoMatchers.datePickerWithDate;
+import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoMatchers.timePickerWithTime;
 import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.onDatePicker;
+import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.onTimePicker;
 import static org.hamcrest.Matchers.allOf;
 
 @RunWith(AndroidJUnit4.class)
@@ -98,6 +100,30 @@ public class SessionEditFragmentTests
                 calendar.get(Calendar.DAY_OF_MONTH))));
     }
     
+    // REFACTOR [20-12-5 7:54PM] -- i should separate the different dialog tests to different
+    //  modules - start date, start time, end date, end time
+    @Test
+    public void startTime_displaysCorrectDialogWhenPressed()
+    {
+        // GIVEN the user has the session edit fragment open
+        GregorianCalendar calendar = new GregorianCalendar(2019, 8, 7, 6, 5);
+        long testDate = calendar.getTimeInMillis();
+        
+        Bundle args = SessionEditFragment.createArguments(testDate, testDate);
+        HiltFragmentTestHelper<SessionEditFragment> testHelper
+                = HiltFragmentTestHelper.launchFragmentWithArgs(SessionEditFragment.class, args);
+        
+        // WHEN the user presses the start time text view
+        onStartTimeTextView().perform(click());
+        
+        // THEN a TimePickerDialog is displayed
+        onTimePicker().check(matches(isDisplayed()));
+        // AND the dialog values match the start time text
+        onTimePicker().check(matches(timePickerWithTime(
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE))));
+    }
+    
     @Test
     public void startDateDialog_reflectsUpdatedStartDate()
     {
@@ -130,7 +156,6 @@ public class SessionEditFragmentTests
                 calendar.get(Calendar.DAY_OF_MONTH))));
     }
     
-    // TODO [20-11-28 9:10PM] -- startTime_displaysCorrectDialogWhenPressed.
     // TODO [20-11-28 9:10PM] -- endDate_displaysCorrectDialogWhenPressed.
     // TODO [20-11-28 9:10PM] -- endTime_displaysCorrectDialogWhenPressed.
     // TODO [20-11-29 7:21PM] -- test that dialog is retained (with correct values) across device
