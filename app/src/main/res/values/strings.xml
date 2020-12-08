@@ -4,4 +4,5 @@
     <string name="sleep_tracker_button_stop">End Sleep Session</string>
     <string name="session_edit_start_time_name">Start time:</string>
     <string name="session_edit_end_time_name">End time:</string>
+    <string name="error_session_edit_start_time">The start date cannot be after the end date.</string>
 </resources>

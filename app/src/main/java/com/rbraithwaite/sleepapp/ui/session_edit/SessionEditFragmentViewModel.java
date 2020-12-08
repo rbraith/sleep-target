@@ -157,7 +157,7 @@ public class SessionEditFragmentViewModel
             throw new InvalidDateTimeException(String.format(
                     "Invalid start time: %s (start) > %s (end)",
                     new DateTimeFormatter().formatTimeOfDay(calendar.getTime()),
-                    getEndTime()));
+                    getEndTime().getValue()));
         }
         
         setStartDateTime(calendar.getTimeInMillis());

@@ -35,6 +35,8 @@ import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.onDatePicker;
 import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.onTimePicker;
 import static org.hamcrest.Matchers.allOf;
 
+//import static androidx.core.content.res.TypedArrayUtils.getString;
+
 @RunWith(AndroidJUnit4.class)
 public class SessionEditFragmentTests
 {
@@ -158,6 +160,68 @@ public class SessionEditFragmentTests
     }
     
     @Test
+    public void startTimeDialog_reflectsUpdatedStartTime()
+    {
+        // GIVEN the user updates the start time from the dialog
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTime(TestUtils.ArbitraryData.getDate());
+        
+        Bundle args = SessionEditFragment.createArguments(calendar.getTimeInMillis(),
+                                                          calendar.getTimeInMillis());
+        HiltFragmentTestHelper<SessionEditFragment> testHelper
+                = HiltFragmentTestHelper.launchFragmentWithArgs(SessionEditFragment.class, args);
+        
+        onStartTimeTextView().perform(click());
+        
+        calendar.add(Calendar.MINUTE, -5);
+        onTimePicker().perform(PickerActions.setTime(
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE)));
+        
+        UITestUtils.pressDialogOK();
+        
+        // WHEN the user reopens the dialog
+        onStartTimeTextView().perform(click());
+        
+        // THEN the dialog reflects the current start time
+        onTimePicker().check(matches(timePickerWithTime(
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE))));
+    }
+    
+    @Test
+    public void invalidStartTimeDialog_showsError()
+    {
+        // GIVEN the user has the start time dialog open
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTime(TestUtils.ArbitraryData.getDate());
+        
+        Bundle args = SessionEditFragment.createArguments(calendar.getTimeInMillis(),
+                                                          calendar.getTimeInMillis());
+        HiltFragmentTestHelper<SessionEditFragment> testHelper
+                = HiltFragmentTestHelper.launchFragmentWithArgs(SessionEditFragment.class, args);
+        
+        onStartTimeTextView().perform(click());
+        
+        // WHEN the user confirms an invalid start time (start > end)
+        Date originalStartTime = calendar.getTime();
+        calendar.add(Calendar.MINUTE, 10); // set start after end, making it invalid
+        onTimePicker().perform(PickerActions.setTime(
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE)));
+        
+        UITestUtils.pressDialogOK();
+        
+        // THEN the start time is not updated
+        onStartTimeTextView().check(matches(withText(new DateTimeFormatter().formatTimeOfDay(
+                originalStartTime))));
+        // AND an error message is displayed
+        UITestUtils.checkSnackbarIsDisplayedWithMessage(R.string.error_session_edit_start_time);
+    }
+    
+    // TODO [20-12-7 10:49PM] -- invalidStartDateDialog_showsError()
+    
+    @Test
     public void startDateDialog_reflectsUpdatedStartDate()
     {
         // GIVEN the user updates the start date from the dialog
@@ -191,8 +255,6 @@ public class SessionEditFragmentTests
     
     // TODO [20-11-28 9:10PM] -- endDate_displaysCorrectDialogWhenPressed.
     // TODO [20-11-28 9:10PM] -- endTime_displaysCorrectDialogWhenPressed.
-    // TODO [20-11-29 7:21PM] -- test that dialog is retained (with correct values) across device
-    //  rotation.
     
     // TODO [20-11-28 10:17PM] -- test fragment arg variations
     //  start null, end null, both null, start after end

@@ -1,6 +1,7 @@
 package com.rbraithwaite.sleepapp.ui.session_edit;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
 import com.rbraithwaite.sleepapp.ui.dialog.DatePickerFragment;
@@ -164,7 +166,14 @@ public class SessionEditFragment
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute)
                     {
-                        viewModel.setStartTime(hourOfDay, minute);
+                        try {
+                            viewModel.setStartTime(hourOfDay, minute);
+                        } catch (SessionEditFragmentViewModel.InvalidDateTimeException e) {
+                            Log.d(TAG, "onTimeSet: invalid start time");
+                            Snackbar.make(getView(),
+                                          R.string.error_session_edit_start_time,
+                                          Snackbar.LENGTH_SHORT).show();
+                        }
                     }
                 });
                 timePicker.show(getChildFragmentManager(), DIALOG_START_TIME_PICKER);

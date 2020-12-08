@@ -6,6 +6,7 @@ import android.widget.TimePicker;
 import androidx.fragment.app.Fragment;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.ViewInteraction;
+import androidx.test.espresso.matcher.ViewMatchers;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.test_utils.SimpleCompletableFuture;
@@ -16,9 +17,13 @@ import java.util.concurrent.ExecutionException;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
+import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
 
 public class UITestUtils
@@ -33,6 +38,14 @@ public class UITestUtils
 // api
 //*********************************************************
 
+    public static void checkSnackbarIsDisplayedWithMessage(int stringId)
+    {
+        // https://stackoverflow.com/a/39915776
+        // https://stackoverflow.com/a/33245290
+        onView(allOf(withId(com.google.android.material.R.id.snackbar_text), withText(stringId)))
+                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+    }
+    
     public static void pressDialogOK()
     {
         // button1 is dialog positive btn
