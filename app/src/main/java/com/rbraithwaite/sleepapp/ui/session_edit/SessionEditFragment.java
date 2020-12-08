@@ -52,8 +52,8 @@ public class SessionEditFragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
     {
-        initStartTime(view.findViewById(R.id.session_edit_start_time));
-        initEndTime(view.findViewById(R.id.session_edit_end_time));
+        initStartDateTime(view.findViewById(R.id.session_edit_start_time));
+        initEndDateTime(view.findViewById(R.id.session_edit_end_time));
         initSessionDuration(view);
         
         SessionEditFragmentArgs args = SessionEditFragmentArgs.fromBundle(getArguments());
@@ -109,7 +109,7 @@ public class SessionEditFragment
                 });
     }
     
-    private void initStartTime(View startTimeLayout)
+    private void initStartDateTime(View startTimeLayout)
     {
         // init label
         TextView startTimeName = startTimeLayout.findViewById(R.id.name);
@@ -118,9 +118,35 @@ public class SessionEditFragment
         final TextView startTime = startTimeLayout.findViewById(R.id.time);
         final TextView startDate = startTimeLayout.findViewById(R.id.date);
         
-        // set up dialog listeners
+        initStartDateTimeListeners(startDate, startTime);
+        
+        bindStartDateTimeViews(startDate, startTime);
+    }
+    
+    private void bindStartDateTimeViews(final TextView startDateText, final TextView startTimeText)
+    {
+        getViewModel().getStartTime().observe(getViewLifecycleOwner(), new Observer<String>()
+        {
+            @Override
+            public void onChanged(String newStartTime)
+            {
+                startTimeText.setText(newStartTime);
+            }
+        });
+        getViewModel().getStartDate().observe(getViewLifecycleOwner(), new Observer<String>()
+        {
+            @Override
+            public void onChanged(String newStartDate)
+            {
+                startDateText.setText(newStartDate);
+            }
+        });
+    }
+    
+    private void initStartDateTimeListeners(TextView startDateText, TextView startTimeText)
+    {
         final SessionEditFragmentViewModel viewModel = getViewModel();
-        startDate.setOnClickListener(new View.OnClickListener()
+        startDateText.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
@@ -146,7 +172,7 @@ public class SessionEditFragment
             }
         });
         
-        startTime.setOnClickListener(new View.OnClickListener()
+        startTimeText.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
@@ -183,42 +209,60 @@ public class SessionEditFragment
                 timePicker.show(getChildFragmentManager(), DIALOG_START_TIME_PICKER);
             }
         });
-        
-        // bind input fields
-        getViewModel().getStartTime().observe(getViewLifecycleOwner(), new Observer<String>()
-        {
-            @Override
-            public void onChanged(String newStartTime)
-            {
-                startTime.setText(newStartTime);
-            }
-        });
-        getViewModel().getStartDate().observe(getViewLifecycleOwner(), new Observer<String>()
-        {
-            @Override
-            public void onChanged(String newStartDate)
-            {
-                startDate.setText(newStartDate);
-            }
-        });
     }
     
-    private void initEndTime(View endTimeLayout)
+    private void initEndDateTime(View endTimeLayout)
     {
         // init label
         TextView endTimeName = endTimeLayout.findViewById(R.id.name);
         endTimeName.setText(R.string.session_edit_end_time_name);
         
-        // bind input fields
         final TextView endTime = endTimeLayout.findViewById(R.id.time);
         final TextView endDate = endTimeLayout.findViewById(R.id.date);
         
+        initEndDateTimeListeners(endDate, endTime);
+        
+        bindEndDateTimeViews(endDate, endTime);
+    }
+    
+    private void initEndDateTimeListeners(final TextView endDateText, final TextView endTimeText)
+    {
+        final SessionEditFragmentViewModel viewModel = getViewModel();
+        endDateText.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                DatePickerFragment datePicker = new DatePickerFragment();
+                datePicker.setArguments(DatePickerFragment.createArguments(
+                        viewModel.getEndDateTime().getValue()));
+                datePicker.setOnDateSetListener(new DatePickerFragment.OnDateSetListener()
+                {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth)
+                    {
+                        try {
+                            viewModel.setEndDate(year, month, dayOfMonth);
+                        } catch (SessionEditFragmentViewModel.InvalidDateTimeException e) {
+                            Snackbar.make(getView(),
+                                          R.string.error_session_edit_end_datetime,
+                                          Snackbar.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+                datePicker.show(getChildFragmentManager(), DIALOG_START_DATE_PICKER);
+            }
+        });
+    }
+    
+    private void bindEndDateTimeViews(final TextView endDateText, final TextView endTimeText)
+    {
         getViewModel().getEndTime().observe(getViewLifecycleOwner(), new Observer<String>()
         {
             @Override
             public void onChanged(String newEndTime)
             {
-                endTime.setText(newEndTime);
+                endTimeText.setText(newEndTime);
             }
         });
         getViewModel().getEndDate().observe(getViewLifecycleOwner(), new Observer<String>()
@@ -226,7 +270,7 @@ public class SessionEditFragment
             @Override
             public void onChanged(String newEndDate)
             {
-                endDate.setText(newEndDate);
+                endDateText.setText(newEndDate);
             }
         });
     }

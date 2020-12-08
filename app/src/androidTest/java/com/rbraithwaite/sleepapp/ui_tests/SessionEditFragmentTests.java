@@ -234,16 +234,12 @@ public class SessionEditFragmentTests
     public void startDateDialog_reflectsUpdatedStartDate()
     {
         // GIVEN the user updates the start date from the dialog
-        GregorianCalendar calendar = new GregorianCalendar();
-        calendar.setTime(TestUtils.ArbitraryData.getDate());
-        
-        Bundle args = SessionEditFragment.createArguments(calendar.getTimeInMillis(),
-                                                          calendar.getTimeInMillis());
         HiltFragmentTestHelper<SessionEditFragment> testHelper
-                = HiltFragmentTestHelper.launchFragmentWithArgs(SessionEditFragment.class, args);
+                = launchSessionEditFragmentWithArbitraryDates();
         
         onStartDateTextView().perform(click());
         
+        GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
         calendar.add(Calendar.DAY_OF_YEAR, -5);
         onDatePicker().perform(setDatePickerDate(
                 calendar.get(Calendar.YEAR),
@@ -292,11 +288,119 @@ public class SessionEditFragmentTests
                         testEndTime.getTime() - testStartTime.getTime()))));
     }
     
-    // TODO [20-11-28 9:10PM] -- endDate_displaysCorrectDialogWhenPressed.
+    @Test
+    public void endDate_displaysCorrectDialogWhenPressed()
+    {
+        // GIVEN the user has the session edit fragment open
+        GregorianCalendar calendar = new GregorianCalendar(2019, 8, 7, 6, 5);
+        long testDate = calendar.getTimeInMillis();
+        
+        Bundle args = SessionEditFragment.createArguments(testDate, testDate);
+        HiltFragmentTestHelper<SessionEditFragment> testHelper
+                = HiltFragmentTestHelper.launchFragmentWithArgs(SessionEditFragment.class, args);
+        
+        // WHEN the user presses the end date text view
+        onEndDateTextView().perform(click());
+        
+        // THEN a DatePickerDialog is displayed
+        onDatePicker().check(matches(isDisplayed()));
+        // AND the dialog values match the start date text
+        onDatePicker().check(matches(datePickerWithDate(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH))));
+    }
+    
+    @Test
+    public void endDate_updatesWhenPositiveDialogIsConfirmed()
+    {
+        // GIVEN the user has the end date dialog open
+        HiltFragmentTestHelper<SessionEditFragment> testHelper
+                = launchSessionEditFragmentWithArbitraryDates();
+        
+        onEndDateTextView().perform(click());
+        
+        // WHEN the user changes the date and confirms the dialog
+        GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
+        Date originalDate = calendar.getTime();
+        calendar.add(Calendar.MONTH, 1);
+        Date newDate = calendar.getTime();
+        onDatePicker().perform(setDatePickerDate(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)));
+        
+        UITestUtils.pressDialogOK();
+        
+        // THEN the end date text is updated
+        onEndDateTextView().check(matches(withText(new DateTimeFormatter().formatDate(calendar.getTime()))));
+        // AND the session duration text is updated
+        onView(withId(R.id.session_edit_duration))
+                .check(matches(withText(new DurationFormatter().formatDurationMillis(
+                        newDate.getTime() - originalDate.getTime()))));
+    }
+    
+    @Test
+    public void endDateDialog_reflectsUpdatedEndDate()
+    {
+        // GIVEN the user updates the end date from the dialog
+        HiltFragmentTestHelper<SessionEditFragment> testHelper
+                = launchSessionEditFragmentWithArbitraryDates();
+        
+        onEndDateTextView().perform(click());
+        
+        GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
+        calendar.add(Calendar.DAY_OF_YEAR, 5);
+        onDatePicker().perform(setDatePickerDate(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)));
+        
+        UITestUtils.pressDialogOK();
+        
+        // WHEN the user reopens the dialog
+        onEndDateTextView().perform(click());
+        
+        // THEN the dialog reflects the current start date
+        onDatePicker().check(matches(datePickerWithDate(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH))));
+    }
+    
+    @Test
+    public void invalidEndDate_showsError()
+    {
+        // GIVEN the user has the end date dialog open
+        HiltFragmentTestHelper<SessionEditFragment> testHelper =
+                launchSessionEditFragmentWithArbitraryDates();
+        
+        onEndDateTextView().perform(click());
+        
+        // WHEN the user confirms an invalid end date (end < start)
+        GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
+        Date originalEndDate = calendar.getTime();
+        
+        calendar.add(Calendar.DAY_OF_MONTH, -5);
+        onDatePicker().perform(setDatePickerDate(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)));
+        
+        UITestUtils.pressDialogOK();
+        
+        // THEN the end date is not updated
+        onEndDateTextView().check(matches(withText(new DateTimeFormatter().formatDate(
+                originalEndDate))));
+        // AND an error message is displayed
+        UITestUtils.checkSnackbarIsDisplayedWithMessage(R.string.error_session_edit_end_datetime);
+    }
+    
     // TODO [20-11-28 9:10PM] -- endTime_displaysCorrectDialogWhenPressed.
     
     // TODO [20-11-28 10:17PM] -- test fragment arg variations
     //  start null, end null, both null, start after end
+
 
 //*********************************************************
 // private methods
@@ -313,7 +417,7 @@ public class SessionEditFragmentTests
         Bundle args = SessionEditFragment.createArguments(date.getTime(), date.getTime());
         return HiltFragmentTestHelper.launchFragmentWithArgs(SessionEditFragment.class, args);
     }
-
+    
     private ViewInteraction onStartDateTextView()
     {
         return onView(allOf(withParent(withId(R.id.session_edit_start_time)), withId(R.id.date)));

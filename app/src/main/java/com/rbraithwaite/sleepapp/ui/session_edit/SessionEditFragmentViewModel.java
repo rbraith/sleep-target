@@ -142,6 +142,29 @@ public class SessionEditFragmentViewModel
         setStartDateTime(calendar.getTimeInMillis());
     }
     
+    public void setEndDate(int year, int month, int dayOfMonth)
+    {
+        // update the end date
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTimeInMillis(getEndDateTime().getValue());
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.MONTH, month);
+        calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+        
+        if (isInvalidEndDateTime(calendar.getTimeInMillis())) {
+            throw new InvalidDateTimeException(String.format(
+                    "Invalid end date: %s (end) < %s (start)",
+                    new DateTimeFormatter().formatDate(calendar.getTime()),
+                    getStartDate().getValue()));
+        }
+        
+        // OPTIMIZE [20-11-30 11:19PM] -- consider doing nothing if the new date
+        //  matches the old.
+        
+        // set the new date
+        setEndDateTime(calendar.getTimeInMillis());
+    }
+    
     public void setStartTime(int hourOfDay, int minute)
     {
         // REFACTOR [20-12-6 8:35PM] -- this essentially duplicates the logic of
@@ -190,17 +213,29 @@ public class SessionEditFragmentViewModel
         getStartDateTimeMutable().setValue(startTime);
     }
 
+
 //*********************************************************
 // private methods
 //*********************************************************
 
     private boolean isInvalidStartDateTime(long startDateTime)
     {
+        // REFACTOR [20-12-8 12:57AM] -- this doesn't need the mutable version.
         Long endDateTime = getEndDateTimeMutable().getValue();
         // REFACTOR [20-11-30 11:59PM] -- consider making a higher order isInvalidStartEnd(start,
         //  end).
         if (endDateTime == null) {
             // if there is no end datetime then it doesn't matter what the start datetime is
+            return false;
+        }
+        return (startDateTime > endDateTime);
+    }
+    
+    private boolean isInvalidEndDateTime(long endDateTime)
+    {
+        Long startDateTime = getStartDateTime().getValue();
+        if (startDateTime == null) {
+            // if there is no start datetime then it doesn't matter what the end datetime is
             return false;
         }
         return (startDateTime > endDateTime);

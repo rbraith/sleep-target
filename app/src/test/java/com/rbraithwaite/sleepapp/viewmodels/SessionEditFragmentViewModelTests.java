@@ -48,6 +48,96 @@ public class SessionEditFragmentViewModelTests
     }
     
     @Test
+    public void setEndDate_updatesEndDateTime()
+    {
+        GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
+        
+        viewModel.setEndDateTime(calendar.getTimeInMillis());
+        LiveData<Long> endDateTime = viewModel.getEndDateTime();
+        TestUtils.LocalLiveDataSynchronizer<Long> synchronizer =
+                new TestUtils.LocalLiveDataSynchronizer<>(endDateTime);
+        
+        DateTimeFormatter formatter = new DateTimeFormatter();
+        
+        assertThat(endDateTime.getValue(), is(equalTo(calendar.getTimeInMillis())));
+        
+        calendar.add(Calendar.DAY_OF_MONTH, 3);
+        viewModel.setEndDate(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH));
+        
+        synchronizer.sync();
+        assertThat(endDateTime.getValue(), is(equalTo(calendar.getTimeInMillis())));
+    }
+    
+    @Test
+    public void setEndDate_leavesTimeOfDayUnchanged()
+    {
+        GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
+        
+        viewModel.setEndDateTime(calendar.getTimeInMillis());
+        
+        LiveData<String> endTime = viewModel.getEndTime();
+        TestUtils.LocalLiveDataSynchronizer<String> synchronizer =
+                new TestUtils.LocalLiveDataSynchronizer<>(endTime);
+        
+        String originalEndTime = endTime.getValue();
+        
+        // update the end date
+        calendar.add(Calendar.DAY_OF_MONTH, 3);
+        viewModel.setEndDate(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH));
+        
+        // SMELL [20-12-8 1:02AM] -- see smell in setStartDate_leavesTimeOfDayUnchanged.
+        synchronizer.sync();
+        assertThat(endTime.getValue(), is(equalTo(originalEndTime)));
+    }
+    
+    @Test(expected = SessionEditFragmentViewModel.InvalidDateTimeException.class)
+    public void setEndDate_throwsIfEndIsBeforeStart()
+    {
+        GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
+        
+        viewModel.setStartDateTime(calendar.getTimeInMillis());
+        viewModel.setEndDateTime(calendar.getTimeInMillis());
+        
+        // set end before start
+        calendar.add(Calendar.MONTH, -1);
+        viewModel.setEndDate(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH));
+    }
+    
+    @Test
+    public void setEndDate_updatesEndDate()
+    {
+        GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
+        
+        viewModel.setEndDateTime(calendar.getTimeInMillis());
+        LiveData<String> endDate = viewModel.getEndDate();
+        TestUtils.LocalLiveDataSynchronizer<String> synchronizer =
+                new TestUtils.LocalLiveDataSynchronizer<>(endDate);
+        
+        DateTimeFormatter formatter = new DateTimeFormatter();
+        
+        assertThat(endDate.getValue(), is(equalTo(formatter.formatDate(calendar.getTime()))));
+        
+        calendar.add(Calendar.DAY_OF_MONTH, 3);
+        viewModel.setEndDate(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH));
+        
+        synchronizer.sync();
+        assertThat(endDate.getValue(), is(equalTo(formatter.formatDate(calendar.getTime()))));
+    }
+    
+    
+    @Test
     public void getEndDateTime_isNullWhenNotSet()
     {
         assertThat(viewModel.getEndDateTime().getValue(), is(nullValue()));
