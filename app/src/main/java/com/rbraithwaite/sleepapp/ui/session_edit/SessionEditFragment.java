@@ -127,15 +127,19 @@ public class SessionEditFragment
             {
                 DatePickerFragment datePicker = new DatePickerFragment();
                 datePicker.setArguments(DatePickerFragment.createArguments(
-                        viewModel.getStartDateTime().getValue(),
-                        null,
-                        viewModel.getEndDateTime().getValue()));
+                        viewModel.getStartDateTime().getValue()));
                 datePicker.setOnDateSetListener(new DatePickerFragment.OnDateSetListener()
                 {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth)
                     {
-                        viewModel.setStartDate(year, month, dayOfMonth);
+                        try {
+                            viewModel.setStartDate(year, month, dayOfMonth);
+                        } catch (SessionEditFragmentViewModel.InvalidDateTimeException e) {
+                            Snackbar.make(getView(),
+                                          R.string.error_session_edit_start_datetime,
+                                          Snackbar.LENGTH_SHORT).show();
+                        }
                     }
                 });
                 datePicker.show(getChildFragmentManager(), DIALOG_START_DATE_PICKER);
@@ -171,7 +175,7 @@ public class SessionEditFragment
                         } catch (SessionEditFragmentViewModel.InvalidDateTimeException e) {
                             Log.d(TAG, "onTimeSet: invalid start time");
                             Snackbar.make(getView(),
-                                          R.string.error_session_edit_start_time,
+                                          R.string.error_session_edit_start_datetime,
                                           Snackbar.LENGTH_SHORT).show();
                         }
                     }

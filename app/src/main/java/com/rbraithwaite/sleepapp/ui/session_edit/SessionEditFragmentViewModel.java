@@ -130,8 +130,9 @@ public class SessionEditFragmentViewModel
         
         if (isInvalidStartDateTime(calendar.getTimeInMillis())) {
             throw new InvalidDateTimeException(String.format(
-                    "Invalid start date: %s",
-                    new DateTimeFormatter().formatDate(calendar.getTime())));
+                    "Invalid start date: %s (start) > %s (end)",
+                    new DateTimeFormatter().formatDate(calendar.getTime()),
+                    getEndDate().getValue()));
         }
         
         // OPTIMIZE [20-11-30 11:19PM] -- consider doing nothing if the new date

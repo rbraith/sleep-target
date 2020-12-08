@@ -48,18 +48,14 @@ public class SessionEditFragmentTests
     public void startDate_updatesWhenPositiveDialogIsConfirmed()
     {
         // GIVEN the user has the start date dialog open
-        GregorianCalendar calendar = new GregorianCalendar();
-        calendar.setTime(TestUtils.ArbitraryData.getDate());
-        Date originalDate = calendar.getTime();
-        
-        Bundle args = SessionEditFragment.createArguments(calendar.getTimeInMillis(),
-                                                          calendar.getTimeInMillis());
         HiltFragmentTestHelper<SessionEditFragment> testHelper
-                = HiltFragmentTestHelper.launchFragmentWithArgs(SessionEditFragment.class, args);
+                = launchSessionEditFragmentWithArbitraryDates();
         
         onStartDateTextView().perform(click());
         
         // WHEN the user changes the date and confirms the dialog
+        GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
+        Date originalDate = calendar.getTime();
         calendar.set(Calendar.DAY_OF_MONTH,
                      calendar.get(Calendar.DAY_OF_MONTH) - 1); // set start back one day
         Date newDate = calendar.getTime();
@@ -82,19 +78,16 @@ public class SessionEditFragmentTests
     public void startTime_updatesWhenPositiveDialogIsConfirmed()
     {
         // GIVEN the user has the start time dialog open
-        GregorianCalendar calendar = new GregorianCalendar();
-        calendar.setTime(TestUtils.ArbitraryData.getDate());
-        Date originalDate = calendar.getTime();
-        
-        Bundle args = SessionEditFragment.createArguments(calendar.getTimeInMillis(),
-                                                          calendar.getTimeInMillis());
         HiltFragmentTestHelper<SessionEditFragment> testHelper
-                = HiltFragmentTestHelper.launchFragmentWithArgs(SessionEditFragment.class, args);
+                = launchSessionEditFragmentWithArbitraryDates();
         
         onStartTimeTextView().perform(click());
         
         // WHEN the user changes the time and confirms the dialog
         // positive change, the start time remains before the end time
+        GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
+        Date originalDate = calendar.getTime();
+        
         calendar.add(Calendar.HOUR_OF_DAY, -1);
         onTimePicker().perform(PickerActions.setTime(
                 calendar.get(Calendar.HOUR_OF_DAY),
@@ -109,8 +102,6 @@ public class SessionEditFragmentTests
                 .check(matches(withText(new DurationFormatter().formatDurationMillis(
                         originalDate.getTime() - calendar.getTime().getTime()))));
     }
-    
-    // TODO [20-12-1 12:03AM] -- dialog reflects new set start date when opened.
     
     @Test
     public void startDate_displaysCorrectDialogWhenPressed()
@@ -163,16 +154,12 @@ public class SessionEditFragmentTests
     public void startTimeDialog_reflectsUpdatedStartTime()
     {
         // GIVEN the user updates the start time from the dialog
-        GregorianCalendar calendar = new GregorianCalendar();
-        calendar.setTime(TestUtils.ArbitraryData.getDate());
-        
-        Bundle args = SessionEditFragment.createArguments(calendar.getTimeInMillis(),
-                                                          calendar.getTimeInMillis());
         HiltFragmentTestHelper<SessionEditFragment> testHelper
-                = HiltFragmentTestHelper.launchFragmentWithArgs(SessionEditFragment.class, args);
+                = launchSessionEditFragmentWithArbitraryDates();
         
         onStartTimeTextView().perform(click());
         
+        GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
         calendar.add(Calendar.MINUTE, -5);
         onTimePicker().perform(PickerActions.setTime(
                 calendar.get(Calendar.HOUR_OF_DAY),
@@ -193,17 +180,13 @@ public class SessionEditFragmentTests
     public void invalidStartTimeDialog_showsError()
     {
         // GIVEN the user has the start time dialog open
-        GregorianCalendar calendar = new GregorianCalendar();
-        calendar.setTime(TestUtils.ArbitraryData.getDate());
-        
-        Bundle args = SessionEditFragment.createArguments(calendar.getTimeInMillis(),
-                                                          calendar.getTimeInMillis());
-        HiltFragmentTestHelper<SessionEditFragment> testHelper
-                = HiltFragmentTestHelper.launchFragmentWithArgs(SessionEditFragment.class, args);
+        HiltFragmentTestHelper<SessionEditFragment> testHelper =
+                launchSessionEditFragmentWithArbitraryDates();
         
         onStartTimeTextView().perform(click());
         
         // WHEN the user confirms an invalid start time (start > end)
+        GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
         Date originalStartTime = calendar.getTime();
         calendar.add(Calendar.MINUTE, 10); // set start after end, making it invalid
         onTimePicker().perform(PickerActions.setTime(
@@ -216,10 +199,36 @@ public class SessionEditFragmentTests
         onStartTimeTextView().check(matches(withText(new DateTimeFormatter().formatTimeOfDay(
                 originalStartTime))));
         // AND an error message is displayed
-        UITestUtils.checkSnackbarIsDisplayedWithMessage(R.string.error_session_edit_start_time);
+        UITestUtils.checkSnackbarIsDisplayedWithMessage(R.string.error_session_edit_start_datetime);
     }
     
-    // TODO [20-12-7 10:49PM] -- invalidStartDateDialog_showsError()
+    @Test
+    public void invalidStartDateDialog_showsError()
+    {
+        // GIVEN the user has the start date dialog open
+        HiltFragmentTestHelper<SessionEditFragment> testHelper =
+                launchSessionEditFragmentWithArbitraryDates();
+        
+        onStartDateTextView().perform(click());
+        
+        // WHEN the user confirms an invalid start date (start > end)
+        GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
+        Date originalStartDate = calendar.getTime();
+        
+        calendar.add(Calendar.DAY_OF_MONTH, 5);
+        onDatePicker().perform(setDatePickerDate(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)));
+        
+        UITestUtils.pressDialogOK();
+        
+        // THEN the start date is not updated
+        onStartDateTextView().check(matches(withText(new DateTimeFormatter().formatDate(
+                originalStartDate))));
+        // AND an error message is displayed
+        UITestUtils.checkSnackbarIsDisplayedWithMessage(R.string.error_session_edit_start_datetime);
+    }
     
     @Test
     public void startDateDialog_reflectsUpdatedStartDate()
@@ -253,12 +262,6 @@ public class SessionEditFragmentTests
                 calendar.get(Calendar.DAY_OF_MONTH))));
     }
     
-    // TODO [20-11-28 9:10PM] -- endDate_displaysCorrectDialogWhenPressed.
-    // TODO [20-11-28 9:10PM] -- endTime_displaysCorrectDialogWhenPressed.
-    
-    // TODO [20-11-28 10:17PM] -- test fragment arg variations
-    //  start null, end null, both null, start after end
-    
     @Test
     public void argsAreProperlyDisplayed()
     {
@@ -288,10 +291,28 @@ public class SessionEditFragmentTests
                 .check(matches(withText(new DurationFormatter().formatDurationMillis(
                         testEndTime.getTime() - testStartTime.getTime()))));
     }
+    
+    // TODO [20-11-28 9:10PM] -- endDate_displaysCorrectDialogWhenPressed.
+    // TODO [20-11-28 9:10PM] -- endTime_displaysCorrectDialogWhenPressed.
+    
+    // TODO [20-11-28 10:17PM] -- test fragment arg variations
+    //  start null, end null, both null, start after end
 
 //*********************************************************
 // private methods
 //*********************************************************
+
+    
+    /**
+     * Uses TestUtils.ArbitraryData.getDate for the start and end times, so that can reliably be
+     * used when checking the values of the fragment.
+     */
+    private HiltFragmentTestHelper<SessionEditFragment> launchSessionEditFragmentWithArbitraryDates()
+    {
+        Date date = TestUtils.ArbitraryData.getDate();
+        Bundle args = SessionEditFragment.createArguments(date.getTime(), date.getTime());
+        return HiltFragmentTestHelper.launchFragmentWithArgs(SessionEditFragment.class, args);
+    }
 
     private ViewInteraction onStartDateTextView()
     {

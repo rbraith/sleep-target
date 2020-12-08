@@ -28,8 +28,6 @@ public class DatePickerFragment
 //*********************************************************
 
     private static final String ARG_DATE = "date";
-    private static final String ARG_MIN_DATE = "min date";
-    private static final String ARG_MAX_DATE = "max date";
 
 //*********************************************************
 // public helpers
@@ -52,26 +50,12 @@ public class DatePickerFragment
         Bundle args = getArguments();
         calendar.setTimeInMillis(args.getLong(ARG_DATE));
         
-        DatePickerDialog dialog = new DatePickerDialog(
+        return new DatePickerDialog(
                 requireActivity(),
                 this,
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH));
-        
-        mDatePicker = dialog.getDatePicker();
-        
-        // set up date picker range
-        long maxDate = args.getLong(ARG_MAX_DATE, 0);
-        long minDate = args.getLong(ARG_MIN_DATE, 0);
-        if (maxDate != 0) {
-            mDatePicker.setMaxDate(maxDate);
-        }
-        if (minDate != 0) {
-            mDatePicker.setMinDate(minDate);
-        }
-        
-        return dialog;
     }
     
     @Override
@@ -86,19 +70,10 @@ public class DatePickerFragment
 // api
 //*********************************************************
 
-    public static Bundle createArguments(
-            Long dateMillis,
-            Long minDateTimeMillis,
-            Long maxDateTimeMillis)
+    public static Bundle createArguments(Long dateMillis)
     {
         Bundle args = new Bundle();
         args.putLong(ARG_DATE, dateMillis);
-        if (minDateTimeMillis != null) {
-            args.putLong(ARG_MIN_DATE, minDateTimeMillis);
-        }
-        if (maxDateTimeMillis != null) {
-            args.putLong(ARG_MAX_DATE, maxDateTimeMillis);
-        }
         return args;
     }
     

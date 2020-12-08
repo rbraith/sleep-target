@@ -32,7 +32,7 @@ public class TestUtils
     {
         void perform(T activity);
     }
-
+    
     /**
      * Mainly use this to set external objs from within anon class overrides. Analogous to double
      * pointer behavior.
@@ -118,6 +118,13 @@ public class TestUtils
             return new GregorianCalendar(2019, 8, 7, 6, 5).getTime();
         }
         
+        public static GregorianCalendar getCalendar()
+        {
+            GregorianCalendar calendar = new GregorianCalendar();
+            calendar.setTime(getDate());
+            return calendar;
+        }
+        
         public static SleepSessionEntity getSleepSessionEntity()
         {
             SleepSessionEntity sleepSessionEntity = new SleepSessionEntity();
@@ -138,6 +145,7 @@ public class TestUtils
         
         public static long getDurationMillis() {return 5000L;}
     }
+
 
 //*********************************************************
 // package helpers
@@ -185,7 +193,7 @@ public class TestUtils
         public void sync() { mBlocker.blockThread(); }
     }
 
-    
+
 //*********************************************************
 // constructors
 //*********************************************************

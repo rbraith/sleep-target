@@ -13,7 +13,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -31,35 +30,13 @@ public class DatePickerFragmentTests
 //*********************************************************
 
     @Test
-    public void maxDate_isSetProperlyFromArgs()
-    {
-        final Date testDate = TestUtils.ArbitraryData.getDate();
-        
-        DialogTestHelper<DatePickerFragment> dialogHelper = DialogTestHelper.launchDialogWithArgs(
-                DatePickerFragment.class,
-                DatePickerFragment.createArguments(testDate.getTime(), null, testDate.getTime()));
-        
-        // check the datepicker max date
-        dialogHelper.performSyncedDialogAction(new DialogTestHelper.SyncedDialogAction<DatePickerFragment>()
-        {
-            @Override
-            public void perform(DatePickerFragment dialogFragment)
-            {
-                assertThat(dialogFragment.getDatePicker().getMaxDate(), is(testDate.getTime()));
-            }
-        });
-    }
-    
-    // TODO [20-12-1 1:47AM] -- minDate_isSetProperlyFromArgs.
-    
-    @Test
     public void positiveArgs_displayProperInitialDate()
     {
         GregorianCalendar calendar = new GregorianCalendar(2010, 9, 8);
         
         DialogTestHelper<DatePickerFragment> dialogHelper = DialogTestHelper.launchDialogWithArgs(
                 DatePickerFragment.class,
-                DatePickerFragment.createArguments(calendar.getTimeInMillis(), null, null));
+                DatePickerFragment.createArguments(calendar.getTimeInMillis()));
         
         onDatePicker().check(matches(datePickerWithDate(
                 calendar.get(Calendar.YEAR),
@@ -79,9 +56,7 @@ public class DatePickerFragmentTests
         final int testDayOfMonth = 20;
         
         DatePickerFragment dialog = new DatePickerFragment();
-        dialog.setArguments(DatePickerFragment.createArguments(calendar.getTimeInMillis(),
-                                                               null,
-                                                               null));
+        dialog.setArguments(DatePickerFragment.createArguments(calendar.getTimeInMillis()));
         
         final TestUtils.ThreadBlocker blocker = new TestUtils.ThreadBlocker();
         dialog.setOnDateSetListener(new DatePickerFragment.OnDateSetListener()
