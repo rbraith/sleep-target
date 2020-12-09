@@ -187,6 +187,28 @@ public class SessionEditFragmentViewModel
         setStartDateTime(calendar.getTimeInMillis());
     }
     
+    public void setEndTime(int hourOfDay, int minute)
+    {
+        // REFACTOR [20-12-6 8:35PM] -- this essentially duplicates the logic of
+        //  setStartDate - consider possibilities for reducing that repetition.
+        
+        // OPTIMIZE [20-12-6 8:36PM] -- consider doing nothing if the new time matches the old.
+        
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTimeInMillis(getEndDateTime().getValue());
+        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+        calendar.set(Calendar.MINUTE, minute);
+        
+        if (isInvalidEndDateTime(calendar.getTimeInMillis())) {
+            throw new InvalidDateTimeException(String.format(
+                    "Invalid end time: %s (end) < %s (start)",
+                    new DateTimeFormatter().formatTimeOfDay(calendar.getTime()),
+                    getStartTime().getValue()));
+        }
+        
+        setEndDateTime(calendar.getTimeInMillis());
+    }
+    
     public LiveData<Long> getEndDateTime()
     {
         return getEndDateTimeMutable();

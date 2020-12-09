@@ -34,6 +34,8 @@ public class SessionEditFragment
     
     private static final String DIALOG_START_DATE_PICKER = "StartDatePicker";
     private static final String DIALOG_START_TIME_PICKER = "StartTimePicker";
+    private static final String DIALOG_END_DATE_PICKER = "EndDatePicker";
+    private static final String DIALOG_END_TIME_PICKER = "EndTimePicker";
 
 //*********************************************************
 // overrides
@@ -250,7 +252,33 @@ public class SessionEditFragment
                         }
                     }
                 });
-                datePicker.show(getChildFragmentManager(), DIALOG_START_DATE_PICKER);
+                datePicker.show(getChildFragmentManager(), DIALOG_END_DATE_PICKER);
+            }
+        });
+        endTimeText.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                TimePickerFragment timePicker = new TimePickerFragment();
+                timePicker.setArguments(TimePickerFragment.createArguments(
+                        viewModel.getEndDateTime().getValue()));
+                timePicker.setOnTimeSetListener(new TimePickerFragment.OnTimeSetListener()
+                {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute)
+                    {
+                        try {
+                            viewModel.setEndTime(hourOfDay, minute);
+                        } catch (SessionEditFragmentViewModel.InvalidDateTimeException e) {
+                            Log.d(TAG, "onTimeSet: invalid end time");
+                            Snackbar.make(getView(),
+                                          R.string.error_session_edit_end_datetime,
+                                          Snackbar.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+                timePicker.show(getChildFragmentManager(), DIALOG_END_TIME_PICKER);
             }
         });
     }

@@ -22,6 +22,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
+// REFACTOR [20-12-8 8:52PM] -- consider splitting this into separate test classes?
 @RunWith(AndroidJUnit4.class)
 public class SessionEditFragmentViewModelTests
 {
@@ -45,6 +46,88 @@ public class SessionEditFragmentViewModelTests
     public void teardown()
     {
         viewModel = null;
+    }
+    
+    @Test(expected = SessionEditFragmentViewModel.InvalidDateTimeException.class)
+    public void setEndTime_throwsIfEndIsBeforeStart()
+    {
+        GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
+        
+        viewModel.setStartDateTime(calendar.getTimeInMillis());
+        viewModel.setEndDateTime(calendar.getTimeInMillis());
+        
+        // set end before start
+        calendar.add(Calendar.HOUR_OF_DAY, -5);
+        viewModel.setEndTime(
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE));
+    }
+    
+    @Test
+    public void setEndTime_leavesDateUnchanged()
+    {
+        // set end datetime
+        GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
+        viewModel.setEndDateTime(calendar.getTimeInMillis());
+        
+        // begin watching end date
+        LiveData<String> endDate = viewModel.getEndDate();
+        TestUtils.LocalLiveDataSynchronizer<String> synchronizer =
+                new TestUtils.LocalLiveDataSynchronizer<>(endDate);
+        
+        String originalEndDate = endDate.getValue();
+        
+        // update end time
+        calendar.add(Calendar.MINUTE, 15);
+        viewModel.setEndTime(calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
+        
+        // assert end date did not change
+        // SMELL [20-12-6 8:31PM] -- see smell in setStartDate_leavesTimeOfDayUnchanged.
+        synchronizer.sync();
+        assertThat(endDate.getValue(), is(equalTo(originalEndDate)));
+    }
+    
+    @Test
+    public void setEndTime_updatesEndDateTime()
+    {
+        // set end datetime
+        GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
+        viewModel.setEndDateTime(calendar.getTimeInMillis());
+        
+        // watch end datetime
+        LiveData<Long> endDateTime = viewModel.getEndDateTime();
+        TestUtils.LocalLiveDataSynchronizer<Long> synchronizer =
+                new TestUtils.LocalLiveDataSynchronizer<>(endDateTime);
+        
+        // set end time
+        calendar.add(Calendar.MINUTE, 15);
+        viewModel.setEndTime(calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
+        
+        // end datetime changes
+        synchronizer.sync();
+        assertThat(endDateTime.getValue(), is(equalTo(calendar.getTimeInMillis())));
+    }
+    
+    @Test
+    public void setEndTime_updatesEndTime()
+    {
+        // set end datetime
+        GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
+        viewModel.setEndDateTime(calendar.getTimeInMillis());
+        
+        // watch end time
+        LiveData<String> endTime = viewModel.getEndTime();
+        TestUtils.LocalLiveDataSynchronizer<String> synchronizer =
+                new TestUtils.LocalLiveDataSynchronizer<>(endTime);
+        
+        // set end time
+        calendar.add(Calendar.MINUTE, 15);
+        viewModel.setEndTime(calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
+        
+        // end time changes
+        synchronizer.sync();
+        assertThat(endTime.getValue(),
+                   is(equalTo(new DateTimeFormatter().formatTimeOfDay(calendar.getTime()))));
     }
     
     @Test
@@ -258,9 +341,7 @@ public class SessionEditFragmentViewModelTests
     public void setStartTime_leavesDateUnchanged()
     {
         // set startDateTime
-        GregorianCalendar calendar = new GregorianCalendar();
-        calendar.setTime(TestUtils.ArbitraryData.getDate());
-        
+        GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
         viewModel.setStartDateTime(calendar.getTimeInMillis());
         
         // begin watching getStartDate
