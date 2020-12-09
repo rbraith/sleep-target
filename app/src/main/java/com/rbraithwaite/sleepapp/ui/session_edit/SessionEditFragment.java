@@ -89,11 +89,21 @@ public class SessionEditFragment
 // private methods
 //*********************************************************
 
+    private boolean viewModelIsInitialized(SessionEditFragmentViewModel viewModel)
+    {
+        return (viewModel.getStartDateTime().getValue() != null &&
+                viewModel.getEndDateTime().getValue() != null);
+    }
+    
     // REFACTOR [20-12-1 2:09AM] -- the params should be start & end time millis.
     private void initInputFieldValues(SessionEditFragmentArgs args)
     {
-        getViewModel().setStartDateTime(args.getStartTime());
-        getViewModel().setEndDateTime(args.getEndTime());
+        SessionEditFragmentViewModel viewModel = getViewModel();
+        // this persists the viewmodel values across fragment destruction (eg device rotation)
+        if (!viewModelIsInitialized(viewModel)) {
+            viewModel.setStartDateTime(args.getStartTime());
+            viewModel.setEndDateTime(args.getEndTime());
+        }
     }
     
     private void initSessionDuration(View fragmentRoot)

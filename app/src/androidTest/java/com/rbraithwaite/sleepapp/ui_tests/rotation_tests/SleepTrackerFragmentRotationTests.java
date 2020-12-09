@@ -3,6 +3,8 @@ package com.rbraithwaite.sleepapp.ui_tests.rotation_tests;
 import android.content.pm.ActivityInfo;
 import android.widget.TextView;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentActivity;
@@ -13,6 +15,7 @@ import com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFragment;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.Timeout;
+import org.junit.runner.RunWith;
 
 import java.util.concurrent.TimeUnit;
 
@@ -25,6 +28,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.not;
 
+@RunWith(AndroidJUnit4.class)
 public class SleepTrackerFragmentRotationTests
 {
 //*********************************************************

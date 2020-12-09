@@ -1,8 +1,7 @@
-package com.rbraithwaite.sleepapp.ui_tests;
+package com.rbraithwaite.sleepapp.ui_tests.session_edit_fragment;
 
 import android.os.Bundle;
 
-import androidx.test.espresso.ViewInteraction;
 import androidx.test.espresso.contrib.PickerActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -26,14 +25,17 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoActions.setDatePickerDate;
 import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoMatchers.datePickerWithDate;
 import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoMatchers.timePickerWithTime;
 import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.onDatePicker;
 import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.onTimePicker;
-import static org.hamcrest.Matchers.allOf;
+import static com.rbraithwaite.sleepapp.ui_tests.session_edit_fragment.SessionEditFragmentTestUtils.launchSessionEditFragmentWithArbitraryDates;
+import static com.rbraithwaite.sleepapp.ui_tests.session_edit_fragment.SessionEditFragmentTestUtils.onEndDateTextView;
+import static com.rbraithwaite.sleepapp.ui_tests.session_edit_fragment.SessionEditFragmentTestUtils.onEndTimeTextView;
+import static com.rbraithwaite.sleepapp.ui_tests.session_edit_fragment.SessionEditFragmentTestUtils.onStartDateTextView;
+import static com.rbraithwaite.sleepapp.ui_tests.session_edit_fragment.SessionEditFragmentTestUtils.onStartTimeTextView;
 
 //import static androidx.core.content.res.TypedArrayUtils.getString;
 
@@ -500,42 +502,5 @@ public class SessionEditFragmentTests
         onView(withId(R.id.session_edit_duration))
                 .check(matches(withText(new DurationFormatter().formatDurationMillis(
                         testEndTime.getTime() - testStartTime.getTime()))));
-    }
-
-
-//*********************************************************
-// private methods
-//*********************************************************
-
-    
-    /**
-     * Uses TestUtils.ArbitraryData.getDate for the start and end times, so that can reliably be
-     * used when checking the values of the fragment.
-     */
-    private HiltFragmentTestHelper<SessionEditFragment> launchSessionEditFragmentWithArbitraryDates()
-    {
-        Date date = TestUtils.ArbitraryData.getDate();
-        Bundle args = SessionEditFragment.createArguments(date.getTime(), date.getTime());
-        return HiltFragmentTestHelper.launchFragmentWithArgs(SessionEditFragment.class, args);
-    }
-    
-    private ViewInteraction onStartDateTextView()
-    {
-        return onView(allOf(withParent(withId(R.id.session_edit_start_time)), withId(R.id.date)));
-    }
-    
-    private ViewInteraction onEndDateTextView()
-    {
-        return onView(allOf(withParent(withId(R.id.session_edit_end_time)), withId(R.id.date)));
-    }
-    
-    private ViewInteraction onStartTimeTextView()
-    {
-        return onView(allOf(withParent(withId(R.id.session_edit_start_time)), withId(R.id.time)));
-    }
-    
-    private ViewInteraction onEndTimeTextView()
-    {
-        return onView(allOf(withParent(withId(R.id.session_edit_end_time)), withId(R.id.time)));
     }
 }

@@ -45,6 +45,7 @@ public class EspressoMatchers
             @Override
             public void describeTo(Description description)
             {
+                // BUG [20-12-8 9:45PM] -- this should print the target date
                 description.appendText("date picker with date:");
             }
         };
@@ -68,6 +69,7 @@ public class EspressoMatchers
             @Override
             public void describeTo(Description description)
             {
+                // BUG [20-12-8 9:45PM] -- this should print the target time
                 description.appendText("time picker with time");
             }
         };

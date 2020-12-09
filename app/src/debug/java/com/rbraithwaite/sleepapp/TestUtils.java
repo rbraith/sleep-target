@@ -147,6 +147,7 @@ public class TestUtils
     }
 
 
+
 //*********************************************************
 // package helpers
 //*********************************************************
@@ -243,6 +244,7 @@ public class TestUtils
         
         // check if already oriented
         performSyncedActivityAction(scenario, checkInDesiredOrientation);
+        // BUG [20-12-8 9:37PM] -- oops this should return false.
         if (inDesiredOrientation.ref) {return true;}
         
         // perform orientation change
