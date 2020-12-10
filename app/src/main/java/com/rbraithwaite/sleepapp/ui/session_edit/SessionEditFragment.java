@@ -3,6 +3,9 @@ package com.rbraithwaite.sleepapp.ui.session_edit;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
@@ -12,6 +15,7 @@ import android.widget.TimePicker;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
+import androidx.navigation.Navigation;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.rbraithwaite.sleepapp.R;
@@ -36,7 +40,13 @@ public class SessionEditFragment
     private static final String DIALOG_START_TIME_PICKER = "StartTimePicker";
     private static final String DIALOG_END_DATE_PICKER = "EndDatePicker";
     private static final String DIALOG_END_TIME_PICKER = "EndTimePicker";
+    
+//*********************************************************
+// constructors
+//*********************************************************
 
+    public SessionEditFragment() { setHasOptionsMenu(true); }
+    
 //*********************************************************
 // overrides
 //*********************************************************
@@ -60,6 +70,23 @@ public class SessionEditFragment
         
         SessionEditFragmentArgs args = SessionEditFragmentArgs.fromBundle(getArguments());
         initInputFieldValues(args);
+    }
+    
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater)
+    {
+        inflater.inflate(R.menu.session_edit_menu, menu);
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item)
+    {
+        switch (item.getItemId()) {
+        case R.id.session_edit_menuitem_cancel:
+            Navigation.findNavController(getView()).navigateUp();
+        default:
+            return super.onOptionsItemSelected(item);
+        }
     }
     
     @Override
