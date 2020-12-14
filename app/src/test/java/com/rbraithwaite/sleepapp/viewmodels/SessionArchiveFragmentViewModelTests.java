@@ -6,14 +6,18 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.TestUtils;
 import com.rbraithwaite.sleepapp.data.SleepAppRepository;
+import com.rbraithwaite.sleepapp.data.database.tables.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragmentViewModel;
 import com.rbraithwaite.sleepapp.ui.session_archive.data.UISleepSessionData;
+import com.rbraithwaite.sleepapp.ui.session_edit.SessionEditData;
+import com.rbraithwaite.sleepapp.utils.DateUtils;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
@@ -24,6 +28,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(AndroidJUnit4.class)
@@ -52,6 +57,29 @@ public class SessionArchiveFragmentViewModelTests
     {
         mockRepository = null;
         viewModel = null;
+    }
+    
+    @Test
+    public void addSessionFromResult_addsSessionOnValidInput()
+    {
+        // setup
+        long startDateTime = 100;
+        long endDateTime = 200;
+        SessionEditData result = new SessionEditData(startDateTime, endDateTime);
+        
+        // SUT
+        viewModel.addSessionFromResult(result);
+        
+        // verification
+        ArgumentCaptor<SleepSessionEntity> repoAddSessionCaptor =
+                ArgumentCaptor.forClass(SleepSessionEntity.class);
+        verify(mockRepository).addSleepSession(repoAddSessionCaptor.capture());
+        
+        SleepSessionEntity sleepSessionEntity = repoAddSessionCaptor.getValue();
+        assertThat(sleepSessionEntity.id, is(0));
+        assertThat(sleepSessionEntity.startTime,
+                   is(equalTo(DateUtils.getDateFromMillis(startDateTime))));
+        assertThat(sleepSessionEntity.duration, is(endDateTime - startDateTime));
     }
     
     

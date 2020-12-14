@@ -31,22 +31,37 @@ public class SessionEditFragment
         extends BaseFragment<SessionEditFragmentViewModel>
 {
 //*********************************************************
+// private properties
+//*********************************************************
+
+    private String mRequestKey;
+
+//*********************************************************
 // private constants
 //*********************************************************
 
     private static final String TAG = "SessionEditFragment";
-    
     private static final String DIALOG_START_DATE_PICKER = "StartDatePicker";
     private static final String DIALOG_START_TIME_PICKER = "StartTimePicker";
     private static final String DIALOG_END_DATE_PICKER = "EndDatePicker";
-    private static final String DIALOG_END_TIME_PICKER = "EndTimePicker";
     
+    private static final String DIALOG_END_TIME_PICKER = "EndTimePicker";
+
+//*********************************************************
+// public constants
+//*********************************************************
+
+    /**
+     * Used by FragmentResultListeners
+     */
+    public static final String RESULT = "result";
+
 //*********************************************************
 // constructors
 //*********************************************************
 
     public SessionEditFragment() { setHasOptionsMenu(true); }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -69,6 +84,7 @@ public class SessionEditFragment
         initSessionDuration(view);
         
         SessionEditFragmentArgs args = SessionEditFragmentArgs.fromBundle(getArguments());
+        mRequestKey = args.getRequestKey();
         initInputFieldValues(args);
     }
     
@@ -84,9 +100,15 @@ public class SessionEditFragment
         switch (item.getItemId()) {
         case R.id.session_edit_menuitem_cancel:
             Navigation.findNavController(getView()).navigateUp();
+            break;
+        case R.id.session_edit_menuitem_confirm:
+            setResult(getViewModel().getResult());
+            Navigation.findNavController(getView()).navigateUp();
+            break;
         default:
             return super.onOptionsItemSelected(item);
         }
+        return super.onOptionsItemSelected(item);
     }
     
     @Override
@@ -99,7 +121,7 @@ public class SessionEditFragment
 // api
 //*********************************************************
 
-    public static Bundle createArguments(long startDateMillis, long endDateMillis)
+    public static Bundle createArguments(String requestKey, SessionEditData initialData)
     {
         // use SafeArgs action so that the Bundle works when it is eventually used with
         // SessionEditFragmentArgs.fromBundle()
@@ -108,7 +130,7 @@ public class SessionEditFragment
         //  problem: the argument names would be hardcoded though, I can't seem to find a way to
         //  get a reference to the names defined in the navgraph, but I should investigate more.
         return SessionArchiveFragmentDirections
-                .actionSessionArchiveToSessionEdit(startDateMillis, endDateMillis)
+                .actionSessionArchiveToSessionEdit(requestKey, initialData)
                 .getArguments();
     }
 
@@ -116,6 +138,11 @@ public class SessionEditFragment
 // private methods
 //*********************************************************
 
+    private void setResult(Bundle result)
+    {
+        getParentFragmentManager().setFragmentResult(mRequestKey, result);
+    }
+    
     private boolean viewModelIsInitialized(SessionEditFragmentViewModel viewModel)
     {
         return (viewModel.getStartDateTime().getValue() != null &&
@@ -128,8 +155,9 @@ public class SessionEditFragment
         SessionEditFragmentViewModel viewModel = getViewModel();
         // this persists the viewmodel values across fragment destruction (eg device rotation)
         if (!viewModelIsInitialized(viewModel)) {
-            viewModel.setStartDateTime(args.getStartTime());
-            viewModel.setEndDateTime(args.getEndTime());
+            SessionEditData initialData = args.getInitialData();
+            viewModel.setStartDateTime(initialData.startDateTime);
+            viewModel.setEndDateTime(initialData.endDateTime);
         }
     }
     

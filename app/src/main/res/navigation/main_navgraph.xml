@@ -25,10 +25,10 @@
         android:name="com.rbraithwaite.sleepapp.ui.session_edit.SessionEditFragment"
         android:label="SessionEditFragment" >
         <argument
-            android:name="startTime"
-            app:argType="long" />
+            android:name="requestKey"
+            app:argType="string" />
         <argument
-            android:name="endTime"
-            app:argType="long" />
+            android:name="initialData"
+            app:argType="com.rbraithwaite.sleepapp.ui.session_edit.SessionEditData" />
     </fragment>
 </navigation>

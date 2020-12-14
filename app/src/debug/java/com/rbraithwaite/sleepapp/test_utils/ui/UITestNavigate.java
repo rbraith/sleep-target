@@ -28,6 +28,12 @@ public class UITestNavigate
 // api
 //*********************************************************
 
+    public static void fromHome_toAddSession()
+    {
+        fromHome_toSessionArchive();
+        fromSessionArchive_toAddSession();
+    }
+    
     public static void fromHome_toSessionArchive()
     {
         openActionBarOverflowOrOptionsMenu(ApplicationProvider.getApplicationContext());

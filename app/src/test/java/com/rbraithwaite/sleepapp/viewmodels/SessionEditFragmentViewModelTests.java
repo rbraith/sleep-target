@@ -6,6 +6,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.rbraithwaite.sleepapp.TestUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
+import com.rbraithwaite.sleepapp.ui.session_edit.SessionEditData;
 import com.rbraithwaite.sleepapp.ui.session_edit.SessionEditFragmentViewModel;
 
 import org.junit.After;
@@ -46,6 +47,25 @@ public class SessionEditFragmentViewModelTests
     public void teardown()
     {
         viewModel = null;
+    }
+    
+    @Test
+    public void getResult_matchesViewModelState()
+    {
+        // set viewmodel state
+        GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
+        long startDateTimeMillis = calendar.getTimeInMillis();
+        calendar.add(Calendar.MINUTE, 10);
+        calendar.add(Calendar.MONTH, 1);
+        long endDateTimeMillis = calendar.getTimeInMillis();
+        
+        viewModel.setStartDateTime(startDateTimeMillis);
+        viewModel.setEndDateTime(endDateTimeMillis);
+        
+        // check result values
+        SessionEditData result = SessionEditData.fromResult(viewModel.getResult());
+        assertThat(result.startDateTime, is(equalTo(startDateTimeMillis)));
+        assertThat(result.endDateTime, is(equalTo(endDateTimeMillis)));
     }
     
     @Test(expected = SessionEditFragmentViewModel.InvalidDateTimeException.class)

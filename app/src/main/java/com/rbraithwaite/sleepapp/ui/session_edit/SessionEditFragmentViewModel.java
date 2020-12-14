@@ -1,5 +1,7 @@
 package com.rbraithwaite.sleepapp.ui.session_edit;
 
+import android.os.Bundle;
+
 import androidx.arch.core.util.Function;
 import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
@@ -60,6 +62,13 @@ public class SessionEditFragmentViewModel
 // api
 //*********************************************************
 
+    public Bundle getResult()
+    {
+        Bundle result = new Bundle();
+        return new SessionEditData(getStartDateTime().getValue(),
+                                   getEndDateTime().getValue()).toResult();
+    }
+    
     public LiveData<String> getSessionDuration()
     {
         final DurationFormatter formatter = new DurationFormatter();

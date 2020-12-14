@@ -62,7 +62,9 @@ public class SessionArchiveRecyclerViewAdapter
         public ViewHolder(@NonNull View itemView)
         {
             super(itemView);
+            Log.d(TAG, "new viewholder created");
             
+            // REFACTOR [20-12-11 3:08PM] -- rename stop to end.
             this.startTime = itemView.findViewById(R.id.session_archive_list_item_start_VALUE);
             this.stopTime = itemView.findViewById(R.id.session_archive_list_item_stop_VALUE);
             this.duration = itemView.findViewById(R.id.session_archive_list_item_duration_VALUE);
@@ -77,6 +79,7 @@ public class SessionArchiveRecyclerViewAdapter
             SessionArchiveFragmentViewModel viewModel,
             LifeCycleOwnerProvider lifeCycleOwnerProvider)
     {
+        Log.d(TAG, "ctor called");
         mViewModel = viewModel;
         mLifeCycleOwnerProvider = lifeCycleOwnerProvider;
         
@@ -88,6 +91,7 @@ public class SessionArchiveRecyclerViewAdapter
                     @Override
                     public void onChanged(List<Integer> integers)
                     {
+                        Log.d(TAG, "onChanged: session data id list changed, notifying...");
                         notifyDataSetChanged();
                     }
                 });
@@ -101,6 +105,7 @@ public class SessionArchiveRecyclerViewAdapter
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
     {
+        Log.d(TAG, "onCreateViewHolder: called");
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.session_archive_list_item, parent, false);
         return new ViewHolder(view);
@@ -109,15 +114,13 @@ public class SessionArchiveRecyclerViewAdapter
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position)
     {
+        Log.d(TAG, "onBindViewHolder: called, position = " + position);
         // REFACTOR [20-11-14 5:22PM] -- to make more OO, add this as a method in ViewHolder
         //  ViewHolder might need a LifeCycleProvider ctor dependency in this case.
         //  ehhhh maybe don't do this..... since bindToViewModel calls notifyItemChanged
         bindToViewModel(holder, position);
     }
     
-    // BUG [20-11-23 3:17AM] -- investigate why this is being called so much (every frame?)
-    //  might be some kind of LiveData update problem - eg mViewModel.getAllSleepSessionDataIds()
-    //  Try adding a log to the observer in SessionArchiveRecyclerViewAdapter ctor.
     @Override
     public int getItemCount()
     {
@@ -149,10 +152,10 @@ public class SessionArchiveRecyclerViewAdapter
                     @Override
                     public void onChanged(UISleepSessionData uiSleepSessionData)
                     {
+                        Log.d(TAG, "onChanged: item data changed! updating...");
                         viewHolder.startTime.setText(uiSleepSessionData.startTime);
                         viewHolder.stopTime.setText(uiSleepSessionData.endTime);
                         viewHolder.duration.setText(uiSleepSessionData.sessionDuration);
-                        notifyItemChanged(position);
                     }
                 });
     }

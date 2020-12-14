@@ -7,4 +7,9 @@
         android:icon="@drawable/ic_baseline_close_24"
         android:title="Cancel"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/session_edit_menuitem_confirm"
+        android:icon="@drawable/ic_baseline_check_24"
+        android:title="Confirm"
+        app:showAsAction="ifRoom" />
 </menu>

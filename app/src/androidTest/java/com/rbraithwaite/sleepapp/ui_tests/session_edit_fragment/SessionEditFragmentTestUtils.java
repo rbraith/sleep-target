@@ -7,9 +7,8 @@ import androidx.test.espresso.ViewInteraction;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
+import com.rbraithwaite.sleepapp.ui.session_edit.SessionEditData;
 import com.rbraithwaite.sleepapp.ui.session_edit.SessionEditFragment;
-
-import java.util.Date;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
@@ -24,6 +23,7 @@ public class SessionEditFragmentTestUtils
 
     private SessionEditFragmentTestUtils() {/* No instantiation */}
 
+
 //*********************************************************
 // api
 //*********************************************************
@@ -35,8 +35,10 @@ public class SessionEditFragmentTestUtils
      */
     public static HiltFragmentTestHelper<SessionEditFragment> launchSessionEditFragmentWithArbitraryDates()
     {
-        Date date = TestUtils.ArbitraryData.getDate();
-        Bundle args = SessionEditFragment.createArguments(date.getTime(), date.getTime());
+        long dateMillis = TestUtils.ArbitraryData.getDate().getTime();
+        Bundle args = SessionEditFragment.createArguments("test",
+                                                          new SessionEditData(dateMillis,
+                                                                              dateMillis));
         return HiltFragmentTestHelper.launchFragmentWithArgs(SessionEditFragment.class, args);
     }
     

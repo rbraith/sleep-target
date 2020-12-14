@@ -11,6 +11,7 @@ import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
+import com.rbraithwaite.sleepapp.ui.session_edit.SessionEditData;
 import com.rbraithwaite.sleepapp.ui.session_edit.SessionEditFragment;
 
 import org.junit.Test;
@@ -84,7 +85,8 @@ public class SessionEditFragmentTests
         GregorianCalendar calendar = new GregorianCalendar(2019, 8, 7, 6, 5);
         long testDate = calendar.getTimeInMillis();
         
-        Bundle args = SessionEditFragment.createArguments(testDate, testDate);
+        Bundle args = SessionEditFragment.createArguments("test",
+                                                          new SessionEditData(testDate, testDate));
         HiltFragmentTestHelper<SessionEditFragment> testHelper
                 = HiltFragmentTestHelper.launchFragmentWithArgs(SessionEditFragment.class, args);
         
@@ -188,7 +190,8 @@ public class SessionEditFragmentTests
         GregorianCalendar calendar = new GregorianCalendar(2019, 8, 7, 6, 5);
         long testDate = calendar.getTimeInMillis();
         
-        Bundle args = SessionEditFragment.createArguments(testDate, testDate);
+        Bundle args = SessionEditFragment.createArguments("test",
+                                                          new SessionEditData(testDate, testDate));
         HiltFragmentTestHelper<SessionEditFragment> testHelper
                 = HiltFragmentTestHelper.launchFragmentWithArgs(SessionEditFragment.class, args);
         
@@ -267,7 +270,8 @@ public class SessionEditFragmentTests
         GregorianCalendar calendar = new GregorianCalendar(2019, 8, 7, 6, 5);
         long testDate = calendar.getTimeInMillis();
         
-        Bundle args = SessionEditFragment.createArguments(testDate, testDate);
+        Bundle args = SessionEditFragment.createArguments("test",
+                                                          new SessionEditData(testDate, testDate));
         HiltFragmentTestHelper<SessionEditFragment> testHelper
                 = HiltFragmentTestHelper.launchFragmentWithArgs(SessionEditFragment.class, args);
         
@@ -375,7 +379,8 @@ public class SessionEditFragmentTests
         GregorianCalendar calendar = new GregorianCalendar(2019, 8, 7, 6, 5);
         long testDate = calendar.getTimeInMillis();
         
-        Bundle args = SessionEditFragment.createArguments(testDate, testDate);
+        Bundle args = SessionEditFragment.createArguments("test",
+                                                          new SessionEditData(testDate, testDate));
         HiltFragmentTestHelper<SessionEditFragment> testHelper
                 = HiltFragmentTestHelper.launchFragmentWithArgs(SessionEditFragment.class, args);
         
@@ -488,8 +493,9 @@ public class SessionEditFragmentTests
         HiltFragmentTestHelper<SessionEditFragment> testHelper
                 = HiltFragmentTestHelper.launchFragmentWithArgs(
                 SessionEditFragment.class,
-                SessionEditFragment.createArguments(testStartTime.getTime(),
-                                                    testEndTime.getTime()));
+                SessionEditFragment.createArguments("test",
+                                                    new SessionEditData(testStartTime.getTime(),
+                                                                        testEndTime.getTime())));
         
         DateTimeFormatter formatter = new DateTimeFormatter();
         

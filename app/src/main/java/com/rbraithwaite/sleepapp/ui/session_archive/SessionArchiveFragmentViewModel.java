@@ -7,10 +7,12 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.data.SleepAppRepository;
+import com.rbraithwaite.sleepapp.data.database.tables.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
 import com.rbraithwaite.sleepapp.ui.Constants;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_archive.data.UISleepSessionData;
+import com.rbraithwaite.sleepapp.ui.session_edit.SessionEditData;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
 
 import java.text.SimpleDateFormat;
@@ -41,6 +43,13 @@ public class SessionArchiveFragmentViewModel
 // api
 //*********************************************************
 
+    public void addSessionFromResult(SessionEditData result)
+    {
+        mRepository.addSleepSession(SleepSessionEntity.create(
+                DateUtils.getDateFromMillis(result.startDateTime),
+                result.endDateTime - result.startDateTime));
+    }
+    
     public LiveData<UISleepSessionData> getSleepSessionData(int id)
     {
         // convert from db form to ui form

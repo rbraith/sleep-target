@@ -134,6 +134,11 @@ public class SleepTrackerFragmentTests
                 .check(matches(withText(durationFormatter.formatDurationMillis(0))));
     }
     
+    // BUG [20-12-13 4:28AM] -- is there an async problem with this test? it passes most of the time
+    //  but it has failed 2 times on me now
+    //  --
+    //  it most recently failed as I was doing a full androidTest run.
+    //  afterwards I re-ran this test in isolation and it passed
     @Test
     public void currentSessionTimeDisplay_updatesWhenInSession() throws InterruptedException
     {
