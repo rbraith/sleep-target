@@ -2,9 +2,13 @@ package com.rbraithwaite.sleepapp.ui.session_edit;
 
 import android.os.Bundle;
 
+import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
+import com.rbraithwaite.sleepapp.utils.DateUtils;
+
 import java.io.Serializable;
 
 // REFACTOR [20-12-13 4:10AM] -- consider making this SessionEditFragment.Data
+
 
 
 /**
@@ -23,8 +27,9 @@ public class SessionEditData
 // public properties
 //*********************************************************
 
-    public Long startDateTime;
-    public Long endDateTime;
+    public int sessionId;
+    public long startDateTime;
+    public long endDateTime;
 
 //*********************************************************
 // public constants
@@ -38,12 +43,19 @@ public class SessionEditData
 
     SessionEditData() {}
     
-    public SessionEditData(Long startDateTime, Long endDateTime)
+    public SessionEditData(int sessionId, long startDateTime, long endDateTime)
     {
+        this.sessionId = sessionId;
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
     }
-
+    
+    public SessionEditData(long startDateTime, long endDateTime)
+    {
+        this.sessionId = 0;
+        this.startDateTime = startDateTime;
+        this.endDateTime = endDateTime;
+    }
 
 //*********************************************************
 // api
@@ -71,5 +83,14 @@ public class SessionEditData
         Bundle result = new Bundle();
         result.putSerializable(RESULT, this);
         return result;
+    }
+    
+    public SleepSessionData toSleepSessionData()
+    {
+        SleepSessionData sleepSessionData = new SleepSessionData();
+        sleepSessionData.id = sessionId;
+        sleepSessionData.startTime = DateUtils.getDateFromMillis(startDateTime);
+        sleepSessionData.duration = endDateTime - startDateTime;
+        return sleepSessionData;
     }
 }

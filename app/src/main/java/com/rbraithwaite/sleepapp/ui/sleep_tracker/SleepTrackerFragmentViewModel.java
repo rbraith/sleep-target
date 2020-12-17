@@ -10,7 +10,7 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.data.SleepAppRepository;
-import com.rbraithwaite.sleepapp.data.database.tables.SleepSessionEntity;
+import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
 import com.rbraithwaite.sleepapp.ui.Constants;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
@@ -88,9 +88,11 @@ public class SleepTrackerFragmentViewModel
             Date currentSessionStart = getCurrentSleepSession(context).getValue();
             long durationMillis = calculateDurationMillis(currentSessionStart, DateUtils.getNow());
             
-            mRepository.addSleepSession(SleepSessionEntity.create(
-                    currentSessionStart,
-                    durationMillis));
+            SleepSessionData sleepSessionData = new SleepSessionData();
+            sleepSessionData.startTime = currentSessionStart;
+            sleepSessionData.duration = durationMillis;
+            
+            mRepository.addSleepSessionData(sleepSessionData);
             
             mRepository.clearCurrentSession(context);
         }

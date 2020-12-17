@@ -15,6 +15,7 @@ import com.rbraithwaite.sleepapp.data.SleepAppDataPrefs;
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
 import com.rbraithwaite.sleepapp.data.database.tables.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
+import com.rbraithwaite.sleepapp.ui.session_edit.SessionEditData;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -116,6 +117,15 @@ public class TestUtils
         public static Date getDate()
         {
             return new GregorianCalendar(2019, 8, 7, 6, 5).getTime();
+        }
+        
+        /**
+         * @return SessionEditData with arbitrary dates and id of 0.
+         */
+        public static SessionEditData getSessionEditData()
+        {
+            GregorianCalendar calendar = getCalendar();
+            return new SessionEditData(calendar.getTimeInMillis(), calendar.getTimeInMillis());
         }
         
         public static GregorianCalendar getCalendar()

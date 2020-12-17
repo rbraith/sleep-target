@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo;
 import androidx.room.DatabaseView;
 
 import com.rbraithwaite.sleepapp.data.database.tables.SleepSessionContract;
+import com.rbraithwaite.sleepapp.data.database.tables.SleepSessionEntity;
 
 import java.util.Date;
 
@@ -42,4 +43,16 @@ public class SleepSessionData
     
     @ColumnInfo(name = SleepSessionDataContract.Columns.DURATION)
     public long duration;
+    
+//*********************************************************
+// api
+//*********************************************************
+
+    public SleepSessionEntity toSleepSessionEntity()
+    {
+        SleepSessionEntity sleepSessionEntity = SleepSessionEntity.create(startTime, duration);
+        sleepSessionEntity.id = id;
+        
+        return sleepSessionEntity;
+    }
 }

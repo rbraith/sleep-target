@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -27,25 +28,31 @@ public class SessionArchiveRecyclerViewAdapter
 // private properties
 //*********************************************************
 
-    private LifeCycleOwnerProvider mLifeCycleOwnerProvider;
+    private FragmentProvider mFragmentProvider;
     private SessionArchiveFragmentViewModel mViewModel;
     private LiveData<List<Integer>> mSleepSessionDataIds;
-
+    
+    private OnListItemClickListener mOnListItemClickListener;
+    
+    
 //*********************************************************
 // private constants
 //*********************************************************
 
     private static final String TAG = "RecyclerViewAdapter";
-
-
+    
 //*********************************************************
 // public helpers
 //*********************************************************
 
-    // inspired by https://stackoverflow.com/a/45336315
-    public interface LifeCycleOwnerProvider
+    public interface FragmentProvider
     {
-        public LifecycleOwner getLifeCycleOwner();
+        public Fragment getFragment();
+    }
+    
+    public interface OnListItemClickListener
+    {
+        public void onClick(View v, int position);
     }
 
 //*********************************************************
@@ -59,7 +66,9 @@ public class SessionArchiveRecyclerViewAdapter
         TextView stopTime;
         TextView duration;
         
-        public ViewHolder(@NonNull View itemView)
+        public ViewHolder(
+                @NonNull View itemView,
+                final SessionArchiveRecyclerViewAdapter.OnListItemClickListener onListItemClickListener)
         {
             super(itemView);
             Log.d(TAG, "new viewholder created");
@@ -68,6 +77,18 @@ public class SessionArchiveRecyclerViewAdapter
             this.startTime = itemView.findViewById(R.id.session_archive_list_item_start_VALUE);
             this.stopTime = itemView.findViewById(R.id.session_archive_list_item_stop_VALUE);
             this.duration = itemView.findViewById(R.id.session_archive_list_item_duration_VALUE);
+            
+            itemView.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    if (onListItemClickListener != null) {
+                        onListItemClickListener.onClick(v, getAdapterPosition());
+                    }
+//                    v.showContextMenu();
+                }
+            });
         }
     }
 
@@ -77,15 +98,17 @@ public class SessionArchiveRecyclerViewAdapter
 
     public SessionArchiveRecyclerViewAdapter(
             SessionArchiveFragmentViewModel viewModel,
-            LifeCycleOwnerProvider lifeCycleOwnerProvider)
+            FragmentProvider fragmentProvider,
+            OnListItemClickListener onListItemClickListener)
     {
         Log.d(TAG, "ctor called");
         mViewModel = viewModel;
-        mLifeCycleOwnerProvider = lifeCycleOwnerProvider;
+        mFragmentProvider = fragmentProvider;
+        mOnListItemClickListener = onListItemClickListener;
         
         mSleepSessionDataIds = mViewModel.getAllSleepSessionDataIds();
         mSleepSessionDataIds.observe(
-                mLifeCycleOwnerProvider.getLifeCycleOwner(),
+                getLifecycleOwner(),
                 new Observer<List<Integer>>()
                 {
                     @Override
@@ -108,7 +131,8 @@ public class SessionArchiveRecyclerViewAdapter
         Log.d(TAG, "onCreateViewHolder: called");
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.session_archive_list_item, parent, false);
-        return new ViewHolder(view);
+        mFragmentProvider.getFragment().registerForContextMenu(view);
+        return new ViewHolder(view, mOnListItemClickListener);
     }
     
     @Override
@@ -137,16 +161,20 @@ public class SessionArchiveRecyclerViewAdapter
 // private methods
 //*********************************************************
 
+    private LifecycleOwner getLifecycleOwner()
+    {
+        return mFragmentProvider.getFragment();
+    }
+    
     private void bindToViewModel(final ViewHolder viewHolder, final int position)
     {
         LiveData<UISleepSessionData> uiSleepSessionData = mViewModel.getSleepSessionData(
                 mSleepSessionDataIds.getValue().get(position));
-        LifecycleOwner lifecycleOwner = mLifeCycleOwnerProvider.getLifeCycleOwner();
         
         // I thought the new Observer here might leak memory and cause duplicate updates, but
         // getSleepSession data provides a new livedata instance so I should be ok?
         uiSleepSessionData.observe(
-                lifecycleOwner,
+                getLifecycleOwner(),
                 new Observer<UISleepSessionData>()
                 {
                     @Override

@@ -23,6 +23,12 @@ public class SessionEditFragmentViewModel
         extends ViewModel
 {
 //*********************************************************
+// private properties
+//*********************************************************
+
+    private int mSessionId = 0;
+
+//*********************************************************
 // package properties
 //*********************************************************
 
@@ -31,9 +37,10 @@ public class SessionEditFragmentViewModel
     LiveData<String> mEndTime;
     LiveData<String> mEndDate;
     LiveData<String> mSessionDuration;
-    
     MutableLiveData<Long> mStartDateTime;
+    
     MutableLiveData<Long> mEndDateTime;
+
 
 //*********************************************************
 // public helpers
@@ -48,7 +55,6 @@ public class SessionEditFragmentViewModel
         }
     }
 
-
 //*********************************************************
 // constructors
 //*********************************************************
@@ -57,7 +63,7 @@ public class SessionEditFragmentViewModel
     public SessionEditFragmentViewModel()
     {
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -65,8 +71,10 @@ public class SessionEditFragmentViewModel
     public Bundle getResult()
     {
         Bundle result = new Bundle();
-        return new SessionEditData(getStartDateTime().getValue(),
-                                   getEndDateTime().getValue()).toResult();
+        return new SessionEditData(
+                mSessionId,
+                getStartDateTime().getValue(),
+                getEndDateTime().getValue()).toResult();
     }
     
     public LiveData<String> getSessionDuration()
@@ -242,6 +250,25 @@ public class SessionEditFragmentViewModel
         //  (leaving this for now - this becomes relevant when I implement user input to change
         //  the values).
         getStartDateTimeMutable().setValue(startTime);
+    }
+    
+    public void clearSessionData()
+    {
+        getStartDateTimeMutable().setValue(null);
+        getEndDateTimeMutable().setValue(null);
+    }
+    
+    public void initSessionData(SessionEditData initialData)
+    {
+        mSessionId = initialData.sessionId;
+        getStartDateTimeMutable().setValue(initialData.startDateTime);
+        getEndDateTimeMutable().setValue(initialData.endDateTime);
+    }
+    
+    public boolean sessionDataIsInitialized()
+    {
+        return (getStartDateTime().getValue() != null &&
+                getEndDateTime().getValue() != null);
     }
 
 

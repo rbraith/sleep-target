@@ -6,7 +6,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.TestUtils;
 import com.rbraithwaite.sleepapp.data.SleepAppRepository;
-import com.rbraithwaite.sleepapp.data.database.tables.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragmentViewModel;
 import com.rbraithwaite.sleepapp.ui.session_archive.data.UISleepSessionData;
@@ -60,6 +59,36 @@ public class SessionArchiveFragmentViewModelTests
     }
     
     @Test
+    public void getDefaultAddSessionData_sessionIdIsZero()
+    {
+        SessionEditData sessionEditData = viewModel.getDefaultAddSessionData();
+        assertThat(sessionEditData.sessionId, is(0));
+    }
+    
+    @Test
+    public void getInitialEditSessionData_returnsCorrectDataOnValidId()
+    {
+        int testSessionId = 1;
+        
+        SleepSessionData expectedData = new SleepSessionData();
+        expectedData.startTime = TestUtils.ArbitraryData.getDate();
+        expectedData.duration = 10000L;
+        expectedData.id = testSessionId;
+        when(mockRepository.getSleepSessionData(testSessionId)).thenReturn(new MutableLiveData<SleepSessionData>(
+                expectedData));
+        
+        LiveData<SessionEditData> editData = viewModel.getInitialEditSessionData(testSessionId);
+        TestUtils.activateInstrumentationLiveData(editData);
+        
+        assertThat(editData.getValue().startDateTime, is(expectedData.startTime.getTime()));
+        assertThat(editData.getValue().endDateTime,
+                   is(expectedData.startTime.getTime() + expectedData.duration));
+        assertThat(editData.getValue().sessionId, is(equalTo(expectedData.id)));
+    }
+    
+    // TODO [20-12-15 1:17AM] -- define null arg behaviour of getInitialEditSessionData()
+    
+    @Test
     public void addSessionFromResult_addsSessionOnValidInput()
     {
         // setup
@@ -71,15 +100,39 @@ public class SessionArchiveFragmentViewModelTests
         viewModel.addSessionFromResult(result);
         
         // verification
-        ArgumentCaptor<SleepSessionEntity> repoAddSessionCaptor =
-                ArgumentCaptor.forClass(SleepSessionEntity.class);
-        verify(mockRepository).addSleepSession(repoAddSessionCaptor.capture());
+        ArgumentCaptor<SleepSessionData> repoAddSessionCaptor =
+                ArgumentCaptor.forClass(SleepSessionData.class);
+        verify(mockRepository).addSleepSessionData(repoAddSessionCaptor.capture());
         
-        SleepSessionEntity sleepSessionEntity = repoAddSessionCaptor.getValue();
-        assertThat(sleepSessionEntity.id, is(0));
-        assertThat(sleepSessionEntity.startTime,
+        SleepSessionData sleepSessionData = repoAddSessionCaptor.getValue();
+        assertThat(sleepSessionData.id, is(0));
+        assertThat(sleepSessionData.startTime,
                    is(equalTo(DateUtils.getDateFromMillis(startDateTime))));
-        assertThat(sleepSessionEntity.duration, is(endDateTime - startDateTime));
+        assertThat(sleepSessionData.duration, is(endDateTime - startDateTime));
+    }
+    
+    @Test
+    public void updateSessionFromResult_updatesSessionOnValidInput()
+    {
+        // setup
+        int sessionId = 5;
+        long startDateTime = 100;
+        long endDateTime = 200;
+        SessionEditData result = new SessionEditData(sessionId, startDateTime, endDateTime);
+        
+        // SUT
+        viewModel.updateSessionFromResult(result);
+        
+        // verification
+        ArgumentCaptor<SleepSessionData> repoUpdateSessionCaptor =
+                ArgumentCaptor.forClass(SleepSessionData.class);
+        verify(mockRepository).updateSleepSessionData(repoUpdateSessionCaptor.capture());
+        
+        SleepSessionData sleepSessionData = repoUpdateSessionCaptor.getValue();
+        assertThat(sleepSessionData.id, is(sessionId));
+        assertThat(sleepSessionData.startTime,
+                   is(equalTo(DateUtils.getDateFromMillis(startDateTime))));
+        assertThat(sleepSessionData.duration, is(endDateTime - startDateTime));
     }
     
     

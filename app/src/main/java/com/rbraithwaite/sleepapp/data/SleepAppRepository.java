@@ -5,7 +5,6 @@ import android.content.Context;
 import androidx.lifecycle.LiveData;
 
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
-import com.rbraithwaite.sleepapp.data.database.tables.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
 
 import java.util.Date;
@@ -45,14 +44,28 @@ public class SleepAppRepository
 // api
 //*********************************************************
 
-    public void addSleepSession(final SleepSessionEntity sleepSession)
+    public void addSleepSessionData(final SleepSessionData sleepSessionData)
     {
         mExecutor.execute(new Runnable()
         {
             @Override
             public void run()
             {
-                mDatabase.getSleepSessionDao().addSleepSession(sleepSession);
+                mDatabase.getSleepSessionDao()
+                        .addSleepSession(sleepSessionData.toSleepSessionEntity());
+            }
+        });
+    }
+    
+    public void updateSleepSessionData(final SleepSessionData sleepSessionData)
+    {
+        mExecutor.execute(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                mDatabase.getSleepSessionDao()
+                        .updateSleepSession(sleepSessionData.toSleepSessionEntity());
             }
         });
     }

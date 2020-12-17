@@ -18,6 +18,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -136,31 +137,57 @@ public class SleepAppRepositoryTests
     }
     
     @Test
-    public void addSleepSession_addsSleepSession()
+    public void updateSleepSessionData_updatesOnValidInput()
     {
-        SleepSessionDao mockSleepSessionDao = mock(SleepSessionDao.class);
-        when(mockDatabase.getSleepSessionDao()).thenReturn(mockSleepSessionDao);
+        SleepSessionDao mockSleepSessionDao = setupMockSleepSessionDao();
         
-        SleepSessionEntity testSleepSession = TestUtils.ArbitraryData.getSleepSessionEntity();
+        SleepSessionData testSleepSessionData = TestUtils.ArbitraryData.getSleepSessionData();
+        testSleepSessionData.id = 5;
         
-        repository.addSleepSession(testSleepSession);
+        repository.updateSleepSessionData(testSleepSessionData);
         
-        verify(mockSleepSessionDao, times(1)).addSleepSession(testSleepSession);
+        ArgumentCaptor<SleepSessionEntity> databaseUpdateSessionCaptor =
+                ArgumentCaptor.forClass(SleepSessionEntity.class);
+        verify(mockSleepSessionDao,
+               times(1)).updateSleepSession(databaseUpdateSessionCaptor.capture());
+        SleepSessionEntity sleepSessionEntity = databaseUpdateSessionCaptor.getValue();
+        assertThat(sleepSessionEntity.id, is(testSleepSessionData.id));
+        assertThat(sleepSessionEntity.startTime, is(testSleepSessionData.startTime));
+        assertThat(sleepSessionEntity.duration, is(testSleepSessionData.duration));
+        // TODO [20-12-16 10:43PM] -- eventually, checks for other sleep session data daos.
     }
+    
+    @Test
+    public void addSleepSessionData_addsSleepSessionData()
+    {
+        SleepSessionDao mockSleepSessionDao = setupMockSleepSessionDao();
+        
+        SleepSessionData testSleepSessionData = TestUtils.ArbitraryData.getSleepSessionData();
+        
+        repository.addSleepSessionData(testSleepSessionData);
+        
+        ArgumentCaptor<SleepSessionEntity> databaseAddSessionCaptor =
+                ArgumentCaptor.forClass(SleepSessionEntity.class);
+        verify(mockSleepSessionDao, times(1)).addSleepSession(databaseAddSessionCaptor.capture());
+        SleepSessionEntity sleepSessionEntity = databaseAddSessionCaptor.getValue();
+        assertThat(sleepSessionEntity.id, is(testSleepSessionData.id));
+        assertThat(sleepSessionEntity.startTime, is(testSleepSessionData.startTime));
+        assertThat(sleepSessionEntity.duration, is(testSleepSessionData.duration));
+    }
+    
+    // TODO [20-12-16 12:37AM] -- define updateSleepSession() behaviour on null or invalid args.
     
     @Test
     public void getAllSleepSessionIds_returnEmptyListWhenNoIds()
     {
         SleepSessionDataDao mockSleepSessionDataDao = mock(SleepSessionDataDao.class);
+        when(mockDatabase.getSleepSessionDataDao()).thenReturn(mockSleepSessionDataDao);
         when(mockSleepSessionDataDao.getAllSleepSessionDataIds()).thenReturn(
                 new MutableLiveData<List<Integer>>(new ArrayList<Integer>()));
-        
-        when(mockDatabase.getSleepSessionDataDao()).thenReturn(mockSleepSessionDataDao);
         
         List<Integer> ids = repository.getAllSleepSessionDataIds().getValue();
         assertThat(ids.size(), is(0));
     }
-    
     
     // REFACTOR [20-11-14 8:08PM] -- this test just duplicates
     //  getAllSleepSessionIds_returnEmptyListWhenNoIds
@@ -194,6 +221,17 @@ public class SleepAppRepositoryTests
         LiveData<SleepSessionData> liveData = repository.getSleepSessionData(positiveId);
         
         assertThat(liveData.getValue(), is(equalTo(expectedData)));
+    }
+    
+//*********************************************************
+// private methods
+//*********************************************************
+
+    private SleepSessionDao setupMockSleepSessionDao()
+    {
+        SleepSessionDao mockSleepSessionDao = mock(SleepSessionDao.class);
+        when(mockDatabase.getSleepSessionDao()).thenReturn(mockSleepSessionDao);
+        return mockSleepSessionDao;
     }
     // TODO
     //  null input

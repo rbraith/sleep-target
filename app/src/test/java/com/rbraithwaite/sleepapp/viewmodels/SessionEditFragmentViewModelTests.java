@@ -50,22 +50,68 @@ public class SessionEditFragmentViewModelTests
     }
     
     @Test
+    public void initSessionData_initializesDataOnValidInput()
+    {
+        SessionEditData initialData = TestUtils.ArbitraryData.getSessionEditData();
+        viewModel.initSessionData(initialData);
+        
+        LiveData<Long> startDateTime = viewModel.getStartDateTime();
+        LiveData<Long> endDateTime = viewModel.getEndDateTime();
+        // REFACTOR [20-12-16 7:23PM] -- consider making activateLocalLiveData variadic.
+        TestUtils.activateLocalLiveData(startDateTime);
+        TestUtils.activateLocalLiveData(endDateTime);
+        assertThat(startDateTime.getValue(), is(equalTo(initialData.startDateTime)));
+        assertThat(endDateTime.getValue(), is(equalTo(initialData.endDateTime)));
+    }
+    
+    @Test
+    public void clearSessionData_clearsData()
+    {
+        viewModel.initSessionData(TestUtils.ArbitraryData.getSessionEditData());
+        
+        viewModel.clearSessionData();
+        
+        LiveData<Long> startDateTime = viewModel.getStartDateTime();
+        LiveData<Long> endDateTime = viewModel.getEndDateTime();
+        TestUtils.activateLocalLiveData(startDateTime);
+        TestUtils.activateLocalLiveData(endDateTime);
+        assertThat(startDateTime.getValue(), is(nullValue()));
+        assertThat(endDateTime.getValue(), is(nullValue()));
+    }
+    
+    @Test
+    public void sessionDataIsInitialized_exercise()
+    {
+        assertThat(viewModel.sessionDataIsInitialized(), is(false));
+        
+        viewModel.initSessionData(TestUtils.ArbitraryData.getSessionEditData());
+        
+        assertThat(viewModel.sessionDataIsInitialized(), is(true));
+        
+        viewModel.clearSessionData();
+        
+        assertThat(viewModel.sessionDataIsInitialized(), is(false));
+    }
+    
+    @Test
     public void getResult_matchesViewModelState()
     {
         // set viewmodel state
         GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
-        long startDateTimeMillis = calendar.getTimeInMillis();
+        long startDateTime = calendar.getTimeInMillis();
         calendar.add(Calendar.MINUTE, 10);
         calendar.add(Calendar.MONTH, 1);
-        long endDateTimeMillis = calendar.getTimeInMillis();
+        long endDateTime = calendar.getTimeInMillis();
         
-        viewModel.setStartDateTime(startDateTimeMillis);
-        viewModel.setEndDateTime(endDateTimeMillis);
+        SessionEditData expected = new SessionEditData(5, startDateTime, endDateTime);
+        viewModel.initSessionData(expected);
         
         // check result values
         SessionEditData result = SessionEditData.fromResult(viewModel.getResult());
-        assertThat(result.startDateTime, is(equalTo(startDateTimeMillis)));
-        assertThat(result.endDateTime, is(equalTo(endDateTimeMillis)));
+        // REFACTOR [20-12-16 7:29PM] -- implement SessionEditData.equals().
+        assertThat(result.sessionId, is(equalTo(expected.sessionId)));
+        assertThat(result.startDateTime, is(equalTo(expected.startDateTime)));
+        assertThat(result.endDateTime, is(equalTo(expected.endDateTime)));
     }
     
     @Test(expected = SessionEditFragmentViewModel.InvalidDateTimeException.class)

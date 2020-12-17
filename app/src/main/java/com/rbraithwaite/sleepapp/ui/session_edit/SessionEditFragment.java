@@ -12,6 +12,7 @@ import android.widget.DatePicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
@@ -83,6 +84,17 @@ public class SessionEditFragment
         initEndDateTime(view.findViewById(R.id.session_edit_end_time));
         initSessionDuration(view);
         
+        requireActivity().getOnBackPressedDispatcher().addCallback(
+                getViewLifecycleOwner(),
+                new OnBackPressedCallback(true)
+                {
+                    @Override
+                    public void handleOnBackPressed()
+                    {
+                        clearSessionDataThenNavigateUp();
+                    }
+                });
+        
         SessionEditFragmentArgs args = SessionEditFragmentArgs.fromBundle(getArguments());
         mRequestKey = args.getRequestKey();
         initInputFieldValues(args);
@@ -98,17 +110,22 @@ public class SessionEditFragment
     public boolean onOptionsItemSelected(@NonNull MenuItem item)
     {
         switch (item.getItemId()) {
+        case android.R.id.home: // up button
         case R.id.session_edit_menuitem_cancel:
-            Navigation.findNavController(getView()).navigateUp();
-            break;
+            // clear the view model data here so that the view model data is properly re-initialized
+            // when the user returns to the SessionEditFragment
+            clearSessionDataThenNavigateUp();
+            return true;
         case R.id.session_edit_menuitem_confirm:
+            // REFACTOR [20-12-16 5:56PM] -- should getResult be returning LiveData<Bundle>?
+            //  should the implementation be a transformation? -- leaving this for now since
+            //  things seem to be working.
             setResult(getViewModel().getResult());
-            Navigation.findNavController(getView()).navigateUp();
-            break;
+            clearSessionDataThenNavigateUp();
+            return true;
         default:
             return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
     
     @Override
@@ -116,7 +133,7 @@ public class SessionEditFragment
     
     @Override
     protected Class<SessionEditFragmentViewModel> getViewModelClass() { return SessionEditFragmentViewModel.class; }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -138,6 +155,12 @@ public class SessionEditFragment
 // private methods
 //*********************************************************
 
+    private void clearSessionDataThenNavigateUp()
+    {
+        getViewModel().clearSessionData();
+        Navigation.findNavController(getView()).navigateUp();
+    }
+
     private void setResult(Bundle result)
     {
         getParentFragmentManager().setFragmentResult(mRequestKey, result);
@@ -149,15 +172,13 @@ public class SessionEditFragment
                 viewModel.getEndDateTime().getValue() != null);
     }
     
-    // REFACTOR [20-12-1 2:09AM] -- the params should be start & end time millis.
+    // REFACTOR [20-12-1 2:09AM] -- the param should be SessionEditData
     private void initInputFieldValues(SessionEditFragmentArgs args)
     {
         SessionEditFragmentViewModel viewModel = getViewModel();
-        // this persists the viewmodel values across fragment destruction (eg device rotation)
-        if (!viewModelIsInitialized(viewModel)) {
-            SessionEditData initialData = args.getInitialData();
-            viewModel.setStartDateTime(initialData.startDateTime);
-            viewModel.setEndDateTime(initialData.endDateTime);
+        // this persists the view model values across fragment destruction (eg device rotation)
+        if (!viewModel.sessionDataIsInitialized()) {
+            viewModel.initSessionData(args.getInitialData());
         }
     }
     

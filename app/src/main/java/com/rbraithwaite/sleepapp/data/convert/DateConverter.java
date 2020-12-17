@@ -11,6 +11,7 @@ public class DateConverter
 // api
 //*********************************************************
 
+    // REFACTOR [20-12-16 12:34AM] -- do I prefer convertToDate(millis)?
     @TypeConverter
     public static Date convertDateFromMillis(Long millis)
     {

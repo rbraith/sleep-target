@@ -20,6 +20,9 @@ import org.junit.Test;
 import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.equalTo;
@@ -65,6 +68,35 @@ public class SleepSessionDaoTests
     }
     
     @Test
+    public void updateSleepSession_updatesSleepSessionOnValidInput()
+    {
+        // create a sleep session
+        SleepSessionEntity testSleepSession = TestUtils.ArbitraryData.getSleepSessionEntity();
+        int testSleepSessionId = (int) sleepSessionDao.addSleepSession(testSleepSession);
+        
+        // update the sleep session
+        GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
+        calendar.add(Calendar.MONTH, 5);
+        Date newStartDate = calendar.getTime();
+        long newDuration = TestUtils.ArbitraryData.getDurationMillis() + 2500L;
+        SleepSessionEntity updatedSleepSession =
+                SleepSessionEntity.create(newStartDate, newDuration);
+        updatedSleepSession.id = testSleepSessionId;
+        
+        sleepSessionDao.updateSleepSession(updatedSleepSession);
+        
+        // verify the sleep session updated successfully
+        LiveData<SleepSessionData> sleepSessionData =
+                database.getSleepSessionDataDao().getSleepSessionData(testSleepSessionId);
+        TestUtils.activateInstrumentationLiveData(sleepSessionData);
+        assertThat(sleepSessionData.getValue().id, is(testSleepSessionId));
+        assertThat(sleepSessionData.getValue().startTime, is(equalTo(newStartDate)));
+        assertThat(sleepSessionData.getValue().duration, is(newDuration));
+    }
+    
+    // TODO [20-12-16 12:37AM] -- define updateSleepSession() behaviour on null or invalid args.
+    
+    @Test
     public void addSleepSession_addsSleepSession()
     {
         SleepSessionEntity testSleepSession = TestUtils.ArbitraryData.getSleepSessionEntity();
@@ -74,9 +106,7 @@ public class SleepSessionDaoTests
         LiveData<SleepSessionData> sleepSessionData =
                 database.getSleepSessionDataDao().getSleepSessionData(testSleepSessionId);
         
-        TestUtils.InstrumentationLiveDataSynchronizer<SleepSessionData> synchronizer =
-                new TestUtils.InstrumentationLiveDataSynchronizer<>(sleepSessionData);
-        
+        TestUtils.activateInstrumentationLiveData(sleepSessionData);
         assertThat(sleepSessionData.getValue(), is(notNullValue()));
         assertThat(sleepSessionData.getValue().duration, is(equalTo(testSleepSession.duration)));
         assertThat(sleepSessionData.getValue().startTime, is(equalTo(testSleepSession.startTime)));

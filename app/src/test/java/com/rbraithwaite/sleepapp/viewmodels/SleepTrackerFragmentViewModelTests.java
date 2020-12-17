@@ -10,7 +10,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.TestUtils;
 import com.rbraithwaite.sleepapp.data.SleepAppRepository;
-import com.rbraithwaite.sleepapp.data.database.tables.SleepSessionEntity;
+import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
 import com.rbraithwaite.sleepapp.ui.Constants;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFragmentViewModel;
@@ -230,7 +230,7 @@ public class SleepTrackerFragmentViewModelTests
         
         viewModel.endSleepSession(context);
         verify(mockRepository, times(0))
-                .addSleepSession(any(SleepSessionEntity.class));
+                .addSleepSessionData(any(SleepSessionData.class));
     }
     
     @Test
@@ -245,11 +245,11 @@ public class SleepTrackerFragmentViewModelTests
         viewModel.startSleepSession(context);
         viewModel.endSleepSession(context);
         
-        ArgumentCaptor<SleepSessionEntity> addSleepSessionArg =
-                ArgumentCaptor.forClass(SleepSessionEntity.class);
-        verify(mockRepository, times(1)).addSleepSession(addSleepSessionArg.capture());
+        ArgumentCaptor<SleepSessionData> addSleepSessionArg =
+                ArgumentCaptor.forClass(SleepSessionData.class);
+        verify(mockRepository, times(1)).addSleepSessionData(addSleepSessionArg.capture());
         
-        SleepSessionEntity addSleepSession = addSleepSessionArg.getValue();
+        SleepSessionData addSleepSession = addSleepSessionArg.getValue();
         assertThat(addSleepSession.startTime, is(equalTo(testStartTime)));
     }
 }

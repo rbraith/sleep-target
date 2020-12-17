@@ -7,7 +7,6 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.data.SleepAppRepository;
-import com.rbraithwaite.sleepapp.data.database.tables.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
 import com.rbraithwaite.sleepapp.ui.Constants;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
@@ -28,6 +27,13 @@ public class SessionArchiveFragmentViewModel
 //*********************************************************
 
     private SleepAppRepository mRepository;
+    private LiveData<List<Integer>> mSleepSessionDataIds;
+    
+//*********************************************************
+// private constants
+//*********************************************************
+
+    private static final String TAG = "SessionArchiveFragViewMod";
 
 //*********************************************************
 // constructors
@@ -38,16 +44,19 @@ public class SessionArchiveFragmentViewModel
     {
         mRepository = repository;
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
 
     public void addSessionFromResult(SessionEditData result)
     {
-        mRepository.addSleepSession(SleepSessionEntity.create(
-                DateUtils.getDateFromMillis(result.startDateTime),
-                result.endDateTime - result.startDateTime));
+        mRepository.addSleepSessionData(result.toSleepSessionData());
+    }
+    
+    public void updateSessionFromResult(SessionEditData result)
+    {
+        mRepository.updateSleepSessionData(result.toSleepSessionData());
     }
     
     public LiveData<UISleepSessionData> getSleepSessionData(int id)
@@ -67,14 +76,42 @@ public class SessionArchiveFragmentViewModel
     
     public LiveData<List<Integer>> getAllSleepSessionDataIds()
     {
-        return mRepository.getAllSleepSessionDataIds();
+        if (mSleepSessionDataIds == null) {
+            mSleepSessionDataIds = mRepository.getAllSleepSessionDataIds();
+        }
+        return mSleepSessionDataIds;
     }
     
-    // TODO [20-11-22 8:29PM] -- consider ways I could test this? At the time
-    //  I figured it was too simple to test, and testing 'now' datetimes seems brittle.
-    public Long getDefaultAddSessionFragmentDateTime()
+    public SessionEditData getDefaultAddSessionData()
     {
-        return DateUtils.getNow().getTime();
+        long now = DateUtils.getNow().getTime();
+        return new SessionEditData(now, now);
+    }
+    
+    public LiveData<SessionEditData> getInitialEditSessionData(int sessionIdForEditing)
+    {
+        // I've having trouble verifying this, but i think this: https://stackoverflow
+        // .com/a/48498660
+        // means that each LiveData instance returned by a Room DAO contains within it the database
+        // Observer. Meaning that each LiveData returned independently observes the database and
+        // getting new LiveData instances from the DAO shouldn't stop older ones from continuing
+        // observation.
+        // --
+        // All this to say that I think the separate calls to mRepository.getSleepSessionData()
+        // here and in
+        // SessionArchiveFragment.getSleepSessionData() shouldn't conflict?
+        return Transformations.map(
+                mRepository.getSleepSessionData(sessionIdForEditing),
+                new Function<SleepSessionData, SessionEditData>()
+                {
+                    @Override
+                    public SessionEditData apply(SleepSessionData sleepSessionData)
+                    {
+                        long startTime = sleepSessionData.startTime.getTime();
+                        long endTime = startTime + sleepSessionData.duration;
+                        return new SessionEditData(sleepSessionData.id, startTime, endTime);
+                    }
+                });
     }
 
 
