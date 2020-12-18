@@ -13,7 +13,7 @@ public class SessionArchiveFragmentTestUtils
 //*********************************************************
 
     private SessionArchiveFragmentTestUtils() {/* No instantiation */}
-    
+
 //*********************************************************
 // api
 //*********************************************************

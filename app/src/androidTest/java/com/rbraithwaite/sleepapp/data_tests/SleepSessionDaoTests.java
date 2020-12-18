@@ -23,6 +23,7 @@ import org.junit.runner.RunWith;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.equalTo;
@@ -65,6 +66,27 @@ public class SleepSessionDaoTests
     public void teardown()
     {
         database.close();
+    }
+    
+    @Test
+    public void deleteSleepSession_deletesSleepSession()
+    {
+        LiveData<List<Integer>> sessionDataIds =
+                database.getSleepSessionDataDao().getAllSleepSessionDataIds();
+        TestUtils.InstrumentationLiveDataSynchronizer<List<Integer>> synchronizer =
+                new TestUtils.InstrumentationLiveDataSynchronizer<>(sessionDataIds);
+        
+        int sleepSessionId =
+                (int) sleepSessionDao.addSleepSession(TestUtils.ArbitraryData.getSleepSessionEntity());
+        
+        synchronizer.sync();
+        assertThat(sessionDataIds.getValue().size(), is(1));
+        
+        // SUT
+        sleepSessionDao.deleteSleepSession(sleepSessionId);
+        
+        synchronizer.sync();
+        assertThat(sessionDataIds.getValue().size(), is(0));
     }
     
     @Test

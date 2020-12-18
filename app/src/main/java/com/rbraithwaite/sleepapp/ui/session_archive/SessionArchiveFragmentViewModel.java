@@ -28,7 +28,7 @@ public class SessionArchiveFragmentViewModel
 
     private SleepAppRepository mRepository;
     private LiveData<List<Integer>> mSleepSessionDataIds;
-    
+
 //*********************************************************
 // private constants
 //*********************************************************
@@ -44,7 +44,7 @@ public class SessionArchiveFragmentViewModel
     {
         mRepository = repository;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -57,6 +57,11 @@ public class SessionArchiveFragmentViewModel
     public void updateSessionFromResult(SessionEditData result)
     {
         mRepository.updateSleepSessionData(result.toSleepSessionData());
+    }
+    
+    public void deleteSession(int sessionIdToDelete)
+    {
+        mRepository.deleteSleepSessionData(sessionIdToDelete);
     }
     
     public LiveData<UISleepSessionData> getSleepSessionData(int id)

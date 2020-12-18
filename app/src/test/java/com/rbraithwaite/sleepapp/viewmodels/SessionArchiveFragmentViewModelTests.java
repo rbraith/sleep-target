@@ -135,6 +135,14 @@ public class SessionArchiveFragmentViewModelTests
         assertThat(sleepSessionData.duration, is(endDateTime - startDateTime));
     }
     
+    @Test
+    public void deleteSession_deletesSession()
+    {
+        int sessionId = 5;
+        viewModel.deleteSession(sessionId);
+        verify(mockRepository).deleteSleepSessionData(sessionId);
+    }
+    
     
     @Test
     public void getSleepSessionData_nullWhenBadID()

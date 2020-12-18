@@ -94,4 +94,20 @@ public class SleepAppRepository
     {
         return mDatabase.getSleepSessionDataDao().getAllSleepSessionDataIds();
     }
+    
+    public void deleteSleepSessionData(final int sessionDataId)
+    {
+        mExecutor.execute(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                mDatabase.getSleepSessionDao().deleteSleepSession(sessionDataId);
+                // TODO [20-12-17 9:06PM] -- this will eventually need to delete the relevant
+                //  data from
+                //  the other tables as well - that data will need to be determined from the
+                //  session data id
+            }
+        });
+    }
 }

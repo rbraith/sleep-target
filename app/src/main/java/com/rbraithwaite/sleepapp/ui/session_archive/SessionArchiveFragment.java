@@ -1,5 +1,6 @@
 package com.rbraithwaite.sleepapp.ui.session_archive;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -19,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
 import com.rbraithwaite.sleepapp.ui.session_edit.SessionEditData;
@@ -48,8 +50,8 @@ public class SessionArchiveFragment
 
     private static final String TAG = "SessionArchiveFragment";
     private static final String ADD_SESSION_RESULT = "AddSessionResult";
-    
     private static final String EDIT_SESSION_RESULT = "EditSessionResult";
+    private static final String SESSION_DELETE_DIALOG = "SessionDeleteDialog";
 
 //*********************************************************
 // package properties
@@ -61,7 +63,7 @@ public class SessionArchiveFragment
     //  out
     //  of scope.
     LiveData<SessionEditData> mInitialEditData;
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -140,10 +142,44 @@ public class SessionArchiveFragment
                     if (initialEditData != null) {
                         Navigation.findNavController(getView())
                                 .navigate(toEditSessionScreen(initialEditData));
+                        // REFACTOR [20-12-17 9:08PM] -- consider making a OneTimeObserver utility.
                         mInitialEditData.removeObserver(this); // one-off observer
                     }
                 }
             });
+            return true;
+        case R.id.session_archive_list_item_context_menu_DELETE:
+            SessionArchiveDeleteDialog deleteDialog = SessionArchiveDeleteDialog.createInstance(
+                    SessionArchiveDeleteDialog.createArguments(mContextMenuItemPosition),
+                    new SessionArchiveDeleteDialog.OnPositiveButtonClickListener()
+                    {
+                        @Override
+                        public void onPositiveButtonClick(
+                                DialogInterface dialog,
+                                int sessionPosition)
+                        {
+                            Log.d(TAG,
+                                  "onPositiveButtonClick: deleting session " + sessionPosition +
+                                  "!!");
+                            // REFACTOR [20-12-17 8:38PM] -- should this be viewModel
+                            //  .getSleepSessionDataIdFromPosition()?
+                            // REFACTOR [20-12-17 8:39PM] -- Is using getValue() bad here (and
+                            //  above in the edit item)? should
+                            //  I instead take a more reactive approach with a one-time observer?
+                            //  Maybe it would even be
+                            //  useful to make a OneTimeObserver class which removes itself.
+                            SessionArchiveFragmentViewModel viewModel = getViewModel();
+                            int sessionIdToDelete = viewModel.getAllSleepSessionDataIds()
+                                    .getValue()
+                                    .get(sessionPosition);
+                            viewModel.deleteSession(sessionIdToDelete);
+                            
+                            Snackbar.make(getView(),
+                                          "Deleted session #" + sessionPosition,
+                                          Snackbar.LENGTH_SHORT).show();
+                        }
+                    });
+            deleteDialog.show(getChildFragmentManager(), SESSION_DELETE_DIALOG);
             return true;
         default:
             return super.onContextItemSelected(item);
@@ -152,10 +188,10 @@ public class SessionArchiveFragment
     
     @Override
     protected boolean getBottomNavVisibility() { return false; }
-
+    
     @Override
     protected Class<SessionArchiveFragmentViewModel> getViewModelClass() { return SessionArchiveFragmentViewModel.class; }
-    
+
 //*********************************************************
 // api
 //*********************************************************

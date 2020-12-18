@@ -223,6 +223,18 @@ public class SleepAppRepositoryTests
         assertThat(liveData.getValue(), is(equalTo(expectedData)));
     }
     
+    @Test
+    public void deleteSleepSessionData_deletesSleepSessionData()
+    {
+        SleepSessionDao mockSleepSessionDao = setupMockSleepSessionDao();
+        
+        int sessionDataId = 5;
+        
+        repository.deleteSleepSessionData(sessionDataId);
+        
+        verify(mockSleepSessionDao).deleteSleepSession(sessionDataId);
+    }
+
 //*********************************************************
 // private methods
 //*********************************************************

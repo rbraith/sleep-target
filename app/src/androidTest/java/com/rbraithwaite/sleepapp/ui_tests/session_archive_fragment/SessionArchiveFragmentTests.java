@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui_tests;
+package com.rbraithwaite.sleepapp.ui_tests.session_archive_fragment;
 
 import android.widget.TextView;
 
@@ -10,11 +10,11 @@ import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestNavigate;
+import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragment;
 import com.rbraithwaite.sleepapp.ui.session_edit.SessionEditFragmentViewModel;
-import com.rbraithwaite.sleepapp.ui_tests.session_archive_fragment.SessionArchiveFragmentTestUtils;
 import com.rbraithwaite.sleepapp.ui_tests.session_edit_fragment.SessionEditFragmentTestUtils;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
 
@@ -42,6 +42,30 @@ public class SessionArchiveFragmentTests
 // api
 //*********************************************************
 
+    @Test
+    public void deleteSession_deletesSessionOnDialogConfirm()
+    {
+        // REFACTOR [20-12-17 7:18PM] -- this test could potentially be isolated to the
+        //  SessionArchiveFragment (eg try using HiltFragmentTestHelper instead).
+        // GIVEN the user goes to delete a session from the session archive
+        ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
+        UITestNavigate.fromHome_toSessionArchive();
+        // REFACTOR [20-12-17 7:24PM] -- this is just serving to initialize the archive, it
+        //  would be better to have specific dev/debug tools for this purpose instead.
+        SessionArchiveFragmentTestUtils.addSession(TestUtils.ArbitraryData.getSessionEditData());
+        
+        onView(withId(R.id.session_archive_list_item_card)).perform(click());
+        onView(withText("Delete")).perform(click());
+        
+        // WHEN the user confirms the dialog positively
+        UITestUtils.pressDialogOK();
+        
+        // THEN the session is deleted from the archive
+        assertRecyclerViewIsEmpty();
+    }
+    
+    // TODO [20-12-17 7:14PM] -- deleteSession_doesNothingOnDialogCancel.
+    
     // REFACTOR [20-12-16 1:50AM] -- I shouldn't need to do this test through
     //  SessionArchiveFragment.
     //  This problem is related to any return to the SessionEditFragment after changing it (eg going
@@ -55,12 +79,13 @@ public class SessionArchiveFragmentTests
         // GIVEN the user is in the archive with an existing session
         ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
         // add a session
+        // REFACTOR [20-12-17 7:19PM] -- use SessionArchiveFragmentTestUtils.addSession instead
         onView(withId(R.id.sleep_tracker_button)).perform(click());
         onView(withId(R.id.sleep_tracker_button)).perform(click());
         
         UITestNavigate.fromHome_toSessionArchive();
         
-        // AND the user has edited that session
+        // AND the user has edited that session.
         onView(withId(R.id.session_archive_list_item_card)).perform(click());
         onView(withText("Edit")).perform(click());
         

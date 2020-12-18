@@ -5,4 +5,7 @@
         android:id="@+id/session_archive_list_item_context_menu_EDIT"
         android:icon="@drawable/ic_baseline_edit_24"
         android:title="Edit" />
+    <item
+        android:id="@+id/session_archive_list_item_context_menu_DELETE"
+        android:title="Delete" />
 </menu>

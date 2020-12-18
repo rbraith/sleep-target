@@ -33,14 +33,14 @@ public class SessionArchiveRecyclerViewAdapter
     private LiveData<List<Integer>> mSleepSessionDataIds;
     
     private OnListItemClickListener mOnListItemClickListener;
-    
-    
+
+
 //*********************************************************
 // private constants
 //*********************************************************
 
     private static final String TAG = "RecyclerViewAdapter";
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -181,9 +181,11 @@ public class SessionArchiveRecyclerViewAdapter
                     public void onChanged(UISleepSessionData uiSleepSessionData)
                     {
                         Log.d(TAG, "onChanged: item data changed! updating...");
-                        viewHolder.startTime.setText(uiSleepSessionData.startTime);
-                        viewHolder.stopTime.setText(uiSleepSessionData.endTime);
-                        viewHolder.duration.setText(uiSleepSessionData.sessionDuration);
+                        if (uiSleepSessionData != null) {
+                            viewHolder.startTime.setText(uiSleepSessionData.startTime);
+                            viewHolder.stopTime.setText(uiSleepSessionData.endTime);
+                            viewHolder.duration.setText(uiSleepSessionData.sessionDuration);
+                        }
                     }
                 });
     }
