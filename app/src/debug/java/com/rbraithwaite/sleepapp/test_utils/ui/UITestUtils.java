@@ -19,12 +19,14 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.isDialog;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
 
 public class UITestUtils
 {
@@ -38,6 +40,15 @@ public class UITestUtils
 // api
 //*********************************************************
 
+    public static void checkBottomNavIsDisplayed(boolean shouldBeDisplayed)
+    {
+        if (shouldBeDisplayed) {
+            onView(withId(R.id.main_bottomnav)).check(matches(isDisplayed()));
+        } else {
+            onView(withId(R.id.main_bottomnav)).check(matches(not(isDisplayed())));
+        }
+    }
+    
     public static void checkSnackbarIsDisplayedWithMessage(int stringId)
     {
         // https://stackoverflow.com/a/39915776

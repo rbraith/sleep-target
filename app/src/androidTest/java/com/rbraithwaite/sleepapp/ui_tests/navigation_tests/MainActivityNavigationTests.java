@@ -39,6 +39,24 @@ public class MainActivityNavigationTests
 //*********************************************************
 
     @Test
+    public void navigateFromSleepTrackerToSleepGoals()
+    {
+        // GIVEN the user is on the sleep tracker screen
+        ActivityScenario<MainActivity> mainActivityScenario =
+                ActivityScenario.launch(MainActivity.class);
+        
+        // WHEN they press the goals screen menu button
+        onView(withId(R.id.nav_sleepgoals)).perform(click());
+        
+        // THEN the goals screen is displayed
+        onView(withId(R.id.sleep_goals_layout)).check(matches(isDisplayed()));
+        // AND the bottomnav remains visible
+        UITestUtils.checkBottomNavIsDisplayed(true);
+    }
+    
+    // TODO [20-12-21 12:27AM] -- navigate from sleep goals to sleep tracker.
+    
+    @Test
     public void navigateFromSessionArchiveToAddSessionScreen()
     {
         // GIVEN the user is on the "session archive" screen

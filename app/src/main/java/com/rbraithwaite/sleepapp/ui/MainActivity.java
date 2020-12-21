@@ -81,5 +81,6 @@ public class MainActivity
         mNavController = navHostFragment.getNavController();
         mAppBarConfiguration = new AppBarConfiguration.Builder(R.id.nav_sleeptracker).build();
         NavigationUI.setupActionBarWithNavController(this, mNavController, mAppBarConfiguration);
+        NavigationUI.setupWithNavController(mBottomNavigationView, mNavController);
     }
 }

@@ -1,9 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <group>
-        <item android:title="WIP" />
-        <item android:title="WIP" />
-        <item android:title="WIP" />
+        <item
+            android:id="@+id/nav_sleeptracker"
+            android:icon="@drawable/ic_baseline_nights_stay_24"
+            android:title="Track" />
+        <item
+            android:id="@+id/nav_sleepgoals"
+            android:icon="@drawable/ic_baseline_emoji_events_24"
+            android:title="Goals" />
+        <item
+            android:id="@+id/nav_sleepstats"
+            android:icon="@drawable/ic_baseline_bar_chart_24"
+            android:title="Stats" />
     </group>
 </menu>
