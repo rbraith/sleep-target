@@ -63,8 +63,8 @@ public class SleepTrackerFragment
         initSleepTrackerButton(view);
         initSessionTimeDisplay(view);
         initSessionStartTime(view);
+        initGoalsDisplay(view);
     }
-    
     
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater)
@@ -90,6 +90,26 @@ public class SleepTrackerFragment
 //*********************************************************
 // private methods
 //*********************************************************
+
+    private void initGoalsDisplay(View fragmentRoot)
+    {
+        final TextView wakeTimeText = fragmentRoot.findViewById(R.id.sleep_tracker_waketime);
+        getViewModel().getWakeTime().observe(
+                getViewLifecycleOwner(),
+                new Observer<String>()
+                {
+                    @Override
+                    public void onChanged(String waketime)
+                    {
+                        if (waketime == null) {
+                            wakeTimeText.setVisibility(View.GONE);
+                        } else {
+                            wakeTimeText.setVisibility(View.VISIBLE);
+                            wakeTimeText.setText("Wake-Time Goal: " + waketime);
+                        }
+                    }
+                });
+    }
 
     // REFACTOR [20-11-19 3:08AM] -- this shares the inSleepSession LiveData with
     //  initSleepTrackerButton() - consider combining the two into some new method?

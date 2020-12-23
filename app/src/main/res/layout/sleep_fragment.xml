@@ -47,4 +47,14 @@
         android:text="Started:"
         app:layout_constraintBottom_toTopOf="@+id/sleep_tracker_start_time"
         app:layout_constraintStart_toStartOf="@+id/sleep_tracker_start_time" />
+
+    <TextView
+        android:id="@+id/sleep_tracker_waketime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Error"
+        app:layout_constraintStart_toStartOf="@+id/sleep_tracker_session_time"
+        app:layout_constraintTop_toBottomOf="@+id/sleep_tracker_button"
+        tools:text="Wake-Time Goal: 8:00 a.m." />
 </androidx.constraintlayout.widget.ConstraintLayout>

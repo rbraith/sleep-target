@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModel;
 import com.rbraithwaite.sleepapp.data.SleepAppRepository;
 import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
 import com.rbraithwaite.sleepapp.ui.Constants;
+import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
 import com.rbraithwaite.sleepapp.utils.TickingLiveData;
@@ -149,6 +150,30 @@ public class SleepTrackerFragmentViewModel
         }
         return new SimpleDateFormat(Constants.STANDARD_FORMAT_FULL_DATE,
                                     Constants.STANDARD_LOCALE).format(startTime);
+    }
+    
+    public LiveData<String> getWakeTime()
+    {
+        return Transformations.map(
+                mRepository.getWakeTimeGoal(),
+                new Function<Long, String>()
+                {
+                    @Override
+                    public String apply(Long wakeTimeGoal)
+                    {
+                        if (wakeTimeGoal == null) {
+                            return null;
+                        } else {
+                            // REFACTOR [20-12-23 5:22PM] -- I have way too many
+                            //  DateTimeFormatter instances
+                            //  floating around, I should be injecting these with Hilt - I could
+                            //  have
+                            //  a standard one, and fragment-specific ones.
+                            return new DateTimeFormatter().formatTimeOfDay(DateUtils.getDateFromMillis(
+                                    wakeTimeGoal));
+                        }
+                    }
+                });
     }
 
 

@@ -12,6 +12,7 @@ import com.rbraithwaite.sleepapp.TestUtils;
 import com.rbraithwaite.sleepapp.data.SleepAppRepository;
 import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
 import com.rbraithwaite.sleepapp.ui.Constants;
+import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFragmentViewModel;
 import com.rbraithwaite.sleepapp.utils.TickingLiveData;
@@ -87,6 +88,20 @@ public class SleepTrackerFragmentViewModelTests
         mockRepository = null;
         viewModel = null;
         context = null;
+    }
+    
+    @Test
+    public void getWakeTime_getsWakeTime()
+    {
+        Date timeOfDay = TestUtils.ArbitraryData.getDate();
+        MutableLiveData<Long> mockWakeTime = new MutableLiveData<>(timeOfDay.getTime());
+        when(mockRepository.getWakeTimeGoal()).thenReturn(mockWakeTime);
+        
+        LiveData<String> wakeTime = viewModel.getWakeTime();
+        
+        TestUtils.activateLocalLiveData(wakeTime);
+        assertThat(wakeTime.getValue(),
+                   is(equalTo(new DateTimeFormatter().formatTimeOfDay(timeOfDay))));
     }
     
     @Test

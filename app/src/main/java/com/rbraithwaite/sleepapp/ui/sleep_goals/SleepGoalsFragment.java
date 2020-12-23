@@ -48,6 +48,8 @@ public class SleepGoalsFragment
         final View wakeTime = view.findViewById(R.id.sleep_goals_waketime);
         final Button buttonAddNewWakeTime = view.findViewById(R.id.sleep_goals_new_waketime_btn);
         
+        // REFACTOR [20-12-23 5:06PM] -- consider just moving the hasWakeTime() logic into
+        //  getWakeTime()'s observer (branch on the String being null (no wake time)).
         getViewModel().hasWakeTime().observe(
                 getViewLifecycleOwner(),
                 new Observer<Boolean>()

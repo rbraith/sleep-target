@@ -10,6 +10,7 @@ import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFragment;
+import com.rbraithwaite.sleepapp.ui_tests.sleep_goals_fragment.SleepGoalsFragmentTestUtils;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +37,24 @@ public class SleepTrackerFragmentTests
 // api
 //*********************************************************
 
+    @Test
+    public void wakeTime_isDisplayedWhenSet()
+    {
+        // GIVEN the user has set a wake-time goal
+        ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
+        // wake time info view is not displayed when there is no wake time
+        onView(withId(R.id.sleep_tracker_waketime)).check(matches(not(isDisplayed())));
+        
+        UITestNavigate.fromHome_toGoals();
+        SleepGoalsFragmentTestUtils.addNewWakeTime(12, 34);
+        
+        // WHEN the user is on the sleep tracker screen
+        UITestNavigate.up();
+        
+        // THEN the wake-time goal is displayed
+        onView(withId(R.id.sleep_tracker_waketime)).check(matches(isDisplayed()));
+    }
+    
     @Test
     public void sessionStartTime_notDisplayedWhenNotInSession()
     {
