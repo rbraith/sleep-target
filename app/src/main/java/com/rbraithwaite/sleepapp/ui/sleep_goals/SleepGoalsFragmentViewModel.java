@@ -22,20 +22,17 @@ public class SleepGoalsFragmentViewModel
 
     private SleepAppRepository mRepository;
     private LiveData<String> mWakeTime;
+    
+    private boolean mHasWakeTime = false;
 
 //*********************************************************
 // public constants
 //*********************************************************
 
     public static final int DEFAULT_WAKETIME_HOUR = 8;
+    
     public static final int DEFAULT_WAKETIME_MINUTE = 0;
 
-//*********************************************************
-// package properties
-//*********************************************************
-
-    boolean mHasWakeTime = false;
-    
 //*********************************************************
 // constructors
 //*********************************************************
@@ -45,7 +42,7 @@ public class SleepGoalsFragmentViewModel
     {
         mRepository = repository;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -89,8 +86,18 @@ public class SleepGoalsFragmentViewModel
         mHasWakeTime = true;
     }
     
-    public boolean hasWakeTime()
+    public LiveData<Boolean> hasWakeTime()
     {
-        return mHasWakeTime;
+        return Transformations.map(
+                getWakeTime(),
+                new Function<String, Boolean>()
+                {
+                    @Override
+                    public Boolean apply(String wakeTime)
+                    {
+                        return (wakeTime != null);
+                    }
+                });
+//        return mHasWakeTime;
     }
 }

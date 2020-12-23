@@ -6,6 +6,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestNavigate;
+import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFragment;
@@ -83,6 +84,24 @@ public class SleepGoalsFragmentTests
         UITestNavigate.fromHome_toGoals();
         
         // THEN the new wake time display is retained
+        onView(withId(R.id.sleep_goals_waketime)).check(matches(isDisplayed()));
+    }
+    
+    // regression test for #50
+    @Test
+    public void newWakeTime_isRetainedOnAppRestart()
+    {
+        // GIVEN the user has set a new wake time goal
+        ActivityScenario<MainActivity> mainActivityScenario =
+                ActivityScenario.launch(MainActivity.class);
+        UITestNavigate.fromHome_toGoals();
+        SleepGoalsFragmentTestUtils.addNewWakeTime(12, 34);
+        
+        // WHEN the app is restarted
+        mainActivityScenario = UITestUtils.restartApp(mainActivityScenario, MainActivity.class);
+        
+        // THEN the previously set wake time goal is still displayed
+        UITestNavigate.fromHome_toGoals();
         onView(withId(R.id.sleep_goals_waketime)).check(matches(isDisplayed()));
     }
     

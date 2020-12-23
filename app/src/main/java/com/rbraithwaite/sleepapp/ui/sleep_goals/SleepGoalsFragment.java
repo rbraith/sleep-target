@@ -27,7 +27,7 @@ public class SleepGoalsFragment
 //*********************************************************
 
     private static final String WAKETIME_TIME_PICKER = "WakeTimeTimePicker";
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -48,11 +48,24 @@ public class SleepGoalsFragment
         final View wakeTime = view.findViewById(R.id.sleep_goals_waketime);
         final Button buttonAddNewWakeTime = view.findViewById(R.id.sleep_goals_new_waketime_btn);
         
-        if (getViewModel().hasWakeTime()) {
-            buttonAddNewWakeTime.setVisibility(View.GONE);
-        } else {
-            wakeTime.setVisibility(View.GONE);
-        }
+        getViewModel().hasWakeTime().observe(
+                getViewLifecycleOwner(),
+                new Observer<Boolean>()
+                {
+                    @Override
+                    public void onChanged(Boolean hasWakeTime)
+                    {
+                        if (hasWakeTime != null) {
+                            if (hasWakeTime) {
+                                wakeTime.setVisibility(View.VISIBLE);
+                                buttonAddNewWakeTime.setVisibility(View.GONE);
+                            } else {
+                                buttonAddNewWakeTime.setVisibility(View.VISIBLE);
+                                wakeTime.setVisibility(View.GONE);
+                            }
+                        }
+                    }
+                });
         
         final TextView wakeTimeValue = view.findViewById(R.id.waketime_value);
         getViewModel().getWakeTime().observe(
@@ -73,10 +86,9 @@ public class SleepGoalsFragment
             {
                 TimePickerFragment timePicker = new TimePickerFragment();
                 // SMELL [20-12-21 10:39PM] -- since the time picker is relative, it doesn't make
-                //  much
-                //  sense passing an absolute datetime (even though this was convenient in
-                //  SessionEditFragment,
-                //  ie using the same datetime for the date picker & time picker)
+                //  much sense passing an absolute datetime (even though this was convenient in
+                //  SessionEditFragment, ie using the same datetime for the date picker & time
+                //  picker)
                 //  ---
                 //  consider passing direct hour & minute values instead.
                 timePicker.setArguments(TimePickerFragment.createArguments(getViewModel().getDefaultWakeTime()));
@@ -86,8 +98,6 @@ public class SleepGoalsFragment
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute)
                     {
                         getViewModel().setWakeTime(hourOfDay, minute);
-                        buttonAddNewWakeTime.setVisibility(View.GONE);
-                        wakeTime.setVisibility(View.VISIBLE);
                     }
                 });
                 timePicker.show(getChildFragmentManager(), WAKETIME_TIME_PICKER);

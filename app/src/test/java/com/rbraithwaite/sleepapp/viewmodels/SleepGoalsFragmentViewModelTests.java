@@ -58,11 +58,18 @@ public class SleepGoalsFragmentViewModelTests
     @Test
     public void hasWakeTime_updatesProperly()
     {
-        assertThat(viewModel.hasWakeTime(), is(false));
+        MutableLiveData<Long> mockWakeTimeGoal = new MutableLiveData<>(null);
+        when(mockRepository.getWakeTimeGoal()).thenReturn(mockWakeTimeGoal);
         
-        viewModel.setWakeTime(12, 34);
+        LiveData<Boolean> hasWakeTime = viewModel.hasWakeTime();
+        TestUtils.LocalLiveDataSynchronizer<Boolean> synchronizer =
+                new TestUtils.LocalLiveDataSynchronizer<>(hasWakeTime);
         
-        assertThat(viewModel.hasWakeTime(), is(true));
+        assertThat(hasWakeTime.getValue(), is(false));
+        
+        mockWakeTimeGoal.setValue(12345L);
+        synchronizer.sync();
+        assertThat(hasWakeTime.getValue(), is(true));
         
         // TODO [20-12-23 2:10AM] -- check with clearWakeTime().
     }

@@ -14,7 +14,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentResultListener;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,6 +23,9 @@ import com.google.android.material.snackbar.Snackbar;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
 import com.rbraithwaite.sleepapp.ui.session_edit.SessionEditData;
+import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
+
+import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -127,27 +129,20 @@ public class SessionArchiveFragment
         switch (item.getItemId()) {
         case R.id.session_archive_list_item_context_menu_EDIT:
             Log.d(TAG, "onContextItemSelected: editing!!!");
-            int selectedSessionId = getViewModel().getAllSleepSessionDataIds()
-                    .getValue()
-                    .get(mContextMenuItemPosition);
-            mInitialEditData = getViewModel().getInitialEditSessionData(selectedSessionId);
-            // REFACTOR [20-12-15 3:45AM] -- consider just using observeForever, originally I used
-            //  observe(LifecycleOwner, ...) as an additional safety net (idk if that even makes
-            //  sense though).
-            mInitialEditData.observe(getViewLifecycleOwner(), new Observer<SessionEditData>()
-            {
-                @Override
-                public void onChanged(SessionEditData initialEditData)
-                {
-                    if (initialEditData != null) {
-                        Navigation.findNavController(getView())
-                                .navigate(toEditSessionScreen(initialEditData));
-                        // REFACTOR [20-12-17 9:08PM] -- consider making a OneTimeObserver utility.
-                        mInitialEditData.removeObserver(this); // one-off observer
-                    }
-                }
-            });
+            LiveDataFuture.getValue(
+                    getViewModel().getAllSleepSessionDataIds(),
+                    getViewLifecycleOwner(),
+                    new LiveDataFuture.OnValueListener<List<Integer>>()
+                    {
+                        @Override
+                        public void onValue(List<Integer> sleepSessionDataIds)
+                        {
+                            editSession(sleepSessionDataIds.get(mContextMenuItemPosition));
+                        }
+                    });
+            
             return true;
+        
         case R.id.session_archive_list_item_context_menu_DELETE:
             SessionArchiveDeleteDialog deleteDialog = SessionArchiveDeleteDialog.createInstance(
                     SessionArchiveDeleteDialog.createArguments(mContextMenuItemPosition),
@@ -158,29 +153,12 @@ public class SessionArchiveFragment
                                 DialogInterface dialog,
                                 int sessionPosition)
                         {
-                            Log.d(TAG,
-                                  "onPositiveButtonClick: deleting session " + sessionPosition +
-                                  "!!");
-                            // REFACTOR [20-12-17 8:38PM] -- should this be viewModel
-                            //  .getSleepSessionDataIdFromPosition()?
-                            // REFACTOR [20-12-17 8:39PM] -- Is using getValue() bad here (and
-                            //  above in the edit item)? should
-                            //  I instead take a more reactive approach with a one-time observer?
-                            //  Maybe it would even be
-                            //  useful to make a OneTimeObserver class which removes itself.
-                            SessionArchiveFragmentViewModel viewModel = getViewModel();
-                            int sessionIdToDelete = viewModel.getAllSleepSessionDataIds()
-                                    .getValue()
-                                    .get(sessionPosition);
-                            viewModel.deleteSession(sessionIdToDelete);
-                            
-                            Snackbar.make(getView(),
-                                          "Deleted session #" + sessionPosition,
-                                          Snackbar.LENGTH_SHORT).show();
+                            deleteSession(sessionPosition);
                         }
                     });
             deleteDialog.show(getChildFragmentManager(), SESSION_DELETE_DIALOG);
             return true;
+        
         default:
             return super.onContextItemSelected(item);
         }
@@ -191,7 +169,7 @@ public class SessionArchiveFragment
     
     @Override
     protected Class<SessionArchiveFragmentViewModel> getViewModelClass() { return SessionArchiveFragmentViewModel.class; }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -221,10 +199,45 @@ public class SessionArchiveFragment
         }
         return mRecyclerViewAdapter;
     }
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
+
+    private void editSession(final int sessionId)
+    {
+        mInitialEditData = getViewModel().getInitialEditSessionData(sessionId);
+        LiveDataFuture.getValue(
+                mInitialEditData,
+                getViewLifecycleOwner(),
+                new LiveDataFuture.OnValueListener<SessionEditData>()
+                {
+                    @Override
+                    public void onValue(SessionEditData initialEditData)
+                    {
+                        Navigation.findNavController(getView())
+                                .navigate(toEditSessionScreen(initialEditData));
+                    }
+                });
+    }
+
+    private void deleteSession(final int sessionPosition)
+    {
+        LiveDataFuture.getValue(
+                getViewModel().getAllSleepSessionDataIds(),
+                getViewLifecycleOwner(),
+                new LiveDataFuture.OnValueListener<List<Integer>>()
+                {
+                    @Override
+                    public void onValue(List<Integer> sleepSessionDataIds)
+                    {
+                        getViewModel().deleteSession(sleepSessionDataIds.get(sessionPosition));
+                        Snackbar.make(getView(),
+                                      "Deleted session #" + sessionPosition,
+                                      Snackbar.LENGTH_SHORT).show();
+                    }
+                });
+    }
 
     private void initSessionEditFragmentResultListeners()
     {

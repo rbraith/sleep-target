@@ -1,5 +1,6 @@
 package com.rbraithwaite.sleepapp.test_utils.ui;
 
+import android.app.Activity;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
 
@@ -40,6 +41,14 @@ public class UITestUtils
 // api
 //*********************************************************
 
+    public static <T extends Activity> ActivityScenario<T> restartApp(
+            ActivityScenario<T> scenario,
+            Class<T> activityClass)
+    {
+        scenario.close();
+        return ActivityScenario.launch(activityClass);
+    }
+    
     public static void checkBottomNavIsDisplayed(boolean shouldBeDisplayed)
     {
         if (shouldBeDisplayed) {
