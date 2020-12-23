@@ -234,6 +234,26 @@ public class SleepAppRepositoryTests
         
         verify(mockSleepSessionDao).deleteSleepSession(sessionDataId);
     }
+    
+    @Test
+    public void setWakeTimeGoal_updatesPrefs()
+    {
+        long expectedWakeTime = 12345L;
+        
+        repository.setWakeTimeGoal(expectedWakeTime);
+        
+        verify(mockPrefs, times(1)).setWakeTimeGoal(expectedWakeTime);
+    }
+    
+    @Test
+    public void getWakeTimeGoal_updatesFromPrefs()
+    {
+        LiveData<Long> expected = new MutableLiveData<>(12345L);
+        when(mockPrefs.getWakeTimeGoal()).thenReturn(expected);
+        
+        LiveData<Long> wakeTimeGoal = repository.getWakeTimeGoal();
+        assertThat(wakeTimeGoal, is(expected));
+    }
 
 //*********************************************************
 // private methods

@@ -14,6 +14,8 @@ import java.util.concurrent.Executor;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import dagger.hilt.android.qualifiers.ApplicationContext;
+
 @Singleton
 public class SleepAppDataPrefs
 {
@@ -23,14 +25,21 @@ public class SleepAppDataPrefs
 
     private MutableLiveData<Date> mCurrentSession;
     private Executor mExecutor;
+    private Context mContext;
+    
+    private MutableLiveData<Long> mWakeTimeGoal;
 
 //*********************************************************
 // private constants
 //*********************************************************
 
     private static final String CURRENT_SESSION_KEY = "current sleep session";
+    
     private static final long NULL_VAL = -1L;
-
+    
+    private static final String WAKE_TIME_GOAL_KEY = "wake time goal";
+    
+    
 //*********************************************************
 // public constants
 //*********************************************************
@@ -38,17 +47,21 @@ public class SleepAppDataPrefs
     // HACK [20-11-14 8:06PM] -- made this public to allow tests to reset the shared prefs
     //  not ideal, find a better solution.
     public static final String PREFS_FILE_KEY = "com.rbraithwaite.sleepapp.PREFS_FILE_KEY";
-
+    
+    
 //*********************************************************
 // constructors
 //*********************************************************
 
     @Inject
-    public SleepAppDataPrefs(Executor executor)
+    public SleepAppDataPrefs(
+            @ApplicationContext Context context,
+            Executor executor)
     {
+        // REFACTOR [20-12-22 1:50AM] -- replace various context args in methods w/ mContext.
+        mContext = context;
         mExecutor = executor;
     }
-
 
 //*********************************************************
 // api
@@ -78,7 +91,6 @@ public class SleepAppDataPrefs
         });
     }
     
-    
     /**
      * Returns a null LiveData immediately, then updates asynchronously (replicates Room behaviour)
      */
@@ -101,6 +113,54 @@ public class SleepAppDataPrefs
             }
         });
         return mCurrentSession;
+    }
+    
+    public LiveData<Long> getWakeTimeGoal()
+    {
+        // REFACTOR [20-12-22 1:53AM] -- this duplicates logic in getCurrentSession()
+        // REFACTOR [20-12-22 1:53AM] -- I don't think I need to be keeping a private reference
+        //  to the
+        //  LiveData, same goes for getCurrentSession() - it's ref'd in the executor, that should
+        //  keep
+        //  it from being gc'd
+        mWakeTimeGoal = new MutableLiveData<>(null);
+        mExecutor.execute(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                // SMELL [20-12-22 1:55AM] -- race condition between here and setWakeTimeGoal?
+                long wakeTimeGoal =
+                        getSharedPrefs(mContext).getLong(WAKE_TIME_GOAL_KEY, NULL_VAL);
+                
+                if (wakeTimeGoal != NULL_VAL) {
+                    mWakeTimeGoal.postValue(wakeTimeGoal);
+                } else {
+                    mWakeTimeGoal.postValue(null);
+                }
+            }
+        });
+        return mWakeTimeGoal;
+    }
+    
+    public void setWakeTimeGoal(final long wakeTimeGoalMillis)
+    {
+        // REFACTOR [20-12-22 1:47AM] -- this logic duplicates setCurrentSession()
+        mExecutor.execute(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                SharedPreferences prefs = getSharedPrefs(mContext);
+                SharedPreferences.Editor editor = prefs.edit();
+                
+                editor.putLong(WAKE_TIME_GOAL_KEY, wakeTimeGoalMillis);
+                editor.commit();
+                if (mWakeTimeGoal != null) {
+                    mWakeTimeGoal.postValue(wakeTimeGoalMillis);
+                }
+            }
+        });
     }
 
 

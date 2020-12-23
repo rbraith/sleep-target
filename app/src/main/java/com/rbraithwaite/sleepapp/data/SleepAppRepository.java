@@ -110,4 +110,19 @@ public class SleepAppRepository
             }
         });
     }
+    
+    public LiveData<Long> getWakeTimeGoal()
+    {
+        // REFACTOR [20-12-23 1:47AM] -- this should maybe be a switchmap, so that its not returning
+        //  a new instance every time. Does the same go for all the other methods?
+        return mDataPrefs.getWakeTimeGoal();
+    }
+    
+    // SMELL [20-12-22 12:31AM] -- The repository is starting to get big - sleep session, wake-time
+    //  goals, etc. Should I split the responsibilities for different data into different
+    //  repositories?
+    public void setWakeTimeGoal(long wakeTimeGoalMillis)
+    {
+        mDataPrefs.setWakeTimeGoal(wakeTimeGoalMillis);
+    }
 }

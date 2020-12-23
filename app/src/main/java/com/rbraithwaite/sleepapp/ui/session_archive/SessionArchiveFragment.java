@@ -40,6 +40,8 @@ public class SessionArchiveFragment
     
     private SessionArchiveRecyclerViewAdapter mRecyclerViewAdapter;
     
+    // REFACTOR [20-12-23 1:39AM] -- consider using the viewmodel to save this UI state data instead
+    //  https://developer.android.com/topic/libraries/architecture/saving-states#viewmodel
     // SMELL [20-12-15 3:37AM] -- using a global.
     // This is set when a list item's context menu is opened.
     private int mContextMenuItemPosition;
@@ -58,10 +60,8 @@ public class SessionArchiveFragment
 //*********************************************************
 
     // SMELL [20-12-15 3:04AM] -- There should be a better way to do this than having this as a
-    //  global,
-    //  the problem is otherwise in onContextItemSelected() the LiveData instance is liable to go
-    //  out
-    //  of scope.
+    //  global, the problem is otherwise in onContextItemSelected() the LiveData instance is liable
+    //  to go out of scope.
     LiveData<SessionEditData> mInitialEditData;
 
 //*********************************************************

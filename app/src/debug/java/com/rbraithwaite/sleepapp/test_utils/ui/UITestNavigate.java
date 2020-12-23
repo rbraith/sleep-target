@@ -28,6 +28,11 @@ public class UITestNavigate
 // api
 //*********************************************************
 
+    public static void fromHome_toGoals()
+    {
+        onView(withId(R.id.nav_sleepgoals)).perform(click());
+    }
+    
     public static void fromHome_toAddSession()
     {
         fromHome_toSessionArchive();

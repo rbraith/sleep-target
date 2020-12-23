@@ -52,6 +52,9 @@ public class MainActivityNavigationTests
         onView(withId(R.id.sleep_goals_layout)).check(matches(isDisplayed()));
         // AND the bottomnav remains visible
         UITestUtils.checkBottomNavIsDisplayed(true);
+        // AND the goals screen is in its default state
+        onView(withId(R.id.sleep_goals_new_waketime_btn)).check(matches(isDisplayed()));
+        onView(withId(R.id.sleep_goals_waketime)).check(matches(not(isDisplayed())));
     }
     
     // TODO [20-12-21 12:27AM] -- navigate from sleep goals to sleep tracker.

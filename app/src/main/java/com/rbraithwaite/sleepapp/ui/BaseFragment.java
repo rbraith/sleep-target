@@ -16,7 +16,7 @@ public abstract class BaseFragment<V extends ViewModel>
 //*********************************************************
 
     private V mViewModel;
-    
+
 //*********************************************************
 // abstract
 //*********************************************************
@@ -24,7 +24,7 @@ public abstract class BaseFragment<V extends ViewModel>
     protected abstract boolean getBottomNavVisibility();
     
     protected abstract Class<V> getViewModelClass();
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -45,6 +45,7 @@ public abstract class BaseFragment<V extends ViewModel>
     protected V getViewModel()
     {
         if (mViewModel == null) {
+            // REFACTOR [20-12-23 1:57AM] -- should the ViewModelStoreOwner be the fragment instead?
             mViewModel = new ViewModelProvider(requireActivity()).get(getViewModelClass());
         }
         return mViewModel;

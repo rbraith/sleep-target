@@ -9,8 +9,12 @@ import com.rbraithwaite.sleepapp.test_utils.ui.DialogTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveDeleteDialog;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
+
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -19,9 +23,18 @@ import static org.junit.Assert.assertThat;
 public class SessionArchiveDeleteDialogTests
 {
 //*********************************************************
+// public properties
+//*********************************************************
+
+    @Rule
+    // protection against potentially infinitely blocked threads
+    public Timeout timeout = new Timeout(10, TimeUnit.SECONDS);
+    
+//*********************************************************
 // api
 //*********************************************************
 
+    // TODO [20-12-21 10:09PM] -- is there an async problem with this test?
     @Test
     public void onPositiveButtonClick_receivesCorrectValuesFrom_createInstance()
     {
