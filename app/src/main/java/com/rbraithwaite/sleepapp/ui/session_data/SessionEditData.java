@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui.session_edit;
+package com.rbraithwaite.sleepapp.ui.session_data;
 
 import android.os.Bundle;
 
@@ -14,6 +14,7 @@ import java.io.Serializable;
 /**
  * DTO representing the values set in a SessionEditFragment
  */
+@Deprecated
 public class SessionEditData
         implements Serializable
 {

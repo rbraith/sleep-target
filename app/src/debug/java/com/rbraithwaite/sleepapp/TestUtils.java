@@ -15,7 +15,7 @@ import com.rbraithwaite.sleepapp.data.SleepAppDataPrefs;
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
 import com.rbraithwaite.sleepapp.data.database.tables.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
-import com.rbraithwaite.sleepapp.ui.session_edit.SessionEditData;
+import com.rbraithwaite.sleepapp.ui.session_data.SessionEditData;
 
 import java.util.Arrays;
 import java.util.Date;

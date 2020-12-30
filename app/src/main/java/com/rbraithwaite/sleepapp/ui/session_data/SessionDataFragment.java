@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui.session_edit;
+package com.rbraithwaite.sleepapp.ui.session_data;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +20,7 @@ import androidx.navigation.Navigation;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.rbraithwaite.sleepapp.R;
+import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
 import com.rbraithwaite.sleepapp.ui.dialog.DatePickerFragment;
 import com.rbraithwaite.sleepapp.ui.dialog.TimePickerFragment;
@@ -27,41 +28,47 @@ import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragmentDirect
 
 import dagger.hilt.android.AndroidEntryPoint;
 
+// TODO [20-12-24 3:28PM] -- copy this most of this code to a new fragment SessionDataFragment
+//  - do the same with the two layouts: session_data_fragment.xml & session_data_datetime.xml
+//  - these layout are also depr'd and should be deleted soon
+//  ---
+//  - do the same with the session edit fragment view model.
+
 @AndroidEntryPoint
-public class SessionEditFragment
-        extends BaseFragment<SessionEditFragmentViewModel>
+public class SessionDataFragment
+        extends BaseFragment<SessionDataFragmentViewModel>
 {
 //*********************************************************
 // private properties
 //*********************************************************
 
     private String mRequestKey;
+    private int mPositiveIcon;
+    private int mNegativeIcon;
 
 //*********************************************************
 // private constants
 //*********************************************************
 
-    private static final String TAG = "SessionEditFragment";
+    private static final String TAG = "SessionDataFragment";
+    
     private static final String DIALOG_START_DATE_PICKER = "StartDatePicker";
     private static final String DIALOG_START_TIME_PICKER = "StartTimePicker";
     private static final String DIALOG_END_DATE_PICKER = "EndDatePicker";
-    
     private static final String DIALOG_END_TIME_PICKER = "EndTimePicker";
 
 //*********************************************************
 // public constants
 //*********************************************************
 
-    /**
-     * Used by FragmentResultListeners
-     */
-    public static final String RESULT = "result";
+    public static final int DEFAULT_ICON = -1;
+
 
 //*********************************************************
 // constructors
 //*********************************************************
 
-    public SessionEditFragment() { setHasOptionsMenu(true); }
+    public SessionDataFragment() { setHasOptionsMenu(true); }
 
 //*********************************************************
 // overrides
@@ -74,14 +81,14 @@ public class SessionEditFragment
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState)
     {
-        return inflater.inflate(R.layout.session_edit_fragment, container, false);
+        return inflater.inflate(R.layout.session_data_fragment, container, false);
     }
     
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
     {
-        initStartDateTime(view.findViewById(R.id.session_edit_start_time));
-        initEndDateTime(view.findViewById(R.id.session_edit_end_time));
+        initStartDateTime(view.findViewById(R.id.session_data_start_time));
+        initEndDateTime(view.findViewById(R.id.session_data_end_time));
         initSessionDuration(view);
         
         requireActivity().getOnBackPressedDispatcher().addCallback(
@@ -95,34 +102,44 @@ public class SessionEditFragment
                     }
                 });
         
-        SessionEditFragmentArgs args = SessionEditFragmentArgs.fromBundle(getArguments());
+        SessionDataFragmentArgs args = SessionDataFragmentArgs.fromBundle(getArguments());
         mRequestKey = args.getRequestKey();
+        mPositiveIcon = args.getPositiveIcon();
+        mNegativeIcon = args.getNegativeIcon();
         initInputFieldValues(args);
     }
     
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater)
     {
-        inflater.inflate(R.menu.session_edit_menu, menu);
+        inflater.inflate(R.menu.session_data_menu, menu);
+        if (mPositiveIcon != DEFAULT_ICON) {
+            menu.findItem(R.id.session_data_action_positive).setIcon(mPositiveIcon);
+        }
+        if (mNegativeIcon != DEFAULT_ICON) {
+            menu.findItem(R.id.session_data_action_negative).setIcon(mNegativeIcon);
+        }
     }
     
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item)
     {
+        // TODO [21-12-29 3:15AM] -- if a menu item was selected, add that to the result.
         switch (item.getItemId()) {
         case android.R.id.home: // up button
-        case R.id.session_edit_menuitem_cancel:
-            // clear the view model data here so that the view model data is properly re-initialized
-            // when the user returns to the SessionEditFragment
-            clearSessionDataThenNavigateUp();
-            return true;
-        case R.id.session_edit_menuitem_confirm:
-            // REFACTOR [20-12-16 5:56PM] -- should getResult be returning LiveData<Bundle>?
-            //  should the implementation be a transformation? -- leaving this for now since
-            //  things seem to be working.
-            setResult(getViewModel().getResult());
-            clearSessionDataThenNavigateUp();
-            return true;
+//        case R.id.session_edit_menuitem_cancel:
+//            // clear the view model data here so that the view model data is properly
+//            re-initialized
+//            // when the user returns to the SessionEditFragment
+//            clearSessionDataThenNavigateUp();
+//            return true;
+//        case R.id.session_edit_menuitem_confirm:
+//            // REFACTOR [20-12-16 5:56PM] -- should getResult be returning LiveData<Bundle>?
+//            //  should the implementation be a transformation? -- leaving this for now since
+//            //  things seem to be working.
+//            setResult(getViewModel().getResult());
+//            clearSessionDataThenNavigateUp();
+//            return true;
         default:
             return super.onOptionsItemSelected(item);
         }
@@ -132,22 +149,40 @@ public class SessionEditFragment
     protected boolean getBottomNavVisibility() { return false; }
     
     @Override
-    protected Class<SessionEditFragmentViewModel> getViewModelClass() { return SessionEditFragmentViewModel.class; }
-    
+    protected Class<SessionDataFragmentViewModel> getViewModelClass() { return SessionDataFragmentViewModel.class; }
+
 //*********************************************************
 // api
 //*********************************************************
 
-    public static Bundle createArguments(String requestKey, SessionEditData initialData)
+    public static Bundle createArguments(String requestKey, SleepSessionData initialData)
     {
         // use SafeArgs action so that the Bundle works when it is eventually used with
-        // SessionEditFragmentArgs.fromBundle()
+        // SessionDataFragmentArgs.fromBundle()
         // TODO [20-11-28 10:30PM] -- SafeArgs uses the argument names defined in the navgraph as
         //  the Bundle keys - consider redefining those keys here and just making my own Bundle?
         //  problem: the argument names would be hardcoded though, I can't seem to find a way to
         //  get a reference to the names defined in the navgraph, but I should investigate more.
         return SessionArchiveFragmentDirections
-                .actionSessionArchiveToSessionEdit(requestKey, initialData)
+                .actionSessionArchiveToSessionData(
+                        requestKey,
+                        initialData,
+                        SessionDataFragment.DEFAULT_ICON,
+                        SessionDataFragment.DEFAULT_ICON)
+                .getArguments();
+    }
+    
+    public static Bundle createArguments(
+            String requestKey,
+            SleepSessionData initialData,
+            int positiveIcon,
+            int negativeIcon)
+    {
+        return SessionArchiveFragmentDirections
+                .actionSessionArchiveToSessionData(requestKey,
+                                                   initialData,
+                                                   positiveIcon,
+                                                   negativeIcon)
                 .getArguments();
     }
 
@@ -160,22 +195,22 @@ public class SessionEditFragment
         getViewModel().clearSessionData();
         Navigation.findNavController(getView()).navigateUp();
     }
-
+    
     private void setResult(Bundle result)
     {
         getParentFragmentManager().setFragmentResult(mRequestKey, result);
     }
     
-    private boolean viewModelIsInitialized(SessionEditFragmentViewModel viewModel)
+    private boolean viewModelIsInitialized(SessionDataFragmentViewModel viewModel)
     {
         return (viewModel.getStartDateTime().getValue() != null &&
                 viewModel.getEndDateTime().getValue() != null);
     }
     
-    // REFACTOR [20-12-1 2:09AM] -- the param should be SessionEditData
-    private void initInputFieldValues(SessionEditFragmentArgs args)
+    // REFACTOR [20-12-1 2:09AM] -- the param should be SleepSessionData
+    private void initInputFieldValues(SessionDataFragmentArgs args)
     {
-        SessionEditFragmentViewModel viewModel = getViewModel();
+        SessionDataFragmentViewModel viewModel = getViewModel();
         // this persists the view model values across fragment destruction (eg device rotation)
         if (!viewModel.sessionDataIsInitialized()) {
             viewModel.initSessionData(args.getInitialData());
@@ -184,7 +219,7 @@ public class SessionEditFragment
     
     private void initSessionDuration(View fragmentRoot)
     {
-        final TextView sessionDurationText = fragmentRoot.findViewById(R.id.session_edit_duration);
+        final TextView sessionDurationText = fragmentRoot.findViewById(R.id.session_data_duration);
         getViewModel().getSessionDuration().observe(
                 getViewLifecycleOwner(),
                 new Observer<String>()
@@ -201,7 +236,7 @@ public class SessionEditFragment
     {
         // init label
         TextView startTimeName = startTimeLayout.findViewById(R.id.name);
-        startTimeName.setText(R.string.session_edit_start_time_name);
+        startTimeName.setText(R.string.session_data_start_time_name);
         
         final TextView startTime = startTimeLayout.findViewById(R.id.time);
         final TextView startDate = startTimeLayout.findViewById(R.id.date);
@@ -233,7 +268,7 @@ public class SessionEditFragment
     
     private void initStartDateTimeListeners(TextView startDateText, TextView startTimeText)
     {
-        final SessionEditFragmentViewModel viewModel = getViewModel();
+        final SessionDataFragmentViewModel viewModel = getViewModel();
         startDateText.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -249,7 +284,7 @@ public class SessionEditFragment
                     {
                         try {
                             viewModel.setStartDate(year, month, dayOfMonth);
-                        } catch (SessionEditFragmentViewModel.InvalidDateTimeException e) {
+                        } catch (SessionDataFragmentViewModel.InvalidDateTimeException e) {
                             Snackbar.make(getView(),
                                           R.string.error_session_edit_start_datetime,
                                           Snackbar.LENGTH_SHORT).show();
@@ -286,7 +321,7 @@ public class SessionEditFragment
                     {
                         try {
                             viewModel.setStartTime(hourOfDay, minute);
-                        } catch (SessionEditFragmentViewModel.InvalidDateTimeException e) {
+                        } catch (SessionDataFragmentViewModel.InvalidDateTimeException e) {
                             Log.d(TAG, "onTimeSet: invalid start time");
                             Snackbar.make(getView(),
                                           R.string.error_session_edit_start_datetime,
@@ -303,7 +338,7 @@ public class SessionEditFragment
     {
         // init label
         TextView endTimeName = endTimeLayout.findViewById(R.id.name);
-        endTimeName.setText(R.string.session_edit_end_time_name);
+        endTimeName.setText(R.string.session_data_end_time_name);
         
         final TextView endTime = endTimeLayout.findViewById(R.id.time);
         final TextView endDate = endTimeLayout.findViewById(R.id.date);
@@ -315,7 +350,7 @@ public class SessionEditFragment
     
     private void initEndDateTimeListeners(final TextView endDateText, final TextView endTimeText)
     {
-        final SessionEditFragmentViewModel viewModel = getViewModel();
+        final SessionDataFragmentViewModel viewModel = getViewModel();
         endDateText.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -331,7 +366,7 @@ public class SessionEditFragment
                     {
                         try {
                             viewModel.setEndDate(year, month, dayOfMonth);
-                        } catch (SessionEditFragmentViewModel.InvalidDateTimeException e) {
+                        } catch (SessionDataFragmentViewModel.InvalidDateTimeException e) {
                             Snackbar.make(getView(),
                                           R.string.error_session_edit_end_datetime,
                                           Snackbar.LENGTH_SHORT).show();
@@ -356,7 +391,7 @@ public class SessionEditFragment
                     {
                         try {
                             viewModel.setEndTime(hourOfDay, minute);
-                        } catch (SessionEditFragmentViewModel.InvalidDateTimeException e) {
+                        } catch (SessionDataFragmentViewModel.InvalidDateTimeException e) {
                             Log.d(TAG, "onTimeSet: invalid end time");
                             Snackbar.make(getView(),
                                           R.string.error_session_edit_end_datetime,

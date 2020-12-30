@@ -1,11 +1,7 @@
 package com.rbraithwaite.sleepapp.ui.session_archive;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -19,13 +15,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
-import com.rbraithwaite.sleepapp.ui.session_edit.SessionEditData;
-import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
-
-import java.util.List;
+import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragment;
+import com.rbraithwaite.sleepapp.ui.session_data.SessionEditData;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -56,7 +49,9 @@ public class SessionArchiveFragment
     private static final String ADD_SESSION_RESULT = "AddSessionResult";
     private static final String EDIT_SESSION_RESULT = "EditSessionResult";
     private static final String SESSION_DELETE_DIALOG = "SessionDeleteDialog";
-
+    
+    private static final int DATA_ICON_DELETE = R.drawable.ic_baseline_delete_forever_24;
+    
 //*********************************************************
 // package properties
 //*********************************************************
@@ -65,14 +60,22 @@ public class SessionArchiveFragment
     //  global, the problem is otherwise in onContextItemSelected() the LiveData instance is liable
     //  to go out of scope.
     LiveData<SessionEditData> mInitialEditData;
-
+    
 //*********************************************************
 // overrides
 //*********************************************************
 
+    // TODO [20-12-24 3:16PM] -- these will need to be the results from
+    //  SessionDataFragment.
     @Override // FragmentResultListener
     public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result)
     {
+        // TODO [21-12-29 2:10AM] -- I will need to check for action icon presses here - the action
+        //  icon pressed (int) should be returned in the result.
+        
+        // TODO [20-12-24 3:25PM] -- these will not use SessionEditData result objs
+        //  possibly just use SleepSessionData objs? (i want to try to minimize similar POJOs,
+        //  or else things get confusing)
         SessionEditData resultData;
         switch (requestKey) {
         case ADD_SESSION_RESULT:
@@ -113,63 +116,11 @@ public class SessionArchiveFragment
     }
     
     @Override
-    public void onCreateContextMenu(
-            @NonNull ContextMenu menu,
-            @NonNull View v,
-            @Nullable ContextMenu.ContextMenuInfo menuInfo)
-    {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        requireActivity().getMenuInflater()
-                .inflate(R.menu.session_archive_list_item_context_menu, menu);
-    }
-    
-    @Override
-    public boolean onContextItemSelected(@NonNull MenuItem item)
-    {
-        switch (item.getItemId()) {
-        case R.id.session_archive_list_item_context_menu_EDIT:
-            Log.d(TAG, "onContextItemSelected: editing!!!");
-            LiveDataFuture.getValue(
-                    getViewModel().getAllSleepSessionDataIds(),
-                    getViewLifecycleOwner(),
-                    new LiveDataFuture.OnValueListener<List<Integer>>()
-                    {
-                        @Override
-                        public void onValue(List<Integer> sleepSessionDataIds)
-                        {
-                            editSession(sleepSessionDataIds.get(mContextMenuItemPosition));
-                        }
-                    });
-            
-            return true;
-        
-        case R.id.session_archive_list_item_context_menu_DELETE:
-            SessionArchiveDeleteDialog deleteDialog = SessionArchiveDeleteDialog.createInstance(
-                    SessionArchiveDeleteDialog.createArguments(mContextMenuItemPosition),
-                    new SessionArchiveDeleteDialog.OnPositiveButtonClickListener()
-                    {
-                        @Override
-                        public void onPositiveButtonClick(
-                                DialogInterface dialog,
-                                int sessionPosition)
-                        {
-                            deleteSession(sessionPosition);
-                        }
-                    });
-            deleteDialog.show(getChildFragmentManager(), SESSION_DELETE_DIALOG);
-            return true;
-        
-        default:
-            return super.onContextItemSelected(item);
-        }
-    }
-    
-    @Override
     protected boolean getBottomNavVisibility() { return false; }
-    
+
     @Override
     protected Class<SessionArchiveFragmentViewModel> getViewModelClass() { return SessionArchiveFragmentViewModel.class; }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -192,8 +143,9 @@ public class SessionArchiveFragment
                         @Override
                         public void onClick(View v, int position)
                         {
-                            mContextMenuItemPosition = position;
-                            v.showContextMenu();
+                            // TODO [20-12-24 3:22PM] -- update list item click behaviour here.
+//                            mContextMenuItemPosition = position;
+//                            v.showContextMenu();
                         }
                     });
         }
@@ -204,47 +156,12 @@ public class SessionArchiveFragment
 // private methods
 //*********************************************************
 
-    private void editSession(final int sessionId)
-    {
-        mInitialEditData = getViewModel().getInitialEditSessionData(sessionId);
-        LiveDataFuture.getValue(
-                mInitialEditData,
-                getViewLifecycleOwner(),
-                new LiveDataFuture.OnValueListener<SessionEditData>()
-                {
-                    @Override
-                    public void onValue(SessionEditData initialEditData)
-                    {
-                        Navigation.findNavController(getView())
-                                .navigate(toEditSessionScreen(initialEditData));
-                    }
-                });
-    }
-
-    private void deleteSession(final int sessionPosition)
-    {
-        LiveDataFuture.getValue(
-                getViewModel().getAllSleepSessionDataIds(),
-                getViewLifecycleOwner(),
-                new LiveDataFuture.OnValueListener<List<Integer>>()
-                {
-                    @Override
-                    public void onValue(List<Integer> sleepSessionDataIds)
-                    {
-                        getViewModel().deleteSession(sleepSessionDataIds.get(sessionPosition));
-                        Snackbar.make(getView(),
-                                      "Deleted session #" + sessionPosition,
-                                      Snackbar.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
+    // REFACTOR [20-12-24 3:19PM] -- this should be initSessionDataFragmentResultListeners.
     private void initSessionEditFragmentResultListeners()
     {
         getParentFragmentManager().setFragmentResultListener(ADD_SESSION_RESULT, this, this);
         getParentFragmentManager().setFragmentResultListener(EDIT_SESSION_RESULT, this, this);
     }
-    
     
     private void initFloatingActionButton(View fragmentRoot)
     {
@@ -260,21 +177,17 @@ public class SessionArchiveFragment
         });
     }
     
-    private SessionArchiveFragmentDirections.ActionSessionArchiveToSessionEdit toEditSessionScreen(
-            SessionEditData initialEditData)
-    {
-        return SessionArchiveFragmentDirections.actionSessionArchiveToSessionEdit(
-                EDIT_SESSION_RESULT, initialEditData);
-    }
-    
     /**
-     * Generates SafeArgs action for navigating to the AddSessionFragment. This is meant to be used
-     * in conjunction with NavController.navigate()
+     * Generates SafeArgs action for navigating to the add session screen (SessionDataFragment).
+     * This is meant to be used in conjunction with NavController.navigate()
      */
-    private SessionArchiveFragmentDirections.ActionSessionArchiveToSessionEdit toAddSessionScreen()
+    private SessionArchiveFragmentDirections.ActionSessionArchiveToSessionData toAddSessionScreen()
     {
-        return SessionArchiveFragmentDirections.actionSessionArchiveToSessionEdit(
-                ADD_SESSION_RESULT, getViewModel().getDefaultAddSessionData());
+        return SessionArchiveFragmentDirections.actionSessionArchiveToSessionData(
+                ADD_SESSION_RESULT,
+                getViewModel().getDefaultAddSessionData(),
+                SessionDataFragment.DEFAULT_ICON,
+                SessionDataFragment.DEFAULT_ICON);
     }
     
     private void initRecyclerView(@NonNull View fragmentRoot)

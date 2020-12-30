@@ -1,8 +1,8 @@
 package com.rbraithwaite.sleepapp.ui_tests.session_archive_fragment;
 
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestNavigate;
-import com.rbraithwaite.sleepapp.ui.session_edit.SessionEditData;
-import com.rbraithwaite.sleepapp.ui_tests.session_edit_fragment.SessionEditFragmentTestUtils;
+import com.rbraithwaite.sleepapp.ui.session_data.SessionEditData;
+import com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils;
 
 import java.util.GregorianCalendar;
 
@@ -24,10 +24,10 @@ public class SessionArchiveFragmentTestUtils
         
         GregorianCalendar calendar = new GregorianCalendar();
         calendar.setTimeInMillis(sessionData.startDateTime);
-        SessionEditFragmentTestUtils.setStartDateTime(calendar);
+        SessionDataFragmentTestUtils.setStartDateTime(calendar);
         calendar.setTimeInMillis(sessionData.endDateTime);
-        SessionEditFragmentTestUtils.setEndDateTime(calendar);
+        SessionDataFragmentTestUtils.setEndDateTime(calendar);
         
-        SessionEditFragmentTestUtils.pressConfirm();
+        SessionDataFragmentTestUtils.pressConfirm();
     }
 }

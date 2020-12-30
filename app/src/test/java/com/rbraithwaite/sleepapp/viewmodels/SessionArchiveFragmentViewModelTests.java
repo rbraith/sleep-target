@@ -9,7 +9,7 @@ import com.rbraithwaite.sleepapp.data.SleepAppRepository;
 import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragmentViewModel;
 import com.rbraithwaite.sleepapp.ui.session_archive.data.UISleepSessionData;
-import com.rbraithwaite.sleepapp.ui.session_edit.SessionEditData;
+import com.rbraithwaite.sleepapp.ui.session_data.SessionEditData;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
 
 import org.junit.After;
@@ -61,8 +61,8 @@ public class SessionArchiveFragmentViewModelTests
     @Test
     public void getDefaultAddSessionData_sessionIdIsZero()
     {
-        SessionEditData sessionEditData = viewModel.getDefaultAddSessionData();
-        assertThat(sessionEditData.sessionId, is(0));
+        SleepSessionData sleepSessionData = viewModel.getDefaultAddSessionData();
+        assertThat(sleepSessionData.id, is(0));
     }
     
     @Test

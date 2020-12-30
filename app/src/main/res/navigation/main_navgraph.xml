@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_navgraph"
     app:startDestination="@id/nav_sleeptracker">
 
@@ -17,19 +18,25 @@
         android:name="com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragment"
         android:label="SessionArchiveFragment" >
         <action
-            android:id="@+id/action_sessionArchive_to_sessionEdit"
-            app:destination="@id/nav_session_edit" />
+            android:id="@+id/action_sessionArchive_to_sessionData"
+            app:destination="@id/nav_session_data" />
     </fragment>
     <fragment
-        android:id="@+id/nav_session_edit"
-        android:name="com.rbraithwaite.sleepapp.ui.session_edit.SessionEditFragment"
-        android:label="SessionEditFragment" >
+        android:id="@+id/nav_session_data"
+        android:name="com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragment"
+        android:label="SessionDataFragment">
         <argument
             android:name="requestKey"
             app:argType="string" />
         <argument
             android:name="initialData"
-            app:argType="com.rbraithwaite.sleepapp.ui.session_edit.SessionEditData" />
+            app:argType="com.rbraithwaite.sleepapp.data.database.views.SleepSessionData" />
+        <argument
+            android:name="positiveIcon"
+            app:argType="integer" />
+        <argument
+            android:name="negativeIcon"
+            app:argType="integer" />
     </fragment>
     <fragment
         android:id="@+id/nav_sleepgoals"

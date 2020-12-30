@@ -11,7 +11,7 @@ import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
 import com.rbraithwaite.sleepapp.ui.Constants;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_archive.data.UISleepSessionData;
-import com.rbraithwaite.sleepapp.ui.session_edit.SessionEditData;
+import com.rbraithwaite.sleepapp.ui.session_data.SessionEditData;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
 
 import java.text.SimpleDateFormat;
@@ -64,6 +64,7 @@ public class SessionArchiveFragmentViewModel
         mRepository.deleteSleepSessionData(sessionIdToDelete);
     }
     
+    // TODO [20-12-24 3:37PM] -- call this getSessionArchiveListItem(sleepSessionId).
     public LiveData<UISleepSessionData> getSleepSessionData(int id)
     {
         // convert from db form to ui form
@@ -87,12 +88,14 @@ public class SessionArchiveFragmentViewModel
         return mSleepSessionDataIds;
     }
     
-    public SessionEditData getDefaultAddSessionData()
+    public SleepSessionData getDefaultAddSessionData()
     {
-        long now = DateUtils.getNow().getTime();
-        return new SessionEditData(now, now);
+        SleepSessionData defaultData = new SleepSessionData();
+        defaultData.startTime = DateUtils.getNow();
+        return defaultData;
     }
     
+    // TODO [20-12-24 4:02PM] -- this should just return LiveData<SleepSessionData>
     public LiveData<SessionEditData> getInitialEditSessionData(int sessionIdForEditing)
     {
         // I've having trouble verifying this, but i think this: https://stackoverflow

@@ -6,6 +6,7 @@ import androidx.room.DatabaseView;
 import com.rbraithwaite.sleepapp.data.database.tables.SleepSessionContract;
 import com.rbraithwaite.sleepapp.data.database.tables.SleepSessionEntity;
 
+import java.io.Serializable;
 import java.util.Date;
 
 // TODO right now this is just getting all the sleep_session columns,
@@ -30,6 +31,7 @@ import java.util.Date;
                 " FROM " + SleepSessionContract.TABLE_NAME)
         //@formatter:on
 public class SleepSessionData
+        implements Serializable
 {
 //*********************************************************
 // public properties
@@ -40,10 +42,15 @@ public class SleepSessionData
     
     @ColumnInfo(name = SleepSessionDataContract.Columns.START_TIME)
     public Date startTime;
-    
     @ColumnInfo(name = SleepSessionDataContract.Columns.DURATION)
     public long duration;
-    
+
+//*********************************************************
+// public constants
+//*********************************************************
+
+    public static final long serialVersionUID = 20201229L;
+
 //*********************************************************
 // api
 //*********************************************************

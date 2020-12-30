@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui_tests.session_edit_fragment;
+package com.rbraithwaite.sleepapp.ui_tests.session_data_fragment;
 
 import android.content.pm.ActivityInfo;
 
@@ -9,7 +9,7 @@ import com.rbraithwaite.sleepapp.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
-import com.rbraithwaite.sleepapp.ui.session_edit.SessionEditFragment;
+import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragment;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,14 +23,14 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoActions.setDatePickerDate;
 import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.onDatePicker;
 import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.onTimePicker;
-import static com.rbraithwaite.sleepapp.ui_tests.session_edit_fragment.SessionEditFragmentTestUtils.launchSessionEditFragmentWithArbitraryDates;
-import static com.rbraithwaite.sleepapp.ui_tests.session_edit_fragment.SessionEditFragmentTestUtils.onEndDateTextView;
-import static com.rbraithwaite.sleepapp.ui_tests.session_edit_fragment.SessionEditFragmentTestUtils.onEndTimeTextView;
-import static com.rbraithwaite.sleepapp.ui_tests.session_edit_fragment.SessionEditFragmentTestUtils.onStartDateTextView;
-import static com.rbraithwaite.sleepapp.ui_tests.session_edit_fragment.SessionEditFragmentTestUtils.onStartTimeTextView;
+import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.launchSessionEditFragmentWithArbitraryDates;
+import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onEndDateTextView;
+import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onEndTimeTextView;
+import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onStartDateTextView;
+import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onStartTimeTextView;
 
 @RunWith(AndroidJUnit4.class)
-public class SessionEditFragmentRotationTests
+public class SessionDataFragmentRotationTests
 {
 //*********************************************************
 // api
@@ -40,7 +40,7 @@ public class SessionEditFragmentRotationTests
     public void startDate_persistsAcrossOrientationChange()
     {
         // GIVEN the user updates the start date
-        HiltFragmentTestHelper<SessionEditFragment> testHelper =
+        HiltFragmentTestHelper<SessionDataFragment> testHelper =
                 launchSessionEditFragmentWithArbitraryDates();
         
         onStartDateTextView().perform(click());
@@ -66,7 +66,7 @@ public class SessionEditFragmentRotationTests
     public void startTime_persistsAcrossOrientationChange()
     {
         // GIVEN the user updates the start time
-        HiltFragmentTestHelper<SessionEditFragment> testHelper =
+        HiltFragmentTestHelper<SessionDataFragment> testHelper =
                 launchSessionEditFragmentWithArbitraryDates();
         
         onStartTimeTextView().perform(click());
@@ -92,7 +92,7 @@ public class SessionEditFragmentRotationTests
     public void endDate_persistsAcrossOrientationChange()
     {
         // GIVEN the user updates the end date
-        HiltFragmentTestHelper<SessionEditFragment> testHelper =
+        HiltFragmentTestHelper<SessionDataFragment> testHelper =
                 launchSessionEditFragmentWithArbitraryDates();
         
         onEndDateTextView().perform(click());
@@ -118,7 +118,7 @@ public class SessionEditFragmentRotationTests
     public void endTime_persistsAcrossOrientationChange()
     {
         // GIVEN the user updates the end time
-        HiltFragmentTestHelper<SessionEditFragment> testHelper =
+        HiltFragmentTestHelper<SessionDataFragment> testHelper =
                 launchSessionEditFragmentWithArbitraryDates();
         
         onEndTimeTextView().perform(click());

@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui.session_edit;
+package com.rbraithwaite.sleepapp.ui.session_data;
 
 import android.os.Bundle;
 

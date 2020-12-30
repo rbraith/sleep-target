@@ -3,13 +3,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/session_edit_menuitem_cancel"
+        android:id="@+id/session_data_action_negative"
         android:icon="@drawable/ic_baseline_close_24"
-        android:title="Cancel"
-        app:showAsAction="ifRoom" />
+        android:title="Negative Action"
+        app:showAsAction="always" />
     <item
-        android:id="@+id/session_edit_menuitem_confirm"
+        android:id="@+id/session_data_action_positive"
         android:icon="@drawable/ic_baseline_check_24"
-        android:title="Confirm"
-        app:showAsAction="ifRoom" />
+        android:title="Positive Action"
+        app:showAsAction="always" />
 </menu>

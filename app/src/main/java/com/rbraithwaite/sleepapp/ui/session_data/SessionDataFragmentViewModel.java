@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui.session_edit;
+package com.rbraithwaite.sleepapp.ui.session_data;
 
 import android.os.Bundle;
 
@@ -11,6 +11,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
+import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
@@ -19,7 +20,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-public class SessionEditFragmentViewModel
+public class SessionDataFragmentViewModel
         extends ViewModel
 {
 //*********************************************************
@@ -60,10 +61,10 @@ public class SessionEditFragmentViewModel
 //*********************************************************
 
     @ViewModelInject
-    public SessionEditFragmentViewModel()
+    public SessionDataFragmentViewModel()
     {
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -233,9 +234,6 @@ public class SessionEditFragmentViewModel
     
     public void setEndDateTime(long endTime)
     {
-        // TODO [20-11-23 3:23AM] -- verify end time is after or equal to start time.
-        //  (leaving this for now - this becomes relevant when I implement user input to change
-        //  the values).
         getEndDateTimeMutable().setValue(endTime);
     }
     
@@ -246,9 +244,6 @@ public class SessionEditFragmentViewModel
     
     public void setStartDateTime(long startTime)
     {
-        // TODO [20-11-23 2:52AM] -- verify startTime is before or equal to end time.
-        //  (leaving this for now - this becomes relevant when I implement user input to change
-        //  the values).
         getStartDateTimeMutable().setValue(startTime);
     }
     
@@ -258,11 +253,14 @@ public class SessionEditFragmentViewModel
         getEndDateTimeMutable().setValue(null);
     }
     
-    public void initSessionData(SessionEditData initialData)
+    public void initSessionData(SleepSessionData initialData)
     {
-        mSessionId = initialData.sessionId;
-        getStartDateTimeMutable().setValue(initialData.startDateTime);
-        getEndDateTimeMutable().setValue(initialData.endDateTime);
+        // REFACTOR [21-12-29 3:08AM] -- I should just store the SleepSessionData instead of
+        //  breaking
+        //  it down like this (this breaking-down behaviour is legacy).
+        mSessionId = initialData.id;
+        getStartDateTimeMutable().setValue(initialData.startTime.getTime());
+        getEndDateTimeMutable().setValue(initialData.startTime.getTime() + initialData.duration);
     }
     
     public boolean sessionDataIsInitialized()
