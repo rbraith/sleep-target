@@ -7,6 +7,7 @@ import androidx.test.espresso.contrib.PickerActions;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.TestUtils;
+import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
@@ -78,13 +79,25 @@ public class SessionDataFragmentTestUtils
      * Uses TestUtils.ArbitraryData.getDate for the start and end times, so that can reliably be
      * used when checking the values of the fragment.
      */
-    // TODO [21-12-29 2:48AM] -- rename this launchSessionDataFragmentWithArbitraryDates.
-    public static HiltFragmentTestHelper<SessionDataFragment> launchSessionEditFragmentWithArbitraryDates()
+    public static HiltFragmentTestHelper<SessionDataFragment> launchSessionDataFragmentWithArbitraryData()
     {
         Bundle args = SessionDataFragment.createArguments(
                 "test",
                 TestUtils.ArbitraryData.getSleepSessionData());
         return HiltFragmentTestHelper.launchFragmentWithArgs(SessionDataFragment.class, args);
+    }
+    
+    /**
+     * Uses TestUtils.ArbitraryData.getDate for the start and end times, so that can reliably be
+     * used when checking the values of the fragment.
+     */
+    public static HiltFragmentTestHelper<SessionDataFragment> launchWithZeroDuration()
+    {
+        SleepSessionData sleepSessionData = new SleepSessionData();
+        sleepSessionData.startTime = TestUtils.ArbitraryData.getDate();
+        return HiltFragmentTestHelper.launchFragmentWithArgs(
+                SessionDataFragment.class,
+                SessionDataFragment.createArguments("test", sleepSessionData));
     }
     
     public static ViewInteraction onStartDateTextView()

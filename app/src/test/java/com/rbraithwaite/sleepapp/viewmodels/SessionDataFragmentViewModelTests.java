@@ -68,7 +68,6 @@ public class SessionDataFragmentViewModelTests
     @Test
     public void clearSessionData_clearsData()
     {
-        // TODO [21-12-29 3:04AM] -- fix this test.
         viewModel.initSessionData(TestUtils.ArbitraryData.getSleepSessionData());
         
         viewModel.clearSessionData();
@@ -84,7 +83,6 @@ public class SessionDataFragmentViewModelTests
     @Test
     public void sessionDataIsInitialized_exercise()
     {
-        // TODO [21-12-29 3:04AM] -- fix this test.
         assertThat(viewModel.sessionDataIsInitialized(), is(false));
         
         viewModel.initSessionData(TestUtils.ArbitraryData.getSleepSessionData());

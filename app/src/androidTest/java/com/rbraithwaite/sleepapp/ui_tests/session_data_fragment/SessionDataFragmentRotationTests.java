@@ -23,7 +23,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoActions.setDatePickerDate;
 import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.onDatePicker;
 import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.onTimePicker;
-import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.launchSessionEditFragmentWithArbitraryDates;
+import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.launchSessionDataFragmentWithArbitraryData;
 import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onEndDateTextView;
 import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onEndTimeTextView;
 import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onStartDateTextView;
@@ -41,7 +41,7 @@ public class SessionDataFragmentRotationTests
     {
         // GIVEN the user updates the start date
         HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                launchSessionEditFragmentWithArbitraryDates();
+                launchSessionDataFragmentWithArbitraryData();
         
         onStartDateTextView().perform(click());
         
@@ -67,7 +67,7 @@ public class SessionDataFragmentRotationTests
     {
         // GIVEN the user updates the start time
         HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                launchSessionEditFragmentWithArbitraryDates();
+                launchSessionDataFragmentWithArbitraryData();
         
         onStartTimeTextView().perform(click());
         
@@ -93,7 +93,7 @@ public class SessionDataFragmentRotationTests
     {
         // GIVEN the user updates the end date
         HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                launchSessionEditFragmentWithArbitraryDates();
+                launchSessionDataFragmentWithArbitraryData();
         
         onEndDateTextView().perform(click());
         
@@ -119,7 +119,7 @@ public class SessionDataFragmentRotationTests
     {
         // GIVEN the user updates the end time
         HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                launchSessionEditFragmentWithArbitraryDates();
+                launchSessionDataFragmentWithArbitraryData();
         
         onEndTimeTextView().perform(click());
         
