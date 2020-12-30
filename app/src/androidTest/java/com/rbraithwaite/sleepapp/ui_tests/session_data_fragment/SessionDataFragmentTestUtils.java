@@ -54,10 +54,14 @@ public class SessionDataFragmentTestUtils
                 .check(matches(not(withText(formatter.formatTimeOfDay(datetime.getTime())))));
     }
     
-    public static void pressConfirm()
+    public static void pressPositive()
     {
-        // TODO [21-12-29 3:40AM] -- fix this.
-//        onView(withId(R.id.session_edit_menuitem_confirm)).perform(click());
+        onView(withId(R.id.session_data_action_positive)).perform(click());
+    }
+    
+    public static void pressNegative()
+    {
+        onView(withId(R.id.session_data_action_negative)).perform(click());
     }
     
     public static void setStartDateTime(GregorianCalendar startDateTime)

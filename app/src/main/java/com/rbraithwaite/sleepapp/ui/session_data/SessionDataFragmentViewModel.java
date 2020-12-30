@@ -1,7 +1,5 @@
 package com.rbraithwaite.sleepapp.ui.session_data;
 
-import android.os.Bundle;
-
 import androidx.arch.core.util.Function;
 import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
@@ -69,13 +67,15 @@ public class SessionDataFragmentViewModel
 // api
 //*********************************************************
 
-    public Bundle getResult()
+    public SleepSessionData getResult()
     {
-        Bundle result = new Bundle();
-        return new SessionEditData(
-                mSessionId,
-                getStartDateTime().getValue(),
-                getEndDateTime().getValue()).toResult();
+        // REFACTOR [21-12-30 3:06PM] -- like mentioned in initSessionData, there should just be
+        //  an internal SleepSessionData member, instead of needing to recompose one here.
+        SleepSessionData result = new SleepSessionData();
+        result.id = mSessionId;
+        result.startTime = DateUtils.getDateFromMillis(getStartDateTime().getValue());
+        result.duration = getEndDateTime().getValue() - getStartDateTime().getValue();
+        return result;
     }
     
     public LiveData<String> getSessionDuration()

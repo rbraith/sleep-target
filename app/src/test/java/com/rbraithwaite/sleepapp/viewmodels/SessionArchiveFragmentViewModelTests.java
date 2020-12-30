@@ -91,24 +91,9 @@ public class SessionArchiveFragmentViewModelTests
     @Test
     public void addSessionFromResult_addsSessionOnValidInput()
     {
-        // setup
-        long startDateTime = 100;
-        long endDateTime = 200;
-        SessionEditData result = new SessionEditData(startDateTime, endDateTime);
-        
-        // SUT
-        viewModel.addSessionFromResult(result);
-        
-        // verification
-        ArgumentCaptor<SleepSessionData> repoAddSessionCaptor =
-                ArgumentCaptor.forClass(SleepSessionData.class);
-        verify(mockRepository).addSleepSessionData(repoAddSessionCaptor.capture());
-        
-        SleepSessionData sleepSessionData = repoAddSessionCaptor.getValue();
-        assertThat(sleepSessionData.id, is(0));
-        assertThat(sleepSessionData.startTime,
-                   is(equalTo(DateUtils.getDateFromMillis(startDateTime))));
-        assertThat(sleepSessionData.duration, is(endDateTime - startDateTime));
+        SleepSessionData sleepSessionData = TestUtils.ArbitraryData.getSleepSessionData();
+        viewModel.addSessionData(sleepSessionData);
+        verify(mockRepository).addSleepSessionData(sleepSessionData);
     }
     
     @Test

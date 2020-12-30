@@ -49,9 +49,9 @@ public class SessionArchiveFragmentViewModel
 // api
 //*********************************************************
 
-    public void addSessionFromResult(SessionEditData result)
+    public void addSessionData(SleepSessionData sessionData)
     {
-        mRepository.addSleepSessionData(result.toSleepSessionData());
+        mRepository.addSleepSessionData(sessionData);
     }
     
     public void updateSessionFromResult(SessionEditData result)

@@ -26,13 +26,10 @@ import com.rbraithwaite.sleepapp.ui.dialog.DatePickerFragment;
 import com.rbraithwaite.sleepapp.ui.dialog.TimePickerFragment;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragmentDirections;
 
+import java.io.Serializable;
+
 import dagger.hilt.android.AndroidEntryPoint;
 
-// TODO [20-12-24 3:28PM] -- copy this most of this code to a new fragment SessionDataFragment
-//  - do the same with the two layouts: session_data_fragment.xml & session_data_datetime.xml
-//  - these layout are also depr'd and should be deleted soon
-//  ---
-//  - do the same with the session edit fragment view model.
 
 @AndroidEntryPoint
 public class SessionDataFragment
@@ -62,7 +59,34 @@ public class SessionDataFragment
 //*********************************************************
 
     public static final int DEFAULT_ICON = -1;
+    
+//*********************************************************
+// public helpers
+//*********************************************************
 
+    public enum UserAction
+    {
+        POSITIVE_CLICK,
+        NEGATIVE_CLICK,
+        BACK,
+        UP
+    }
+    
+    public static class Result
+            implements Serializable
+    {
+        public static final long serialVersionUID = 20201230L;
+        
+        public SleepSessionData sessionData;
+        public UserAction userAction;
+        
+        private static final String KEY = "result";
+        
+        public static Result fromBundle(Bundle resultBundle)
+        {
+            return (Result) resultBundle.getSerializable(KEY);
+        }
+    }
 
 //*********************************************************
 // constructors
@@ -98,6 +122,7 @@ public class SessionDataFragment
                     @Override
                     public void handleOnBackPressed()
                     {
+                        setResult(createResult(null, UserAction.BACK));
                         clearSessionDataThenNavigateUp();
                     }
                 });
@@ -124,22 +149,26 @@ public class SessionDataFragment
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item)
     {
-        // TODO [21-12-29 3:15AM] -- if a menu item was selected, add that to the result.
+        // The viewmodel session is cleared here to distinguish cases where the fragment is
+        // destroyed on a user action vs by the system (eg an orientation change, where the session
+        // should be preserved and the UI re-initialized)
         switch (item.getItemId()) {
         case android.R.id.home: // up button
-//        case R.id.session_edit_menuitem_cancel:
-//            // clear the view model data here so that the view model data is properly
-//            re-initialized
-//            // when the user returns to the SessionEditFragment
-//            clearSessionDataThenNavigateUp();
-//            return true;
-//        case R.id.session_edit_menuitem_confirm:
-//            // REFACTOR [20-12-16 5:56PM] -- should getResult be returning LiveData<Bundle>?
-//            //  should the implementation be a transformation? -- leaving this for now since
-//            //  things seem to be working.
-//            setResult(getViewModel().getResult());
-//            clearSessionDataThenNavigateUp();
-//            return true;
+            setResult(createResult(null, UserAction.UP));
+            clearSessionDataThenNavigateUp();
+            return true;
+        case R.id.session_data_action_negative:
+            setResult(createResult(getViewModel().getResult(), UserAction.NEGATIVE_CLICK));
+            clearSessionDataThenNavigateUp();
+            return true;
+        case R.id.session_data_action_positive:
+            // REFACTOR [20-12-16 5:56PM] -- should getResult be returning
+            //  LiveData<SleepSessionData>?
+            //  should the implementation be a transformation? -- leaving this for now since
+            //  things seem to be working.
+            setResult(createResult(getViewModel().getResult(), UserAction.POSITIVE_CLICK));
+            clearSessionDataThenNavigateUp();
+            return true;
         default:
             return super.onOptionsItemSelected(item);
         }
@@ -159,7 +188,8 @@ public class SessionDataFragment
     {
         // use SafeArgs action so that the Bundle works when it is eventually used with
         // SessionDataFragmentArgs.fromBundle()
-        // TODO [20-11-28 10:30PM] -- SafeArgs uses the argument names defined in the navgraph as
+        // REFACTOR [20-11-28 10:30PM] -- SafeArgs uses the argument names defined in the
+        //  navgraph as
         //  the Bundle keys - consider redefining those keys here and just making my own Bundle?
         //  problem: the argument names would be hardcoded though, I can't seem to find a way to
         //  get a reference to the names defined in the navgraph, but I should investigate more.
@@ -179,10 +209,11 @@ public class SessionDataFragment
             int negativeIcon)
     {
         return SessionArchiveFragmentDirections
-                .actionSessionArchiveToSessionData(requestKey,
-                                                   initialData,
-                                                   positiveIcon,
-                                                   negativeIcon)
+                .actionSessionArchiveToSessionData(
+                        requestKey,
+                        initialData,
+                        positiveIcon,
+                        negativeIcon)
                 .getArguments();
     }
 
@@ -194,6 +225,17 @@ public class SessionDataFragment
     {
         getViewModel().clearSessionData();
         Navigation.findNavController(getView()).navigateUp();
+    }
+    
+    private Bundle createResult(SleepSessionData sessionData, UserAction userAction)
+    {
+        Result result = new Result();
+        result.sessionData = sessionData;
+        result.userAction = userAction;
+        
+        Bundle resultBundle = new Bundle();
+        resultBundle.putSerializable(Result.KEY, result);
+        return resultBundle;
     }
     
     private void setResult(Bundle result)

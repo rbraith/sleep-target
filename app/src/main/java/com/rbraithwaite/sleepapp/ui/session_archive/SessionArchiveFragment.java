@@ -51,7 +51,7 @@ public class SessionArchiveFragment
     private static final String SESSION_DELETE_DIALOG = "SessionDeleteDialog";
     
     private static final int DATA_ICON_DELETE = R.drawable.ic_baseline_delete_forever_24;
-    
+
 //*********************************************************
 // package properties
 //*********************************************************
@@ -60,19 +60,14 @@ public class SessionArchiveFragment
     //  global, the problem is otherwise in onContextItemSelected() the LiveData instance is liable
     //  to go out of scope.
     LiveData<SessionEditData> mInitialEditData;
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
 
-    // TODO [20-12-24 3:16PM] -- these will need to be the results from
-    //  SessionDataFragment.
     @Override // FragmentResultListener
     public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result)
     {
-        // TODO [21-12-29 2:10AM] -- I will need to check for action icon presses here - the action
-        //  icon pressed (int) should be returned in the result.
-        
         // TODO [20-12-24 3:25PM] -- these will not use SessionEditData result objs
         //  possibly just use SleepSessionData objs? (i want to try to minimize similar POJOs,
         //  or else things get confusing)
@@ -81,8 +76,11 @@ public class SessionArchiveFragment
         case ADD_SESSION_RESULT:
             // REFACTOR [20-12-13 4:15AM] -- should this SessionEditData instantiation be here or
             //  in the viewmodel?
-            resultData = SessionEditData.fromResult(result);
-            getViewModel().addSessionFromResult(resultData);
+            SessionDataFragment.Result fragmentResult =
+                    SessionDataFragment.Result.fromBundle(result);
+            if (fragmentResult.userAction == SessionDataFragment.UserAction.POSITIVE_CLICK) {
+                getViewModel().addSessionData(fragmentResult.sessionData);
+            }
             break;
         case EDIT_SESSION_RESULT:
             resultData = SessionEditData.fromResult(result);
@@ -117,7 +115,7 @@ public class SessionArchiveFragment
     
     @Override
     protected boolean getBottomNavVisibility() { return false; }
-
+    
     @Override
     protected Class<SessionArchiveFragmentViewModel> getViewModelClass() { return SessionArchiveFragmentViewModel.class; }
 
@@ -151,7 +149,7 @@ public class SessionArchiveFragment
         }
         return mRecyclerViewAdapter;
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

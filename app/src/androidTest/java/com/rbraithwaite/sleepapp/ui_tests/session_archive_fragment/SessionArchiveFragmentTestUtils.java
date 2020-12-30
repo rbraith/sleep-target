@@ -28,6 +28,6 @@ public class SessionArchiveFragmentTestUtils
         calendar.setTimeInMillis(sessionData.endDateTime);
         SessionDataFragmentTestUtils.setEndDateTime(calendar);
         
-        SessionDataFragmentTestUtils.pressConfirm();
+        SessionDataFragmentTestUtils.pressPositive();
     }
 }
