@@ -82,8 +82,8 @@ public class SessionDataFragmentTestUtils
     public static HiltFragmentTestHelper<SessionDataFragment> launchSessionDataFragmentWithArbitraryData()
     {
         Bundle args = SessionDataFragment.createArguments(
-                "test",
-                TestUtils.ArbitraryData.getSleepSessionData());
+                new SessionDataFragment.ArgsBuilder(TestUtils.ArbitraryData.getSleepSessionData())
+                        .build());
         return HiltFragmentTestHelper.launchFragmentWithArgs(SessionDataFragment.class, args);
     }
     
@@ -97,7 +97,8 @@ public class SessionDataFragmentTestUtils
         sleepSessionData.startTime = TestUtils.ArbitraryData.getDate();
         return HiltFragmentTestHelper.launchFragmentWithArgs(
                 SessionDataFragment.class,
-                SessionDataFragment.createArguments("test", sleepSessionData));
+                SessionDataFragment.createArguments(
+                        new SessionDataFragment.ArgsBuilder(sleepSessionData).build()));
     }
     
     public static ViewInteraction onStartDateTextView()

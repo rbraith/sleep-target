@@ -86,7 +86,8 @@ public class SessionDataFragmentTests
         SleepSessionData sleepSessionData = new SleepSessionData();
         sleepSessionData.startTime = calendar.getTime();
         
-        Bundle args = SessionDataFragment.createArguments("test", sleepSessionData);
+        Bundle args = SessionDataFragment.createArguments(
+                new SessionDataFragment.ArgsBuilder(sleepSessionData).build());
         HiltFragmentTestHelper<SessionDataFragment> testHelper
                 = HiltFragmentTestHelper.launchFragmentWithArgs(SessionDataFragment.class, args);
         
@@ -192,7 +193,8 @@ public class SessionDataFragmentTests
         SleepSessionData sleepSessionData = new SleepSessionData();
         sleepSessionData.startTime = calendar.getTime();
         
-        Bundle args = SessionDataFragment.createArguments("test", sleepSessionData);
+        Bundle args = SessionDataFragment.createArguments(
+                new SessionDataFragment.ArgsBuilder(sleepSessionData).build());
         HiltFragmentTestHelper<SessionDataFragment> testHelper
                 = HiltFragmentTestHelper.launchFragmentWithArgs(SessionDataFragment.class, args);
         
@@ -268,8 +270,9 @@ public class SessionDataFragmentTests
     public void endDate_displaysCorrectDialogWhenPressed()
     {
         // GIVEN the user has the session edit fragment open
-        Bundle args = SessionDataFragment.createArguments("test",
-                                                          TestUtils.ArbitraryData.getSleepSessionData());
+        Bundle args = SessionDataFragment.createArguments(
+                new SessionDataFragment.ArgsBuilder(
+                        TestUtils.ArbitraryData.getSleepSessionData()).build());
         HiltFragmentTestHelper<SessionDataFragment> testHelper
                 = HiltFragmentTestHelper.launchFragmentWithArgs(SessionDataFragment.class, args);
         
@@ -376,8 +379,9 @@ public class SessionDataFragmentTests
     public void endTime_displaysCorrectDialogWhenPressed()
     {
         // GIVEN the user has the session edit fragment open
-        Bundle args = SessionDataFragment.createArguments("test",
-                                                          TestUtils.ArbitraryData.getSleepSessionData());
+        Bundle args = SessionDataFragment.createArguments(
+                new SessionDataFragment.ArgsBuilder(
+                        TestUtils.ArbitraryData.getSleepSessionData()).build());
         HiltFragmentTestHelper<SessionDataFragment> testHelper
                 = HiltFragmentTestHelper.launchFragmentWithArgs(SessionDataFragment.class, args);
         
@@ -496,10 +500,10 @@ public class SessionDataFragmentTests
                 = HiltFragmentTestHelper.launchFragmentWithArgs(
                 SessionDataFragment.class,
                 SessionDataFragment.createArguments(
-                        "test",
-                        sleepSessionData,
-                        R.drawable.ic_baseline_bar_chart_24,
-                        R.drawable.ic_baseline_nights_stay_24));
+                        new SessionDataFragment.ArgsBuilder(sleepSessionData)
+                                .setPositiveIcon(R.drawable.ic_baseline_bar_chart_24)
+                                .setNegativeIcon(R.drawable.ic_baseline_nights_stay_24)
+                                .build()));
         
         DateTimeFormatter formatter = new DateTimeFormatter();
         

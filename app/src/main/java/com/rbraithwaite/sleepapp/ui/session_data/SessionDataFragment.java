@@ -39,9 +39,10 @@ public class SessionDataFragment
 // private properties
 //*********************************************************
 
-    private String mRequestKey;
     private int mPositiveIcon;
     private int mNegativeIcon;
+    private ActionListener mPositiveActionListener;
+    private ActionListener mNegativeActionListener;
 
 //*********************************************************
 // private constants
@@ -59,33 +60,70 @@ public class SessionDataFragment
 //*********************************************************
 
     public static final int DEFAULT_ICON = -1;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
-
-    public enum UserAction
-    {
-        POSITIVE_CLICK,
-        NEGATIVE_CLICK,
-        BACK,
-        UP
-    }
     
-    public static class Result
+    public static class Args
             implements Serializable
     {
         public static final long serialVersionUID = 20201230L;
         
-        public SleepSessionData sessionData;
-        public UserAction userAction;
+        public SleepSessionData initialData;
+        public ActionListener positiveActionListener;
+        public ActionListener negativeActionListener;
+        public int positiveIcon = DEFAULT_ICON;
+        public int negativeIcon = DEFAULT_ICON;
+    }
+    
+    public static class ArgsBuilder
+    {
+        private Args mArgs;
         
-        private static final String KEY = "result";
-        
-        public static Result fromBundle(Bundle resultBundle)
+        public ArgsBuilder(SleepSessionData initialData)
         {
-            return (Result) resultBundle.getSerializable(KEY);
+            mArgs = new Args();
+            mArgs.initialData = initialData;
         }
+        
+        public ArgsBuilder setPositiveActionListener(ActionListener positiveActionListener)
+        {
+            mArgs.positiveActionListener = positiveActionListener;
+            return this;
+        }
+        
+        public ArgsBuilder setNegativeActionListener(ActionListener negativeActionListener)
+        {
+            mArgs.negativeActionListener = negativeActionListener;
+            return this;
+        }
+        
+        public ArgsBuilder setPositiveIcon(int positiveIcon)
+        {
+            mArgs.positiveIcon = positiveIcon;
+            return this;
+        }
+        
+        public ArgsBuilder setNegativeIcon(int negativeIcon)
+        {
+            mArgs.negativeIcon = negativeIcon;
+            return this;
+        }
+        
+        public Args build() {return mArgs;}
+    }
+    
+    public static abstract class ActionListener
+            implements Serializable
+    {
+        public static final long serialVersionUID = 20201230L;
+        
+        /**
+         * The fragment is passed so that clients can control whether or not the fragment is
+         * completed, among other things.
+         */
+        public abstract void onAction(SessionDataFragment fragment, SleepSessionData result);
     }
 
 //*********************************************************
@@ -122,15 +160,16 @@ public class SessionDataFragment
                     @Override
                     public void handleOnBackPressed()
                     {
-                        setResult(createResult(null, UserAction.BACK));
                         clearSessionDataThenNavigateUp();
                     }
                 });
         
-        SessionDataFragmentArgs args = SessionDataFragmentArgs.fromBundle(getArguments());
-        mRequestKey = args.getRequestKey();
-        mPositiveIcon = args.getPositiveIcon();
-        mNegativeIcon = args.getNegativeIcon();
+        SessionDataFragmentArgs safeArgs = SessionDataFragmentArgs.fromBundle(getArguments());
+        Args args = safeArgs.getArgs();
+        mPositiveIcon = args.positiveIcon;
+        mNegativeIcon = args.negativeIcon;
+        mPositiveActionListener = args.positiveActionListener;
+        mNegativeActionListener = args.negativeActionListener;
         initInputFieldValues(args);
     }
     
@@ -154,20 +193,24 @@ public class SessionDataFragment
         // should be preserved and the UI re-initialized)
         switch (item.getItemId()) {
         case android.R.id.home: // up button
-            setResult(createResult(null, UserAction.UP));
             clearSessionDataThenNavigateUp();
             return true;
         case R.id.session_data_action_negative:
-            setResult(createResult(getViewModel().getResult(), UserAction.NEGATIVE_CLICK));
-            clearSessionDataThenNavigateUp();
+            if (mNegativeActionListener != null) {
+                mNegativeActionListener.onAction(this, getViewModel().getResult());
+            } else {
+                clearSessionDataThenNavigateUp();
+            }
             return true;
         case R.id.session_data_action_positive:
             // REFACTOR [20-12-16 5:56PM] -- should getResult be returning
-            //  LiveData<SleepSessionData>?
-            //  should the implementation be a transformation? -- leaving this for now since
-            //  things seem to be working.
-            setResult(createResult(getViewModel().getResult(), UserAction.POSITIVE_CLICK));
-            clearSessionDataThenNavigateUp();
+            //  LiveData<SleepSessionData>? should the implementation be a transformation?
+            //  leaving this for now since things seem to be working.
+            if (mPositiveActionListener != null) {
+                mPositiveActionListener.onAction(this, getViewModel().getResult());
+            } else {
+                clearSessionDataThenNavigateUp();
+            }
             return true;
         default:
             return super.onOptionsItemSelected(item);
@@ -184,37 +227,24 @@ public class SessionDataFragment
 // api
 //*********************************************************
 
-    public static Bundle createArguments(String requestKey, SleepSessionData initialData)
+    public static Bundle createArguments(Args args)
     {
         // use SafeArgs action so that the Bundle works when it is eventually used with
         // SessionDataFragmentArgs.fromBundle()
         // REFACTOR [20-11-28 10:30PM] -- SafeArgs uses the argument names defined in the
-        //  navgraph as
-        //  the Bundle keys - consider redefining those keys here and just making my own Bundle?
-        //  problem: the argument names would be hardcoded though, I can't seem to find a way to
-        //  get a reference to the names defined in the navgraph, but I should investigate more.
+        //  navgraph as the Bundle keys - consider redefining those keys here and just making my
+        //  own Bundle? problem: the argument names would be hardcoded though, I can't seem to find
+        //  a way to get a reference to the names defined in the navgraph, but I should
+        //  investigate more.
         return SessionArchiveFragmentDirections
-                .actionSessionArchiveToSessionData(
-                        requestKey,
-                        initialData,
-                        SessionDataFragment.DEFAULT_ICON,
-                        SessionDataFragment.DEFAULT_ICON)
+                .actionSessionArchiveToSessionData(args)
                 .getArguments();
     }
     
-    public static Bundle createArguments(
-            String requestKey,
-            SleepSessionData initialData,
-            int positiveIcon,
-            int negativeIcon)
+    // TODO [21-12-31 1:54AM] -- I should think more about possible ways of unit testing this.
+    public void completed()
     {
-        return SessionArchiveFragmentDirections
-                .actionSessionArchiveToSessionData(
-                        requestKey,
-                        initialData,
-                        positiveIcon,
-                        negativeIcon)
-                .getArguments();
+        clearSessionDataThenNavigateUp();
     }
 
 //*********************************************************
@@ -227,22 +257,6 @@ public class SessionDataFragment
         Navigation.findNavController(getView()).navigateUp();
     }
     
-    private Bundle createResult(SleepSessionData sessionData, UserAction userAction)
-    {
-        Result result = new Result();
-        result.sessionData = sessionData;
-        result.userAction = userAction;
-        
-        Bundle resultBundle = new Bundle();
-        resultBundle.putSerializable(Result.KEY, result);
-        return resultBundle;
-    }
-    
-    private void setResult(Bundle result)
-    {
-        getParentFragmentManager().setFragmentResult(mRequestKey, result);
-    }
-    
     private boolean viewModelIsInitialized(SessionDataFragmentViewModel viewModel)
     {
         return (viewModel.getStartDateTime().getValue() != null &&
@@ -250,12 +264,12 @@ public class SessionDataFragment
     }
     
     // REFACTOR [20-12-1 2:09AM] -- the param should be SleepSessionData
-    private void initInputFieldValues(SessionDataFragmentArgs args)
+    private void initInputFieldValues(Args args)
     {
         SessionDataFragmentViewModel viewModel = getViewModel();
         // this persists the view model values across fragment destruction (eg device rotation)
         if (!viewModel.sessionDataIsInitialized()) {
-            viewModel.initSessionData(args.getInitialData());
+            viewModel.initSessionData(args.initialData);
         }
     }
     

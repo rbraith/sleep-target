@@ -26,17 +26,8 @@
         android:name="com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragment"
         android:label="SessionDataFragment">
         <argument
-            android:name="requestKey"
-            app:argType="string" />
-        <argument
-            android:name="initialData"
-            app:argType="com.rbraithwaite.sleepapp.data.database.views.SleepSessionData" />
-        <argument
-            android:name="positiveIcon"
-            app:argType="integer" />
-        <argument
-            android:name="negativeIcon"
-            app:argType="integer" />
+            android:name="args"
+            app:argType="com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragment$Args" />
     </fragment>
     <fragment
         android:id="@+id/nav_sleepgoals"

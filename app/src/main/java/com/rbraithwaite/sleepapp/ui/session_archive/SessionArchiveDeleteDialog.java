@@ -22,7 +22,6 @@ public class SessionArchiveDeleteDialog
 //*********************************************************
 
     private OnPositiveButtonClickListener mOnPositiveButtonClickListener;
-    private int mSessionPosition;
 
 //*********************************************************
 // private constants
@@ -37,20 +36,13 @@ public class SessionArchiveDeleteDialog
 
     public interface OnPositiveButtonClickListener
     {
-        void onPositiveButtonClick(DialogInterface dialog, int sessionPosition);
+        void onPositiveButtonClick(DialogInterface dialog);
     }
 
 //*********************************************************
 // overrides
 //*********************************************************
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-        mSessionPosition = getArguments().getInt(ARG_SESSION_POSITION);
-    }
-    
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState)
@@ -60,18 +52,16 @@ public class SessionArchiveDeleteDialog
                 .setIcon(R.drawable.ic_baseline_delete_forever_24)
                 .setMessage(R.string.session_archive_delete_dialog_message)
                 .setNegativeButton(R.string.session_archive_delete_dialog_negative, null)
-                .setPositiveButton(R.string.session_archive_delete_dialog_positive,
-                                   new DialogInterface.OnClickListener()
-                                   {
-                                       @Override
-                                       public void onClick(DialogInterface dialog, int which)
-                                       {
-                                           mOnPositiveButtonClickListener.onPositiveButtonClick(
-                                                   dialog,
-                                                   mSessionPosition);
-                                       }
-                                   });
-        
+                .setPositiveButton(
+                        R.string.session_archive_delete_dialog_positive,
+                        new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                mOnPositiveButtonClickListener.onPositiveButtonClick(dialog);
+                            }
+                        });
         return builder.create();
     }
 
@@ -79,23 +69,6 @@ public class SessionArchiveDeleteDialog
 // api
 //*********************************************************
 
-    public static SessionArchiveDeleteDialog createInstance(
-            Bundle args,
-            OnPositiveButtonClickListener listener)
-    {
-        SessionArchiveDeleteDialog dialog = new SessionArchiveDeleteDialog();
-        dialog.setArguments(args);
-        dialog.setOnPositiveButtonClickListener(listener);
-        return dialog;
-    }
-    
-    public static Bundle createArguments(int sessionPosition)
-    {
-        Bundle args = new Bundle();
-        args.putInt(ARG_SESSION_POSITION, sessionPosition);
-        return args;
-    }
-    
     public void setOnPositiveButtonClickListener(OnPositiveButtonClickListener listener)
     {
         mOnPositiveButtonClickListener = listener;

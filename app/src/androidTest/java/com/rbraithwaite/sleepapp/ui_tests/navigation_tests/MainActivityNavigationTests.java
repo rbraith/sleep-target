@@ -27,7 +27,10 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertThat;
 
 @RunWith(AndroidJUnit4.class)
 public class MainActivityNavigationTests
@@ -92,23 +95,24 @@ public class MainActivityNavigationTests
             InterruptedException,
             ExecutionException
     {
-        // TODO [21-12-29 12:42AM] -- fix this test.
-//        // GIVEN the user is on the 'add session' screen
-//        ActivityScenario<MainActivity> mainActivityScenario =
-//                ActivityScenario.launch(MainActivity.class);
-//
-//        UITestNavigate.fromHome_toSessionArchive();
-//        int expected = UITestUtils.getSessionArchiveCount(mainActivityScenario);
-//        UITestNavigate.fromSessionArchive_toAddSession();
-//
-//        // WHEN the user presses the up button
-//        UITestNavigate.up();
-//
-//        // THEN the user is returned to the 'session archive' screen
-//        onView(withId(R.id.session_archive_layout)).check(matches(isDisplayed()));
-//        // AND the new session is discarded (not added to the archive)
-//        int sessionCount = UITestUtils.getSessionArchiveCount(mainActivityScenario);
-//        assertThat(sessionCount, is(equalTo(expected)));
+        // GIVEN the user is on the 'add session' screen
+        ActivityScenario<MainActivity> mainActivityScenario =
+                ActivityScenario.launch(MainActivity.class);
+        
+        UITestNavigate.fromHome_toSessionArchive();
+        // REFACTOR [20-12-30 9:02PM] -- This should be SessionArchiveFragmentTestUtils
+        //  .getSessionCount()
+        int expected = UITestUtils.getSessionArchiveCount(mainActivityScenario);
+        UITestNavigate.fromSessionArchive_toAddSession();
+        
+        // WHEN the user presses the up button
+        UITestNavigate.up();
+        
+        // THEN the user is returned to the 'session archive' screen
+        onView(withId(R.id.session_archive_layout)).check(matches(isDisplayed()));
+        // AND the new session is discarded (not added to the archive)
+        int sessionCount = UITestUtils.getSessionArchiveCount(mainActivityScenario);
+        assertThat(sessionCount, is(equalTo(expected)));
     }
     
     // Scenario: the user navigates from the home screen (sleep tracker) to the session archive

@@ -86,7 +86,6 @@ public class SessionArchiveRecyclerViewAdapter
                     if (onListItemClickListener != null) {
                         onListItemClickListener.onClick(v, getAdapterPosition());
                     }
-//                    v.showContextMenu();
                 }
             });
         }
@@ -168,7 +167,7 @@ public class SessionArchiveRecyclerViewAdapter
     
     private void bindToViewModel(final ViewHolder viewHolder, final int position)
     {
-        LiveData<UISleepSessionData> uiSleepSessionData = mViewModel.getSleepSessionData(
+        LiveData<UISleepSessionData> uiSleepSessionData = mViewModel.getListItemData(
                 mSleepSessionDataIds.getValue().get(position));
         
         // I thought the new Observer here might leak memory and cause duplicate updates, but

@@ -54,18 +54,17 @@ public class SessionArchiveFragmentViewModel
         mRepository.addSleepSessionData(sessionData);
     }
     
-    public void updateSessionFromResult(SessionEditData result)
+    public void updateSessionData(SleepSessionData sessionData)
     {
-        mRepository.updateSleepSessionData(result.toSleepSessionData());
+        mRepository.updateSleepSessionData(sessionData);
     }
     
-    public void deleteSession(int sessionIdToDelete)
+    public void deleteSessionData(int sessionIdToDelete)
     {
         mRepository.deleteSleepSessionData(sessionIdToDelete);
     }
     
-    // TODO [20-12-24 3:37PM] -- call this getSessionArchiveListItem(sleepSessionId).
-    public LiveData<UISleepSessionData> getSleepSessionData(int id)
+    public LiveData<UISleepSessionData> getListItemData(int id)
     {
         // convert from db form to ui form
         return Transformations.map(
@@ -78,6 +77,11 @@ public class SessionArchiveFragmentViewModel
                         return convertSleepSessionDataToUI(input);
                     }
                 });
+    }
+    
+    public LiveData<SleepSessionData> getSleepSessionData(int id)
+    {
+        return mRepository.getSleepSessionData(id);
     }
     
     public LiveData<List<Integer>> getAllSleepSessionDataIds()
@@ -96,6 +100,7 @@ public class SessionArchiveFragmentViewModel
     }
     
     // TODO [20-12-24 4:02PM] -- this should just return LiveData<SleepSessionData>
+    @Deprecated
     public LiveData<SessionEditData> getInitialEditSessionData(int sessionIdForEditing)
     {
         // I've having trouble verifying this, but i think this: https://stackoverflow

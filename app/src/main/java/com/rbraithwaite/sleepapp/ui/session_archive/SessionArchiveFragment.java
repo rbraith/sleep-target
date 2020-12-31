@@ -1,5 +1,6 @@
 package com.rbraithwaite.sleepapp.ui.session_archive;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,24 +9,25 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentResultListener;
-import androidx.lifecycle.LiveData;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.rbraithwaite.sleepapp.R;
+import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
 import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragment;
-import com.rbraithwaite.sleepapp.ui.session_data.SessionEditData;
+import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
+
+import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class SessionArchiveFragment
         extends BaseFragment<SessionArchiveFragmentViewModel>
-        implements FragmentResultListener
 {
 //*********************************************************
 // private properties
@@ -34,12 +36,6 @@ public class SessionArchiveFragment
     private SessionArchiveFragmentViewModel mViewModel;
     
     private SessionArchiveRecyclerViewAdapter mRecyclerViewAdapter;
-    
-    // REFACTOR [20-12-23 1:39AM] -- consider using the viewmodel to save this UI state data instead
-    //  https://developer.android.com/topic/libraries/architecture/saving-states#viewmodel
-    // SMELL [20-12-15 3:37AM] -- using a global.
-    // This is set when a list item's context menu is opened.
-    private int mContextMenuItemPosition;
 
 //*********************************************************
 // private constants
@@ -53,49 +49,9 @@ public class SessionArchiveFragment
     private static final int DATA_ICON_DELETE = R.drawable.ic_baseline_delete_forever_24;
 
 //*********************************************************
-// package properties
-//*********************************************************
-
-    // SMELL [20-12-15 3:04AM] -- There should be a better way to do this than having this as a
-    //  global, the problem is otherwise in onContextItemSelected() the LiveData instance is liable
-    //  to go out of scope.
-    LiveData<SessionEditData> mInitialEditData;
-
-//*********************************************************
 // overrides
 //*********************************************************
 
-    @Override // FragmentResultListener
-    public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result)
-    {
-        // TODO [20-12-24 3:25PM] -- these will not use SessionEditData result objs
-        //  possibly just use SleepSessionData objs? (i want to try to minimize similar POJOs,
-        //  or else things get confusing)
-        SessionEditData resultData;
-        switch (requestKey) {
-        case ADD_SESSION_RESULT:
-            // REFACTOR [20-12-13 4:15AM] -- should this SessionEditData instantiation be here or
-            //  in the viewmodel?
-            SessionDataFragment.Result fragmentResult =
-                    SessionDataFragment.Result.fromBundle(result);
-            if (fragmentResult.userAction == SessionDataFragment.UserAction.POSITIVE_CLICK) {
-                getViewModel().addSessionData(fragmentResult.sessionData);
-            }
-            break;
-        case EDIT_SESSION_RESULT:
-            resultData = SessionEditData.fromResult(result);
-            getViewModel().updateSessionFromResult(resultData);
-            break;
-        }
-    }
-    
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-        initSessionEditFragmentResultListeners();
-    }
-    
     @Nullable
     @Override
     public View onCreateView(
@@ -141,26 +97,46 @@ public class SessionArchiveFragment
                         @Override
                         public void onClick(View v, int position)
                         {
-                            // TODO [20-12-24 3:22PM] -- update list item click behaviour here.
-//                            mContextMenuItemPosition = position;
-//                            v.showContextMenu();
+                            navigateToEditSessionScreen(position);
                         }
                     });
         }
         return mRecyclerViewAdapter;
     }
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
 
-    // REFACTOR [20-12-24 3:19PM] -- this should be initSessionDataFragmentResultListeners.
-    private void initSessionEditFragmentResultListeners()
+    private void navigateToEditSessionScreen(final int listItemPosition)
     {
-        getParentFragmentManager().setFragmentResultListener(ADD_SESSION_RESULT, this, this);
-        getParentFragmentManager().setFragmentResultListener(EDIT_SESSION_RESULT, this, this);
+        // SMELL [21-12-30 9:35PM] -- These nested anon classes are kinda ugly, try to find a
+        //  better way.
+        LiveDataFuture.getValue(
+                getViewModel().getAllSleepSessionDataIds(),
+                getViewLifecycleOwner(),
+                new LiveDataFuture.OnValueListener<List<Integer>>()
+                {
+                    @Override
+                    public void onValue(List<Integer> sleepSessionDataIds)
+                    {
+                        LiveDataFuture.getValue(
+                                getViewModel().getSleepSessionData(
+                                        sleepSessionDataIds.get(listItemPosition)),
+                                getViewLifecycleOwner(),
+                                new LiveDataFuture.OnValueListener<SleepSessionData>()
+                                {
+                                    @Override
+                                    public void onValue(SleepSessionData initialEditData)
+                                    {
+                                        Navigation.findNavController(getView())
+                                                .navigate(toEditSessionScreen(initialEditData));
+                                    }
+                                });
+                    }
+                });
     }
-    
+
     private void initFloatingActionButton(View fragmentRoot)
     {
         FloatingActionButton floatingActionButton =
@@ -181,11 +157,74 @@ public class SessionArchiveFragment
      */
     private SessionArchiveFragmentDirections.ActionSessionArchiveToSessionData toAddSessionScreen()
     {
+        SessionDataFragment.ArgsBuilder argsBuilder = new SessionDataFragment.ArgsBuilder(
+                getViewModel().getDefaultAddSessionData())
+                .setPositiveActionListener(new SessionDataFragment.ActionListener()
+                {
+                    @Override
+                    public void onAction(SessionDataFragment fragment, SleepSessionData result)
+                    {
+                        getViewModel().addSessionData(result);
+                        fragment.completed();
+                    }
+                });
         return SessionArchiveFragmentDirections.actionSessionArchiveToSessionData(
-                ADD_SESSION_RESULT,
-                getViewModel().getDefaultAddSessionData(),
-                SessionDataFragment.DEFAULT_ICON,
-                SessionDataFragment.DEFAULT_ICON);
+                argsBuilder.build());
+    }
+    
+    private SessionArchiveFragmentDirections.ActionSessionArchiveToSessionData toEditSessionScreen(
+            SleepSessionData initialEditData)
+    {
+        // SMELL [21-12-31 1:50AM] -- IDK if I like this solution, it feels over-engineered,
+        //  and I don't like the clients being responsible for handling the fragment completion.
+        //  another possible solution:
+        //      create derived fragment classes AddSessionFragment & SessionInfoFragment, which
+        //      derive from the same base SessionDateFragment
+        //      The derived fragments would handle action behaviour & icons, the base would handle
+        //      args, results, & up/back button behaviour.
+        //  The reason I didn't go with that solution is because I figured safeargs & nav component
+        //  would be a massive headache with it.
+        SessionDataFragment.ArgsBuilder argsBuilder = new SessionDataFragment.ArgsBuilder(
+                initialEditData)
+                .setNegativeIcon(DATA_ICON_DELETE)
+                .setPositiveActionListener(new SessionDataFragment.ActionListener()
+                {
+                    @Override
+                    public void onAction(SessionDataFragment fragment, SleepSessionData result)
+                    {
+                        getViewModel().updateSessionData(result);
+                        fragment.completed();
+                    }
+                })
+                .setNegativeActionListener(new SessionDataFragment.ActionListener()
+                {
+                    @Override
+                    public void onAction(
+                            final SessionDataFragment fragment,
+                            final SleepSessionData result)
+                    {
+                        SessionArchiveDeleteDialog deleteDialog = new SessionArchiveDeleteDialog();
+                        deleteDialog.setOnPositiveButtonClickListener(
+                                new SessionArchiveDeleteDialog.OnPositiveButtonClickListener()
+                                {
+                                    @Override
+                                    public void onPositiveButtonClick(DialogInterface dialog)
+                                    {
+                                        getViewModel().deleteSessionData(result.id);
+                                        Snackbar.make(
+                                                fragment.getView(),
+                                                "Deleted session #" + result.id,
+                                                Snackbar.LENGTH_SHORT)
+                                                .show();
+                                        fragment.completed();
+                                    }
+                                });
+                        deleteDialog.show(fragment.getChildFragmentManager(),
+                                          SESSION_DELETE_DIALOG);
+                    }
+                });
+        return SessionArchiveFragmentDirections.actionSessionArchiveToSessionData(
+                argsBuilder.build());
     }
     
     private void initRecyclerView(@NonNull View fragmentRoot)
