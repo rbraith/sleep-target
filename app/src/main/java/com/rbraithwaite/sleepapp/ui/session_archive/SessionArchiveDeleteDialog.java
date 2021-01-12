@@ -11,9 +11,6 @@ import androidx.fragment.app.DialogFragment;
 
 import com.rbraithwaite.sleepapp.R;
 
-// TODO [21-12-29 12:37AM] -- this will need to be SessionDataDeleteDialog (since it will now be
-//  appearing in the SessionDataFragment instead of the archive).
-
 public class SessionArchiveDeleteDialog
         extends DialogFragment
 {

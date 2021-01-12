@@ -15,12 +15,13 @@ public class LiveDataFuture
     {
         void onValue(T value);
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
 
     private LiveDataFuture() {/* No instantiation */}
+
 
 //*********************************************************
 // api
@@ -28,29 +29,30 @@ public class LiveDataFuture
 
     
     /**
-     * This acts as a kind of "one-off" observer of a particular LiveData. It will observe the
-     * provided LiveData until a valid value is obtained, then it will stop observing.
+     * This acts as a kind of "one-off" observer of a particular LiveData. It will activate the
+     * LiveData and wait until the LiveData has a value before calling the onValueListener.
      * <p>
-     * It is meant to be used with LiveData whose valid values cannot be null, as it waits until the
-     * LiveData's value is not null before triggering its callback.
+     * If lifecycleOwner is null, LiveData.observeForever() is used instead of LiveData.observe().
      */
     public static <T> void getValue(
             @NonNull final LiveData<T> liveData,
-            @NonNull LifecycleOwner lifecycleOwner,
+            LifecycleOwner lifecycleOwner,
             @NonNull final OnValueListener<T> onValueListener)
     {
-        liveData.observe(
-                lifecycleOwner,
-                new Observer<T>()
-                {
-                    @Override
-                    public void onChanged(T t)
-                    {
-                        if (t != null) {
-                            onValueListener.onValue(t);
-                            liveData.removeObserver(this);
-                        }
-                    }
-                });
+        Observer<T> observer = new Observer<T>()
+        {
+            @Override
+            public void onChanged(T t)
+            {
+                onValueListener.onValue(t);
+                liveData.removeObserver(this);
+            }
+        };
+        
+        if (lifecycleOwner == null) {
+            liveData.observeForever(observer);
+        } else {
+            liveData.observe(lifecycleOwner, observer);
+        }
     }
 }

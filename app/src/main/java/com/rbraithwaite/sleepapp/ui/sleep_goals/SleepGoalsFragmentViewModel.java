@@ -7,6 +7,7 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.data.SleepAppRepository;
+import com.rbraithwaite.sleepapp.ui.UIDependenciesModule;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
 
@@ -23,7 +24,7 @@ public class SleepGoalsFragmentViewModel
     private SleepAppRepository mRepository;
     private LiveData<String> mWakeTime;
     
-    private boolean mHasWakeTime = false;
+    private DateTimeFormatter mDateTimeFormatter;
 
 //*********************************************************
 // public constants
@@ -32,15 +33,18 @@ public class SleepGoalsFragmentViewModel
     public static final int DEFAULT_WAKETIME_HOUR = 8;
     
     public static final int DEFAULT_WAKETIME_MINUTE = 0;
-
+    
 //*********************************************************
 // constructors
 //*********************************************************
 
     @ViewModelInject
-    public SleepGoalsFragmentViewModel(SleepAppRepository repository)
+    public SleepGoalsFragmentViewModel(
+            SleepAppRepository repository,
+            @UIDependenciesModule.SleepGoalsDateTimeFormatter DateTimeFormatter dateTimeFormatter)
     {
         mRepository = repository;
+        mDateTimeFormatter = dateTimeFormatter;
     }
 
 //*********************************************************
@@ -68,7 +72,7 @@ public class SleepGoalsFragmentViewModel
                             if (wakeTimeMillis == null) {
                                 return null;
                             }
-                            return new DateTimeFormatter().formatTimeOfDay(
+                            return mDateTimeFormatter.formatTimeOfDay(
                                     DateUtils.getDateFromMillis(wakeTimeMillis));
                         }
                     }
@@ -83,7 +87,6 @@ public class SleepGoalsFragmentViewModel
         calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
         calendar.set(Calendar.MINUTE, minute);
         mRepository.setWakeTimeGoal(calendar.getTimeInMillis());
-        mHasWakeTime = true;
     }
     
     public LiveData<Boolean> hasWakeTime()
@@ -98,6 +101,5 @@ public class SleepGoalsFragmentViewModel
                         return (wakeTime != null);
                     }
                 });
-//        return mHasWakeTime;
     }
 }

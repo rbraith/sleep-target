@@ -36,6 +36,7 @@ public class SleepGoalsFragmentViewModelTests
 
     SleepGoalsFragmentViewModel viewModel;
     SleepAppRepository mockRepository;
+    DateTimeFormatter dateTimeFormatter;
 
 //*********************************************************
 // api
@@ -45,7 +46,9 @@ public class SleepGoalsFragmentViewModelTests
     public void setup()
     {
         mockRepository = mock(SleepAppRepository.class);
-        viewModel = new SleepGoalsFragmentViewModel(mockRepository);
+        // REFACTOR [21-01-11 10:36PM] -- I need to be mocking DateTimeFormatter.
+        dateTimeFormatter = new DateTimeFormatter();
+        viewModel = new SleepGoalsFragmentViewModel(mockRepository, dateTimeFormatter);
     }
     
     @After
@@ -53,6 +56,7 @@ public class SleepGoalsFragmentViewModelTests
     {
         viewModel = null;
         mockRepository = null;
+        dateTimeFormatter = null;
     }
     
     @Test
@@ -103,7 +107,7 @@ public class SleepGoalsFragmentViewModelTests
         TestUtils.activateLocalLiveData(wakeTime);
         
         assertThat(wakeTime.getValue(),
-                   is(equalTo(new DateTimeFormatter().formatTimeOfDay(
+                   is(equalTo(dateTimeFormatter.formatTimeOfDay(
                            DateUtils.getDateFromMillis(expectedWakeTimeMillis)))));
     }
     

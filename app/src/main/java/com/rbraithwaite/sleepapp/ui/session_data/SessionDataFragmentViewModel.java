@@ -9,15 +9,21 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
+import com.rbraithwaite.sleepapp.ui.UIDependenciesModule;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
+import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+// REFACTOR [21-01-5 2:30AM] -- passing around Dates and longs for times-of-day or dates is too
+//  much information. Instead there should be TimeOfDay and Date which are simple POJOs and
+//  contain eg hourOfDay & minute fields. Then I can use Date & Calendar in the impls to convert
+//  for storage or display
 public class SessionDataFragmentViewModel
         extends ViewModel
 {
@@ -39,7 +45,11 @@ public class SessionDataFragmentViewModel
     MutableLiveData<Long> mStartDateTime;
     
     MutableLiveData<Long> mEndDateTime;
-
+    
+    
+    DateTimeFormatter mDateTimeFormatter;
+    
+    MutableLiveData<Date> mWakeTimeGoal;
 
 //*********************************************************
 // public helpers
@@ -53,33 +63,37 @@ public class SessionDataFragmentViewModel
             super(message);
         }
     }
-
+    
 //*********************************************************
 // constructors
 //*********************************************************
 
     @ViewModelInject
-    public SessionDataFragmentViewModel()
+    public SessionDataFragmentViewModel(
+            @UIDependenciesModule.SessionDataDateTimeFormatter DateTimeFormatter dateTimeFormatter)
     {
+        mDateTimeFormatter = dateTimeFormatter;
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
 
-    public SleepSessionData getResult()
+    public SleepSessionWrapper getResult()
     {
         // REFACTOR [21-12-30 3:06PM] -- like mentioned in initSessionData, there should just be
         //  an internal SleepSessionData member, instead of needing to recompose one here.
-        SleepSessionData result = new SleepSessionData();
+        SleepSessionEntity result = new SleepSessionEntity();
         result.id = mSessionId;
         result.startTime = DateUtils.getDateFromMillis(getStartDateTime().getValue());
         result.duration = getEndDateTime().getValue() - getStartDateTime().getValue();
-        return result;
+        result.wakeTimeGoal = getWakeTimeGoalMutable().getValue();
+        return new SleepSessionWrapper(result);
     }
     
     public LiveData<String> getSessionDuration()
     {
+        // REFACTOR [21-01-11 3:18AM] -- inject this.
         final DurationFormatter formatter = new DurationFormatter();
         
         if (mSessionDuration == null) {
@@ -149,7 +163,7 @@ public class SessionDataFragmentViewModel
         if (isInvalidStartDateTime(calendar.getTimeInMillis())) {
             throw new InvalidDateTimeException(String.format(
                     "Invalid start date: %s (start) > %s (end)",
-                    new DateTimeFormatter().formatDate(calendar.getTime()),
+                    mDateTimeFormatter.formatDate(calendar.getTime()),
                     getEndDate().getValue()));
         }
         
@@ -172,7 +186,7 @@ public class SessionDataFragmentViewModel
         if (isInvalidEndDateTime(calendar.getTimeInMillis())) {
             throw new InvalidDateTimeException(String.format(
                     "Invalid end date: %s (end) < %s (start)",
-                    new DateTimeFormatter().formatDate(calendar.getTime()),
+                    mDateTimeFormatter.formatDate(calendar.getTime()),
                     getStartDate().getValue()));
         }
         
@@ -198,7 +212,7 @@ public class SessionDataFragmentViewModel
         if (isInvalidStartDateTime(calendar.getTimeInMillis())) {
             throw new InvalidDateTimeException(String.format(
                     "Invalid start time: %s (start) > %s (end)",
-                    new DateTimeFormatter().formatTimeOfDay(calendar.getTime()),
+                    mDateTimeFormatter.formatTimeOfDay(calendar.getTime()),
                     getEndTime().getValue()));
         }
         
@@ -220,7 +234,7 @@ public class SessionDataFragmentViewModel
         if (isInvalidEndDateTime(calendar.getTimeInMillis())) {
             throw new InvalidDateTimeException(String.format(
                     "Invalid end time: %s (end) < %s (start)",
-                    new DateTimeFormatter().formatTimeOfDay(calendar.getTime()),
+                    mDateTimeFormatter.formatTimeOfDay(calendar.getTime()),
                     getStartTime().getValue()));
         }
         
@@ -247,29 +261,49 @@ public class SessionDataFragmentViewModel
         getStartDateTimeMutable().setValue(startTime);
     }
     
+    public LiveData<String> getWakeTimeGoal()
+    {
+        return Transformations.map(
+                getWakeTimeGoalMutable(),
+                new Function<Date, String>()
+                {
+                    @Override
+                    public String apply(Date wakeTimeGoal)
+                    {
+                        if (wakeTimeGoal == null) {
+                            return null;
+                        }
+                        return mDateTimeFormatter.formatTimeOfDay(wakeTimeGoal);
+                    }
+                });
+    }
+    
     public void clearSessionData()
     {
         getStartDateTimeMutable().setValue(null);
         getEndDateTimeMutable().setValue(null);
     }
     
-    public void initSessionData(SleepSessionData initialData)
+    public void initSessionData(SleepSessionWrapper initialData)
     {
+        SleepSessionEntity sleepSession = initialData.entity;
+        
         // REFACTOR [21-12-29 3:08AM] -- I should just store the SleepSessionData instead of
         //  breaking
         //  it down like this (this breaking-down behaviour is legacy).
-        mSessionId = initialData.id;
-        getStartDateTimeMutable().setValue(initialData.startTime.getTime());
-        getEndDateTimeMutable().setValue(initialData.startTime.getTime() + initialData.duration);
+        mSessionId = sleepSession.id;
+        getStartDateTimeMutable().setValue(sleepSession.startTime.getTime());
+        getEndDateTimeMutable().setValue(sleepSession.startTime.getTime() + sleepSession.duration);
+        getWakeTimeGoalMutable().setValue(sleepSession.wakeTimeGoal);
     }
-    
+
+
     public boolean sessionDataIsInitialized()
     {
         return (getStartDateTime().getValue() != null &&
                 getEndDateTime().getValue() != null);
     }
-
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
@@ -340,16 +374,25 @@ public class SessionDataFragmentViewModel
     
     private String formatDateTimeMillisFromType(long dateMillis, DateTimeFormatType formatType)
     {
-        DateTimeFormatter formatter = new DateTimeFormatter();
         Date date = DateUtils.getDateFromMillis(dateMillis);
         switch (formatType) {
         case DATE:
-            return formatter.formatDate(date);
+            return mDateTimeFormatter.formatDate(date);
         case TIME_OF_DAY:
-            return formatter.formatTimeOfDay(date);
+            return mDateTimeFormatter.formatTimeOfDay(date);
         default:
             throw new IllegalArgumentException("Invalid format type.");
         }
+    }
+    
+    private MutableLiveData<Date> getWakeTimeGoalMutable()
+    {
+        // REFACTOR [21-01-5 10:11PM] -- duplicated lazy init logic
+        //  extract to a utility? or at least a private method eg getLazyInitializedMutableLiveData.
+        if (mWakeTimeGoal == null) {
+            mWakeTimeGoal = new MutableLiveData<>(null);
+        }
+        return mWakeTimeGoal;
     }
     
     private MutableLiveData<Long> getStartDateTimeMutable()

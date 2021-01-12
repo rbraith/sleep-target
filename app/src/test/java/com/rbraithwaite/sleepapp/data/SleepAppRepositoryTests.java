@@ -1,18 +1,13 @@
 package com.rbraithwaite.sleepapp.data;
 
-import android.content.Context;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.TestUtils;
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
-import com.rbraithwaite.sleepapp.data.database.tables.SleepSessionEntity;
-import com.rbraithwaite.sleepapp.data.database.tables.dao.SleepSessionDao;
-import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
-import com.rbraithwaite.sleepapp.data.database.views.dao.SleepSessionDataDao;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionDao;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 
 import org.junit.After;
 import org.junit.Before;
@@ -50,7 +45,6 @@ public class SleepAppRepositoryTests
     SleepAppDatabase mockDatabase;
     
     SleepAppRepository repository;
-    Context context;
 
 //*********************************************************
 // api
@@ -63,8 +57,6 @@ public class SleepAppRepositoryTests
         mockDatabase = mock(SleepAppDatabase.class);
         Executor synchronousExecutor = new TestUtils.SynchronizedExecutor();
         repository = new SleepAppRepository(mockPrefs, mockDatabase, synchronousExecutor);
-        
-        context = ApplicationProvider.getApplicationContext();
     }
     
     @After
@@ -73,22 +65,21 @@ public class SleepAppRepositoryTests
         mockPrefs = null;
         mockDatabase = null;
         repository = null;
-        context = null;
     }
     
     @Test
     public void setCurrentSession_setsCurrentSession()
     {
         Date testStartTime = TestUtils.ArbitraryData.getDate();
-        repository.setCurrentSession(context, testStartTime);
-        verify(mockPrefs, times(1)).setCurrentSession(context, testStartTime);
+        repository.setCurrentSession(testStartTime);
+        verify(mockPrefs, times(1)).setCurrentSession(testStartTime);
     }
     
     @Test
     public void clearCurrentSession_callsPrefs()
     {
-        repository.clearCurrentSession(context);
-        verify(mockPrefs, times(1)).setCurrentSession(context, null);
+        repository.clearCurrentSession();
+        verify(mockPrefs, times(1)).setCurrentSession(null);
     }
     
     
@@ -96,9 +87,9 @@ public class SleepAppRepositoryTests
     public void getCurrentSession_nullWhenNoSession()
     {
         LiveData<Date> mockLiveData = new MutableLiveData<>(null);
-        when(mockPrefs.getCurrentSession(any(Context.class))).thenReturn(mockLiveData);
+        when(mockPrefs.getCurrentSession()).thenReturn(mockLiveData);
         
-        assertThat(repository.getCurrentSession(context).getValue(), is(nullValue()));
+        assertThat(repository.getCurrentSession().getValue(), is(nullValue()));
     }
     
     @Test
@@ -110,10 +101,10 @@ public class SleepAppRepositoryTests
             @Override
             public Void answer(InvocationOnMock invocation) throws Throwable
             {
-                calendar.setTime(invocation.getArgumentAt(1, Date.class));
+                calendar.setTime(invocation.getArgumentAt(0, Date.class));
                 return null;
             }
-        }).when(mockPrefs).setCurrentSession(any(Context.class), any(Date.class));
+        }).when(mockPrefs).setCurrentSession(any(Date.class));
         doAnswer(new Answer<LiveData<Date>>()
         {
             @Override
@@ -121,7 +112,7 @@ public class SleepAppRepositoryTests
             {
                 return new MutableLiveData<Date>(calendar.getTime());
             }
-        }).when(mockPrefs).getCurrentSession(any(Context.class));
+        }).when(mockPrefs).getCurrentSession();
         
         calendar.set(2020, 6, 6, 13, 15);
         Date testDate1 = calendar.getTime();
@@ -129,50 +120,43 @@ public class SleepAppRepositoryTests
         calendar.set(2012, 3, 4, 15, 6);
         Date testDate2 = calendar.getTime();
         
-        repository.setCurrentSession(context, testDate1);
-        assertThat(repository.getCurrentSession(context).getValue(), is(equalTo(testDate1)));
+        repository.setCurrentSession(testDate1);
+        assertThat(repository.getCurrentSession().getValue(), is(equalTo(testDate1)));
         
-        repository.setCurrentSession(context, testDate2);
-        assertThat(repository.getCurrentSession(context).getValue(), is(equalTo(testDate2)));
+        repository.setCurrentSession(testDate2);
+        assertThat(repository.getCurrentSession().getValue(), is(equalTo(testDate2)));
     }
     
     @Test
-    public void updateSleepSessionData_updatesOnValidInput()
+    public void updateSleepSession_updatesOnValidInput()
     {
         SleepSessionDao mockSleepSessionDao = setupMockSleepSessionDao();
         
-        SleepSessionData testSleepSessionData = TestUtils.ArbitraryData.getSleepSessionData();
-        testSleepSessionData.id = 5;
+        SleepSessionEntity testSleepSession = TestUtils.ArbitraryData.getSleepSessionEntity();
+        testSleepSession.id = 5;
         
-        repository.updateSleepSessionData(testSleepSessionData);
+        repository.updateSleepSession(testSleepSession);
         
         ArgumentCaptor<SleepSessionEntity> databaseUpdateSessionCaptor =
                 ArgumentCaptor.forClass(SleepSessionEntity.class);
         verify(mockSleepSessionDao,
                times(1)).updateSleepSession(databaseUpdateSessionCaptor.capture());
         SleepSessionEntity sleepSessionEntity = databaseUpdateSessionCaptor.getValue();
-        assertThat(sleepSessionEntity.id, is(testSleepSessionData.id));
-        assertThat(sleepSessionEntity.startTime, is(testSleepSessionData.startTime));
-        assertThat(sleepSessionEntity.duration, is(testSleepSessionData.duration));
+        assertThat(sleepSessionEntity.id, is(testSleepSession.id));
+        assertThat(sleepSessionEntity.startTime, is(testSleepSession.startTime));
+        assertThat(sleepSessionEntity.duration, is(testSleepSession.duration));
         // TODO [20-12-16 10:43PM] -- eventually, checks for other sleep session data daos.
     }
     
     @Test
-    public void addSleepSessionData_addsSleepSessionData()
+    public void addSleepSession_addsSleepSession()
     {
         SleepSessionDao mockSleepSessionDao = setupMockSleepSessionDao();
         
-        SleepSessionData testSleepSessionData = TestUtils.ArbitraryData.getSleepSessionData();
+        SleepSessionEntity testSleepSession = TestUtils.ArbitraryData.getSleepSessionEntity();
+        repository.addSleepSession(testSleepSession);
         
-        repository.addSleepSessionData(testSleepSessionData);
-        
-        ArgumentCaptor<SleepSessionEntity> databaseAddSessionCaptor =
-                ArgumentCaptor.forClass(SleepSessionEntity.class);
-        verify(mockSleepSessionDao, times(1)).addSleepSession(databaseAddSessionCaptor.capture());
-        SleepSessionEntity sleepSessionEntity = databaseAddSessionCaptor.getValue();
-        assertThat(sleepSessionEntity.id, is(testSleepSessionData.id));
-        assertThat(sleepSessionEntity.startTime, is(testSleepSessionData.startTime));
-        assertThat(sleepSessionEntity.duration, is(testSleepSessionData.duration));
+        verify(mockSleepSessionDao, times(1)).addSleepSession(testSleepSession);
     }
     
     // TODO [20-12-16 12:37AM] -- define updateSleepSession() behaviour on null or invalid args.
@@ -180,12 +164,11 @@ public class SleepAppRepositoryTests
     @Test
     public void getAllSleepSessionIds_returnEmptyListWhenNoIds()
     {
-        SleepSessionDataDao mockSleepSessionDataDao = mock(SleepSessionDataDao.class);
-        when(mockDatabase.getSleepSessionDataDao()).thenReturn(mockSleepSessionDataDao);
-        when(mockSleepSessionDataDao.getAllSleepSessionDataIds()).thenReturn(
+        SleepSessionDao mockSleepSessionDao = setupMockSleepSessionDao();
+        when(mockSleepSessionDao.getAllSleepSessionIds()).thenReturn(
                 new MutableLiveData<List<Integer>>(new ArrayList<Integer>()));
         
-        List<Integer> ids = repository.getAllSleepSessionDataIds().getValue();
+        List<Integer> ids = repository.getAllSleepSessionIds().getValue();
         assertThat(ids.size(), is(0));
     }
     
@@ -196,30 +179,25 @@ public class SleepAppRepositoryTests
     {
         List<Integer> testIdData = TestUtils.ArbitraryData.getIdList();
         
-        SleepSessionDataDao mockSleepSessionDataDao = mock(SleepSessionDataDao.class);
-        when(mockSleepSessionDataDao.getAllSleepSessionDataIds())
+        SleepSessionDao mockSleepSessionDao = setupMockSleepSessionDao();
+        when(mockSleepSessionDao.getAllSleepSessionIds())
                 .thenReturn(new MutableLiveData<>(testIdData));
         
-        when(mockDatabase.getSleepSessionDataDao()).thenReturn(mockSleepSessionDataDao);
-        
-        List<Integer> ids = repository.getAllSleepSessionDataIds().getValue();
+        List<Integer> ids = repository.getAllSleepSessionIds().getValue();
         assertThat(ids, is(equalTo(testIdData)));
     }
     
     @Test
-    public void getSleepSessionData_positiveInput()
+    public void getSleepSessionEntity_postiveInput()
     {
         int positiveId = 1;
         
-        SleepSessionData expectedData = TestUtils.ArbitraryData.getSleepSessionData();
-        SleepSessionDataDao mockSleepSessionDataDao = mock(SleepSessionDataDao.class);
-        when(mockSleepSessionDataDao.getSleepSessionData(positiveId))
+        SleepSessionEntity expectedData = TestUtils.ArbitraryData.getSleepSessionEntity();
+        SleepSessionDao mockSleepSessionDao = setupMockSleepSessionDao();
+        when(mockSleepSessionDao.getSleepSession(positiveId))
                 .thenReturn(new MutableLiveData<>(expectedData));
         
-        when(mockDatabase.getSleepSessionDataDao()).thenReturn(mockSleepSessionDataDao);
-        
-        LiveData<SleepSessionData> liveData = repository.getSleepSessionData(positiveId);
-        
+        LiveData<SleepSessionEntity> liveData = repository.getSleepSession(positiveId);
         assertThat(liveData.getValue(), is(equalTo(expectedData)));
     }
     
@@ -230,7 +208,7 @@ public class SleepAppRepositoryTests
         
         int sessionDataId = 5;
         
-        repository.deleteSleepSessionData(sessionDataId);
+        repository.deleteSleepSession(sessionDataId);
         
         verify(mockSleepSessionDao).deleteSleepSession(sessionDataId);
     }

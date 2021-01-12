@@ -14,7 +14,7 @@ import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.rbraithwaite.sleepapp.R;
-import com.rbraithwaite.sleepapp.ui.session_archive.data.UISleepSessionData;
+import com.rbraithwaite.sleepapp.ui.session_archive.data.SessionArchiveListItem;
 
 import java.util.List;
 
@@ -105,7 +105,7 @@ public class SessionArchiveRecyclerViewAdapter
         mFragmentProvider = fragmentProvider;
         mOnListItemClickListener = onListItemClickListener;
         
-        mSleepSessionDataIds = mViewModel.getAllSleepSessionDataIds();
+        mSleepSessionDataIds = mViewModel.getAllSleepSessionIds();
         mSleepSessionDataIds.observe(
                 getLifecycleOwner(),
                 new Observer<List<Integer>>()
@@ -167,23 +167,23 @@ public class SessionArchiveRecyclerViewAdapter
     
     private void bindToViewModel(final ViewHolder viewHolder, final int position)
     {
-        LiveData<UISleepSessionData> uiSleepSessionData = mViewModel.getListItemData(
+        LiveData<SessionArchiveListItem> uiSleepSessionData = mViewModel.getListItemData(
                 mSleepSessionDataIds.getValue().get(position));
         
         // I thought the new Observer here might leak memory and cause duplicate updates, but
         // getSleepSession data provides a new livedata instance so I should be ok?
         uiSleepSessionData.observe(
                 getLifecycleOwner(),
-                new Observer<UISleepSessionData>()
+                new Observer<SessionArchiveListItem>()
                 {
                     @Override
-                    public void onChanged(UISleepSessionData uiSleepSessionData)
+                    public void onChanged(SessionArchiveListItem sessionArchiveListItem)
                     {
                         Log.d(TAG, "onChanged: item data changed! updating...");
-                        if (uiSleepSessionData != null) {
-                            viewHolder.startTime.setText(uiSleepSessionData.startTime);
-                            viewHolder.stopTime.setText(uiSleepSessionData.endTime);
-                            viewHolder.duration.setText(uiSleepSessionData.sessionDuration);
+                        if (sessionArchiveListItem != null) {
+                            viewHolder.startTime.setText(sessionArchiveListItem.startTime);
+                            viewHolder.stopTime.setText(sessionArchiveListItem.endTime);
+                            viewHolder.duration.setText(sessionArchiveListItem.sessionDuration);
                         }
                     }
                 });

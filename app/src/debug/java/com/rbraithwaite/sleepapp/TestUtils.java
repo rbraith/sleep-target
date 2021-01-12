@@ -13,11 +13,10 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.rbraithwaite.sleepapp.data.SleepAppDataPrefs;
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
-import com.rbraithwaite.sleepapp.data.database.tables.SleepSessionEntity;
-import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
-import com.rbraithwaite.sleepapp.ui.session_data.SessionEditData;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -119,15 +118,6 @@ public class TestUtils
             return new GregorianCalendar(2019, 8, 7, 6, 5).getTime();
         }
         
-        /**
-         * @return SessionEditData with arbitrary dates and id of 0.
-         */
-        public static SessionEditData getSessionEditData()
-        {
-            GregorianCalendar calendar = getCalendar();
-            return new SessionEditData(calendar.getTimeInMillis(), calendar.getTimeInMillis());
-        }
-        
         public static GregorianCalendar getCalendar()
         {
             GregorianCalendar calendar = new GregorianCalendar();
@@ -140,17 +130,17 @@ public class TestUtils
             SleepSessionEntity sleepSessionEntity = new SleepSessionEntity();
             sleepSessionEntity.startTime = getDate();
             sleepSessionEntity.duration = getDurationMillis();
+            sleepSessionEntity.wakeTimeGoal = getWakeTimeGoal();
             
             return sleepSessionEntity;
         }
         
-        public static SleepSessionData getSleepSessionData()
+        public static Date getWakeTimeGoal()
         {
-            SleepSessionData sleepSessionData = new SleepSessionData();
-            sleepSessionData.duration = getDurationMillis();
-            sleepSessionData.startTime = getDate();
-            
-            return sleepSessionData;
+            GregorianCalendar calendar = getCalendar();
+            calendar.set(Calendar.HOUR_OF_DAY, 7);
+            calendar.set(Calendar.MINUTE, 45);
+            return calendar.getTime();
         }
         
         public static long getDurationMillis() {return 5000L;}

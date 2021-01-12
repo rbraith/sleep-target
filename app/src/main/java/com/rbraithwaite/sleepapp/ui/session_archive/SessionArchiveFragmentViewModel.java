@@ -7,11 +7,11 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.data.SleepAppRepository;
-import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.ui.Constants;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
-import com.rbraithwaite.sleepapp.ui.session_archive.data.UISleepSessionData;
-import com.rbraithwaite.sleepapp.ui.session_data.SessionEditData;
+import com.rbraithwaite.sleepapp.ui.session_archive.data.SessionArchiveListItem;
+import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
 
 import java.text.SimpleDateFormat;
@@ -49,80 +49,79 @@ public class SessionArchiveFragmentViewModel
 // api
 //*********************************************************
 
-    public void addSessionData(SleepSessionData sessionData)
+    public void addSleepSession(SleepSessionWrapper sleepSession)
     {
-        mRepository.addSleepSessionData(sessionData);
+        mRepository.addSleepSession(sleepSession.entity);
     }
     
-    public void updateSessionData(SleepSessionData sessionData)
+    public void updateSleepSession(SleepSessionWrapper sleepSession)
     {
-        mRepository.updateSleepSessionData(sessionData);
+        mRepository.updateSleepSession(sleepSession.entity);
     }
     
-    public void deleteSessionData(int sessionIdToDelete)
+    public int deleteSession(SleepSessionWrapper sessionToDelete)
     {
-        mRepository.deleteSleepSessionData(sessionIdToDelete);
+        mRepository.deleteSleepSession(sessionToDelete.entity.id);
+        return sessionToDelete.entity.id;
     }
     
-    public LiveData<UISleepSessionData> getListItemData(int id)
+    public LiveData<SessionArchiveListItem> getListItemData(int id)
     {
         // convert from db form to ui form
         return Transformations.map(
-                mRepository.getSleepSessionData(id),
-                new Function<SleepSessionData, UISleepSessionData>()
+                mRepository.getSleepSession(id),
+                new Function<SleepSessionEntity, SessionArchiveListItem>()
                 {
                     @Override
-                    public UISleepSessionData apply(SleepSessionData input)
+                    public SessionArchiveListItem apply(SleepSessionEntity input)
                     {
-                        return convertSleepSessionDataToUI(input);
+                        return convertSleepSessionToListItem(input);
                     }
                 });
     }
     
-    public LiveData<SleepSessionData> getSleepSessionData(int id)
-    {
-        return mRepository.getSleepSessionData(id);
-    }
-    
-    public LiveData<List<Integer>> getAllSleepSessionDataIds()
+    public LiveData<List<Integer>> getAllSleepSessionIds()
     {
         if (mSleepSessionDataIds == null) {
-            mSleepSessionDataIds = mRepository.getAllSleepSessionDataIds();
+            mSleepSessionDataIds = mRepository.getAllSleepSessionIds();
         }
         return mSleepSessionDataIds;
     }
     
-    public SleepSessionData getDefaultAddSessionData()
+    public LiveData<SleepSessionWrapper> getInitialAddSessionData()
     {
-        SleepSessionData defaultData = new SleepSessionData();
-        defaultData.startTime = DateUtils.getNow();
-        return defaultData;
-    }
-    
-    // TODO [20-12-24 4:02PM] -- this should just return LiveData<SleepSessionData>
-    @Deprecated
-    public LiveData<SessionEditData> getInitialEditSessionData(int sessionIdForEditing)
-    {
-        // I've having trouble verifying this, but i think this: https://stackoverflow
-        // .com/a/48498660
-        // means that each LiveData instance returned by a Room DAO contains within it the database
-        // Observer. Meaning that each LiveData returned independently observes the database and
-        // getting new LiveData instances from the DAO shouldn't stop older ones from continuing
-        // observation.
-        // --
-        // All this to say that I think the separate calls to mRepository.getSleepSessionData()
-        // here and in
-        // SessionArchiveFragment.getSleepSessionData() shouldn't conflict?
+        // REFACTOR [21-01-5 9:14PM] -- consider making this lazy init & storing the value in a
+        //  field
+        //  (avoid re-instantiation of the mapped LiveData?)
+        // LiveData retval & mapping are needed because the wake-time goal is returned from the
+        // repository asynchronously.
         return Transformations.map(
-                mRepository.getSleepSessionData(sessionIdForEditing),
-                new Function<SleepSessionData, SessionEditData>()
+                mRepository.getWakeTimeGoal(),
+                new Function<Long, SleepSessionWrapper>()
                 {
                     @Override
-                    public SessionEditData apply(SleepSessionData sleepSessionData)
+                    public SleepSessionWrapper apply(Long wakeTimeGoal)
                     {
-                        long startTime = sleepSessionData.startTime.getTime();
-                        long endTime = startTime + sleepSessionData.duration;
-                        return new SessionEditData(sleepSessionData.id, startTime, endTime);
+                        return new SleepSessionWrapper(
+                                SleepSessionEntity.create(
+                                        DateUtils.getNow(),
+                                        0,
+                                        wakeTimeGoal == null ?
+                                                null : DateUtils.getDateFromMillis(wakeTimeGoal)));
+                    }
+                });
+    }
+    
+    public LiveData<SleepSessionWrapper> getSleepSession(int id)
+    {
+        return Transformations.map(
+                mRepository.getSleepSession(id),
+                new Function<SleepSessionEntity, SleepSessionWrapper>()
+                {
+                    @Override
+                    public SleepSessionWrapper apply(SleepSessionEntity input)
+                    {
+                        return new SleepSessionWrapper(input);
                     }
                 });
     }
@@ -133,19 +132,20 @@ public class SessionArchiveFragmentViewModel
 //*********************************************************
 
     // REFACTOR [20-11-15 3:54PM] -- consider extracting this method?
-    private UISleepSessionData convertSleepSessionDataToUI(SleepSessionData data)
+    private SessionArchiveListItem convertSleepSessionToListItem(SleepSessionEntity sleepSession)
     {
-        if (data == null) {
+        if (sleepSession == null) {
             return null;
         }
         
         SimpleDateFormat sleepSessionTimeFormat =
                 new SimpleDateFormat(Constants.STANDARD_FORMAT_FULL_DATE,
                                      Constants.STANDARD_LOCALE);
-        return UISleepSessionData.create(
-                sleepSessionTimeFormat.format(data.startTime),
-                sleepSessionTimeFormat.format(calculateEndTime(data.startTime, data.duration)),
-                new DurationFormatter().formatDurationMillis(data.duration));
+        return SessionArchiveListItem.create(
+                sleepSessionTimeFormat.format(sleepSession.startTime),
+                sleepSessionTimeFormat.format(calculateEndTime(sleepSession.startTime,
+                                                               sleepSession.duration)),
+                new DurationFormatter().formatDurationMillis(sleepSession.duration));
     }
     
     private Date calculateEndTime(Date startTime, long durationMillis)

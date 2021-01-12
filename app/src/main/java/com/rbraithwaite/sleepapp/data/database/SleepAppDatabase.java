@@ -5,15 +5,12 @@ import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
 import com.rbraithwaite.sleepapp.data.convert.DateConverter;
-import com.rbraithwaite.sleepapp.data.database.tables.SleepSessionEntity;
-import com.rbraithwaite.sleepapp.data.database.tables.dao.SleepSessionDao;
-import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
-import com.rbraithwaite.sleepapp.data.database.views.dao.SleepSessionDataDao;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionDao;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 
 @Database(
         version = 1,
-        entities = {SleepSessionEntity.class},
-        views = {SleepSessionData.class}
+        entities = {SleepSessionEntity.class}
 )
 @TypeConverters({DateConverter.class})
 public abstract class SleepAppDatabase
@@ -30,5 +27,4 @@ public abstract class SleepAppDatabase
 //*********************************************************
 
     public abstract SleepSessionDao getSleepSessionDao();
-    public abstract SleepSessionDataDao getSleepSessionDataDao();
 }

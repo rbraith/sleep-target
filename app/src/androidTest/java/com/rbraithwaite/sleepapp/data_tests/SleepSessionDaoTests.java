@@ -9,9 +9,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.TestUtils;
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
-import com.rbraithwaite.sleepapp.data.database.tables.SleepSessionEntity;
-import com.rbraithwaite.sleepapp.data.database.tables.dao.SleepSessionDao;
-import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionDao;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 
 import org.junit.After;
 import org.junit.Before;
@@ -28,7 +27,9 @@ import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 // https://developer.android.com/training/data-storage/room/testing-db
@@ -71,22 +72,22 @@ public class SleepSessionDaoTests
     @Test
     public void deleteSleepSession_deletesSleepSession()
     {
-        LiveData<List<Integer>> sessionDataIds =
-                database.getSleepSessionDataDao().getAllSleepSessionDataIds();
+        LiveData<List<Integer>> sessionIds =
+                database.getSleepSessionDao().getAllSleepSessionIds();
         TestUtils.InstrumentationLiveDataSynchronizer<List<Integer>> synchronizer =
-                new TestUtils.InstrumentationLiveDataSynchronizer<>(sessionDataIds);
+                new TestUtils.InstrumentationLiveDataSynchronizer<>(sessionIds);
         
         int sleepSessionId =
                 (int) sleepSessionDao.addSleepSession(TestUtils.ArbitraryData.getSleepSessionEntity());
         
         synchronizer.sync();
-        assertThat(sessionDataIds.getValue().size(), is(1));
+        assertThat(sessionIds.getValue().size(), is(1));
         
         // SUT
         sleepSessionDao.deleteSleepSession(sleepSessionId);
         
         synchronizer.sync();
-        assertThat(sessionDataIds.getValue().size(), is(0));
+        assertThat(sessionIds.getValue().size(), is(0));
     }
     
     @Test
@@ -101,19 +102,22 @@ public class SleepSessionDaoTests
         calendar.add(Calendar.MONTH, 5);
         Date newStartDate = calendar.getTime();
         long newDuration = TestUtils.ArbitraryData.getDurationMillis() + 2500L;
+        calendar.add(Calendar.MINUTE, 10);
+        Date newWakeTimeGoal = calendar.getTime();
         SleepSessionEntity updatedSleepSession =
-                SleepSessionEntity.create(newStartDate, newDuration);
+                SleepSessionEntity.create(newStartDate, newDuration, newWakeTimeGoal);
         updatedSleepSession.id = testSleepSessionId;
         
         sleepSessionDao.updateSleepSession(updatedSleepSession);
         
         // verify the sleep session updated successfully
-        LiveData<SleepSessionData> sleepSessionData =
-                database.getSleepSessionDataDao().getSleepSessionData(testSleepSessionId);
-        TestUtils.activateInstrumentationLiveData(sleepSessionData);
-        assertThat(sleepSessionData.getValue().id, is(testSleepSessionId));
-        assertThat(sleepSessionData.getValue().startTime, is(equalTo(newStartDate)));
-        assertThat(sleepSessionData.getValue().duration, is(newDuration));
+        LiveData<SleepSessionEntity> sleepSession =
+                database.getSleepSessionDao().getSleepSession(testSleepSessionId);
+        TestUtils.activateInstrumentationLiveData(sleepSession);
+        assertThat(sleepSession.getValue().id, is(testSleepSessionId));
+        assertThat(sleepSession.getValue().startTime, is(equalTo(newStartDate)));
+        assertThat(sleepSession.getValue().duration, is(newDuration));
+        assertThat(sleepSession.getValue().wakeTimeGoal, is(equalTo(newWakeTimeGoal)));
     }
     
     // TODO [20-12-16 12:37AM] -- define updateSleepSession() behaviour on null or invalid args.
@@ -125,12 +129,93 @@ public class SleepSessionDaoTests
         
         int testSleepSessionId = (int) sleepSessionDao.addSleepSession(testSleepSession);
         
-        LiveData<SleepSessionData> sleepSessionData =
-                database.getSleepSessionDataDao().getSleepSessionData(testSleepSessionId);
+        LiveData<SleepSessionEntity> sleepSession =
+                database.getSleepSessionDao().getSleepSession(testSleepSessionId);
         
-        TestUtils.activateInstrumentationLiveData(sleepSessionData);
-        assertThat(sleepSessionData.getValue(), is(notNullValue()));
-        assertThat(sleepSessionData.getValue().duration, is(equalTo(testSleepSession.duration)));
-        assertThat(sleepSessionData.getValue().startTime, is(equalTo(testSleepSession.startTime)));
+        TestUtils.activateInstrumentationLiveData(sleepSession);
+        assertThat(sleepSession.getValue(), is(notNullValue()));
+        assertThat(sleepSession.getValue().duration, is(equalTo(testSleepSession.duration)));
+        assertThat(sleepSession.getValue().startTime, is(equalTo(testSleepSession.startTime)));
+    }
+    
+    @Test
+    public void getAllSleepSessionIds_returnsEmptyListWhenViewIsEmpty()
+    {
+        LiveData<List<Integer>> ids = sleepSessionDao.getAllSleepSessionIds();
+        
+        TestUtils.activateInstrumentationLiveData(ids);
+        
+        assertThat(ids.getValue().size(), is(0));
+    }
+    
+    @Test
+    public void getAllSleepSessionIds_LiveDataUpdatesWhenSleepSessionIsAdded() throws
+            InterruptedException
+    {
+        LiveData<List<Integer>> ids = sleepSessionDao.getAllSleepSessionIds();
+        
+        TestUtils.InstrumentationLiveDataSynchronizer<List<Integer>> synchronizer =
+                new TestUtils.InstrumentationLiveDataSynchronizer<>(ids);
+        
+        // assert initial value
+        assertThat(ids.getValue().size(), is(0));
+        
+        // assert livedata was updated
+        int id = (int) database.getSleepSessionDao()
+                .addSleepSession(TestUtils.ArbitraryData.getSleepSessionEntity());
+        assertThat(id, is(not(0)));
+        
+        synchronizer.sync();
+        assertThat(ids.getValue().size(), is(1));
+        assertThat(id, is(ids.getValue().get(0)));
+    }
+    
+    @Test
+    public void getSleepSession_returnsNullWhenBadId()
+    {
+        int badId = 0; // bad since db is empty
+        LiveData<SleepSessionEntity> sleepSession = sleepSessionDao.getSleepSession(badId);
+        
+        TestUtils.activateInstrumentationLiveData(sleepSession);
+        
+        assertThat(sleepSession.getValue(), is(nullValue()));
+    }
+    
+    @Test
+    public void getSleepSession_positiveInput()
+    {
+        SleepSessionEntity expectedData = TestUtils.ArbitraryData.getSleepSessionEntity();
+        int id = (int) sleepSessionDao.addSleepSession(expectedData);
+        
+        LiveData<SleepSessionEntity> sleepSessionLiveData =
+                sleepSessionDao.getSleepSession(id);
+        
+        TestUtils.activateInstrumentationLiveData(sleepSessionLiveData);
+        
+        SleepSessionEntity sleepSession = sleepSessionLiveData.getValue();
+        assertThat(sleepSession.id, is(equalTo(id)));
+        assertThat(sleepSession.startTime, is(equalTo(expectedData.startTime)));
+        assertThat(sleepSession.duration, is(equalTo(expectedData.duration)));
+    }
+    
+    @Test
+    public void getSleepSession_updatesNullLiveData()
+    {
+        int id = 1;
+        
+        LiveData<SleepSessionEntity> sleepSessionLiveData =
+                sleepSessionDao.getSleepSession(id);
+        TestUtils.InstrumentationLiveDataSynchronizer<SleepSessionEntity> synchronizer =
+                new TestUtils.InstrumentationLiveDataSynchronizer<>(sleepSessionLiveData);
+        
+        // data is initially invalid
+        assertThat(sleepSessionLiveData.getValue(), is(nullValue()));
+        
+        // add a sleep session and verify that the invalid data is now valid
+        SleepSessionEntity entity = TestUtils.ArbitraryData.getSleepSessionEntity();
+        int databaseId = (int) sleepSessionDao.addSleepSession(entity);
+        assertThat(id, is(databaseId));
+        synchronizer.sync();
+        assertThat(sleepSessionLiveData.getValue(), is(notNullValue()));
     }
 }

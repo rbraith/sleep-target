@@ -20,11 +20,11 @@ import androidx.navigation.Navigation;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.rbraithwaite.sleepapp.R;
-import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
 import com.rbraithwaite.sleepapp.ui.dialog.DatePickerFragment;
 import com.rbraithwaite.sleepapp.ui.dialog.TimePickerFragment;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragmentDirections;
+import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
 
 import java.io.Serializable;
 
@@ -61,16 +61,12 @@ public class SessionDataFragment
 
     public static final int DEFAULT_ICON = -1;
 
-//*********************************************************
-// public helpers
-//*********************************************************
-    
     public static class Args
             implements Serializable
     {
         public static final long serialVersionUID = 20201230L;
         
-        public SleepSessionData initialData;
+        public SleepSessionWrapper initialData;
         public ActionListener positiveActionListener;
         public ActionListener negativeActionListener;
         public int positiveIcon = DEFAULT_ICON;
@@ -81,7 +77,7 @@ public class SessionDataFragment
     {
         private Args mArgs;
         
-        public ArgsBuilder(SleepSessionData initialData)
+        public ArgsBuilder(SleepSessionWrapper initialData)
         {
             mArgs = new Args();
             mArgs.initialData = initialData;
@@ -123,7 +119,7 @@ public class SessionDataFragment
          * The fragment is passed so that clients can control whether or not the fragment is
          * completed, among other things.
          */
-        public abstract void onAction(SessionDataFragment fragment, SleepSessionData result);
+        public abstract void onAction(SessionDataFragment fragment, SleepSessionWrapper result);
     }
 
 //*********************************************************
@@ -152,6 +148,7 @@ public class SessionDataFragment
         initStartDateTime(view.findViewById(R.id.session_data_start_time));
         initEndDateTime(view.findViewById(R.id.session_data_end_time));
         initSessionDuration(view);
+        initWakeTimeGoal(view);
         
         requireActivity().getOnBackPressedDispatcher().addCallback(
                 getViewLifecycleOwner(),
@@ -271,6 +268,25 @@ public class SessionDataFragment
         if (!viewModel.sessionDataIsInitialized()) {
             viewModel.initSessionData(args.initialData);
         }
+    }
+    
+    private void initWakeTimeGoal(View fragmentRoot)
+    {
+        final TextView wakeTimeText = fragmentRoot.findViewById(R.id.session_data_goal_waketime);
+        getViewModel().getWakeTimeGoal().observe(
+                getViewLifecycleOwner(),
+                new Observer<String>()
+                {
+                    @Override
+                    public void onChanged(String wakeTimeGoal)
+                    {
+                        if (wakeTimeGoal == null) {
+                            // TODO [21-01-5 2:19AM] -- show add wake time goal btn.
+                        } else {
+                            wakeTimeText.setText(wakeTimeGoal);
+                        }
+                    }
+                });
     }
     
     private void initSessionDuration(View fragmentRoot)

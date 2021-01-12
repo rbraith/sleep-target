@@ -6,9 +6,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.TestUtils;
 import com.rbraithwaite.sleepapp.data.SleepAppRepository;
-import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragmentViewModel;
-import com.rbraithwaite.sleepapp.ui.session_archive.data.UISleepSessionData;
+import com.rbraithwaite.sleepapp.ui.session_archive.data.SessionArchiveListItem;
+import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
 
 import org.junit.After;
 import org.junit.Before;
@@ -57,52 +58,80 @@ public class SessionArchiveFragmentViewModelTests
     }
     
     @Test
-    public void getDefaultAddSessionData_sessionIdIsZero()
+    public void getInitialAddSessionData_returnsZeroId()
     {
-        SleepSessionData sleepSessionData = viewModel.getDefaultAddSessionData();
-        assertThat(sleepSessionData.id, is(0));
+        when(mockRepository.getWakeTimeGoal()).thenReturn(new MutableLiveData<Long>(null));
+        
+        LiveData<SleepSessionWrapper> sleepSession = viewModel.getInitialAddSessionData();
+        TestUtils.activateLocalLiveData(sleepSession);
+        assertThat(sleepSession.getValue().entity.id, is(0));
     }
     
     @Test
-    public void getSleepSessionData_positiveInput()
+    public void getInitialAddSessionData_usesCurrentWakeTimeGoal()
+    {
+        LiveData<Long> wakeTimeGoal = new MutableLiveData<>(100L);
+        when(mockRepository.getWakeTimeGoal()).thenReturn(wakeTimeGoal);
+        
+        LiveData<SleepSessionWrapper> sleepSession = viewModel.getInitialAddSessionData();
+        TestUtils.activateLocalLiveData(sleepSession);
+        assertThat(sleepSession.getValue().entity.wakeTimeGoal.getTime(),
+                   is(equalTo(wakeTimeGoal.getValue())));
+    }
+    
+    @Test
+    public void getSleepSessionEntity_positiveInput()
     {
         int testId = 5;
-        SleepSessionData expected = TestUtils.ArbitraryData.getSleepSessionData();
+        SleepSessionEntity expected = TestUtils.ArbitraryData.getSleepSessionEntity();
         expected.id = testId;
-        when(mockRepository.getSleepSessionData(testId)).thenReturn(new MutableLiveData<SleepSessionData>(
-                expected));
+        when(mockRepository.getSleepSession(testId)).thenReturn(
+                new MutableLiveData<SleepSessionEntity>(expected));
         
-        LiveData<SleepSessionData> sleepSessionData = viewModel.getSleepSessionData(testId);
+        // SUT
+        LiveData<SleepSessionWrapper> sleepSession = viewModel.getSleepSession(testId);
         
-        TestUtils.activateLocalLiveData(sleepSessionData);
-        assertThat(sleepSessionData.getValue(), is(expected));
+        TestUtils.activateLocalLiveData(sleepSession);
+        assertThat(sleepSession.getValue().entity, is(expected));
     }
     
     @Test
     public void addSessionFromResult_addsSessionOnValidInput()
     {
-        SleepSessionData sleepSessionData = TestUtils.ArbitraryData.getSleepSessionData();
-        viewModel.addSessionData(sleepSessionData);
-        verify(mockRepository).addSleepSessionData(sleepSessionData);
+        SleepSessionEntity sleepSession = TestUtils.ArbitraryData.getSleepSessionEntity();
+        viewModel.addSleepSession(new SleepSessionWrapper(sleepSession));
+        verify(mockRepository).addSleepSession(sleepSession);
     }
     
     @Test
     public void updateSessionFromResult_updatesSessionOnValidInput()
     {
         // for this test, it doesn't matter that the id for this data is 0
-        SleepSessionData expected = TestUtils.ArbitraryData.getSleepSessionData();
+        SleepSessionEntity expected = TestUtils.ArbitraryData.getSleepSessionEntity();
         
-        viewModel.updateSessionData(expected);
+        viewModel.updateSleepSession(new SleepSessionWrapper(expected));
         
-        verify(mockRepository, times(1)).updateSleepSessionData(expected);
+        verify(mockRepository, times(1)).updateSleepSession(expected);
     }
     
     @Test
     public void deleteSession_deletesSession()
     {
+        SleepSessionEntity toDelete = TestUtils.ArbitraryData.getSleepSessionEntity();
         int sessionId = 5;
-        viewModel.deleteSessionData(sessionId);
-        verify(mockRepository).deleteSleepSessionData(sessionId);
+        toDelete.id = sessionId;
+        viewModel.deleteSession(new SleepSessionWrapper(toDelete));
+        verify(mockRepository).deleteSleepSession(sessionId);
+    }
+    
+    @Test
+    public void deleteSession_returnsDeletedSessionId()
+    {
+        SleepSessionEntity toDelete = TestUtils.ArbitraryData.getSleepSessionEntity();
+        int sessionId = 5;
+        toDelete.id = sessionId;
+        int deletedId = viewModel.deleteSession(new SleepSessionWrapper(toDelete));
+        assertThat(deletedId, is(sessionId));
     }
     
     
@@ -111,10 +140,10 @@ public class SessionArchiveFragmentViewModelTests
     {
         int badSessionID = 0;
         
-        when(mockRepository.getSleepSessionData(badSessionID)).thenReturn(new MutableLiveData<SleepSessionData>(
+        when(mockRepository.getSleepSession(badSessionID)).thenReturn(new MutableLiveData<SleepSessionEntity>(
                 null));
         
-        LiveData<UISleepSessionData> retrievedUILiveData =
+        LiveData<SessionArchiveListItem> retrievedUILiveData =
                 viewModel.getListItemData(badSessionID);
         TestUtils.activateLocalLiveData(retrievedUILiveData);
         
@@ -126,7 +155,7 @@ public class SessionArchiveFragmentViewModelTests
     {
         int sessionID = 0;
         
-        SleepSessionData mockData = new SleepSessionData();
+        SleepSessionEntity mockData = new SleepSessionEntity();
         mockData.duration = 18000000L; // 5 hours in millis
         mockData.startTime =
                 new GregorianCalendar(2019, 8, 7, 6, 5).getTime();
@@ -134,27 +163,28 @@ public class SessionArchiveFragmentViewModelTests
         String expectedFormattedStartTime = "6:05 AM, Sep 7 2019";
         String expectedFormattedEndTime = "11:05 AM, Sep 7 2019";
         
-        LiveData<SleepSessionData> mockLiveData = new MutableLiveData<>(mockData);
-        when(mockRepository.getSleepSessionData(sessionID)).thenReturn(mockLiveData);
+        LiveData<SleepSessionEntity> mockLiveData = new MutableLiveData<>(mockData);
+        when(mockRepository.getSleepSession(sessionID)).thenReturn(mockLiveData);
         
-        LiveData<UISleepSessionData> retrievedUILiveData = viewModel.getListItemData(sessionID);
+        LiveData<SessionArchiveListItem> retrievedListItemLiveData =
+                viewModel.getListItemData(sessionID);
         // REFACTOR [20-11-14 7:50PM] -- consider grouping LiveData utils into TestUtils
         //  .LiveDataUtils
         //  (this would include the synchronizers)
-        TestUtils.activateLocalLiveData(retrievedUILiveData);
+        TestUtils.activateLocalLiveData(retrievedListItemLiveData);
         
-        UISleepSessionData retrievedUIData = retrievedUILiveData.getValue();
-        assertThat(retrievedUIData.startTime, is(equalTo(expectedFormattedStartTime)));
-        assertThat(retrievedUIData.endTime, is(equalTo(expectedFormattedEndTime)));
-        assertThat(retrievedUIData.sessionDuration, is(equalTo(expectedFormattedDuration)));
+        SessionArchiveListItem retrievedListItem = retrievedListItemLiveData.getValue();
+        assertThat(retrievedListItem.startTime, is(equalTo(expectedFormattedStartTime)));
+        assertThat(retrievedListItem.endTime, is(equalTo(expectedFormattedEndTime)));
+        assertThat(retrievedListItem.sessionDuration, is(equalTo(expectedFormattedDuration)));
     }
     
     @Test
     public void getAllSleepSessionIds_returnsEmptyListWhenNoIds()
     {
-        when(mockRepository.getAllSleepSessionDataIds()).thenReturn(new MutableLiveData<List<Integer>>(
+        when(mockRepository.getAllSleepSessionIds()).thenReturn(new MutableLiveData<List<Integer>>(
                 new ArrayList<Integer>()));
-        LiveData<List<Integer>> ids = viewModel.getAllSleepSessionDataIds();
+        LiveData<List<Integer>> ids = viewModel.getAllSleepSessionIds();
         
         assertThat(ids.getValue().size(), is(0));
     }
@@ -165,8 +195,8 @@ public class SessionArchiveFragmentViewModelTests
     {
         LiveData<List<Integer>> testList =
                 new MutableLiveData<>(TestUtils.ArbitraryData.getIdList());
-        when(mockRepository.getAllSleepSessionDataIds()).thenReturn(testList);
-        LiveData<List<Integer>> ids = viewModel.getAllSleepSessionDataIds();
+        when(mockRepository.getAllSleepSessionIds()).thenReturn(testList);
+        LiveData<List<Integer>> ids = viewModel.getAllSleepSessionIds();
         
         assertThat(ids.getValue(), is(equalTo(testList.getValue())));
     }

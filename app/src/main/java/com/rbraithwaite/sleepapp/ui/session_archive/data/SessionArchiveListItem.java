@@ -1,8 +1,7 @@
 package com.rbraithwaite.sleepapp.ui.session_archive.data;
 
-// TODO [20-12-24 3:35PM] -- rename this SessionArchiveListItem.
 // ui pojo, to be converted within a viewmodel
-public class UISleepSessionData
+public class SessionArchiveListItem
 {
 //*********************************************************
 // public properties
@@ -16,15 +15,15 @@ public class UISleepSessionData
 // api
 //*********************************************************
 
-    public static UISleepSessionData create(
+    public static SessionArchiveListItem create(
             String startTime,
             String endTime,
             String sessionDuration)
     {
-        UISleepSessionData sleepSessionData = new UISleepSessionData();
-        sleepSessionData.startTime = startTime;
-        sleepSessionData.endTime = endTime;
-        sleepSessionData.sessionDuration = sessionDuration;
-        return sleepSessionData;
+        SessionArchiveListItem listItem = new SessionArchiveListItem();
+        listItem.startTime = startTime;
+        listItem.endTime = endTime;
+        listItem.sessionDuration = sessionDuration;
+        return listItem;
     }
 }

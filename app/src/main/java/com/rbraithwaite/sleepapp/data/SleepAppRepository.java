@@ -1,11 +1,9 @@
 package com.rbraithwaite.sleepapp.data;
 
-import android.content.Context;
-
 import androidx.lifecycle.LiveData;
 
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
-import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 
 import java.util.Date;
 import java.util.List;
@@ -14,6 +12,14 @@ import java.util.concurrent.Executor;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+// SMELL [20-12-22 12:31AM] -- The repository is starting to get big - sleep session, wake-time
+//  goals, etc. Should I split the responsibilities for different data into different
+//  repositories?
+// SMELL [21-01-9 1:15AM] -- Also consider the possibility of viewmodels getting more data than
+//  they need (I don't think this is a problem currently, but it likely will become one). I will
+//  need to come up with a better solution to ensure that viewmodels are only receiving the data
+//  that they need (I could possibly make one repository for each viewmodel? possibly also with
+//  viewmodel-specific  DAOs (in addition to a common one or something)?).
 @Singleton
 public class SleepAppRepository
 {
@@ -44,65 +50,63 @@ public class SleepAppRepository
 // api
 //*********************************************************
 
-    public void addSleepSessionData(final SleepSessionData sleepSessionData)
+    public void addSleepSession(final SleepSessionEntity newSleepSession)
     {
         mExecutor.execute(new Runnable()
         {
             @Override
             public void run()
             {
-                mDatabase.getSleepSessionDao()
-                        .addSleepSession(sleepSessionData.toSleepSessionEntity());
+                mDatabase.getSleepSessionDao().addSleepSession(newSleepSession);
             }
         });
     }
     
-    public void updateSleepSessionData(final SleepSessionData sleepSessionData)
+    public void updateSleepSession(final SleepSessionEntity sleepSession)
     {
         mExecutor.execute(new Runnable()
         {
             @Override
             public void run()
             {
-                mDatabase.getSleepSessionDao()
-                        .updateSleepSession(sleepSessionData.toSleepSessionEntity());
+                mDatabase.getSleepSessionDao().updateSleepSession(sleepSession);
             }
         });
     }
     
-    public void setCurrentSession(Context context, Date startTime)
+    public void clearCurrentSession()
     {
-        mDataPrefs.setCurrentSession(context, startTime);
+        setCurrentSession(null);
     }
     
-    public void clearCurrentSession(Context context)
+    public LiveData<Date> getCurrentSession()
     {
-        setCurrentSession(context, null);
+        return mDataPrefs.getCurrentSession();
     }
     
-    public LiveData<Date> getCurrentSession(Context context)
+    public void setCurrentSession(Date startTime)
     {
-        return mDataPrefs.getCurrentSession(context);
+        mDataPrefs.setCurrentSession(startTime);
     }
     
-    public LiveData<SleepSessionData> getSleepSessionData(int id)
+    public LiveData<SleepSessionEntity> getSleepSession(int id)
     {
-        return mDatabase.getSleepSessionDataDao().getSleepSessionData(id);
+        return mDatabase.getSleepSessionDao().getSleepSession(id);
     }
     
-    public LiveData<List<Integer>> getAllSleepSessionDataIds()
+    public LiveData<List<Integer>> getAllSleepSessionIds()
     {
-        return mDatabase.getSleepSessionDataDao().getAllSleepSessionDataIds();
+        return mDatabase.getSleepSessionDao().getAllSleepSessionIds();
     }
     
-    public void deleteSleepSessionData(final int sessionDataId)
+    public void deleteSleepSession(final int id)
     {
         mExecutor.execute(new Runnable()
         {
             @Override
             public void run()
             {
-                mDatabase.getSleepSessionDao().deleteSleepSession(sessionDataId);
+                mDatabase.getSleepSessionDao().deleteSleepSession(id);
                 // TODO [20-12-17 9:06PM] -- this will eventually need to delete the relevant
                 //  data from
                 //  the other tables as well - that data will need to be determined from the
@@ -113,14 +117,9 @@ public class SleepAppRepository
     
     public LiveData<Long> getWakeTimeGoal()
     {
-        // REFACTOR [20-12-23 1:47AM] -- this should maybe be a switchmap, so that its not returning
-        //  a new instance every time. Does the same go for all the other methods?
         return mDataPrefs.getWakeTimeGoal();
     }
     
-    // SMELL [20-12-22 12:31AM] -- The repository is starting to get big - sleep session, wake-time
-    //  goals, etc. Should I split the responsibilities for different data into different
-    //  repositories?
     public void setWakeTimeGoal(long wakeTimeGoalMillis)
     {
         mDataPrefs.setWakeTimeGoal(wakeTimeGoalMillis);

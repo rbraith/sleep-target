@@ -4,10 +4,11 @@ import androidx.lifecycle.LiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.TestUtils;
-import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragmentViewModel;
+import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
 
 import org.junit.After;
 import org.junit.Before;
@@ -32,6 +33,7 @@ public class SessionDataFragmentViewModelTests
 //*********************************************************
 
     SessionDataFragmentViewModel viewModel;
+    DateTimeFormatter dateTimeFormatter;
 
 //*********************************************************
 // api
@@ -40,20 +42,35 @@ public class SessionDataFragmentViewModelTests
     @Before
     public void setup()
     {
-        viewModel = new SessionDataFragmentViewModel();
+        dateTimeFormatter = new DateTimeFormatter();
+        viewModel = new SessionDataFragmentViewModel(dateTimeFormatter);
     }
     
     @After
     public void teardown()
     {
         viewModel = null;
+        dateTimeFormatter = null;
+    }
+    
+    @Test
+    public void getWakeTimeGoal_reflectsInitialData()
+    {
+        SleepSessionEntity initialData = TestUtils.ArbitraryData.getSleepSessionEntity();
+        viewModel.initSessionData(new SleepSessionWrapper(initialData));
+        
+        LiveData<String> wakeTimeGoal = viewModel.getWakeTimeGoal();
+        TestUtils.activateLocalLiveData(wakeTimeGoal);
+        
+        assertThat(wakeTimeGoal.getValue(), is(equalTo(
+                dateTimeFormatter.formatTimeOfDay(initialData.wakeTimeGoal))));
     }
     
     @Test
     public void initSessionData_initializesDataOnValidInput()
     {
-        SleepSessionData initialData = TestUtils.ArbitraryData.getSleepSessionData();
-        viewModel.initSessionData(initialData);
+        SleepSessionEntity initialData = TestUtils.ArbitraryData.getSleepSessionEntity();
+        viewModel.initSessionData(new SleepSessionWrapper(initialData));
         
         LiveData<Long> startDateTime = viewModel.getStartDateTime();
         LiveData<Long> endDateTime = viewModel.getEndDateTime();
@@ -68,7 +85,8 @@ public class SessionDataFragmentViewModelTests
     @Test
     public void clearSessionData_clearsData()
     {
-        viewModel.initSessionData(TestUtils.ArbitraryData.getSleepSessionData());
+        viewModel.initSessionData(
+                new SleepSessionWrapper(TestUtils.ArbitraryData.getSleepSessionEntity()));
         
         viewModel.clearSessionData();
         
@@ -85,7 +103,8 @@ public class SessionDataFragmentViewModelTests
     {
         assertThat(viewModel.sessionDataIsInitialized(), is(false));
         
-        viewModel.initSessionData(TestUtils.ArbitraryData.getSleepSessionData());
+        viewModel.initSessionData(
+                new SleepSessionWrapper(TestUtils.ArbitraryData.getSleepSessionEntity()));
         
         assertThat(viewModel.sessionDataIsInitialized(), is(true));
         
@@ -104,18 +123,20 @@ public class SessionDataFragmentViewModelTests
         calendar.add(Calendar.MONTH, 1);
         long duration = calendar.getTimeInMillis() - startDateTime.getTime();
         
-        SleepSessionData expected = new SleepSessionData();
+        SleepSessionEntity expected = new SleepSessionEntity();
         expected.id = 5;
         expected.startTime = startDateTime;
         expected.duration = duration;
-        viewModel.initSessionData(expected);
+        expected.wakeTimeGoal = TestUtils.ArbitraryData.getWakeTimeGoal();
+        viewModel.initSessionData(new SleepSessionWrapper(expected));
         
         // check result values
-        SleepSessionData result = viewModel.getResult();
-        // REFACTOR [21-12-30 3:05PM] -- implement SleepSessionData.equals().
+        SleepSessionEntity result = viewModel.getResult().entity;
+        // REFACTOR [21-12-30 3:05PM] -- implement SleepSessionEntity.equals().
         assertThat(result.id, is(equalTo(expected.id)));
         assertThat(result.startTime, is(equalTo(expected.startTime)));
         assertThat(result.duration, is(equalTo(expected.duration)));
+        assertThat(result.wakeTimeGoal, is(equalTo(expected.wakeTimeGoal)));
     }
     
     @Test(expected = SessionDataFragmentViewModel.InvalidDateTimeException.class)
@@ -197,7 +218,7 @@ public class SessionDataFragmentViewModelTests
         // end time changes
         synchronizer.sync();
         assertThat(endTime.getValue(),
-                   is(equalTo(new DateTimeFormatter().formatTimeOfDay(calendar.getTime()))));
+                   is(equalTo(dateTimeFormatter.formatTimeOfDay(calendar.getTime()))));
     }
     
     @Test
@@ -209,8 +230,6 @@ public class SessionDataFragmentViewModelTests
         LiveData<Long> endDateTime = viewModel.getEndDateTime();
         TestUtils.LocalLiveDataSynchronizer<Long> synchronizer =
                 new TestUtils.LocalLiveDataSynchronizer<>(endDateTime);
-        
-        DateTimeFormatter formatter = new DateTimeFormatter();
         
         assertThat(endDateTime.getValue(), is(equalTo(calendar.getTimeInMillis())));
         
@@ -275,9 +294,8 @@ public class SessionDataFragmentViewModelTests
         TestUtils.LocalLiveDataSynchronizer<String> synchronizer =
                 new TestUtils.LocalLiveDataSynchronizer<>(endDate);
         
-        DateTimeFormatter formatter = new DateTimeFormatter();
-        
-        assertThat(endDate.getValue(), is(equalTo(formatter.formatDate(calendar.getTime()))));
+        assertThat(endDate.getValue(),
+                   is(equalTo(dateTimeFormatter.formatDate(calendar.getTime()))));
         
         calendar.add(Calendar.DAY_OF_MONTH, 3);
         viewModel.setEndDate(
@@ -286,7 +304,8 @@ public class SessionDataFragmentViewModelTests
                 calendar.get(Calendar.DAY_OF_MONTH));
         
         synchronizer.sync();
-        assertThat(endDate.getValue(), is(equalTo(formatter.formatDate(calendar.getTime()))));
+        assertThat(endDate.getValue(),
+                   is(equalTo(dateTimeFormatter.formatDate(calendar.getTime()))));
     }
     
     
@@ -371,9 +390,8 @@ public class SessionDataFragmentViewModelTests
         TestUtils.LocalLiveDataSynchronizer<String> synchronizer =
                 new TestUtils.LocalLiveDataSynchronizer<>(startDate);
         
-        DateTimeFormatter formatter = new DateTimeFormatter();
-        
-        assertThat(startDate.getValue(), is(equalTo(formatter.formatDate(calendar.getTime()))));
+        assertThat(startDate.getValue(),
+                   is(equalTo(dateTimeFormatter.formatDate(calendar.getTime()))));
         
         calendar.add(Calendar.DAY_OF_MONTH, 3);
         viewModel.setStartDate(
@@ -382,7 +400,8 @@ public class SessionDataFragmentViewModelTests
                 calendar.get(Calendar.DAY_OF_MONTH));
         
         synchronizer.sync();
-        assertThat(startDate.getValue(), is(equalTo(formatter.formatDate(calendar.getTime()))));
+        assertThat(startDate.getValue(),
+                   is(equalTo(dateTimeFormatter.formatDate(calendar.getTime()))));
     }
     
     @Test(expected = SessionDataFragmentViewModel.InvalidDateTimeException.class)
@@ -452,7 +471,7 @@ public class SessionDataFragmentViewModelTests
         // start time changes
         synchronizer.sync();
         assertThat(startTime.getValue(),
-                   is(equalTo(new DateTimeFormatter().formatTimeOfDay(calendar.getTime()))));
+                   is(equalTo(dateTimeFormatter.formatTimeOfDay(calendar.getTime()))));
     }
     
     @Test
@@ -625,10 +644,8 @@ public class SessionDataFragmentViewModelTests
         TestUtils.activateLocalLiveData(startTime);
         TestUtils.activateLocalLiveData(startDate);
         
-        DateTimeFormatter formatter = new DateTimeFormatter();
-        
-        assertThat(startTime.getValue(), is(equalTo(formatter.formatTimeOfDay(testDate))));
-        assertThat(startDate.getValue(), is(equalTo(formatter.formatDate(testDate))));
+        assertThat(startTime.getValue(), is(equalTo(dateTimeFormatter.formatTimeOfDay(testDate))));
+        assertThat(startDate.getValue(), is(equalTo(dateTimeFormatter.formatDate(testDate))));
     }
     
     @Test
@@ -657,9 +674,7 @@ public class SessionDataFragmentViewModelTests
         TestUtils.activateLocalLiveData(endTime);
         TestUtils.activateLocalLiveData(endDate);
         
-        DateTimeFormatter formatter = new DateTimeFormatter();
-        
-        assertThat(endTime.getValue(), is(equalTo(formatter.formatTimeOfDay(testDate))));
-        assertThat(endDate.getValue(), is(equalTo(formatter.formatDate(testDate))));
+        assertThat(endTime.getValue(), is(equalTo(dateTimeFormatter.formatTimeOfDay(testDate))));
+        assertThat(endDate.getValue(), is(equalTo(dateTimeFormatter.formatDate(testDate))));
     }
 }

@@ -7,12 +7,13 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.TestUtils;
-import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragment;
+import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -83,11 +84,11 @@ public class SessionDataFragmentTests
         // GIVEN the user has the session edit fragment open
         GregorianCalendar calendar = new GregorianCalendar(2019, 8, 7, 6, 5);
         // REFACTOR [21-12-29 2:52AM] -- call this SleepSessionData.create().
-        SleepSessionData sleepSessionData = new SleepSessionData();
-        sleepSessionData.startTime = calendar.getTime();
+        SleepSessionEntity sleepSession = new SleepSessionEntity();
+        sleepSession.startTime = calendar.getTime();
         
         Bundle args = SessionDataFragment.createArguments(
-                new SessionDataFragment.ArgsBuilder(sleepSessionData).build());
+                new SessionDataFragment.ArgsBuilder(new SleepSessionWrapper(sleepSession)).build());
         HiltFragmentTestHelper<SessionDataFragment> testHelper
                 = HiltFragmentTestHelper.launchFragmentWithArgs(SessionDataFragment.class, args);
         
@@ -190,11 +191,11 @@ public class SessionDataFragmentTests
     {
         // GIVEN the user has the session edit fragment open
         GregorianCalendar calendar = new GregorianCalendar(2019, 8, 7, 6, 5);
-        SleepSessionData sleepSessionData = new SleepSessionData();
-        sleepSessionData.startTime = calendar.getTime();
+        SleepSessionEntity sleepSession = new SleepSessionEntity();
+        sleepSession.startTime = calendar.getTime();
         
         Bundle args = SessionDataFragment.createArguments(
-                new SessionDataFragment.ArgsBuilder(sleepSessionData).build());
+                new SessionDataFragment.ArgsBuilder(new SleepSessionWrapper(sleepSession)).build());
         HiltFragmentTestHelper<SessionDataFragment> testHelper
                 = HiltFragmentTestHelper.launchFragmentWithArgs(SessionDataFragment.class, args);
         
@@ -272,7 +273,8 @@ public class SessionDataFragmentTests
         // GIVEN the user has the session edit fragment open
         Bundle args = SessionDataFragment.createArguments(
                 new SessionDataFragment.ArgsBuilder(
-                        TestUtils.ArbitraryData.getSleepSessionData()).build());
+                        new SleepSessionWrapper(TestUtils.ArbitraryData.getSleepSessionEntity()))
+                        .build());
         HiltFragmentTestHelper<SessionDataFragment> testHelper
                 = HiltFragmentTestHelper.launchFragmentWithArgs(SessionDataFragment.class, args);
         
@@ -381,7 +383,8 @@ public class SessionDataFragmentTests
         // GIVEN the user has the session edit fragment open
         Bundle args = SessionDataFragment.createArguments(
                 new SessionDataFragment.ArgsBuilder(
-                        TestUtils.ArbitraryData.getSleepSessionData()).build());
+                        new SleepSessionWrapper(TestUtils.ArbitraryData.getSleepSessionEntity()))
+                        .build());
         HiltFragmentTestHelper<SessionDataFragment> testHelper
                 = HiltFragmentTestHelper.launchFragmentWithArgs(SessionDataFragment.class, args);
         
@@ -492,15 +495,15 @@ public class SessionDataFragmentTests
         calendar.add(GregorianCalendar.MINUTE, 25);
         Date testEndTime = calendar.getTime();
         
-        SleepSessionData sleepSessionData = new SleepSessionData();
-        sleepSessionData.startTime = testStartTime;
-        sleepSessionData.duration = testEndTime.getTime() - testStartTime.getTime();
+        SleepSessionEntity sleepSession = new SleepSessionEntity();
+        sleepSession.startTime = testStartTime;
+        sleepSession.duration = testEndTime.getTime() - testStartTime.getTime();
         
         HiltFragmentTestHelper<SessionDataFragment> testHelper
                 = HiltFragmentTestHelper.launchFragmentWithArgs(
                 SessionDataFragment.class,
                 SessionDataFragment.createArguments(
-                        new SessionDataFragment.ArgsBuilder(sleepSessionData)
+                        new SessionDataFragment.ArgsBuilder(new SleepSessionWrapper(sleepSession))
                                 .setPositiveIcon(R.drawable.ic_baseline_bar_chart_24)
                                 .setNegativeIcon(R.drawable.ic_baseline_nights_stay_24)
                                 .build()));

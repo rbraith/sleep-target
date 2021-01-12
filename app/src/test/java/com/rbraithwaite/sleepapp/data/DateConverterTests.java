@@ -10,6 +10,7 @@ import java.util.GregorianCalendar;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 public class DateConverterTests
 {
@@ -26,5 +27,12 @@ public class DateConverterTests
                 DateConverter.convertDateToMillis(testDate));
         
         assertThat(resultDate, is(equalTo(testDate)));
+    }
+    
+    @Test
+    public void nullInputTest()
+    {
+        Date result = DateConverter.convertDateFromMillis(DateConverter.convertDateToMillis(null));
+        assertThat(result, is(nullValue()));
     }
 }

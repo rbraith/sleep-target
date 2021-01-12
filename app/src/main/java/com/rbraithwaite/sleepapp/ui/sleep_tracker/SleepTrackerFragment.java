@@ -1,6 +1,5 @@
 package com.rbraithwaite.sleepapp.ui.sleep_tracker;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -110,7 +109,7 @@ public class SleepTrackerFragment
                     }
                 });
     }
-
+    
     // REFACTOR [20-11-19 3:08AM] -- this shares the inSleepSession LiveData with
     //  initSleepTrackerButton() - consider combining the two into some new method?
     //  maybe bindInSleepSession()??
@@ -121,8 +120,7 @@ public class SleepTrackerFragment
         final TextView startedText = fragmentRoot.findViewById(R.id.sleep_tracker_started_text);
         final TextView sessionStartTime = fragmentRoot.findViewById(R.id.sleep_tracker_start_time);
         final SleepTrackerFragmentViewModel viewModel = getViewModel();
-        final Context context = requireContext();
-        viewModel.inSleepSession(context).observe(
+        viewModel.inSleepSession().observe(
                 getViewLifecycleOwner(),
                 new Observer<Boolean>()
                 {
@@ -132,7 +130,7 @@ public class SleepTrackerFragment
                         if (inSleepSession) {
                             startedText.setVisibility(View.VISIBLE);
                             sessionStartTime.setVisibility(View.VISIBLE);
-                            sessionStartTime.setText(viewModel.getSessionStartTime(context));
+                            sessionStartTime.setText(viewModel.getSessionStartTime());
                         } else {
                             startedText.setVisibility(View.GONE);
                             sessionStartTime.setVisibility(View.GONE);
@@ -146,7 +144,7 @@ public class SleepTrackerFragment
     {
         final TextView currentSessionTime =
                 fragmentRoot.findViewById(R.id.sleep_tracker_session_time);
-        getViewModel().getCurrentSleepSessionDuration(requireContext()).observe(
+        getViewModel().getCurrentSleepSessionDuration().observe(
                 getViewLifecycleOwner(),
                 new Observer<String>()
                 {
@@ -162,7 +160,7 @@ public class SleepTrackerFragment
     {
         final Button sleepTrackerButton = fragmentRoot.findViewById(R.id.sleep_tracker_button);
         
-        getViewModel().inSleepSession(requireContext())
+        getViewModel().inSleepSession()
                 .observe(getViewLifecycleOwner(), new Observer<Boolean>()
                 {
                     @Override
@@ -182,11 +180,11 @@ public class SleepTrackerFragment
             public void onClick(View v)
             {
                 SleepTrackerFragmentViewModel viewModel = getViewModel();
-                Boolean inSleepSession = viewModel.inSleepSession(requireContext()).getValue();
+                Boolean inSleepSession = viewModel.inSleepSession().getValue();
                 if (inSleepSession) {
-                    viewModel.endSleepSession(requireContext());
+                    viewModel.endSleepSession();
                 } else {
-                    viewModel.startSleepSession(requireContext());
+                    viewModel.startSleepSession();
                 }
             }
         });

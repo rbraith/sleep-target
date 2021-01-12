@@ -52,7 +52,7 @@ public class SessionArchiveFragmentTests
         UITestNavigate.fromHome_toSessionArchive();
         // REFACTOR [20-12-17 7:24PM] -- this is just serving to initialize the archive, it
         //  would be better to have specific dev/debug tools for this purpose instead.
-        SessionArchiveFragmentTestUtils.addSession(TestUtils.ArbitraryData.getSessionEditData());
+        SessionArchiveFragmentTestUtils.addSession(TestUtils.ArbitraryData.getSleepSessionEntity());
         
         onView(withId(R.id.session_archive_list_item_card)).perform(click());
         SessionDataFragmentTestUtils.pressNegative();
@@ -110,7 +110,7 @@ public class SessionArchiveFragmentTests
         ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
         UITestNavigate.fromHome_toSessionArchive();
         // add a session so that it can be edited
-        SessionArchiveFragmentTestUtils.addSession(TestUtils.ArbitraryData.getSessionEditData());
+        SessionArchiveFragmentTestUtils.addSession(TestUtils.ArbitraryData.getSleepSessionEntity());
         
         onView(withId(R.id.session_archive_list_item_card)).perform(click());
         
@@ -226,7 +226,7 @@ public class SessionArchiveFragmentTests
         // GIVEN the user is on the session archive with an existing session
         ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
         UITestNavigate.fromHome_toSessionArchive();
-        SessionArchiveFragmentTestUtils.addSession(TestUtils.ArbitraryData.getSessionEditData());
+        SessionArchiveFragmentTestUtils.addSession(TestUtils.ArbitraryData.getSleepSessionEntity());
         
         // record current values
         final TestUtils.DoubleRef<String> originalStartDateText = new TestUtils.DoubleRef<>(null);

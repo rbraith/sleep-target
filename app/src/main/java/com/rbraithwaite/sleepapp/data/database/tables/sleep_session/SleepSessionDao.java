@@ -1,12 +1,12 @@
-package com.rbraithwaite.sleepapp.data.database.tables.dao;
+package com.rbraithwaite.sleepapp.data.database.tables.sleep_session;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 
-import com.rbraithwaite.sleepapp.data.database.tables.SleepSessionContract;
-import com.rbraithwaite.sleepapp.data.database.tables.SleepSessionEntity;
+import java.util.List;
 
 @Dao
 public abstract class SleepSessionDao
@@ -28,4 +28,12 @@ public abstract class SleepSessionDao
     @Query("DELETE FROM " + SleepSessionContract.TABLE_NAME +
            " WHERE " + SleepSessionContract.Columns.ID + " = :sleepSessionId")
     public abstract void deleteSleepSession(int sleepSessionId);
+    
+    @Query("SELECT * FROM " + SleepSessionContract.TABLE_NAME +
+           " WHERE " + SleepSessionContract.Columns.ID + " = :sleepSessionId")
+    public abstract LiveData<SleepSessionEntity> getSleepSession(int sleepSessionId);
+    
+    @Query("SELECT " + SleepSessionContract.Columns.ID +
+           " FROM " + SleepSessionContract.TABLE_NAME)
+    public abstract LiveData<List<Integer>> getAllSleepSessionIds();
 }

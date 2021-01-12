@@ -42,9 +42,7 @@ public class SleepAppDataPrefsTests
 //*********************************************************
 
     SleepAppDataPrefs prefs;
-    
-    Context context;
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -55,7 +53,7 @@ public class SleepAppDataPrefsTests
         // NOTE: I tried this with an async executor but was failing tests
         // probably a race condition - shouldn't be a problem in source where the view doesn't care
         // when its updated
-        context = ApplicationProvider.getApplicationContext();
+        Context context = ApplicationProvider.getApplicationContext();
         prefs = new SleepAppDataPrefs(context, new TestUtils.SynchronizedExecutor());
     }
     
@@ -63,18 +61,15 @@ public class SleepAppDataPrefsTests
     public void teardown()
     {
         prefs = null;
-        context = null;
         TestUtils.resetSharedPreferences();
     }
     
     @Test
     public void getCurrentSession_nullWhenNew()
     {
-        LiveData<Date> currentSession = prefs.getCurrentSession(context);
+        LiveData<Date> currentSession = prefs.getCurrentSession();
         
-        TestUtils.InstrumentationLiveDataSynchronizer<Date> synchronizer =
-                new TestUtils.InstrumentationLiveDataSynchronizer<>(currentSession);
-        
+        TestUtils.activateInstrumentationLiveData(currentSession);
         assertThat(currentSession.getValue(), is(nullValue()));
     }
     
@@ -82,19 +77,19 @@ public class SleepAppDataPrefsTests
     public void getCurrentSession_reflects_setCurrentSession()
     {
         // initial is null
-        LiveData<Date> currentSession = prefs.getCurrentSession(context);
+        LiveData<Date> currentSession = prefs.getCurrentSession();
         TestUtils.InstrumentationLiveDataSynchronizer<Date> synchronizer =
                 new TestUtils.InstrumentationLiveDataSynchronizer<>(currentSession);
         assertThat(currentSession.getValue(), is(nullValue()));
         
         // setting to date
         Date testDate = TestUtils.ArbitraryData.getDate();
-        prefs.setCurrentSession(context, testDate);
+        prefs.setCurrentSession(testDate);
         synchronizer.sync();
         assertThat(currentSession.getValue(), is(equalTo(testDate)));
         
         //setting to null
-        prefs.setCurrentSession(context, null);
+        prefs.setCurrentSession(null);
         synchronizer.sync();
         assertThat(currentSession.getValue(), is(nullValue()));
     }
@@ -102,7 +97,7 @@ public class SleepAppDataPrefsTests
     @Test
     public void DataPrefs_managesLiveDataUpdates()
     {
-        LiveData<Date> currentSession = prefs.getCurrentSession(context);
+        LiveData<Date> currentSession = prefs.getCurrentSession();
         
         TestUtils.InstrumentationLiveDataSynchronizer<Date> synchronizer =
                 new TestUtils.InstrumentationLiveDataSynchronizer<>(currentSession);
@@ -110,7 +105,7 @@ public class SleepAppDataPrefsTests
         assertThat(currentSession.getValue(), is(nullValue()));
         
         Date testDate = TestUtils.ArbitraryData.getDate();
-        prefs.setCurrentSession(context, testDate);
+        prefs.setCurrentSession(testDate);
         
         synchronizer.sync();
         assertThat(currentSession.getValue(), is(equalTo(testDate)));
@@ -119,10 +114,10 @@ public class SleepAppDataPrefsTests
     @Test
     public void setCurrentSession_setNull()
     {
-        prefs.setCurrentSession(context, TestUtils.ArbitraryData.getDate());
-        prefs.setCurrentSession(context, null);
+        prefs.setCurrentSession(TestUtils.ArbitraryData.getDate());
+        prefs.setCurrentSession(null);
         
-        LiveData<Date> currentSession = prefs.getCurrentSession(context);
+        LiveData<Date> currentSession = prefs.getCurrentSession();
         TestUtils.activateInstrumentationLiveData(currentSession);
         
         assertThat(currentSession.getValue(), is(nullValue()));
@@ -143,6 +138,24 @@ public class SleepAppDataPrefsTests
         prefs.setWakeTimeGoal(expectedWakeTime);
         
         // verify
+        synchronizer.sync();
+        assertThat(wakeTimeGoal.getValue(), is(expectedWakeTime));
+    }
+    
+    @Test
+    public void getWakeTimeGoal_reflects_setWakeTimeGoal_afterSecondCall()
+    {
+        LiveData<Long> wakeTimeGoal = prefs.getWakeTimeGoal();
+        TestUtils.InstrumentationLiveDataSynchronizer<Long> synchronizer =
+                new TestUtils.InstrumentationLiveDataSynchronizer<>(wakeTimeGoal);
+        
+        // a second call to getWakeTimeGoal
+        // wakeTimeGoal should still be getting updates after this call
+        LiveData<Long> wakeTimeGoal2 = prefs.getWakeTimeGoal();
+        
+        long expectedWakeTime = 12345L;
+        prefs.setWakeTimeGoal(expectedWakeTime);
+        
         synchronizer.sync();
         assertThat(wakeTimeGoal.getValue(), is(expectedWakeTime));
     }

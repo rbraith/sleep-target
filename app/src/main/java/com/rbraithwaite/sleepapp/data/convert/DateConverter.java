@@ -15,6 +15,10 @@ public class DateConverter
     @TypeConverter
     public static Date convertDateFromMillis(Long millis)
     {
+        if (millis == null) {
+            return null;
+        }
+        
         GregorianCalendar calendar = new GregorianCalendar();
         calendar.setTimeInMillis(millis);
         
@@ -24,6 +28,9 @@ public class DateConverter
     @TypeConverter
     public static Long convertDateToMillis(Date date)
     {
+        if (date == null) {
+            return null;
+        }
         return date.getTime();
     }
 }

@@ -16,9 +16,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.rbraithwaite.sleepapp.R;
-import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
 import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragment;
+import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
 
 import java.util.List;
@@ -103,7 +103,7 @@ public class SessionArchiveFragment
         }
         return mRecyclerViewAdapter;
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -113,21 +113,21 @@ public class SessionArchiveFragment
         // SMELL [21-12-30 9:35PM] -- These nested anon classes are kinda ugly, try to find a
         //  better way.
         LiveDataFuture.getValue(
-                getViewModel().getAllSleepSessionDataIds(),
+                getViewModel().getAllSleepSessionIds(),
                 getViewLifecycleOwner(),
                 new LiveDataFuture.OnValueListener<List<Integer>>()
                 {
                     @Override
-                    public void onValue(List<Integer> sleepSessionDataIds)
+                    public void onValue(List<Integer> sleepSessionIds)
                     {
                         LiveDataFuture.getValue(
-                                getViewModel().getSleepSessionData(
-                                        sleepSessionDataIds.get(listItemPosition)),
+                                getViewModel().getSleepSession(
+                                        sleepSessionIds.get(listItemPosition)),
                                 getViewLifecycleOwner(),
-                                new LiveDataFuture.OnValueListener<SleepSessionData>()
+                                new LiveDataFuture.OnValueListener<SleepSessionWrapper>()
                                 {
                                     @Override
-                                    public void onValue(SleepSessionData initialEditData)
+                                    public void onValue(SleepSessionWrapper initialEditData)
                                     {
                                         Navigation.findNavController(getView())
                                                 .navigate(toEditSessionScreen(initialEditData));
@@ -136,7 +136,7 @@ public class SessionArchiveFragment
                     }
                 });
     }
-
+    
     private void initFloatingActionButton(View fragmentRoot)
     {
         FloatingActionButton floatingActionButton =
@@ -146,34 +146,47 @@ public class SessionArchiveFragment
             @Override
             public void onClick(View v)
             {
-                Navigation.findNavController(v).navigate(toAddSessionScreen());
+                navigateToAddSessionScreen();
             }
         });
     }
     
-    /**
-     * Generates SafeArgs action for navigating to the add session screen (SessionDataFragment).
-     * This is meant to be used in conjunction with NavController.navigate()
-     */
-    private SessionArchiveFragmentDirections.ActionSessionArchiveToSessionData toAddSessionScreen()
+    private void navigateToAddSessionScreen()
     {
-        SessionDataFragment.ArgsBuilder argsBuilder = new SessionDataFragment.ArgsBuilder(
-                getViewModel().getDefaultAddSessionData())
-                .setPositiveActionListener(new SessionDataFragment.ActionListener()
+        LiveDataFuture.getValue(
+                getViewModel().getInitialAddSessionData(),
+                getViewLifecycleOwner(),
+                new LiveDataFuture.OnValueListener<SleepSessionWrapper>()
                 {
                     @Override
-                    public void onAction(SessionDataFragment fragment, SleepSessionData result)
+                    public void onValue(SleepSessionWrapper initialData)
                     {
-                        getViewModel().addSessionData(result);
-                        fragment.completed();
+                        SessionDataFragment.ArgsBuilder argsBuilder =
+                                new SessionDataFragment.ArgsBuilder(initialData)
+                                        .setPositiveActionListener(new SessionDataFragment.ActionListener()
+                                        {
+                                            @Override
+                                            public void onAction(
+                                                    SessionDataFragment fragment,
+                                                    SleepSessionWrapper result)
+                                            {
+                                                getViewModel().addSleepSession(result);
+                                                fragment.completed();
+                                            }
+                                        });
+                        SessionArchiveFragmentDirections.ActionSessionArchiveToSessionData
+                                toAddSessionScreen =
+                                SessionArchiveFragmentDirections.actionSessionArchiveToSessionData(
+                                        argsBuilder.build());
+                        
+                        Navigation.findNavController(getView()).navigate(toAddSessionScreen);
                     }
-                });
-        return SessionArchiveFragmentDirections.actionSessionArchiveToSessionData(
-                argsBuilder.build());
+                }
+        );
     }
     
     private SessionArchiveFragmentDirections.ActionSessionArchiveToSessionData toEditSessionScreen(
-            SleepSessionData initialEditData)
+            SleepSessionWrapper initialEditData)
     {
         // SMELL [21-12-31 1:50AM] -- IDK if I like this solution, it feels over-engineered,
         //  and I don't like the clients being responsible for handling the fragment completion.
@@ -190,9 +203,9 @@ public class SessionArchiveFragment
                 .setPositiveActionListener(new SessionDataFragment.ActionListener()
                 {
                     @Override
-                    public void onAction(SessionDataFragment fragment, SleepSessionData result)
+                    public void onAction(SessionDataFragment fragment, SleepSessionWrapper result)
                     {
-                        getViewModel().updateSessionData(result);
+                        getViewModel().updateSleepSession(result);
                         fragment.completed();
                     }
                 })
@@ -201,7 +214,7 @@ public class SessionArchiveFragment
                     @Override
                     public void onAction(
                             final SessionDataFragment fragment,
-                            final SleepSessionData result)
+                            final SleepSessionWrapper result)
                     {
                         SessionArchiveDeleteDialog deleteDialog = new SessionArchiveDeleteDialog();
                         deleteDialog.setOnPositiveButtonClickListener(
@@ -210,10 +223,10 @@ public class SessionArchiveFragment
                                     @Override
                                     public void onPositiveButtonClick(DialogInterface dialog)
                                     {
-                                        getViewModel().deleteSessionData(result.id);
+                                        int deletedId = getViewModel().deleteSession(result);
                                         Snackbar.make(
                                                 fragment.getView(),
-                                                "Deleted session #" + result.id,
+                                                "Deleted session #" + deletedId,
                                                 Snackbar.LENGTH_SHORT)
                                                 .show();
                                         fragment.completed();

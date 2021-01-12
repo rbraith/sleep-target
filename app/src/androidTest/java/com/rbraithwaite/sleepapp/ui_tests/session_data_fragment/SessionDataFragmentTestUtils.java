@@ -7,11 +7,12 @@ import androidx.test.espresso.contrib.PickerActions;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.TestUtils;
-import com.rbraithwaite.sleepapp.data.database.views.SleepSessionData;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragment;
+import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -82,7 +83,8 @@ public class SessionDataFragmentTestUtils
     public static HiltFragmentTestHelper<SessionDataFragment> launchSessionDataFragmentWithArbitraryData()
     {
         Bundle args = SessionDataFragment.createArguments(
-                new SessionDataFragment.ArgsBuilder(TestUtils.ArbitraryData.getSleepSessionData())
+                new SessionDataFragment.ArgsBuilder(
+                        new SleepSessionWrapper(TestUtils.ArbitraryData.getSleepSessionEntity()))
                         .build());
         return HiltFragmentTestHelper.launchFragmentWithArgs(SessionDataFragment.class, args);
     }
@@ -93,12 +95,13 @@ public class SessionDataFragmentTestUtils
      */
     public static HiltFragmentTestHelper<SessionDataFragment> launchWithZeroDuration()
     {
-        SleepSessionData sleepSessionData = new SleepSessionData();
-        sleepSessionData.startTime = TestUtils.ArbitraryData.getDate();
+        SleepSessionEntity sleepSession = new SleepSessionEntity();
+        sleepSession.startTime = TestUtils.ArbitraryData.getDate();
         return HiltFragmentTestHelper.launchFragmentWithArgs(
                 SessionDataFragment.class,
                 SessionDataFragment.createArguments(
-                        new SessionDataFragment.ArgsBuilder(sleepSessionData).build()));
+                        new SessionDataFragment.ArgsBuilder(
+                                new SleepSessionWrapper(sleepSession)).build()));
     }
     
     public static ViewInteraction onStartDateTextView()
