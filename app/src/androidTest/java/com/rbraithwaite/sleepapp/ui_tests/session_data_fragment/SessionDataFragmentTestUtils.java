@@ -76,6 +76,15 @@ public class SessionDataFragmentTestUtils
         setDateTime(onEndDateTextView(), onEndTimeTextView(), endDateTime);
     }
     
+    public static HiltFragmentTestHelper<SessionDataFragment> launchWithSleepSession(
+            SleepSessionModel sleepSession)
+    {
+        return HiltFragmentTestHelper.launchFragmentWithArgs(
+                SessionDataFragment.class,
+                SessionDataFragment.createArguments(new SessionDataFragment.ArgsBuilder(
+                        new SleepSessionWrapper(sleepSession)).build()));
+    }
+    
     /**
      * Uses TestUtils.ArbitraryData.getDate for the start and end times, so that can reliably be
      * used when checking the values of the fragment.

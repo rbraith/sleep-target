@@ -33,6 +33,7 @@ import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoMatchers.datePicke
 import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoMatchers.timePickerWithTime;
 import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.onDatePicker;
 import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.onTimePicker;
+import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.launchWithSleepSession;
 import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onEndDateTextView;
 import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onEndTimeTextView;
 import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onStartDateTextView;
@@ -49,16 +50,59 @@ public class SessionDataFragmentTests
 //*********************************************************
 
     @Test
+    public void wakeTimeDialog_reflectsSetWakeTime()
+    {
+        // GIVEN the user has set a wake-time goal in the session data fragment
+        SleepSessionModel sleepSession = TestUtils.ArbitraryData.getSleepSessionModel();
+        HiltFragmentTestHelper<SessionDataFragment> testHelper =
+                launchWithSleepSession(sleepSession);
+        
+        // WHEN the user goes to edit the wake-time goal
+        onView(withId(R.id.session_data_goal_waketime)).perform(click());
+        
+        // THEN the time picker displays the set wake-time goal value (as opposed to the default
+        //  value)
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTime(sleepSession.getWakeTimeGoal());
+        onTimePicker().check(matches(timePickerWithTime(
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE))));
+    }
+    
+    @Test
+    public void wakeTime_updatesWhenPositiveDialogIsConfirmed()
+    {
+        // GIVEN the user goes to edit the wake-time goal
+        HiltFragmentTestHelper<SessionDataFragment> testHelper =
+                launchWithSleepSession(TestUtils.ArbitraryData.getSleepSessionModel());
+        
+        onView(withId(R.id.session_data_goal_waketime)).perform(click());
+        
+        GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
+        calendar.add(Calendar.HOUR_OF_DAY, 5);
+        
+        onTimePicker().perform(PickerActions.setTime(
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE)));
+        
+        // WHEN the user confirms the dialog
+        UITestUtils.pressDialogOK();
+        
+        // THEN the wake-time goal is updated
+        onView(withId(R.id.session_data_goal_waketime)).check(matches(withText(
+                // REFACTOR [21-01-15 10:46PM] -- this should be SessionDataFragment's
+                //  DateTimeFormatter.
+                new DateTimeFormatter().formatTimeOfDay(calendar.getTime()))));
+    }
+    
+    @Test
     public void addWakeTimeButton_isDisplayedWhenWakeTimeIsNull()
     {
         SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
         initialData.setWakeTimeGoal(null);
         
         HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                HiltFragmentTestHelper.launchFragmentWithArgs(
-                        SessionDataFragment.class,
-                        SessionDataFragment.createArguments(new SessionDataFragment.ArgsBuilder(
-                                new SleepSessionWrapper(initialData)).build()));
+                launchWithSleepSession(initialData);
         
         onView(withId(R.id.session_data_add_waketime_btn)).check(matches(isDisplayed()));
         onView(withId(R.id.session_data_goal_waketime)).check(matches(not(isDisplayed())));

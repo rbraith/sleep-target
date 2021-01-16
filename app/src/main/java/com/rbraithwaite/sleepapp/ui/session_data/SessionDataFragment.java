@@ -26,6 +26,7 @@ import com.rbraithwaite.sleepapp.ui.dialog.DatePickerFragment;
 import com.rbraithwaite.sleepapp.ui.dialog.TimePickerFragment;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragmentDirections;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
+import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
 
 import java.io.Serializable;
 
@@ -268,6 +269,14 @@ public class SessionDataFragment
     private void initWakeTimeGoal(final View fragmentRoot)
     {
         final TextView wakeTimeText = fragmentRoot.findViewById(R.id.session_data_goal_waketime);
+        wakeTimeText.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                displayWakeTimeGoalDialog();
+            }
+        });
         final Button addWakeTimeButton =
                 fragmentRoot.findViewById(R.id.session_data_add_waketime_btn);
         addWakeTimeButton.setOnClickListener(new View.OnClickListener()
@@ -302,26 +311,38 @@ public class SessionDataFragment
     private void displayWakeTimeGoalDialog()
     {
         final SessionDataFragmentViewModel viewModel = getViewModel();
-        TimePickerFragment timePicker = new TimePickerFragment();
+        final TimePickerFragment timePicker = new TimePickerFragment();
         
-        // REFACTOR [21-01-15 9:27PM] -- this getValue might cause problems w/
-        //  getMillis returning a mediator?
-        Long wakeTimeGoalMillis = viewModel.getWakeTimeGoalMillis().getValue();
-        long defaultValue =
-                wakeTimeGoalMillis == null ?
-                        viewModel.getDefaultWakeTimeGoalMillis() :
-                        wakeTimeGoalMillis;
-        
-        timePicker.setArguments(TimePickerFragment.createArguments(defaultValue));
-        timePicker.setOnTimeSetListener(new TimePickerFragment.OnTimeSetListener()
-        {
-            @Override
-            public void onTimeSet(TimePicker view, int hourOfDay, int minute)
-            {
-                viewModel.setWakeTimeGoal(hourOfDay, minute);
-            }
-        });
-        timePicker.show(getChildFragmentManager(), DIALOG_WAKETIME_TIME_PICKER);
+        // REFACTOR [21-01-15 11:06PM] -- consider instead adding an observer during the
+        //  initialization of the fragment, which just updates an mWakeTimeGoalMillis property.
+        // This LiveDataFuture is needed to activate getWakeTimeGoalMillis() (otherwise it is
+        // always null).
+        LiveDataFuture.getValue(
+                viewModel.getWakeTimeGoalMillis(),
+                getViewLifecycleOwner(),
+                new LiveDataFuture.OnValueListener<Long>()
+                {
+                    @Override
+                    public void onValue(Long wakeTimeGoalMillis)
+                    {
+                        long defaultValue =
+                                wakeTimeGoalMillis == null ?
+                                        viewModel.getDefaultWakeTimeGoalMillis() :
+                                        wakeTimeGoalMillis;
+                        
+                        timePicker.setArguments(TimePickerFragment.createArguments(defaultValue));
+                        timePicker.setOnTimeSetListener(new TimePickerFragment.OnTimeSetListener()
+                        {
+                            @Override
+                            public void onTimeSet(TimePicker view, int hourOfDay, int minute)
+                            {
+                                viewModel.setWakeTimeGoal(hourOfDay, minute);
+                            }
+                        });
+                        timePicker.show(getChildFragmentManager(), DIALOG_WAKETIME_TIME_PICKER);
+                    }
+                }
+        );
     }
     
     private void initSessionDuration(View fragmentRoot)
