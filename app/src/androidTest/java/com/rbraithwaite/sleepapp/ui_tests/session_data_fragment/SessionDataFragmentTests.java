@@ -37,6 +37,7 @@ import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDa
 import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onEndTimeTextView;
 import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onStartDateTextView;
 import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onStartTimeTextView;
+import static org.hamcrest.Matchers.not;
 
 //import static androidx.core.content.res.TypedArrayUtils.getString;
 
@@ -47,6 +48,52 @@ public class SessionDataFragmentTests
 // api
 //*********************************************************
 
+    @Test
+    public void addWakeTimeButton_isDisplayedWhenWakeTimeIsNull()
+    {
+        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
+        initialData.setWakeTimeGoal(null);
+        
+        HiltFragmentTestHelper<SessionDataFragment> testHelper =
+                HiltFragmentTestHelper.launchFragmentWithArgs(
+                        SessionDataFragment.class,
+                        SessionDataFragment.createArguments(new SessionDataFragment.ArgsBuilder(
+                                new SleepSessionWrapper(initialData)).build()));
+        
+        onView(withId(R.id.session_data_add_waketime_btn)).check(matches(isDisplayed()));
+        onView(withId(R.id.session_data_goal_waketime)).check(matches(not(isDisplayed())));
+    }
+    
+    @Test
+    public void addWakeTimeButton_addsWakeTime()
+    {
+        // GIVEN the user is on the session data screen
+        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
+        // AND there is no wake-time
+        initialData.setWakeTimeGoal(null);
+        
+        HiltFragmentTestHelper<SessionDataFragment> testHelper =
+                HiltFragmentTestHelper.launchFragmentWithArgs(
+                        SessionDataFragment.class,
+                        SessionDataFragment.createArguments(new SessionDataFragment.ArgsBuilder(
+                                new SleepSessionWrapper(initialData)).build()));
+        
+        // WHEN the user clicks the "add wake-time" button
+        onView(withId(R.id.session_data_add_waketime_btn)).perform(click());
+        // AND confirms the dialog
+        GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
+        onTimePicker().perform(PickerActions.setTime(
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE)));
+        UITestUtils.pressDialogOK();
+        
+        // THEN the display is updated with the new wake-time
+        onView(withId(R.id.session_data_goal_waketime)).check(matches(withText(
+                // REFACTOR [21-01-15 9:01PM] -- this should be SessionDataFragment's
+                //  DateTimeFormatter dependency.
+                new DateTimeFormatter().formatTimeOfDay(calendar.getTime()))));
+    }
+    
     @Test
     public void startTime_updatesWhenPositiveDialogIsConfirmed()
     {

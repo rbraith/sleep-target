@@ -54,6 +54,48 @@ public class SessionDataFragmentViewModelTests
     }
     
     @Test
+    public void setWakeTimeGoal_updatesWakeTimeGoal()
+    {
+        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.set(Calendar.HOUR_OF_DAY, 12);
+        calendar.set(Calendar.MINUTE, 34);
+        initialData.setWakeTimeGoal(calendar.getTime());
+        
+        viewModel.initSessionData(new SleepSessionWrapper(initialData));
+        
+        LiveData<String> wakeTimeGoalText = viewModel.getWakeTimeGoal();
+        LiveData<Long> wakeTimeGoalMillis = viewModel.getWakeTimeGoalMillis();
+        TestUtils.activateLocalLiveData(wakeTimeGoalText);
+        TestUtils.activateLocalLiveData(wakeTimeGoalMillis);
+        
+        calendar.set(Calendar.HOUR_OF_DAY, 21);
+        calendar.set(Calendar.MINUTE, 43);
+        viewModel.setWakeTimeGoal(
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE));
+        
+        assertThat(wakeTimeGoalText.getValue(),
+                   // REFACTOR [21-01-15 9:33PM] -- this should be SessionDataFragment's
+                   //  DateTimeFormatter.
+                   is(equalTo(new DateTimeFormatter().formatTimeOfDay(calendar.getTime()))));
+        assertThat(wakeTimeGoalMillis.getValue(), is(equalTo(calendar.getTimeInMillis())));
+    }
+    
+    @Test
+    public void getWakeTimeGoalMillis_reflectsInitialData()
+    {
+        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
+        viewModel.initSessionData(new SleepSessionWrapper(initialData));
+        
+        LiveData<Long> wakeTimeGoalMillis = viewModel.getWakeTimeGoalMillis();
+        TestUtils.activateLocalLiveData(wakeTimeGoalMillis);
+        
+        assertThat(wakeTimeGoalMillis.getValue(),
+                   is(equalTo(initialData.getWakeTimeGoal().getTime())));
+    }
+    
+    @Test
     public void getWakeTimeGoal_reflectsInitialData()
     {
         SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();

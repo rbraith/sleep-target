@@ -9,6 +9,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
+import com.rbraithwaite.sleepapp.data.database.convert.DateConverter;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
 import com.rbraithwaite.sleepapp.ui.UIDependenciesModule;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
@@ -32,6 +33,8 @@ public class SessionDataFragmentViewModel
 //*********************************************************
 
     private int mSessionId = 0;
+    
+    private boolean mIsInitialized;
 
 //*********************************************************
 // package properties
@@ -43,10 +46,7 @@ public class SessionDataFragmentViewModel
     LiveData<String> mEndDate;
     LiveData<String> mSessionDuration;
     MutableLiveData<Long> mStartDateTime;
-    
     MutableLiveData<Long> mEndDateTime;
-    
-    
     DateTimeFormatter mDateTimeFormatter;
     
     MutableLiveData<Date> mWakeTimeGoal;
@@ -74,7 +74,7 @@ public class SessionDataFragmentViewModel
     {
         mDateTimeFormatter = dateTimeFormatter;
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -281,26 +281,78 @@ public class SessionDataFragmentViewModel
     {
         getStartDateTimeMutable().setValue(null);
         getEndDateTimeMutable().setValue(null);
+        getWakeTimeGoalMutable().setValue(null);
+        
+        mIsInitialized = false;
     }
     
+    /**
+     * Session data is only initialized once. Subsequent calls to initSessionData do nothing, unless
+     * clearSessionData is called.
+     */
     public void initSessionData(SleepSessionWrapper initialData)
     {
-        SleepSessionModel sleepSession = initialData.getValue();
-        
-        // REFACTOR [21-12-29 3:08AM] -- I should just store the SleepSessionModel instead of
-        //  breaking it down like this (this breaking-down behaviour is legacy).
-        mSessionId = sleepSession.getId();
-        getStartDateTimeMutable().setValue(sleepSession.getStart().getTime());
-        getEndDateTimeMutable().setValue(
-                sleepSession.getStart().getTime() + sleepSession.getDuration());
-        getWakeTimeGoalMutable().setValue(sleepSession.getWakeTimeGoal());
+        if (!sessionDataIsInitialized()) {
+            SleepSessionModel sleepSession = initialData.getValue();
+            
+            // REFACTOR [21-12-29 3:08AM] -- I should just store the SleepSessionModel instead of
+            //  breaking it down like this (this breaking-down behaviour is legacy).
+            mSessionId = sleepSession.getId();
+            getStartDateTimeMutable().setValue(sleepSession.getStart().getTime());
+            getEndDateTimeMutable().setValue(
+                    sleepSession.getStart().getTime() + sleepSession.getDuration());
+            getWakeTimeGoalMutable().setValue(sleepSession.getWakeTimeGoal());
+            
+            mIsInitialized = true;
+        }
     }
-    
     
     public boolean sessionDataIsInitialized()
     {
-        return (getStartDateTime().getValue() != null &&
-                getEndDateTime().getValue() != null);
+        return mIsInitialized;
+    }
+    
+    // REFACTOR [21-01-15 9:29PM] -- I need to make the wake-time goal representation consistent,
+    //  right now its mixing Date & Long all over the place.
+    public LiveData<Long> getWakeTimeGoalMillis()
+    {
+        return Transformations.map(
+                getWakeTimeGoalMutable(),
+                new Function<Date, Long>()
+                {
+                    @Override
+                    public Long apply(Date input)
+                    {
+                        return DateConverter.convertDateToMillis(input);
+                    }
+                });
+    }
+    
+    public void setWakeTimeGoal(int hourOfDay, int minute)
+    {
+        Date wakeTimeGoal = getWakeTimeGoalMutable().getValue();
+        GregorianCalendar calendar = new GregorianCalendar();
+        if (wakeTimeGoal != null) {
+            calendar.setTime(wakeTimeGoal);
+        }
+        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+        calendar.set(Calendar.MINUTE, minute);
+        getWakeTimeGoalMutable().setValue(calendar.getTime());
+    }
+    
+    public long getDefaultWakeTimeGoalMillis()
+    {
+        int defaultHourOfDay = 8;
+        int defaultMinute = 0;
+        
+        GregorianCalendar calendar = new GregorianCalendar(
+                2021,
+                01,
+                15,
+                defaultHourOfDay,
+                defaultMinute);
+        
+        return calendar.getTimeInMillis();
     }
 
 //*********************************************************
