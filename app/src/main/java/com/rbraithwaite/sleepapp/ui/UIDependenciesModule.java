@@ -32,10 +32,22 @@ public class UIDependenciesModule
     @Retention(RetentionPolicy.RUNTIME)
     public @interface SleepTrackerDateTimeFormatter {}
     
+    @Qualifier
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface SessionArchiveDateTimeFormatter {}
+
 //*********************************************************
 // api
 //*********************************************************
 
+    @SessionArchiveDateTimeFormatter
+    @Provides
+    public static DateTimeFormatter providesSessionArchiveDateTimeFormatter()
+    {
+        // This just uses the default DateTimeFormatter, but that could change in the future
+        return new DateTimeFormatter();
+    }
+    
     @SessionDataDateTimeFormatter
     @Provides
     public static DateTimeFormatter providesSessionDataDateTimeFormatter()

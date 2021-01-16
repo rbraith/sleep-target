@@ -104,8 +104,11 @@ public class SleepSessionDaoTests
         long newDuration = TestUtils.ArbitraryData.getDurationMillis() + 2500L;
         calendar.add(Calendar.MINUTE, 10);
         Date newWakeTimeGoal = calendar.getTime();
-        SleepSessionEntity updatedSleepSession =
-                SleepSessionEntity.create(newStartDate, newDuration, newWakeTimeGoal);
+        
+        SleepSessionEntity updatedSleepSession = new SleepSessionEntity();
+        updatedSleepSession.startTime = newStartDate;
+        updatedSleepSession.duration = newDuration;
+        updatedSleepSession.wakeTimeGoal = newWakeTimeGoal;
         updatedSleepSession.id = testSleepSessionId;
         
         sleepSessionDao.updateSleepSession(updatedSleepSession);

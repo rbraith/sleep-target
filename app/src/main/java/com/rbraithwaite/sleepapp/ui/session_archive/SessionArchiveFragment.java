@@ -33,8 +33,6 @@ public class SessionArchiveFragment
 // private properties
 //*********************************************************
 
-    private SessionArchiveFragmentViewModel mViewModel;
-    
     private SessionArchiveRecyclerViewAdapter mRecyclerViewAdapter;
 
 //*********************************************************
@@ -42,8 +40,6 @@ public class SessionArchiveFragment
 //*********************************************************
 
     private static final String TAG = "SessionArchiveFragment";
-    private static final String ADD_SESSION_RESULT = "AddSessionResult";
-    private static final String EDIT_SESSION_RESULT = "EditSessionResult";
     private static final String SESSION_DELETE_DIALOG = "SessionDeleteDialog";
     
     private static final int DATA_ICON_DELETE = R.drawable.ic_baseline_delete_forever_24;
@@ -223,6 +219,8 @@ public class SessionArchiveFragment
                                     @Override
                                     public void onPositiveButtonClick(DialogInterface dialog)
                                     {
+                                        // this is alright since SessionArchiveFragment's
+                                        // view model is lifecycle-owned by the activity
                                         int deletedId = getViewModel().deleteSession(result);
                                         Snackbar.make(
                                                 fragment.getView(),

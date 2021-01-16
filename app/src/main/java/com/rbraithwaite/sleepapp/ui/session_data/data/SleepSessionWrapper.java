@@ -1,6 +1,8 @@
 package com.rbraithwaite.sleepapp.ui.session_data.data;
 
-import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
+import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
+
+import java.io.Serializable;
 
 // REFACTOR [21-01-9 2:43AM] -- consider just using Bundles instead?
 
@@ -11,19 +13,35 @@ import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSession
  * only care about UI data representations).
  */
 public class SleepSessionWrapper
+        implements Serializable
 {
 //*********************************************************
-// public properties
+// private properties
 //*********************************************************
 
-    public SleepSessionEntity entity;
-    
+    private SleepSessionModel mSleepSession;
+
+//*********************************************************
+// public constants
+//*********************************************************
+
+    public static final long serialVersionUID = 20210115;
+
 //*********************************************************
 // constructors
 //*********************************************************
 
-    public SleepSessionWrapper(SleepSessionEntity entity)
+    public SleepSessionWrapper(SleepSessionModel sleepSession)
     {
-        this.entity = entity;
+        mSleepSession = sleepSession;
+    }
+    
+//*********************************************************
+// api
+//*********************************************************
+
+    public SleepSessionModel getValue()
+    {
+        return mSleepSession;
     }
 }

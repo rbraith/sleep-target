@@ -8,7 +8,7 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
-import com.rbraithwaite.sleepapp.data.convert.DateConverter;
+import com.rbraithwaite.sleepapp.data.database.convert.DateConverter;
 
 import java.util.Date;
 import java.util.concurrent.Executor;
@@ -25,10 +25,10 @@ public class SleepAppDataPrefs
 // private properties
 //*********************************************************
 
-    private MutableLiveData<Date> mCurrentSession;
     private Executor mExecutor;
     private Context mContext;
     
+    private MutableLiveData<Date> mCurrentSession;
     private MutableLiveData<Long> mWakeTimeGoal;
 
 //*********************************************************
@@ -60,10 +60,10 @@ public class SleepAppDataPrefs
             @ApplicationContext Context context,
             Executor executor)
     {
-        // REFACTOR [20-12-22 1:50AM] -- replace various context args in methods w/ mContext.
         mContext = context;
         mExecutor = executor;
     }
+
 
 //*********************************************************
 // api
@@ -76,28 +76,21 @@ public class SleepAppDataPrefs
     // REFACTOR [21-01-6 12:59AM] -- This does not fully mirror Room behaviour - to do better, I
     //  should not post any value until the LiveData has an observer (override onActive()). This
     //  isn't a big deal, it's just that it's not as lazy as it could be.
-    // REFACTOR [21-01-11 9:50PM] -- this should have behaviour similar to getWakeTimeGoal (ie
-    //  return a mediator so that all returned instances update properly, instead of only the
-    //  most recent).
+    // REFACTOR [21-01-14 12:13AM] -- this duplicates logic in getWakeTimeGoal.
     public LiveData<Date> getCurrentSession()
     {
-        mCurrentSession = new MutableLiveData<>();
-        mExecutor.execute(new Runnable()
+        final MediatorLiveData<Date> currentSessionLiveData = new MediatorLiveData<>();
+        
+        currentSessionLiveData.addSource(getCurrentSessionMutable(), new Observer<Date>()
         {
             @Override
-            public void run()
+            public void onChanged(Date currentSession)
             {
-                Date result = null;
-                // SMELL [20-11-14 4:58PM] -- race condition between here and setCurrentSession?
-                long currentSessionStartDate =
-                        getSharedPrefs(mContext).getLong(CURRENT_SESSION_KEY, NULL_VAL);
-                if (currentSessionStartDate != NULL_VAL) {
-                    result = DateConverter.convertDateFromMillis(currentSessionStartDate);
-                }
-                mCurrentSession.postValue(result);
+                currentSessionLiveData.setValue(currentSession);
             }
         });
-        return mCurrentSession;
+        
+        return currentSessionLiveData;
     }
     
     /**
@@ -186,6 +179,30 @@ public class SleepAppDataPrefs
             });
         }
         return mWakeTimeGoal;
+    }
+    
+    // REFACTOR [21-01-13 11:59PM] -- duplicates logic from getWakeTimeGoalMutable.
+    private MutableLiveData<Date> getCurrentSessionMutable()
+    {
+        if (mCurrentSession == null) {
+            mCurrentSession = new MutableLiveData<>();
+            mExecutor.execute(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    // SMELL [20-11-14 4:58PM] -- race condition between here and setCurrentSession?
+                    long currentSessionStartDate =
+                            getSharedPrefs(mContext).getLong(CURRENT_SESSION_KEY, NULL_VAL);
+                    
+                    mCurrentSession.postValue(
+                            currentSessionStartDate == NULL_VAL ?
+                                    null :
+                                    DateConverter.convertDateFromMillis(currentSessionStartDate));
+                }
+            });
+        }
+        return mCurrentSession;
     }
     
     private SharedPreferences getSharedPrefs(Context context)

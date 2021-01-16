@@ -95,6 +95,24 @@ public class SleepAppDataPrefsTests
     }
     
     @Test
+    public void getCurrentSession_reflects_setCurrentSession_afterSecondCall()
+    {
+        LiveData<Date> currentSession = prefs.getCurrentSession();
+        TestUtils.InstrumentationLiveDataSynchronizer<Date> synchronizer =
+                new TestUtils.InstrumentationLiveDataSynchronizer<>(currentSession);
+        
+        // a second call to getCurrentSession
+        // currentSession should still be getting updates after this call
+        LiveData<Date> currentSession2 = prefs.getCurrentSession();
+        
+        Date expectedCurrentSession = TestUtils.ArbitraryData.getDate();
+        prefs.setCurrentSession(expectedCurrentSession);
+        
+        synchronizer.sync();
+        assertThat(currentSession.getValue(), is(expectedCurrentSession));
+    }
+    
+    @Test
     public void DataPrefs_managesLiveDataUpdates()
     {
         LiveData<Date> currentSession = prefs.getCurrentSession();

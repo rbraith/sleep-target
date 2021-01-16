@@ -14,6 +14,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import com.rbraithwaite.sleepapp.data.SleepAppDataPrefs;
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
+import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -133,6 +134,14 @@ public class TestUtils
             sleepSessionEntity.wakeTimeGoal = getWakeTimeGoal();
             
             return sleepSessionEntity;
+        }
+        
+        public static SleepSessionModel getSleepSessionModel()
+        {
+            return new SleepSessionModel(
+                    getDate(),
+                    getDurationMillis(),
+                    getWakeTimeGoal());
         }
         
         public static Date getWakeTimeGoal()

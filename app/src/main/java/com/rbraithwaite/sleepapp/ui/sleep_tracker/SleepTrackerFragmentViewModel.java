@@ -7,8 +7,11 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import com.rbraithwaite.sleepapp.data.SleepAppRepository;
-import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
+import com.rbraithwaite.sleepapp.data.current_goals.CurrentGoalsRepository;
+import com.rbraithwaite.sleepapp.data.current_session.CurrentSessionModel;
+import com.rbraithwaite.sleepapp.data.current_session.CurrentSessionRepository;
+import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
+import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.ui.UIDependenciesModule;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
@@ -18,8 +21,6 @@ import com.rbraithwaite.sleepapp.utils.TickingLiveData;
 
 import java.util.Date;
 
-//import java.util.logging.Handler;
-
 public class SleepTrackerFragmentViewModel
         extends ViewModel
 {
@@ -27,9 +28,10 @@ public class SleepTrackerFragmentViewModel
 // private properties
 //*********************************************************
 
-    private SleepAppRepository mRepository;
+    private SleepSessionRepository mSleepSessionRepository;
+    private CurrentSessionRepository mCurrentSessionRepository;
+    private CurrentGoalsRepository mCurrentGoalsRepository;
     
-    private LiveData<Date> mCurrentSleepSession;
     private LiveData<Boolean> mInSleepSession;
     private LiveData<String> mCurrentSleepSessionDuration;
     
@@ -47,13 +49,17 @@ public class SleepTrackerFragmentViewModel
 
     @ViewModelInject
     public SleepTrackerFragmentViewModel(
-            SleepAppRepository repository,
+            SleepSessionRepository sleepSessionRepository,
+            CurrentSessionRepository currentSessionRepository,
+            CurrentGoalsRepository currentGoalsRepository,
             @UIDependenciesModule.SleepTrackerDateTimeFormatter DateTimeFormatter dateTimeFormatter)
     {
-        mRepository = repository;
+        mSleepSessionRepository = sleepSessionRepository;
+        mCurrentSessionRepository = currentSessionRepository;
+        mCurrentGoalsRepository = currentGoalsRepository;
         mDateTimeFormatter = dateTimeFormatter;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -62,13 +68,13 @@ public class SleepTrackerFragmentViewModel
     {
         if (mInSleepSession == null) {
             mInSleepSession = Transformations.map(
-                    getCurrentSleepSession(),
-                    new Function<Date, Boolean>()
+                    mCurrentSessionRepository.getCurrentSession(),
+                    new Function<CurrentSessionModel, Boolean>()
                     {
                         @Override
-                        public Boolean apply(Date input)
+                        public Boolean apply(CurrentSessionModel input)
                         {
-                            return (input != null);
+                            return (input.isSet());
                         }
                     }
             );
@@ -83,41 +89,25 @@ public class SleepTrackerFragmentViewModel
      */
     public void startSleepSession()
     {
-        mRepository.setCurrentSession(DateUtils.getNow());
+        mCurrentSessionRepository.setCurrentSession(DateUtils.getNow());
     }
     
     public void endSleepSession()
     {
-        // REFACTOR [21-01-5 12:05AM] -- get rid of the getValue calls in this method - think of
-        //  some
-        //  more reactive solution (nested LiveDataFutures don't seem ideal though)
-        if (inSleepSession().getValue()) {
-            LiveDataFuture.getValue(
-                    // REFACTOR [21-01-5 2:03AM] -- getWakeTimeGoal should return a Date.
-                    mRepository.getWakeTimeGoal(),
-                    null,
-                    new LiveDataFuture.OnValueListener<Long>()
+        LiveDataFuture.getValue(
+                mCurrentSessionRepository.getCurrentSession(),
+                null,
+                new LiveDataFuture.OnValueListener<CurrentSessionModel>()
+                {
+                    @Override
+                    public void onValue(CurrentSessionModel currentSession)
                     {
-                        @Override
-                        public void onValue(Long wakeTimeGoalMillis)
-                        {
-                            Date currentSessionStart = getCurrentSleepSession().getValue();
-                            long durationMillis = calculateDurationMillis(currentSessionStart,
-                                                                          DateUtils.getNow());
-                            
-                            Date wakeTimeGoal = (wakeTimeGoalMillis == null) ? null :
-                                    DateUtils.getDateFromMillis(wakeTimeGoalMillis);
-                            SleepSessionEntity newSleepSession = SleepSessionEntity.create(
-                                    currentSessionStart,
-                                    durationMillis,
-                                    wakeTimeGoal);
-                            
-                            mRepository.addSleepSession(newSleepSession);
-                            
-                            mRepository.clearCurrentSession();
+                        if (currentSession.isSet()) {
+                            addCurrentSessionThenClear(currentSession);
                         }
-                    });
-        }
+                    }
+                }
+        );
     }
     
     public LiveData<String> getCurrentSleepSessionDuration()
@@ -130,17 +120,16 @@ public class SleepTrackerFragmentViewModel
         // active/inactive states down to source LiveData objects."
         // https://developer.android.com/reference/androidx/lifecycle/MediatorLiveData
         mCurrentSleepSessionDuration = Transformations.switchMap(
-                getCurrentSleepSession(),
-                new Function<Date, androidx.lifecycle.LiveData<String>>()
+                mCurrentSessionRepository.getCurrentSession(),
+                new Function<CurrentSessionModel, androidx.lifecycle.LiveData<String>>()
                 {
                     @Override
-                    public androidx.lifecycle.LiveData<String> apply(Date input)
+                    public androidx.lifecycle.LiveData<String> apply(final CurrentSessionModel currentSession)
                     {
-                        final Date currentSleepSessionStart = input;
                         // REFACTOR [21-01-11 10:31PM] -- this should be injected.
                         final DurationFormatter durationFormatter = new DurationFormatter();
                         
-                        if (currentSleepSessionStart == null) {
+                        if (!currentSession.isSet()) {
                             return new MutableLiveData<>(durationFormatter.formatDurationMillis(
                                     0));
                         } else {
@@ -151,62 +140,85 @@ public class SleepTrackerFragmentViewModel
                                 {
                                     return durationFormatter.formatDurationMillis(
                                             calculateDurationMillis(
-                                                    currentSleepSessionStart,
+                                                    currentSession.getStart(),
                                                     DateUtils.getNow()
                                             ));
                                 }
                             };
                         }
                     }
-                }
-        );
+                });
         
         return mCurrentSleepSessionDuration;
     }
     
-    public String getSessionStartTime()
+    public LiveData<String> getSessionStartTime()
     {
-        Date startTime = getCurrentSleepSession().getValue();
-        if (startTime == null) {
-            return null;
-        }
-        return mDateTimeFormatter.formatFullDate(startTime);
+        return Transformations.map(
+                mCurrentSessionRepository.getCurrentSession(),
+                new Function<CurrentSessionModel, String>()
+                {
+                    @Override
+                    public String apply(CurrentSessionModel input)
+                    {
+                        return input.isSet() ?
+                                mDateTimeFormatter.formatFullDate(input.getStart()) :
+                                null;
+                    }
+                });
     }
     
     public LiveData<String> getWakeTime()
     {
         return Transformations.map(
-                mRepository.getWakeTimeGoal(),
+                mCurrentGoalsRepository.getWakeTimeGoal(),
                 new Function<Long, String>()
                 {
                     @Override
                     public String apply(Long wakeTimeGoal)
                     {
-                        if (wakeTimeGoal == null) {
-                            return null;
-                        } else {
-                            return mDateTimeFormatter.formatTimeOfDay(DateUtils.getDateFromMillis(
-                                    wakeTimeGoal));
-                        }
+                        return wakeTimeGoal == null ?
+                                null :
+                                mDateTimeFormatter.formatTimeOfDay(DateUtils.getDateFromMillis(
+                                        wakeTimeGoal));
+                    }
+                });
+    }
+    
+//*********************************************************
+// private methods
+//*********************************************************
+
+    private void addCurrentSessionThenClear(final CurrentSessionModel currentSession)
+    {
+        LiveDataFuture.getValue(
+                // REFACTOR [21-01-5 2:03AM] -- getWakeTimeGoal should return a Date.
+                mCurrentGoalsRepository.getWakeTimeGoal(),
+                null,
+                new LiveDataFuture.OnValueListener<Long>()
+                {
+                    @Override
+                    public void onValue(Long wakeTimeGoalMillis)
+                    {
+                        long durationMillis = calculateDurationMillis(currentSession.getStart(),
+                                                                      DateUtils.getNow());
+                        Date wakeTimeGoal = (wakeTimeGoalMillis == null) ?
+                                null :
+                                DateUtils.getDateFromMillis(wakeTimeGoalMillis);
+                        
+                        mSleepSessionRepository.addSleepSession(new SleepSessionModel(
+                                currentSession.getStart(),
+                                durationMillis,
+                                wakeTimeGoal));
+                        
+                        mCurrentSessionRepository.clearCurrentSession();
                     }
                 });
     }
 
 
-//*********************************************************
-// private methods
-//*********************************************************
-
     private long calculateDurationMillis(Date start, Date end)
     {
         return end.getTime() - start.getTime();
-    }
-    
-    private LiveData<Date> getCurrentSleepSession()
-    {
-        if (mCurrentSleepSession == null) {
-            mCurrentSleepSession = mRepository.getCurrentSession();
-        }
-        return mCurrentSleepSession;
     }
 }

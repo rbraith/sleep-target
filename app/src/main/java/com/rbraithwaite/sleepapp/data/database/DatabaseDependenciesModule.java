@@ -4,6 +4,8 @@ import android.content.Context;
 
 import androidx.room.Room;
 
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionDao;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -29,7 +31,14 @@ public class DatabaseDependenciesModule
     {
         return Room.databaseBuilder(context, SleepAppDatabase.class, SleepAppDatabase.NAME).build();
     }
-
+    
+    @Singleton
+    @Provides
+    public static SleepSessionDao provideSleepSessionDao(SleepAppDatabase database)
+    {
+        return database.getSleepSessionDao();
+    }
+    
     @Singleton
     @Provides
     public static Executor provideExecutorService()

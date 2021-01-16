@@ -9,7 +9,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
+import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
 import com.rbraithwaite.sleepapp.ui.UIDependenciesModule;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
@@ -63,7 +63,7 @@ public class SessionDataFragmentViewModel
             super(message);
         }
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -74,7 +74,7 @@ public class SessionDataFragmentViewModel
     {
         mDateTimeFormatter = dateTimeFormatter;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -82,13 +82,12 @@ public class SessionDataFragmentViewModel
     public SleepSessionWrapper getResult()
     {
         // REFACTOR [21-12-30 3:06PM] -- like mentioned in initSessionData, there should just be
-        //  an internal SleepSessionData member, instead of needing to recompose one here.
-        SleepSessionEntity result = new SleepSessionEntity();
-        result.id = mSessionId;
-        result.startTime = DateUtils.getDateFromMillis(getStartDateTime().getValue());
-        result.duration = getEndDateTime().getValue() - getStartDateTime().getValue();
-        result.wakeTimeGoal = getWakeTimeGoalMutable().getValue();
-        return new SleepSessionWrapper(result);
+        //  an internal SleepSessionModel member, instead of needing to recompose one here.
+        return new SleepSessionWrapper(new SleepSessionModel(
+                mSessionId,
+                DateUtils.getDateFromMillis(getStartDateTime().getValue()),
+                getEndDateTime().getValue() - getStartDateTime().getValue(),
+                getWakeTimeGoalMutable().getValue()));
     }
     
     public LiveData<String> getSessionDuration()
@@ -286,24 +285,24 @@ public class SessionDataFragmentViewModel
     
     public void initSessionData(SleepSessionWrapper initialData)
     {
-        SleepSessionEntity sleepSession = initialData.entity;
+        SleepSessionModel sleepSession = initialData.getValue();
         
-        // REFACTOR [21-12-29 3:08AM] -- I should just store the SleepSessionData instead of
-        //  breaking
-        //  it down like this (this breaking-down behaviour is legacy).
-        mSessionId = sleepSession.id;
-        getStartDateTimeMutable().setValue(sleepSession.startTime.getTime());
-        getEndDateTimeMutable().setValue(sleepSession.startTime.getTime() + sleepSession.duration);
-        getWakeTimeGoalMutable().setValue(sleepSession.wakeTimeGoal);
+        // REFACTOR [21-12-29 3:08AM] -- I should just store the SleepSessionModel instead of
+        //  breaking it down like this (this breaking-down behaviour is legacy).
+        mSessionId = sleepSession.getId();
+        getStartDateTimeMutable().setValue(sleepSession.getStart().getTime());
+        getEndDateTimeMutable().setValue(
+                sleepSession.getStart().getTime() + sleepSession.getDuration());
+        getWakeTimeGoalMutable().setValue(sleepSession.getWakeTimeGoal());
     }
-
-
+    
+    
     public boolean sessionDataIsInitialized()
     {
         return (getStartDateTime().getValue() != null &&
                 getEndDateTime().getValue() != null);
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

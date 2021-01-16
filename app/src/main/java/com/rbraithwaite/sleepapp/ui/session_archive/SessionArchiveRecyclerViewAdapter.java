@@ -167,12 +167,13 @@ public class SessionArchiveRecyclerViewAdapter
     
     private void bindToViewModel(final ViewHolder viewHolder, final int position)
     {
-        LiveData<SessionArchiveListItem> uiSleepSessionData = mViewModel.getListItemData(
+        // REFACTOR [21-01-13 9:17PM] -- use a LiveDataFuture here to get rid of this getValue call?
+        LiveData<SessionArchiveListItem> listItem = mViewModel.getListItemData(
                 mSleepSessionDataIds.getValue().get(position));
         
         // I thought the new Observer here might leak memory and cause duplicate updates, but
         // getSleepSession data provides a new livedata instance so I should be ok?
-        uiSleepSessionData.observe(
+        listItem.observe(
                 getLifecycleOwner(),
                 new Observer<SessionArchiveListItem>()
                 {

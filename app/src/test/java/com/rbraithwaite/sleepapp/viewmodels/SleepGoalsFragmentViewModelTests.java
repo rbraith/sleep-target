@@ -5,7 +5,8 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.TestUtils;
-import com.rbraithwaite.sleepapp.data.SleepAppRepository;
+import com.rbraithwaite.sleepapp.data.current_goals.CurrentGoalsRepository;
+import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFragmentViewModel;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
@@ -35,7 +36,8 @@ public class SleepGoalsFragmentViewModelTests
 //*********************************************************
 
     SleepGoalsFragmentViewModel viewModel;
-    SleepAppRepository mockRepository;
+    SleepSessionRepository mockSleepSessionRepository;
+    CurrentGoalsRepository mockCurrentGoalsRepository;
     DateTimeFormatter dateTimeFormatter;
 
 //*********************************************************
@@ -45,17 +47,22 @@ public class SleepGoalsFragmentViewModelTests
     @Before
     public void setup()
     {
-        mockRepository = mock(SleepAppRepository.class);
+        mockSleepSessionRepository = mock(SleepSessionRepository.class);
+        mockCurrentGoalsRepository = mock(CurrentGoalsRepository.class);
         // REFACTOR [21-01-11 10:36PM] -- I need to be mocking DateTimeFormatter.
         dateTimeFormatter = new DateTimeFormatter();
-        viewModel = new SleepGoalsFragmentViewModel(mockRepository, dateTimeFormatter);
+        viewModel = new SleepGoalsFragmentViewModel(
+                mockSleepSessionRepository,
+                mockCurrentGoalsRepository,
+                dateTimeFormatter);
     }
     
     @After
     public void teardown()
     {
         viewModel = null;
-        mockRepository = null;
+        mockSleepSessionRepository = null;
+        mockCurrentGoalsRepository = null;
         dateTimeFormatter = null;
     }
     
@@ -63,7 +70,7 @@ public class SleepGoalsFragmentViewModelTests
     public void hasWakeTime_updatesProperly()
     {
         MutableLiveData<Long> mockWakeTimeGoal = new MutableLiveData<>(null);
-        when(mockRepository.getWakeTimeGoal()).thenReturn(mockWakeTimeGoal);
+        when(mockCurrentGoalsRepository.getWakeTimeGoal()).thenReturn(mockWakeTimeGoal);
         
         LiveData<Boolean> hasWakeTime = viewModel.hasWakeTime();
         TestUtils.LocalLiveDataSynchronizer<Boolean> synchronizer =
@@ -86,7 +93,8 @@ public class SleepGoalsFragmentViewModelTests
         viewModel.setWakeTime(calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
         
         ArgumentCaptor<Long> setWakeTimeGoalArg = ArgumentCaptor.forClass(Long.class);
-        verify(mockRepository, times(1)).setWakeTimeGoal(setWakeTimeGoalArg.capture());
+        verify(mockCurrentGoalsRepository, times(1))
+                .setWakeTimeGoal(setWakeTimeGoalArg.capture());
         
         Long wakeTime = setWakeTimeGoalArg.getValue();
         GregorianCalendar calendar2 = new GregorianCalendar();
@@ -100,7 +108,7 @@ public class SleepGoalsFragmentViewModelTests
     {
         long expectedWakeTimeMillis = TestUtils.ArbitraryData.getDate().getTime();
         
-        when(mockRepository.getWakeTimeGoal()).thenReturn(new MutableLiveData<Long>(
+        when(mockCurrentGoalsRepository.getWakeTimeGoal()).thenReturn(new MutableLiveData<Long>(
                 expectedWakeTimeMillis));
         
         LiveData<String> wakeTime = viewModel.getWakeTime();

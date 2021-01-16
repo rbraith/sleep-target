@@ -6,7 +6,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import com.rbraithwaite.sleepapp.data.SleepAppRepository;
+import com.rbraithwaite.sleepapp.data.current_goals.CurrentGoalsRepository;
+import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.ui.UIDependenciesModule;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
@@ -21,7 +22,8 @@ public class SleepGoalsFragmentViewModel
 // private properties
 //*********************************************************
 
-    private SleepAppRepository mRepository;
+    private SleepSessionRepository mSleepSessionRepository;
+    private CurrentGoalsRepository mCurrentGoalsRepository;
     private LiveData<String> mWakeTime;
     
     private DateTimeFormatter mDateTimeFormatter;
@@ -33,17 +35,19 @@ public class SleepGoalsFragmentViewModel
     public static final int DEFAULT_WAKETIME_HOUR = 8;
     
     public static final int DEFAULT_WAKETIME_MINUTE = 0;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
 
     @ViewModelInject
     public SleepGoalsFragmentViewModel(
-            SleepAppRepository repository,
+            SleepSessionRepository sleepSessionRepository,
+            CurrentGoalsRepository currentGoalsRepository,
             @UIDependenciesModule.SleepGoalsDateTimeFormatter DateTimeFormatter dateTimeFormatter)
     {
-        mRepository = repository;
+        mCurrentGoalsRepository = currentGoalsRepository;
+        mSleepSessionRepository = sleepSessionRepository;
         mDateTimeFormatter = dateTimeFormatter;
     }
 
@@ -63,7 +67,7 @@ public class SleepGoalsFragmentViewModel
     {
         if (mWakeTime == null) {
             mWakeTime = Transformations.map(
-                    mRepository.getWakeTimeGoal(),
+                    mCurrentGoalsRepository.getWakeTimeGoal(),
                     new Function<Long, String>()
                     {
                         @Override
@@ -86,7 +90,7 @@ public class SleepGoalsFragmentViewModel
         GregorianCalendar calendar = new GregorianCalendar();
         calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
         calendar.set(Calendar.MINUTE, minute);
-        mRepository.setWakeTimeGoal(calendar.getTimeInMillis());
+        mCurrentGoalsRepository.setWakeTimeGoal(calendar.getTimeInMillis());
     }
     
     public LiveData<Boolean> hasWakeTime()

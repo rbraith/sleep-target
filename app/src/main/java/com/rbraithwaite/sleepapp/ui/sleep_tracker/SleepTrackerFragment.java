@@ -85,7 +85,7 @@ public class SleepTrackerFragment
     
     @Override
     protected Class<SleepTrackerFragmentViewModel> getViewModelClass() { return SleepTrackerFragmentViewModel.class; }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -130,11 +130,21 @@ public class SleepTrackerFragment
                         if (inSleepSession) {
                             startedText.setVisibility(View.VISIBLE);
                             sessionStartTime.setVisibility(View.VISIBLE);
-                            sessionStartTime.setText(viewModel.getSessionStartTime());
                         } else {
                             startedText.setVisibility(View.GONE);
                             sessionStartTime.setVisibility(View.GONE);
                         }
+                    }
+                }
+        );
+        viewModel.getSessionStartTime().observe(
+                getViewLifecycleOwner(),
+                new Observer<String>()
+                {
+                    @Override
+                    public void onChanged(String sessionStartTimeString)
+                    {
+                        sessionStartTime.setText(sessionStartTimeString);
                     }
                 }
         );
@@ -180,6 +190,8 @@ public class SleepTrackerFragment
             public void onClick(View v)
             {
                 SleepTrackerFragmentViewModel viewModel = getViewModel();
+                // REFACTOR [21-01-14 12:15AM] -- use LiveDataFuture here to remove the getValue
+                //  call.
                 Boolean inSleepSession = viewModel.inSleepSession().getValue();
                 if (inSleepSession) {
                     viewModel.endSleepSession();
