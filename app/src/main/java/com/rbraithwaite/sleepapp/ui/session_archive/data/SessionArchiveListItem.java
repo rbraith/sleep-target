@@ -10,6 +10,7 @@ public class SessionArchiveListItem
     public String startTime;
     public String endTime;
     public String sessionDuration;
+    public boolean hasWakeTimeGoal;
 
 //*********************************************************
 // api
@@ -18,12 +19,14 @@ public class SessionArchiveListItem
     public static SessionArchiveListItem create(
             String startTime,
             String endTime,
-            String sessionDuration)
+            String sessionDuration,
+            boolean hasWakeTimeGoal)
     {
         SessionArchiveListItem listItem = new SessionArchiveListItem();
         listItem.startTime = startTime;
         listItem.endTime = endTime;
         listItem.sessionDuration = sessionDuration;
+        listItem.hasWakeTimeGoal = hasWakeTimeGoal;
         return listItem;
     }
 }

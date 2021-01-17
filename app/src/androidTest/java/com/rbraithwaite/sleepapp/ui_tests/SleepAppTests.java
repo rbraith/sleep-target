@@ -82,10 +82,27 @@ public class SleepAppTests
         
         // THEN the wake-time goal information for that session is visible from the session archive
         UITestNavigate.fromHome_toSessionArchive();
+        // first check the list item card
+        onView(withId(R.id.session_archive_list_item_waketime)).check(matches(isDisplayed()));
+        // then check the full session info screen
         onView(withId(R.id.session_archive_list_item_card)).perform(click());
-        
         GregorianCalendar calendar = new GregorianCalendar(2000, 1, 2, testHour, testMinute);
         onView(withId(R.id.session_data_goal_waketime)).check(matches(withText(
                 new DateTimeFormatter().formatTimeOfDay(calendar.getTime()))));
+    }
+    
+    @Test
+    public void sessionArchiveListItemWakeTimeIcon_isNotDisplayedIfNoWakeTime()
+    {
+        // GIVEN the user has recorded a session to the archive without a wake-time goal
+        ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
+        onView(withId(R.id.sleep_tracker_button)).perform(click());
+        onView(withId(R.id.sleep_tracker_button)).perform(click());
+        
+        // WHEN the user is on the session archive screen
+        UITestNavigate.fromHome_toSessionArchive();
+        
+        // THEN the list item for that session does not display a wake-time goal icon
+        onView(withId(R.id.session_archive_list_item_waketime)).check(matches(not(isDisplayed())));
     }
 }

@@ -4,6 +4,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -65,6 +66,7 @@ public class SessionArchiveRecyclerViewAdapter
         TextView startTime;
         TextView stopTime;
         TextView duration;
+        ImageView wakeTimeGoalIcon;
         
         public ViewHolder(
                 @NonNull View itemView,
@@ -77,6 +79,7 @@ public class SessionArchiveRecyclerViewAdapter
             this.startTime = itemView.findViewById(R.id.session_archive_list_item_start_VALUE);
             this.stopTime = itemView.findViewById(R.id.session_archive_list_item_stop_VALUE);
             this.duration = itemView.findViewById(R.id.session_archive_list_item_duration_VALUE);
+            this.wakeTimeGoalIcon = itemView.findViewById(R.id.session_archive_list_item_waketime);
             
             itemView.setOnClickListener(new View.OnClickListener()
             {
@@ -185,6 +188,11 @@ public class SessionArchiveRecyclerViewAdapter
                             viewHolder.startTime.setText(sessionArchiveListItem.startTime);
                             viewHolder.stopTime.setText(sessionArchiveListItem.endTime);
                             viewHolder.duration.setText(sessionArchiveListItem.sessionDuration);
+                            if (sessionArchiveListItem.hasWakeTimeGoal) {
+                                viewHolder.wakeTimeGoalIcon.setVisibility(View.VISIBLE);
+                            } else {
+                                viewHolder.wakeTimeGoalIcon.setVisibility(View.INVISIBLE);
+                            }
                         }
                     }
                 });
