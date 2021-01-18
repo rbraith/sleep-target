@@ -106,4 +106,9 @@ public class SleepGoalsFragmentViewModel
                     }
                 });
     }
+    
+    public LiveData<Long> getWakeTimeMillis()
+    {
+        return mCurrentGoalsRepository.getWakeTimeGoal();
+    }
 }

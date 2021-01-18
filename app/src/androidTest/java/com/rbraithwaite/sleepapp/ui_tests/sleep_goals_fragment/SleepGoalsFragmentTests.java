@@ -1,9 +1,11 @@
 package com.rbraithwaite.sleepapp.ui_tests.sleep_goals_fragment;
 
 import androidx.test.core.app.ActivityScenario;
+import androidx.test.espresso.contrib.PickerActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.R;
+import com.rbraithwaite.sleepapp.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestNavigate;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
@@ -33,6 +35,37 @@ public class SleepGoalsFragmentTests
 // api
 //*********************************************************
 
+    @Test
+    public void editWakeTime_editsWakeTime()
+    {
+        // GIVEN the user is on the sleep goals screen
+        HiltFragmentTestHelper<SleepGoalsFragment> helper =
+                HiltFragmentTestHelper.launchFragment(SleepGoalsFragment.class);
+        // AND the user has set a wake-time goal
+        int testHourOfDay = 12;
+        int testMinute = 34;
+        SleepGoalsFragmentTestUtils.addNewWakeTime(testHourOfDay, testMinute);
+        
+        // WHEN the user edits that goal
+        onView(withId(R.id.waketime_edit_btn)).perform(click());
+        
+        // THEN the time picker displays with the correct values (the current wake-time goal)
+        onTimePicker().check(matches(timePickerWithTime(testHourOfDay, testMinute)));
+        // AND the current wake-time goal is edited on positive confirmation of the dialog
+        int expectedHourOfDay = 21;
+        int expectedMinute = 43;
+        onTimePicker().perform(PickerActions.setTime(expectedHourOfDay, expectedMinute));
+        UITestUtils.pressDialogOK();
+        
+        GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
+        calendar.set(Calendar.HOUR_OF_DAY, expectedHourOfDay);
+        calendar.set(Calendar.MINUTE, expectedMinute);
+        onView(withId(R.id.waketime_value)).check(matches(withText(
+                // REFACTOR [21-01-17 5:10PM] -- this should be SleepGoalFragment's
+                //  DateTimeFormatter.
+                new DateTimeFormatter().formatTimeOfDay(calendar.getTime()))));
+    }
+    
     @Test
     public void addNewWakeTime_opensTimePickerWithCorrectValues()
     {
@@ -104,6 +137,4 @@ public class SleepGoalsFragmentTests
         UITestNavigate.fromHome_toGoals();
         onView(withId(R.id.sleep_goals_waketime)).check(matches(isDisplayed()));
     }
-    
-    // TODO [20-12-21 10:17PM] -- add new waketime btn adds new waketime (full process test).
 }

@@ -120,6 +120,16 @@ public class SleepGoalsFragmentViewModelTests
     }
     
     @Test
+    public void getWakeTimeGoalMillis_callsRepository()
+    {
+        LiveData<Long> expected = new MutableLiveData<>(12345L);
+        when(mockCurrentGoalsRepository.getWakeTimeGoal()).thenReturn(expected);
+        
+        LiveData<Long> wakeTimeGoalMillis = viewModel.getWakeTimeMillis();
+        assertThat(wakeTimeGoalMillis, is(expected));
+    }
+    
+    @Test
     public void getDefaultWakeTime_returnsCorrectValue()
     {
         long defaultWakeTime = viewModel.getDefaultWakeTime();
@@ -128,6 +138,12 @@ public class SleepGoalsFragmentViewModelTests
         calendar.set(Calendar.HOUR_OF_DAY, SleepGoalsFragmentViewModel.DEFAULT_WAKETIME_HOUR);
         calendar.set(Calendar.MINUTE, SleepGoalsFragmentViewModel.DEFAULT_WAKETIME_MINUTE);
         
-        assertThat(defaultWakeTime, is(equalTo(calendar.getTimeInMillis())));
+        GregorianCalendar defaultWakeTimeCalendar = new GregorianCalendar();
+        defaultWakeTimeCalendar.setTimeInMillis(defaultWakeTime);
+        
+        assertThat(defaultWakeTimeCalendar.get(Calendar.HOUR_OF_DAY),
+                   is(equalTo(calendar.get(Calendar.HOUR_OF_DAY))));
+        assertThat(defaultWakeTimeCalendar.get(Calendar.MINUTE),
+                   is(equalTo(calendar.get(Calendar.MINUTE))));
     }
 }

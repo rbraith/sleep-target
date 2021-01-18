@@ -15,6 +15,7 @@ import androidx.lifecycle.Observer;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
 import com.rbraithwaite.sleepapp.ui.dialog.TimePickerFragment;
+import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -45,11 +46,12 @@ public class SleepGoalsFragment
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState)
     {
-        final View wakeTime = view.findViewById(R.id.sleep_goals_waketime);
+        final View wakeTimeLayout = view.findViewById(R.id.sleep_goals_waketime);
         final Button buttonAddNewWakeTime = view.findViewById(R.id.sleep_goals_new_waketime_btn);
         
         // REFACTOR [20-12-23 5:06PM] -- consider just moving the hasWakeTime() logic into
-        //  getWakeTime()'s observer (branch on the String being null (no wake time)).
+        //  getWakeTime()'s observer (branch on the String being null (no wake time)) inside
+        //  initWakeTimeLayout().
         getViewModel().hasWakeTime().observe(
                 getViewLifecycleOwner(),
                 new Observer<Boolean>()
@@ -59,17 +61,41 @@ public class SleepGoalsFragment
                     {
                         if (hasWakeTime != null) {
                             if (hasWakeTime) {
-                                wakeTime.setVisibility(View.VISIBLE);
+                                wakeTimeLayout.setVisibility(View.VISIBLE);
                                 buttonAddNewWakeTime.setVisibility(View.GONE);
                             } else {
                                 buttonAddNewWakeTime.setVisibility(View.VISIBLE);
-                                wakeTime.setVisibility(View.GONE);
+                                wakeTimeLayout.setVisibility(View.GONE);
                             }
                         }
                     }
                 });
         
-        final TextView wakeTimeValue = view.findViewById(R.id.waketime_value);
+        buttonAddNewWakeTime.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                displayWakeTimePickerDialog(getViewModel().getDefaultWakeTime());
+            }
+        });
+        
+        initWakeTimeLayout(wakeTimeLayout);
+    }
+    
+    @Override
+    protected boolean getBottomNavVisibility() { return true; }
+    
+    @Override
+    protected Class<SleepGoalsFragmentViewModel> getViewModelClass() { return SleepGoalsFragmentViewModel.class; }
+    
+//*********************************************************
+// private methods
+//*********************************************************
+
+    private void initWakeTimeLayout(View wakeTimeLayout)
+    {
+        final TextView wakeTimeValue = wakeTimeLayout.findViewById(R.id.waketime_value);
         getViewModel().getWakeTime().observe(
                 getViewLifecycleOwner(),
                 new Observer<String>()
@@ -80,36 +106,47 @@ public class SleepGoalsFragment
                         wakeTimeValue.setText(waketime);
                     }
                 });
-        
-        buttonAddNewWakeTime.setOnClickListener(new View.OnClickListener()
+        Button wakeTimeEditButton = wakeTimeLayout.findViewById(R.id.waketime_edit_btn);
+        wakeTimeEditButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-                TimePickerFragment timePicker = new TimePickerFragment();
-                // SMELL [20-12-21 10:39PM] -- since the time picker is relative, it doesn't make
-                //  much sense passing an absolute datetime (even though this was convenient in
-                //  SessionEditFragment, ie using the same datetime for the date picker & time
-                //  picker)
-                //  ---
-                //  consider passing direct hour & minute values instead.
-                timePicker.setArguments(TimePickerFragment.createArguments(getViewModel().getDefaultWakeTime()));
-                timePicker.setOnTimeSetListener(new TimePickerFragment.OnTimeSetListener()
-                {
-                    @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay, int minute)
-                    {
-                        getViewModel().setWakeTime(hourOfDay, minute);
-                    }
-                });
-                timePicker.show(getChildFragmentManager(), WAKETIME_TIME_PICKER);
+                LiveDataFuture.getValue(
+                        getViewModel().getWakeTimeMillis(),
+                        getViewLifecycleOwner(),
+                        new LiveDataFuture.OnValueListener<Long>()
+                        {
+                            @Override
+                            public void onValue(Long wakeTimeMillis)
+                            {
+                                // No null check needed since in theory this button should not
+                                // even be visible unless there is already a wake-time.
+                                displayWakeTimePickerDialog(wakeTimeMillis);
+                            }
+                        });
             }
         });
     }
     
-    @Override
-    protected boolean getBottomNavVisibility() { return true; }
-    
-    @Override
-    protected Class<SleepGoalsFragmentViewModel> getViewModelClass() { return SleepGoalsFragmentViewModel.class; }
+    private void displayWakeTimePickerDialog(long defaultValueMillis)
+    {
+        TimePickerFragment timePicker = new TimePickerFragment();
+        // SMELL [20-12-21 10:39PM] -- since the time picker is relative, it doesn't make
+        //  much sense passing an absolute datetime (even though this was convenient in
+        //  SessionEditFragment, ie using the same datetime for the date picker & time
+        //  picker)
+        //  ---
+        //  consider passing direct hour & minute values instead.
+        timePicker.setArguments(TimePickerFragment.createArguments(defaultValueMillis));
+        timePicker.setOnTimeSetListener(new TimePickerFragment.OnTimeSetListener()
+        {
+            @Override
+            public void onTimeSet(TimePicker view, int hourOfDay, int minute)
+            {
+                getViewModel().setWakeTime(hourOfDay, minute);
+            }
+        });
+        timePicker.show(getChildFragmentManager(), WAKETIME_TIME_PICKER);
+    }
 }
