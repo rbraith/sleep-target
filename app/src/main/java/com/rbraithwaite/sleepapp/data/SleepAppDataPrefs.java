@@ -65,6 +65,7 @@ public class SleepAppDataPrefs
     }
 
 
+
 //*********************************************************
 // api
 //*********************************************************
@@ -150,10 +151,16 @@ public class SleepAppDataPrefs
                 editor.putLong(WAKE_TIME_GOAL_KEY, wakeTimeGoalMillis);
                 editor.commit();
                 if (mWakeTimeGoal != null) {
-                    mWakeTimeGoal.postValue(wakeTimeGoalMillis);
+                    Long val = wakeTimeGoalMillis == NULL_VAL ? null : wakeTimeGoalMillis;
+                    mWakeTimeGoal.postValue(val);
                 }
             }
         });
+    }
+    
+    public synchronized void clearWakeTimeGoal()
+    {
+        setWakeTimeGoal(NULL_VAL);
     }
 
 
@@ -192,6 +199,7 @@ public class SleepAppDataPrefs
                 public void run()
                 {
                     // SMELL [20-11-14 4:58PM] -- race condition between here and setCurrentSession?
+                    //  consider making some or all of the methods in this class 'synchronized'.
                     long currentSessionStartDate =
                             getSharedPrefs(mContext).getLong(CURRENT_SESSION_KEY, NULL_VAL);
                     

@@ -7,7 +7,6 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.data.current_goals.CurrentGoalsRepository;
-import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.ui.UIDependenciesModule;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
@@ -22,7 +21,6 @@ public class SleepGoalsFragmentViewModel
 // private properties
 //*********************************************************
 
-    private SleepSessionRepository mSleepSessionRepository;
     private CurrentGoalsRepository mCurrentGoalsRepository;
     private LiveData<String> mWakeTime;
     
@@ -42,12 +40,10 @@ public class SleepGoalsFragmentViewModel
 
     @ViewModelInject
     public SleepGoalsFragmentViewModel(
-            SleepSessionRepository sleepSessionRepository,
             CurrentGoalsRepository currentGoalsRepository,
             @UIDependenciesModule.SleepGoalsDateTimeFormatter DateTimeFormatter dateTimeFormatter)
     {
         mCurrentGoalsRepository = currentGoalsRepository;
-        mSleepSessionRepository = sleepSessionRepository;
         mDateTimeFormatter = dateTimeFormatter;
     }
 
@@ -110,5 +106,10 @@ public class SleepGoalsFragmentViewModel
     public LiveData<Long> getWakeTimeMillis()
     {
         return mCurrentGoalsRepository.getWakeTimeGoal();
+    }
+    
+    public void clearWakeTime()
+    {
+        mCurrentGoalsRepository.clearWakeTimeGoal();
     }
 }

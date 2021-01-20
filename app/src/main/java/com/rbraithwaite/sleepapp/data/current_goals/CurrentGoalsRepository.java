@@ -16,7 +16,7 @@ public class CurrentGoalsRepository
 //*********************************************************
 
     private SleepAppDataPrefs mDataPrefs;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -26,7 +26,7 @@ public class CurrentGoalsRepository
     {
         mDataPrefs = dataPrefs;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -39,5 +39,10 @@ public class CurrentGoalsRepository
     public void setWakeTimeGoal(long wakeTimeGoalMillis)
     {
         mDataPrefs.setWakeTimeGoal(wakeTimeGoalMillis);
+    }
+    
+    public void clearWakeTimeGoal()
+    {
+        mDataPrefs.clearWakeTimeGoal();
     }
 }

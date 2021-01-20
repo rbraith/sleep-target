@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui_tests;
+package com.rbraithwaite.sleepapp.ui_tests.dialog_tests;
 
 import android.widget.TimePicker;
 

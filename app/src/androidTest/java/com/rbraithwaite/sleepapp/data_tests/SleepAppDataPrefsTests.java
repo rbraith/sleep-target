@@ -177,4 +177,20 @@ public class SleepAppDataPrefsTests
         synchronizer.sync();
         assertThat(wakeTimeGoal.getValue(), is(expectedWakeTime));
     }
+    
+    @Test
+    public void clearWakeTimeGoal_clearsWakeTimeGoal()
+    {
+        long wakeTimeVal = 12345;
+        prefs.setWakeTimeGoal(wakeTimeVal);
+        LiveData<Long> wakeTime = prefs.getWakeTimeGoal();
+        TestUtils.InstrumentationLiveDataSynchronizer<Long> synchronizer =
+                new TestUtils.InstrumentationLiveDataSynchronizer<>(wakeTime);
+        assertThat(wakeTime.getValue(), is(wakeTimeVal));
+        
+        prefs.clearWakeTimeGoal();
+        
+        synchronizer.sync();
+        assertThat(wakeTime.getValue(), is(nullValue()));
+    }
 }

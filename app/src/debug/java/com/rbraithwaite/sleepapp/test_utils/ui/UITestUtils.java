@@ -77,7 +77,6 @@ public class UITestUtils
     public static ViewInteraction onDatePicker()
     {
         return onView(withClassName(equalTo(DatePicker.class.getName())));
-//        return onView(isAssignableFrom(DatePicker.class));
     }
     
     public static ViewInteraction onTimePicker()

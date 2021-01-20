@@ -6,7 +6,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.TestUtils;
 import com.rbraithwaite.sleepapp.data.current_goals.CurrentGoalsRepository;
-import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFragmentViewModel;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
@@ -36,7 +35,6 @@ public class SleepGoalsFragmentViewModelTests
 //*********************************************************
 
     SleepGoalsFragmentViewModel viewModel;
-    SleepSessionRepository mockSleepSessionRepository;
     CurrentGoalsRepository mockCurrentGoalsRepository;
     DateTimeFormatter dateTimeFormatter;
 
@@ -47,23 +45,25 @@ public class SleepGoalsFragmentViewModelTests
     @Before
     public void setup()
     {
-        mockSleepSessionRepository = mock(SleepSessionRepository.class);
         mockCurrentGoalsRepository = mock(CurrentGoalsRepository.class);
         // REFACTOR [21-01-11 10:36PM] -- I need to be mocking DateTimeFormatter.
         dateTimeFormatter = new DateTimeFormatter();
-        viewModel = new SleepGoalsFragmentViewModel(
-                mockSleepSessionRepository,
-                mockCurrentGoalsRepository,
-                dateTimeFormatter);
+        viewModel = new SleepGoalsFragmentViewModel(mockCurrentGoalsRepository, dateTimeFormatter);
     }
     
     @After
     public void teardown()
     {
         viewModel = null;
-        mockSleepSessionRepository = null;
         mockCurrentGoalsRepository = null;
         dateTimeFormatter = null;
+    }
+    
+    @Test
+    public void clearWakeTime_callsRepo()
+    {
+        viewModel.clearWakeTime();
+        verify(mockCurrentGoalsRepository, times(1)).clearWakeTimeGoal();
     }
     
     @Test

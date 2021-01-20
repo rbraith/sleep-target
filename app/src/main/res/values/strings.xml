@@ -10,4 +10,7 @@
     <string name="session_archive_delete_dialog_message">This operation cannot be undone.</string>
     <string name="session_archive_delete_dialog_negative">Cancel</string>
     <string name="session_archive_delete_dialog_positive">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="sleep_goals_delete_waketime_dialog_title">Delete wake-time goal?</string>
 </resources>

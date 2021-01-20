@@ -13,11 +13,14 @@ import com.rbraithwaite.sleepapp.ui.MainActivity;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFragment;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.concurrent.TimeUnit;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -27,14 +30,46 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoMatchers.timePickerWithTime;
 import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.onTimePicker;
+import static org.hamcrest.Matchers.not;
 
 @RunWith(AndroidJUnit4.class)
 public class SleepGoalsFragmentTests
 {
 //*********************************************************
+// public properties
+//*********************************************************
+
+    @Rule
+    // protection against potentially infinitely blocked threads
+    public Timeout timeout = new Timeout(10, TimeUnit.SECONDS);
+
+//*********************************************************
 // api
 //*********************************************************
 
+    @Test
+    public void deleteWakeTime_deletesWakeTime()
+    {
+        // REFACTOR [21-01-18 4:47PM] -- call this SleepGoalsFragmentTestUtils.launchWithWakeTime
+        //  (hour, min)
+        // GIVEN the user is on the sleep goals screen
+        HiltFragmentTestHelper<SleepGoalsFragment> helper =
+                HiltFragmentTestHelper.launchFragment(SleepGoalsFragment.class);
+        // AND the user has set a wake-time goal
+        int testHourOfDay = 12;
+        int testMinute = 34;
+        SleepGoalsFragmentTestUtils.addNewWakeTime(testHourOfDay, testMinute);
+        
+        // WHEN they delete that goal (confirming the dialog)
+        onView(withId(R.id.waketime_delete_btn)).perform(click());
+        UITestUtils.pressDialogOK();
+        
+        // THEN that goal is deleted
+        // AND the "add new wake-time" button is displayed again
+        onView(withId(R.id.sleep_goals_waketime)).check(matches(not(isDisplayed())));
+        onView(withId(R.id.sleep_goals_new_waketime_btn)).check(matches(isDisplayed()));
+    }
+    
     @Test
     public void editWakeTime_editsWakeTime()
     {

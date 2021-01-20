@@ -44,6 +44,13 @@ public class CurrentGoalsRepositoryTests
     }
     
     @Test
+    public void clearWakeTimeGoal_updatesPrefs()
+    {
+        repository.clearWakeTimeGoal();
+        verify(mockPrefs, times(1)).clearWakeTimeGoal();
+    }
+    
+    @Test
     public void getWakeTimeGoal_updatesFromPrefs()
     {
         LiveData<Long> expected = new MutableLiveData<>(12345L);
