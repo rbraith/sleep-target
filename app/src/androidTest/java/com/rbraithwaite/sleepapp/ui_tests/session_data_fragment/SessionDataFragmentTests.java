@@ -15,12 +15,15 @@ import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragment;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.concurrent.TimeUnit;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -40,11 +43,17 @@ import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDa
 import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onStartTimeTextView;
 import static org.hamcrest.Matchers.not;
 
-//import static androidx.core.content.res.TypedArrayUtils.getString;
-
 @RunWith(AndroidJUnit4.class)
 public class SessionDataFragmentTests
 {
+//*********************************************************
+// public properties
+//*********************************************************
+
+    @Rule
+    // protection against potentially infinitely blocked threads
+    public Timeout timeout = new Timeout(10, TimeUnit.SECONDS);
+
 //*********************************************************
 // api
 //*********************************************************
@@ -105,7 +114,28 @@ public class SessionDataFragmentTests
                 launchWithSleepSession(initialData);
         
         onView(withId(R.id.session_data_add_waketime_btn)).check(matches(isDisplayed()));
-        onView(withId(R.id.session_data_goal_waketime)).check(matches(not(isDisplayed())));
+        onView(withId(R.id.session_data_waketime_layout)).check(matches(not(isDisplayed())));
+    }
+    
+    @Test
+    public void deleteWakeTimeButton_deletesWakeTime()
+    {
+        // GIVEN the user is on the session data screen
+        // AND there is a set wake-time goal
+        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
+        initialData.setWakeTimeGoal(TestUtils.ArbitraryData.getWakeTimeGoal());
+        
+        HiltFragmentTestHelper<SessionDataFragment> testHelper =
+                SessionDataFragmentTestUtils.launchWithSleepSession(initialData);
+        
+        // WHEN the user deletes the wake-time goal
+        onView(withId(R.id.session_data_delete_waketime_btn)).perform(click());
+        UITestUtils.pressDialogOK();
+        
+        // THEN the wake-time goal is deleted
+        // AND the 'add wake-time goal' button is displayed
+        onView(withId(R.id.session_data_waketime_layout)).check(matches(not(isDisplayed())));
+        onView(withId(R.id.session_data_add_waketime_btn)).check(matches(isDisplayed()));
     }
     
     @Test
@@ -117,10 +147,7 @@ public class SessionDataFragmentTests
         initialData.setWakeTimeGoal(null);
         
         HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                HiltFragmentTestHelper.launchFragmentWithArgs(
-                        SessionDataFragment.class,
-                        SessionDataFragment.createArguments(new SessionDataFragment.ArgsBuilder(
-                                new SleepSessionWrapper(initialData)).build()));
+                SessionDataFragmentTestUtils.launchWithSleepSession(initialData);
         
         // WHEN the user clicks the "add wake-time" button
         onView(withId(R.id.session_data_add_waketime_btn)).perform(click());

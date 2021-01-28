@@ -32,10 +32,10 @@
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="16dp"
+        android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/session_data_end_time"
-        tools:text="6h 54m 32s"
-        android:textSize="24sp"/>
+        tools:text="6h 54m 32s" />
 
     <TextView
         android:id="@+id/session_data_goal_waketime_label"
@@ -48,18 +48,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/session_data_duration" />
 
-    <TextView
-        android:id="@+id/session_data_goal_waketime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="8:00 a.m."
-        android:textColor="@color/colorPrimaryDark"
-        android:textSize="30sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/session_data_goal_waketime_label" />
-
     <Button
         android:id="@+id/session_data_add_waketime_btn"
         android:layout_width="wrap_content"
@@ -68,6 +56,16 @@
         android:drawableLeft="@drawable/ic_baseline_add_black_24"
         android:drawablePadding="14dp"
         android:text="Add New Wake-Time Goal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/session_data_goal_waketime_label" />
+
+    <include
+        android:id="@+id/session_data_waketime_layout"
+        layout="@layout/session_data_waketime"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/session_data_goal_waketime_label" />

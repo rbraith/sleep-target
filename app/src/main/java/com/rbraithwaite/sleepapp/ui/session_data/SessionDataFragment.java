@@ -1,5 +1,6 @@
 package com.rbraithwaite.sleepapp.ui.session_data;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -22,7 +24,9 @@ import androidx.navigation.Navigation;
 import com.google.android.material.snackbar.Snackbar;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
+import com.rbraithwaite.sleepapp.ui.dialog.AlertDialogFragment;
 import com.rbraithwaite.sleepapp.ui.dialog.DatePickerFragment;
+import com.rbraithwaite.sleepapp.ui.dialog.DialogUtils;
 import com.rbraithwaite.sleepapp.ui.dialog.TimePickerFragment;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragmentDirections;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
@@ -57,7 +61,8 @@ public class SessionDataFragment
     private static final String DIALOG_END_DATE_PICKER = "EndDatePicker";
     private static final String DIALOG_END_TIME_PICKER = "EndTimePicker";
     private static final String DIALOG_WAKETIME_TIME_PICKER = "WakeTimePicker";
-
+    private static final String DIALOG_DELETE_WAKETIME = "DeleteWakeTimeGoal";
+    
 //*********************************************************
 // public constants
 //*********************************************************
@@ -134,7 +139,7 @@ public class SessionDataFragment
 //*********************************************************
 
     public SessionDataFragment() { setHasOptionsMenu(true); }
-
+    
 //*********************************************************
 // overrides
 //*********************************************************
@@ -228,10 +233,10 @@ public class SessionDataFragment
     
     @Override
     protected boolean getBottomNavVisibility() { return false; }
-    
+
     @Override
     protected Class<SessionDataFragmentViewModel> getViewModelClass() { return SessionDataFragmentViewModel.class; }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -249,13 +254,13 @@ public class SessionDataFragment
                 .actionSessionArchiveToSessionData(args)
                 .getArguments();
     }
-    
+
     // TODO [21-12-31 1:54AM] -- I should think more about possible ways of unit testing this.
     public void completed()
     {
         clearSessionDataThenNavigateUp();
     }
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
@@ -268,6 +273,7 @@ public class SessionDataFragment
     
     private void initWakeTimeGoal(final View fragmentRoot)
     {
+        // REFACTOR [21-01-27 11:28PM] -- maybe search from wakeTimeLayout instead?
         final TextView wakeTimeText = fragmentRoot.findViewById(R.id.session_data_goal_waketime);
         wakeTimeText.setOnClickListener(new View.OnClickListener()
         {
@@ -287,6 +293,30 @@ public class SessionDataFragment
                 displayWakeTimeGoalDialog();
             }
         });
+        final ImageButton deleteWakeTimeButton =
+                fragmentRoot.findViewById(R.id.session_data_delete_waketime_btn);
+        deleteWakeTimeButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                AlertDialogFragment deleteDialog = DialogUtils.createDeleteDialog(
+                        requireContext(),
+                        R.string.session_data_delete_waketime_dialog_title,
+                        new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                getViewModel().clearWakeTimeGoal();
+                            }
+                        });
+                
+                deleteDialog.show(SessionDataFragment.this.getChildFragmentManager(),
+                                  DIALOG_DELETE_WAKETIME);
+            }
+        });
+        final View wakeTimeLayout = fragmentRoot.findViewById(R.id.session_data_waketime_layout);
         getViewModel().getWakeTimeGoal().observe(
                 getViewLifecycleOwner(),
                 new Observer<String>()
@@ -298,10 +328,10 @@ public class SessionDataFragment
                         //  unset state, instead of using null.
                         if (wakeTimeGoal == null) {
                             addWakeTimeButton.setVisibility(View.VISIBLE);
-                            wakeTimeText.setVisibility(View.GONE);
+                            wakeTimeLayout.setVisibility(View.GONE);
                         } else {
                             addWakeTimeButton.setVisibility(View.GONE);
-                            wakeTimeText.setVisibility(View.VISIBLE);
+                            wakeTimeLayout.setVisibility(View.VISIBLE);
                             wakeTimeText.setText(wakeTimeGoal);
                         }
                     }

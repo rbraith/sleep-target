@@ -22,6 +22,7 @@ import java.util.GregorianCalendar;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 
 // REFACTOR [20-12-8 8:52PM] -- consider splitting this into separate test classes?
@@ -51,6 +52,25 @@ public class SessionDataFragmentViewModelTests
     {
         viewModel = null;
         dateTimeFormatter = null;
+    }
+    
+    @Test
+    public void clearWakeTimeGoal_clearsWakeTimeGoal()
+    {
+        viewModel.initSessionData(new SleepSessionWrapper(TestUtils.ArbitraryData.getSleepSessionModel()));
+        
+        LiveData<String> wakeTimeGoalText = viewModel.getWakeTimeGoal();
+        LiveData<Long> wakeTimeGoalMillis = viewModel.getWakeTimeGoalMillis();
+        TestUtils.activateLocalLiveData(wakeTimeGoalText);
+        TestUtils.activateLocalLiveData(wakeTimeGoalMillis);
+        
+        assertThat(wakeTimeGoalText.getValue(), is(not(nullValue())));
+        assertThat(wakeTimeGoalMillis.getValue(), is(not(nullValue())));
+        
+        viewModel.clearWakeTimeGoal();
+        
+        assertThat(wakeTimeGoalText.getValue(), is(nullValue()));
+        assertThat(wakeTimeGoalMillis.getValue(), is(nullValue()));
     }
     
     @Test

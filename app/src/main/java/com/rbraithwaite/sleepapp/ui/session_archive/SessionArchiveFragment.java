@@ -1,6 +1,5 @@
 package com.rbraithwaite.sleepapp.ui.session_archive;
 
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -19,6 +18,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
 import com.rbraithwaite.sleepapp.ui.dialog.AlertDialogFragment;
+import com.rbraithwaite.sleepapp.ui.dialog.DialogUtils;
 import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragment;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
@@ -214,38 +214,28 @@ public class SessionArchiveFragment
                             final SessionDataFragment fragment,
                             final SleepSessionWrapper result)
                     {
-                        final AlertDialog.Builder builder =
-                                new AlertDialog.Builder(requireContext());
-                        builder.setTitle(R.string.session_archive_delete_dialog_title)
-                                .setIcon(R.drawable.ic_baseline_delete_forever_24)
-                                .setMessage(R.string.session_archive_delete_dialog_message)
-                                .setNegativeButton(R.string.cancel, null)
-                                .setPositiveButton(
-                                        R.string.delete,
-                                        new DialogInterface.OnClickListener()
-                                        {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which)
-                                            {
-                                                // this is alright since SessionArchiveFragment's
-                                                // view model is lifecycle-owned by the activity
-                                                int deletedId =
-                                                        getViewModel().deleteSession(result);
-                                                Snackbar.make(
-                                                        fragment.getView(),
-                                                        "Deleted session #" + deletedId,
-                                                        Snackbar.LENGTH_SHORT)
-                                                        .show();
-                                                fragment.completed();
-                                            }
-                                        });
-                        AlertDialogFragment deleteDialog = AlertDialogFragment.createInstance(
-                                new AlertDialogFragment.AlertDialogFactory()
+                        AlertDialogFragment deleteDialog = DialogUtils.createDeleteDialog(
+                                requireContext(),
+                                R.string.session_archive_delete_dialog_title,
+                                R.string.session_archive_delete_dialog_message,
+                                new DialogInterface.OnClickListener()
                                 {
                                     @Override
-                                    public AlertDialog create() { return builder.create(); }
-                                }
-                        );
+                                    public void onClick(DialogInterface dialog, int which)
+                                    {
+                                        // this is alright since SessionArchiveFragment's
+                                        // view model is lifecycle-owned by the activity
+                                        int deletedId =
+                                                getViewModel().deleteSession(result);
+                                        Snackbar.make(
+                                                fragment.getView(),
+                                                "Deleted session #" + deletedId,
+                                                Snackbar.LENGTH_SHORT)
+                                                .show();
+                                        fragment.completed();
+                                    }
+                                });
+                        
                         deleteDialog.show(fragment.getChildFragmentManager(),
                                           SESSION_DELETE_DIALOG);
                     }

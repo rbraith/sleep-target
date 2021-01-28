@@ -74,7 +74,7 @@ public class SessionDataFragmentViewModel
     {
         mDateTimeFormatter = dateTimeFormatter;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -353,6 +353,11 @@ public class SessionDataFragmentViewModel
                 defaultMinute);
         
         return calendar.getTimeInMillis();
+    }
+    
+    public void clearWakeTimeGoal()
+    {
+        getWakeTimeGoalMutable().setValue(null);
     }
 
 //*********************************************************
