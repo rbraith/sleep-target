@@ -312,6 +312,7 @@ public class SessionDataFragment
                             }
                         });
                 
+                // REFACTOR [21-01-28 12:34AM] -- should be just getChildFragmentManager() oops
                 deleteDialog.show(SessionDataFragment.this.getChildFragmentManager(),
                                   DIALOG_DELETE_WAKETIME);
             }
