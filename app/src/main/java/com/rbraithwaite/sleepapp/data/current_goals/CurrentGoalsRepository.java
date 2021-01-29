@@ -1,6 +1,8 @@
 package com.rbraithwaite.sleepapp.data.current_goals;
 
+import androidx.arch.core.util.Function;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Transformations;
 
 import com.rbraithwaite.sleepapp.data.SleepAppDataPrefs;
 
@@ -44,5 +46,19 @@ public class CurrentGoalsRepository
     public void clearWakeTimeGoal()
     {
         mDataPrefs.clearWakeTimeGoal();
+    }
+    
+    public LiveData<SleepDurationGoalModel> getSleepDurationGoal()
+    {
+        return Transformations.map(
+                mDataPrefs.getSleepDurationGoal(),
+                new Function<Integer, SleepDurationGoalModel>()
+                {
+                    @Override
+                    public SleepDurationGoalModel apply(Integer input)
+                    {
+                        return new SleepDurationGoalModel(input);
+                    }
+                });
     }
 }

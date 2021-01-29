@@ -7,6 +7,7 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.data.current_goals.CurrentGoalsRepository;
+import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.ui.UIDependenciesModule;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
@@ -25,6 +26,8 @@ public class SleepGoalsFragmentViewModel
     private LiveData<String> mWakeTime;
     
     private DateTimeFormatter mDateTimeFormatter;
+    
+    private LiveData<SleepDurationGoalModel> sleepDurationGoalModel;
 
 //*********************************************************
 // public constants
@@ -46,7 +49,7 @@ public class SleepGoalsFragmentViewModel
         mCurrentGoalsRepository = currentGoalsRepository;
         mDateTimeFormatter = dateTimeFormatter;
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -75,8 +78,7 @@ public class SleepGoalsFragmentViewModel
                             return mDateTimeFormatter.formatTimeOfDay(
                                     DateUtils.getDateFromMillis(wakeTimeMillis));
                         }
-                    }
-            );
+                    });
         }
         return mWakeTime;
     }
@@ -111,5 +113,31 @@ public class SleepGoalsFragmentViewModel
     public void clearWakeTime()
     {
         mCurrentGoalsRepository.clearWakeTimeGoal();
+    }
+    
+    public LiveData<Boolean> hasSleepDurationGoal()
+    {
+        return Transformations.map(
+                getSleepDurationGoalModel(),
+                new Function<SleepDurationGoalModel, Boolean>()
+                {
+                    @Override
+                    public Boolean apply(SleepDurationGoalModel sleepDurationGoal)
+                    {
+                        return sleepDurationGoal.isSet();
+                    }
+                });
+    }
+    
+//*********************************************************
+// private methods
+//*********************************************************
+
+    private LiveData<SleepDurationGoalModel> getSleepDurationGoalModel()
+    {
+        if (sleepDurationGoalModel == null) {
+            sleepDurationGoalModel = mCurrentGoalsRepository.getSleepDurationGoal();
+        }
+        return sleepDurationGoalModel;
     }
 }

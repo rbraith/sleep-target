@@ -33,7 +33,7 @@ public class SleepGoalsFragment
     private static final String WAKETIME_TIME_PICKER = "WakeTimeTimePicker";
     
     private static final String DIALOG_DELETE_WAKETIME = "DeleteWakeTime";
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -51,8 +51,25 @@ public class SleepGoalsFragment
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState)
     {
-        final View wakeTimeLayout = view.findViewById(R.id.sleep_goals_waketime);
-        final Button buttonAddNewWakeTime = view.findViewById(R.id.sleep_goals_new_waketime_btn);
+        initWakeTimeGoal(view);
+        initSleepDurationGoal(view);
+    }
+    
+    @Override
+    protected boolean getBottomNavVisibility() { return true; }
+    
+    @Override
+    protected Class<SleepGoalsFragmentViewModel> getViewModelClass() { return SleepGoalsFragmentViewModel.class; }
+
+//*********************************************************
+// private methods
+//*********************************************************
+
+    private void initWakeTimeGoal(View fragmentRoot)
+    {
+        final View wakeTimeLayout = fragmentRoot.findViewById(R.id.sleep_goals_waketime);
+        final Button buttonAddNewWakeTime =
+                fragmentRoot.findViewById(R.id.sleep_goals_new_waketime_btn);
         
         // REFACTOR [20-12-23 5:06PM] -- consider just moving the hasWakeTime() logic into
         //  getWakeTime()'s observer (branch on the String being null (no wake time)) inside
@@ -88,16 +105,36 @@ public class SleepGoalsFragment
         initWakeTimeLayout(wakeTimeLayout);
     }
     
-    @Override
-    protected boolean getBottomNavVisibility() { return true; }
-
-    @Override
-    protected Class<SleepGoalsFragmentViewModel> getViewModelClass() { return SleepGoalsFragmentViewModel.class; }
+    // REFACTOR [21-01-29 2:46AM] -- duplicate logic with initWakeTimeGoal()
+    private void initSleepDurationGoal(View fragmentRoot)
+    {
+        final View sleepDurationLayout = fragmentRoot.findViewById(R.id.sleep_goals_duration);
+        final Button buttonAddNewSleepDuration =
+                fragmentRoot.findViewById(R.id.sleep_goals_new_duration_btn);
+        
+        getViewModel().hasSleepDurationGoal().observe(
+                getViewLifecycleOwner(),
+                new Observer<Boolean>()
+                {
+                    @Override
+                    public void onChanged(Boolean hasSleepDurationGoal)
+                    {
+                        if (hasSleepDurationGoal != null) {
+                            // REFACTOR [21-01-29 2:47AM] -- consider making this:
+                            //  toggleSleepDurationGoalDisplay(bool, view, view).
+                            if (hasSleepDurationGoal) {
+                                sleepDurationLayout.setVisibility(View.VISIBLE);
+                                buttonAddNewSleepDuration.setVisibility(View.GONE);
+                            } else {
+                                sleepDurationLayout.setVisibility(View.GONE);
+                                buttonAddNewSleepDuration.setVisibility(View.VISIBLE);
+                            }
+                        }
+                    }
+                });
+    }
     
-//*********************************************************
-// private methods
-//*********************************************************
-
+    
     private void initWakeTimeLayout(View wakeTimeLayout)
     {
         final TextView wakeTimeValue = wakeTimeLayout.findViewById(R.id.waketime_value);

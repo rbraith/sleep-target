@@ -48,6 +48,20 @@ public class SleepGoalsFragmentTests
 //*********************************************************
 
     @Test
+    public void addNewSleepDurationButton_isDisplayedIfNoSleepDuration()
+    {
+        // GIVEN the user is on the sleep goals screen
+        // WHEN there is no current sleep duration goal
+        HiltFragmentTestHelper<SleepGoalsFragment> helper =
+                HiltFragmentTestHelper.launchFragment(SleepGoalsFragment.class);
+        
+        // THEN the button for adding a new sleep duration goal is displayed
+        onView(withId(R.id.sleep_goals_new_duration_btn)).check(matches(isDisplayed()));
+        // AND the sleep duration goal info view is not displayed
+        onView(withId(R.id.sleep_goals_duration)).check(matches(not(isDisplayed())));
+    }
+    
+    @Test
     public void deleteWakeTime_deletesWakeTime()
     {
         // REFACTOR [21-01-18 4:47PM] -- call this SleepGoalsFragmentTestUtils.launchWithWakeTime

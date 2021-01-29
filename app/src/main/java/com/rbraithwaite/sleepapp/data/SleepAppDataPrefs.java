@@ -30,17 +30,18 @@ public class SleepAppDataPrefs
     
     private MutableLiveData<Date> mCurrentSession;
     private MutableLiveData<Long> mWakeTimeGoal;
+    private MutableLiveData<Integer> mSleepDurationGoal;
 
 //*********************************************************
 // private constants
 //*********************************************************
 
-    private static final String CURRENT_SESSION_KEY = "current sleep session";
-    
-    private static final long NULL_VAL = -1L;
+    private static final long NULL_LONG_VAL = -1L;
+    private static final int NULL_INT_VAL = -1;
     
     private static final String WAKE_TIME_GOAL_KEY = "wake time goal";
-
+    private static final String CURRENT_SESSION_KEY = "current sleep session";
+    private static final String SLEEP_DURATION_GOAL_KEY = "sleep duration goal";
 
 //*********************************************************
 // public constants
@@ -74,24 +75,9 @@ public class SleepAppDataPrefs
     /**
      * Returns a null LiveData immediately, then updates asynchronously (replicates Room behaviour)
      */
-    // REFACTOR [21-01-6 12:59AM] -- This does not fully mirror Room behaviour - to do better, I
-    //  should not post any value until the LiveData has an observer (override onActive()). This
-    //  isn't a big deal, it's just that it's not as lazy as it could be.
-    // REFACTOR [21-01-14 12:13AM] -- this duplicates logic in getWakeTimeGoal.
     public LiveData<Date> getCurrentSession()
     {
-        final MediatorLiveData<Date> currentSessionLiveData = new MediatorLiveData<>();
-        
-        currentSessionLiveData.addSource(getCurrentSessionMutable(), new Observer<Date>()
-        {
-            @Override
-            public void onChanged(Date currentSession)
-            {
-                currentSessionLiveData.setValue(currentSession);
-            }
-        });
-        
-        return currentSessionLiveData;
+        return createTrackingMediator(getCurrentSessionMutable());
     }
     
     /**
@@ -104,11 +90,11 @@ public class SleepAppDataPrefs
             @Override
             public void run()
             {
-                SharedPreferences prefs = getSharedPrefs(mContext);
+                SharedPreferences prefs = getSharedPrefs();
                 SharedPreferences.Editor editor = prefs.edit();
                 
                 editor.putLong(CURRENT_SESSION_KEY,
-                               (startTime == null) ? NULL_VAL : startTime.getTime());
+                               (startTime == null) ? NULL_LONG_VAL : startTime.getTime());
                 editor.commit();
                 if (mCurrentSession != null) {
                     mCurrentSession.postValue(startTime);
@@ -119,18 +105,7 @@ public class SleepAppDataPrefs
     
     public LiveData<Long> getWakeTimeGoal()
     {
-        final MediatorLiveData<Long> wakeTimeGoalLiveData = new MediatorLiveData<>();
-        
-        wakeTimeGoalLiveData.addSource(getWakeTimeGoalMutable(), new Observer<Long>()
-        {
-            @Override
-            public void onChanged(Long wakeTimeGoal)
-            {
-                wakeTimeGoalLiveData.setValue(wakeTimeGoal);
-            }
-        });
-        
-        return wakeTimeGoalLiveData;
+        return createTrackingMediator(getWakeTimeGoalMutable());
     }
     
     // REFACTOR [21-01-11 9:59PM]
@@ -145,13 +120,13 @@ public class SleepAppDataPrefs
             @Override
             public void run()
             {
-                SharedPreferences prefs = getSharedPrefs(mContext);
+                SharedPreferences prefs = getSharedPrefs();
                 SharedPreferences.Editor editor = prefs.edit();
                 
                 editor.putLong(WAKE_TIME_GOAL_KEY, wakeTimeGoalMillis);
                 editor.commit();
                 if (mWakeTimeGoal != null) {
-                    Long val = wakeTimeGoalMillis == NULL_VAL ? null : wakeTimeGoalMillis;
+                    Long val = wakeTimeGoalMillis == NULL_LONG_VAL ? null : wakeTimeGoalMillis;
                     mWakeTimeGoal.postValue(val);
                 }
             }
@@ -160,7 +135,15 @@ public class SleepAppDataPrefs
     
     public synchronized void clearWakeTimeGoal()
     {
-        setWakeTimeGoal(NULL_VAL);
+        setWakeTimeGoal(NULL_LONG_VAL);
+    }
+    
+    public LiveData<Integer> getSleepDurationGoal()
+    {
+        // REFACTOR [21-01-29 3:24PM] -- should I just use Transformations.map() here? I think
+        //  it does essentially the same thing as createTrackingMediator, but I don't need to
+        //  transform the data at all here - it would be a 1:1 mapping.
+        return createTrackingMediator(getSleepDurationGoalMutable());
     }
 
 
@@ -168,6 +151,43 @@ public class SleepAppDataPrefs
 // private methods
 //*********************************************************
 
+    // REFACTOR [21-01-6 12:59AM] -- This does not fully mirror Room behaviour - to do better, I
+    //  should not post any value until the LiveData has an observer (override onActive()). This
+    //  isn't a big deal, it's just that it's not as lazy as it could be.
+    // REFACTOR [21-01-29 3:22PM] -- extract this as a utility?
+    private <T> MediatorLiveData<T> createTrackingMediator(LiveData<T> source)
+    {
+        final MediatorLiveData<T> mediator = new MediatorLiveData<>();
+        
+        mediator.addSource(source, new Observer<T>()
+        {
+            @Override
+            public void onChanged(T value)
+            {
+                mediator.setValue(value);
+            }
+        });
+        
+        return mediator;
+    }
+    
+    // REFACTOR [21-01-29 3:00PM] -- duplicates logic from getWakeTimeGoalMutable and
+    //  getCurrentSessionMutable. I can't see a clean way to fix this, since I would need to
+    //  parameterize both the prefs value retrieval behaviour and the postValue formatting
+    //  behaviour, which would make calls to whatever interface I made really verbose.
+    private MutableLiveData<Integer> getSleepDurationGoalMutable()
+    {
+        if (mSleepDurationGoal == null) {
+            mSleepDurationGoal = new MutableLiveData<>();
+            // asynchronously initialize the in-memory cache from the preferences
+            int sleepDurationGoalMinutes =
+                    getSharedPrefs().getInt(SLEEP_DURATION_GOAL_KEY, NULL_INT_VAL);
+            mSleepDurationGoal.postValue(
+                    sleepDurationGoalMinutes == NULL_INT_VAL ? null : sleepDurationGoalMinutes);
+        }
+        return mSleepDurationGoal;
+    }
+    
     private MutableLiveData<Long> getWakeTimeGoalMutable()
     {
         if (mWakeTimeGoal == null) {
@@ -180,8 +200,8 @@ public class SleepAppDataPrefs
                 {
                     // REFACTOR [21-01-11 10:04PM] -- This should be getWakeTimeGoalPersisted.
                     long wakeTimeGoal =
-                            getSharedPrefs(mContext).getLong(WAKE_TIME_GOAL_KEY, NULL_VAL);
-                    mWakeTimeGoal.postValue(wakeTimeGoal == NULL_VAL ? null : wakeTimeGoal);
+                            getSharedPrefs().getLong(WAKE_TIME_GOAL_KEY, NULL_LONG_VAL);
+                    mWakeTimeGoal.postValue(wakeTimeGoal == NULL_LONG_VAL ? null : wakeTimeGoal);
                 }
             });
         }
@@ -201,10 +221,10 @@ public class SleepAppDataPrefs
                     // SMELL [20-11-14 4:58PM] -- race condition between here and setCurrentSession?
                     //  consider making some or all of the methods in this class 'synchronized'.
                     long currentSessionStartDate =
-                            getSharedPrefs(mContext).getLong(CURRENT_SESSION_KEY, NULL_VAL);
+                            getSharedPrefs().getLong(CURRENT_SESSION_KEY, NULL_LONG_VAL);
                     
                     mCurrentSession.postValue(
-                            currentSessionStartDate == NULL_VAL ?
+                            currentSessionStartDate == NULL_LONG_VAL ?
                                     null :
                                     DateConverter.convertDateFromMillis(currentSessionStartDate));
                 }
@@ -213,8 +233,8 @@ public class SleepAppDataPrefs
         return mCurrentSession;
     }
     
-    private SharedPreferences getSharedPrefs(Context context)
+    private SharedPreferences getSharedPrefs()
     {
-        return context.getSharedPreferences(PREFS_FILE_KEY, Context.MODE_PRIVATE);
+        return mContext.getSharedPreferences(PREFS_FILE_KEY, Context.MODE_PRIVATE);
     }
 }

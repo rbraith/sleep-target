@@ -141,6 +141,17 @@ public class SleepAppDataPrefsTests
         assertThat(currentSession.getValue(), is(nullValue()));
     }
     
+    // TODO [21-01-29 2:47PM] -- getSleepDurationGoal_reflects_setSleepDurationGoal.
+    // TODO [21-01-29 2:47PM] -- getSleepDurationGoal_reflects_setSleepDurationGoal_afterSecondCall.
+    
+    @Test
+    public void getSleepDurationGoal_isNullIfNotSet()
+    {
+        LiveData<Integer> sleepDurationGoal = prefs.getSleepDurationGoal();
+        TestUtils.activateInstrumentationLiveData(sleepDurationGoal);
+        assertThat(sleepDurationGoal.getValue(), is(nullValue()));
+    }
+    
     @Test
     public void getWakeTimeGoal_reflects_setWakeTimeGoal()
     {

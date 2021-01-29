@@ -6,6 +6,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.TestUtils;
 import com.rbraithwaite.sleepapp.data.current_goals.CurrentGoalsRepository;
+import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFragmentViewModel;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
@@ -57,6 +58,26 @@ public class SleepGoalsFragmentViewModelTests
         viewModel = null;
         mockCurrentGoalsRepository = null;
         dateTimeFormatter = null;
+    }
+    
+    @Test
+    public void hasSleepDurationGoal_updatesProperly()
+    {
+        MutableLiveData<SleepDurationGoalModel> mockSleepDurationGoal = new MutableLiveData<>(
+                new SleepDurationGoalModel(null));
+        when(mockCurrentGoalsRepository.getSleepDurationGoal()).thenReturn(mockSleepDurationGoal);
+        
+        // SUT
+        LiveData<Boolean> hasSleepDurationGoal = viewModel.hasSleepDurationGoal();
+        TestUtils.activateLocalLiveData(hasSleepDurationGoal);
+        
+        // REFACTOR [21-01-29 1:47PM] -- should this be broken off into a separate test?
+        //  hasSleepDurationGoal_isFalseWhenNoGoal
+        assertThat(hasSleepDurationGoal.getValue(), is(false));
+        
+        // simulate setting a new goal
+        mockSleepDurationGoal.setValue(new SleepDurationGoalModel(123));
+        assertThat(hasSleepDurationGoal.getValue(), is(true));
     }
     
     @Test
