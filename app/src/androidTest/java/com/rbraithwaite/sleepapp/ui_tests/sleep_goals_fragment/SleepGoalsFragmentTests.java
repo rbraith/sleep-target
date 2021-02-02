@@ -9,6 +9,7 @@ import com.rbraithwaite.sleepapp.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestNavigate;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
+import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFragment;
@@ -76,7 +77,7 @@ public class SleepGoalsFragmentTests
         
         // WHEN they delete that goal (confirming the dialog)
         onView(withId(R.id.waketime_delete_btn)).perform(click());
-        UITestUtils.pressDialogOK();
+        DialogTestUtils.pressOK();
         
         // THEN that goal is deleted
         // AND the "add new wake-time" button is displayed again
@@ -104,7 +105,7 @@ public class SleepGoalsFragmentTests
         int expectedHourOfDay = 21;
         int expectedMinute = 43;
         onTimePicker().perform(PickerActions.setTime(expectedHourOfDay, expectedMinute));
-        UITestUtils.pressDialogOK();
+        DialogTestUtils.pressOK();
         
         GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
         calendar.set(Calendar.HOUR_OF_DAY, expectedHourOfDay);

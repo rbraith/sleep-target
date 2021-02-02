@@ -7,7 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
-import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
+import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragment;
 
@@ -52,7 +52,7 @@ public class SessionDataFragmentRotationTests
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)));
         
-        UITestUtils.pressDialogOK();
+        DialogTestUtils.pressOK();
         
         // WHEN the device is rotated
         TestUtils.rotateActivitySynced(testHelper.getScenario(),
@@ -77,7 +77,7 @@ public class SessionDataFragmentRotationTests
                 calendar.get(Calendar.HOUR_OF_DAY),
                 calendar.get(Calendar.MINUTE)));
         
-        UITestUtils.pressDialogOK();
+        DialogTestUtils.pressOK();
         
         // WHEN the device is rotated
         TestUtils.rotateActivitySynced(testHelper.getScenario(),
@@ -104,7 +104,7 @@ public class SessionDataFragmentRotationTests
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)));
         
-        UITestUtils.pressDialogOK();
+        DialogTestUtils.pressOK();
         
         // WHEN the device is rotated
         TestUtils.rotateActivitySynced(testHelper.getScenario(),
@@ -129,7 +129,7 @@ public class SessionDataFragmentRotationTests
                 calendar.get(Calendar.HOUR_OF_DAY),
                 calendar.get(Calendar.MINUTE)));
         
-        UITestUtils.pressDialogOK();
+        DialogTestUtils.pressOK();
         
         // WHEN the device is rotated
         TestUtils.rotateActivitySynced(testHelper.getScenario(),

@@ -9,7 +9,7 @@ import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.TestUtils;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
-import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
+import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragment;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
@@ -149,13 +149,13 @@ public class SessionDataFragmentTestUtils
                 datetime.get(Calendar.YEAR),
                 datetime.get(Calendar.MONTH),
                 datetime.get(Calendar.DAY_OF_MONTH)));
-        UITestUtils.pressDialogOK();
+        DialogTestUtils.pressOK();
         // REFACTOR [20-12-16 9:58PM] -- call this setTime(GregorianCalendar).
         // set time
         time.perform(click());
         onTimePicker().perform(PickerActions.setTime(
                 datetime.get(Calendar.HOUR_OF_DAY),
                 datetime.get(Calendar.MINUTE)));
-        UITestUtils.pressDialogOK();
+        DialogTestUtils.pressOK();
     }
 }

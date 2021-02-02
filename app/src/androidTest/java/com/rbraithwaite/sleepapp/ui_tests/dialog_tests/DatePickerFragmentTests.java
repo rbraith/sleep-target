@@ -5,8 +5,8 @@ import android.widget.DatePicker;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.TestUtils;
-import com.rbraithwaite.sleepapp.test_utils.ui.DialogTestHelper;
-import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
+import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestHelper;
+import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.ui.dialog.DatePickerFragment;
 
 import org.junit.Test;
@@ -75,7 +75,7 @@ public class DatePickerFragmentTests
         
         // change the date & confirm
         onDatePicker().perform(setDatePickerDate(testYear, testMonth, testDayOfMonth));
-        UITestUtils.pressDialogOK();
+        DialogTestUtils.pressOK();
         blocker.blockThread(); // give the callback time to get called
     }
 }

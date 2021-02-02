@@ -17,9 +17,7 @@ import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragment;
 import java.util.concurrent.ExecutionException;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
@@ -65,14 +63,6 @@ public class UITestUtils
         onView(allOf(withId(com.google.android.material.R.id.snackbar_text), withText(stringId)))
                 .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
-    
-    public static void pressDialogOK()
-    {
-        // button1 is dialog positive btn
-        onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(click());
-    }
-    
-    // TODO [20-12-5 8:09PM] -- pressDialogCancel()
     
     public static ViewInteraction onDatePicker()
     {

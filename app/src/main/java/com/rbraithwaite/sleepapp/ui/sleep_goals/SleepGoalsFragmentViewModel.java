@@ -12,8 +12,10 @@ import com.rbraithwaite.sleepapp.ui.UIDependenciesModule;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 public class SleepGoalsFragmentViewModel
         extends ViewModel
@@ -34,8 +36,10 @@ public class SleepGoalsFragmentViewModel
 //*********************************************************
 
     public static final int DEFAULT_WAKETIME_HOUR = 8;
-    
     public static final int DEFAULT_WAKETIME_MINUTE = 0;
+    
+    public static final int DEFAULT_SLEEP_DURATION_HOUR = 8;
+    public static final int DEFAULT_SLEEP_DURATION_MINUTE = 0;
 
 //*********************************************************
 // constructors
@@ -49,7 +53,7 @@ public class SleepGoalsFragmentViewModel
         mCurrentGoalsRepository = currentGoalsRepository;
         mDateTimeFormatter = dateTimeFormatter;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -129,6 +133,11 @@ public class SleepGoalsFragmentViewModel
                 });
     }
     
+    public List<Integer> getDefaultSleepDurationValues()
+    {
+        return Arrays.asList(DEFAULT_SLEEP_DURATION_HOUR, DEFAULT_SLEEP_DURATION_MINUTE);
+    }
+
 //*********************************************************
 // private methods
 //*********************************************************

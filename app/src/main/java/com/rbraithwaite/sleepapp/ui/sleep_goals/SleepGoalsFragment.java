@@ -3,6 +3,7 @@ package com.rbraithwaite.sleepapp.ui.sleep_goals;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,8 +18,11 @@ import androidx.lifecycle.Observer;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
 import com.rbraithwaite.sleepapp.ui.dialog.AlertDialogFragment;
+import com.rbraithwaite.sleepapp.ui.dialog.DurationPickerFragment;
 import com.rbraithwaite.sleepapp.ui.dialog.TimePickerFragment;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
+
+import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -33,7 +37,10 @@ public class SleepGoalsFragment
     private static final String WAKETIME_TIME_PICKER = "WakeTimeTimePicker";
     
     private static final String DIALOG_DELETE_WAKETIME = "DeleteWakeTime";
-
+    
+    private static final String PICKER_SLEEP_DURATION = "SleepDurationPicker";
+    private static final String TAG = "SleepGoalsFragment";
+    
 //*********************************************************
 // overrides
 //*********************************************************
@@ -54,13 +61,13 @@ public class SleepGoalsFragment
         initWakeTimeGoal(view);
         initSleepDurationGoal(view);
     }
-    
+
     @Override
     protected boolean getBottomNavVisibility() { return true; }
     
     @Override
     protected Class<SleepGoalsFragmentViewModel> getViewModelClass() { return SleepGoalsFragmentViewModel.class; }
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
@@ -111,6 +118,31 @@ public class SleepGoalsFragment
         final View sleepDurationLayout = fragmentRoot.findViewById(R.id.sleep_goals_duration);
         final Button buttonAddNewSleepDuration =
                 fragmentRoot.findViewById(R.id.sleep_goals_new_duration_btn);
+        buttonAddNewSleepDuration.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                List<Integer> defaultValues = getViewModel().getDefaultSleepDurationValues();
+                DurationPickerFragment durationPickerDialog = DurationPickerFragment.createInstance(
+                        defaultValues.get(0), // hour
+                        defaultValues.get(1), // minute
+                        new DurationPickerFragment.OnDurationSetListener()
+                        {
+                            @Override
+                            public void onDurationSet(
+                                    DialogInterface dialog,
+                                    int which,
+                                    int hour,
+                                    int minute)
+                            {
+                                // TODO [21-01-29 7:44PM] -- set sleep duration goal.
+                                Log.d(TAG, "onDurationSet: hour: " + hour + ", minute: " + minute);
+                            }
+                        });
+                durationPickerDialog.show(getChildFragmentManager(), PICKER_SLEEP_DURATION);
+            }
+        });
         
         getViewModel().hasSleepDurationGoal().observe(
                 getViewLifecycleOwner(),

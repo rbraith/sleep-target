@@ -10,6 +10,7 @@ import com.rbraithwaite.sleepapp.TestUtils;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
+import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragment;
@@ -95,7 +96,7 @@ public class SessionDataFragmentTests
                 calendar.get(Calendar.MINUTE)));
         
         // WHEN the user confirms the dialog
-        UITestUtils.pressDialogOK();
+        DialogTestUtils.pressOK();
         
         // THEN the wake-time goal is updated
         onView(withId(R.id.session_data_goal_waketime)).check(matches(withText(
@@ -130,7 +131,7 @@ public class SessionDataFragmentTests
         
         // WHEN the user deletes the wake-time goal
         onView(withId(R.id.session_data_delete_waketime_btn)).perform(click());
-        UITestUtils.pressDialogOK();
+        DialogTestUtils.pressOK();
         
         // THEN the wake-time goal is deleted
         // AND the 'add wake-time goal' button is displayed
@@ -156,7 +157,7 @@ public class SessionDataFragmentTests
         onTimePicker().perform(PickerActions.setTime(
                 calendar.get(Calendar.HOUR_OF_DAY),
                 calendar.get(Calendar.MINUTE)));
-        UITestUtils.pressDialogOK();
+        DialogTestUtils.pressOK();
         
         // THEN the display is updated with the new wake-time
         onView(withId(R.id.session_data_goal_waketime)).check(matches(withText(
@@ -183,7 +184,7 @@ public class SessionDataFragmentTests
         onTimePicker().perform(PickerActions.setTime(
                 calendar.get(Calendar.HOUR_OF_DAY),
                 calendar.get(Calendar.MINUTE)));
-        UITestUtils.pressDialogOK();
+        DialogTestUtils.pressOK();
         
         // THEN the start time is updated
         onStartTimeTextView().check(matches(withText(new DateTimeFormatter().formatTimeOfDay(
@@ -236,7 +237,7 @@ public class SessionDataFragmentTests
                 calendar.get(Calendar.HOUR_OF_DAY),
                 calendar.get(Calendar.MINUTE)));
         
-        UITestUtils.pressDialogOK();
+        DialogTestUtils.pressOK();
         
         // WHEN the user reopens the dialog
         onStartTimeTextView().perform(click());
@@ -264,7 +265,7 @@ public class SessionDataFragmentTests
                 calendar.get(Calendar.HOUR_OF_DAY),
                 calendar.get(Calendar.MINUTE)));
         
-        UITestUtils.pressDialogOK();
+        DialogTestUtils.pressOK();
         
         // THEN the start time is not updated
         onStartTimeTextView().check(matches(withText(new DateTimeFormatter().formatTimeOfDay(
@@ -293,7 +294,7 @@ public class SessionDataFragmentTests
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)));
         
-        UITestUtils.pressDialogOK();
+        DialogTestUtils.pressOK();
         
         // THEN the start date text is updated
         onStartDateTextView().check(matches(withText(new DateTimeFormatter().formatDate
@@ -348,7 +349,7 @@ public class SessionDataFragmentTests
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)));
         
-        UITestUtils.pressDialogOK();
+        DialogTestUtils.pressOK();
         
         // THEN the start date is not updated
         onStartDateTextView().check(matches(withText(new DateTimeFormatter().formatDate(
@@ -373,7 +374,7 @@ public class SessionDataFragmentTests
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)));
         
-        UITestUtils.pressDialogOK();
+        DialogTestUtils.pressOK();
         
         // WHEN the user reopens the dialog
         onStartDateTextView().perform(click());
@@ -428,7 +429,7 @@ public class SessionDataFragmentTests
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)));
         
-        UITestUtils.pressDialogOK();
+        DialogTestUtils.pressOK();
         
         // THEN the end date text is updated
         onEndDateTextView().check(matches(withText(
@@ -455,7 +456,7 @@ public class SessionDataFragmentTests
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)));
         
-        UITestUtils.pressDialogOK();
+        DialogTestUtils.pressOK();
         
         // WHEN the user reopens the dialog
         onEndDateTextView().perform(click());
@@ -486,7 +487,7 @@ public class SessionDataFragmentTests
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)));
         
-        UITestUtils.pressDialogOK();
+        DialogTestUtils.pressOK();
         
         // THEN the end date is not updated
         onEndDateTextView().check(matches(withText(new DateTimeFormatter().formatDate(
@@ -536,7 +537,7 @@ public class SessionDataFragmentTests
         onTimePicker().perform(PickerActions.setTime(
                 calendar.get(Calendar.HOUR_OF_DAY),
                 calendar.get(Calendar.MINUTE)));
-        UITestUtils.pressDialogOK();
+        DialogTestUtils.pressOK();
         
         // THEN the end time is updated
         onEndTimeTextView().check(matches(withText(new DateTimeFormatter().formatTimeOfDay(
@@ -562,7 +563,7 @@ public class SessionDataFragmentTests
                 calendar.get(Calendar.HOUR_OF_DAY),
                 calendar.get(Calendar.MINUTE)));
         
-        UITestUtils.pressDialogOK();
+        DialogTestUtils.pressOK();
         
         // WHEN the user reopens the dialog
         onEndTimeTextView().perform(click());
@@ -590,7 +591,7 @@ public class SessionDataFragmentTests
                 calendar.get(Calendar.HOUR_OF_DAY),
                 calendar.get(Calendar.MINUTE)));
         
-        UITestUtils.pressDialogOK();
+        DialogTestUtils.pressOK();
         
         // THEN the end time is not updated
         onEndTimeTextView().check(matches(withText(new DateTimeFormatter().formatTimeOfDay(

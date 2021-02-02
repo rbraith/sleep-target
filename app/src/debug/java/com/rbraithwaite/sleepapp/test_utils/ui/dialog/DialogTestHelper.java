@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.test_utils.ui;
+package com.rbraithwaite.sleepapp.test_utils.ui.dialog;
 
 import android.os.Bundle;
 
@@ -7,6 +7,7 @@ import androidx.fragment.app.DialogFragment;
 import androidx.test.core.app.ActivityScenario;
 
 import com.rbraithwaite.sleepapp.TestUtils;
+
 
 
 /**
@@ -34,7 +35,7 @@ public class DialogTestHelper<DialogType extends DialogFragment>
     {
         public void perform(D dialogFragment);
     }
-
+    
     public static class Activity
             extends AppCompatActivity {}
 
@@ -55,7 +56,7 @@ public class DialogTestHelper<DialogType extends DialogFragment>
                     }
                 });
     }
-
+    
     private DialogTestHelper(final DialogType dialogInstance)
     {
         mScenario = ActivityScenario.launch(DialogTestHelper.Activity.class);
@@ -72,6 +73,7 @@ public class DialogTestHelper<DialogType extends DialogFragment>
         );
     }
 
+
 //*********************************************************
 // api
 //*********************************************************
@@ -86,7 +88,7 @@ public class DialogTestHelper<DialogType extends DialogFragment>
     {
         return new DialogTestHelper<>(instance);
     }
-
+    
     public static <DialogType extends DialogFragment> DialogTestHelper<DialogType> launchDialog(
             final Class<DialogType> dialogType)
     {

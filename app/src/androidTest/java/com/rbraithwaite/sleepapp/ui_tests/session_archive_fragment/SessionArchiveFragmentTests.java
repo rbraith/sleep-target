@@ -10,7 +10,7 @@ import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestNavigate;
-import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
+import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragment;
@@ -58,7 +58,7 @@ public class SessionArchiveFragmentTests
         SessionDataFragmentTestUtils.pressNegative();
         
         // WHEN the user confirms the dialog positively
-        UITestUtils.pressDialogOK();
+        DialogTestUtils.pressOK();
         
         // THEN the session is deleted from the archive
         assertRecyclerViewIsEmpty();

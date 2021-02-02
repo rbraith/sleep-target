@@ -5,8 +5,8 @@ import android.widget.TimePicker;
 import androidx.test.espresso.contrib.PickerActions;
 
 import com.rbraithwaite.sleepapp.TestUtils;
-import com.rbraithwaite.sleepapp.test_utils.ui.DialogTestHelper;
-import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
+import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestHelper;
+import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.ui.dialog.TimePickerFragment;
 
 import org.junit.Test;
@@ -69,7 +69,7 @@ public class TimePickerFragmentTests
         
         // change the time & confirm
         onTimePicker().perform(PickerActions.setTime(testHourOfDay, testMinute));
-        UITestUtils.pressDialogOK();
+        DialogTestUtils.pressOK();
         blocker.blockThread(); // give the callback time to get called
     }
 }
