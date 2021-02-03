@@ -22,11 +22,15 @@ public class DurationPickerTestUtils
 //*********************************************************
 
     private DurationPickerTestUtils() {/* No instantiation */}
-    
+
 //*********************************************************
 // api
 //*********************************************************
 
+    
+    /**
+     * This only sets the value of the pickers, it does not confirm the dialog.
+     */
     public static void setDuration(int hour, int minute)
     {
         setHourPicker(hour);
@@ -52,7 +56,7 @@ public class DurationPickerTestUtils
         
         setNumberPicker(minute, R.id.minute_picker);
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

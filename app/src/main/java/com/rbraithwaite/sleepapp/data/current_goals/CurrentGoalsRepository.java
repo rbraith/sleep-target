@@ -33,11 +33,13 @@ public class CurrentGoalsRepository
 // api
 //*********************************************************
 
+    // REFACTOR [21-02-2 1:18AM] -- this should return a WakeTimeGoalModel.
     public LiveData<Long> getWakeTimeGoal()
     {
         return mDataPrefs.getWakeTimeGoal();
     }
     
+    // REFACTOR [21-02-2 1:18AM] -- this should take a WakeTimeGoalModel.
     public void setWakeTimeGoal(long wakeTimeGoalMillis)
     {
         mDataPrefs.setWakeTimeGoal(wakeTimeGoalMillis);
@@ -57,8 +59,16 @@ public class CurrentGoalsRepository
                     @Override
                     public SleepDurationGoalModel apply(Integer input)
                     {
-                        return new SleepDurationGoalModel(input);
+                        // REFACTOR [21-02-2 1:43AM] -- move this logic into SleepDurationGoalModel?
+                        //  maybe as a static factory - createWithOptionalMinutes()?
+                        return (input == null) ? new SleepDurationGoalModel() :
+                                new SleepDurationGoalModel(input);
                     }
                 });
+    }
+    
+    public void setSleepDurationGoal(SleepDurationGoalModel sleepDurationGoal)
+    {
+        mDataPrefs.setSleepDurationGoal(sleepDurationGoal.inMinutes());
     }
 }

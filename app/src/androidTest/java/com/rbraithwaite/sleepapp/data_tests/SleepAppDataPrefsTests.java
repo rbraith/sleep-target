@@ -141,8 +141,55 @@ public class SleepAppDataPrefsTests
         assertThat(currentSession.getValue(), is(nullValue()));
     }
     
-    // TODO [21-01-29 2:47PM] -- getSleepDurationGoal_reflects_setSleepDurationGoal.
-    // TODO [21-01-29 2:47PM] -- getSleepDurationGoal_reflects_setSleepDurationGoal_afterSecondCall.
+    @Test
+    public void getSleepDurationGoal_reflects_setSleepDurationGoal_afterSecondCall()
+    {
+        LiveData<Integer> sleepDurationGoal1 = prefs.getSleepDurationGoal();
+        TestUtils.InstrumentationLiveDataSynchronizer<Integer> synchronizer =
+                new TestUtils.InstrumentationLiveDataSynchronizer<>(sleepDurationGoal1);
+        
+        // second call to getSleepDurationGoal
+        // sleepDurationGoal1 should still be receiving updates after this
+        LiveData<Integer> sleepDurationGoal2 = prefs.getSleepDurationGoal();
+        
+        int testDuration1 = 123;
+        prefs.setSleepDurationGoal(testDuration1);
+        synchronizer.sync();
+        assertThat(sleepDurationGoal1.getValue(), is(equalTo(testDuration1)));
+    }
+    
+    @Test
+    public void getSleepDurationGoal_reflects_setSleepDurationGoal()
+    {
+        LiveData<Integer> sleepDurationGoal = prefs.getSleepDurationGoal();
+        TestUtils.InstrumentationLiveDataSynchronizer<Integer> synchronizer =
+                new TestUtils.InstrumentationLiveDataSynchronizer<>(sleepDurationGoal);
+        
+        int testDuration1 = 123;
+        prefs.setSleepDurationGoal(testDuration1);
+        synchronizer.sync();
+        assertThat(sleepDurationGoal.getValue(), is(equalTo(testDuration1)));
+        
+        int testDuration2 = 456;
+        prefs.setSleepDurationGoal(testDuration2);
+        synchronizer.sync();
+        assertThat(sleepDurationGoal.getValue(), is(equalTo(testDuration2)));
+    }
+    
+    @Test
+    public void setSleepDurationGoal_setNull()
+    {
+        LiveData<Integer> sleepDurationGoal = prefs.getSleepDurationGoal();
+        TestUtils.InstrumentationLiveDataSynchronizer<Integer> synchronizer =
+                new TestUtils.InstrumentationLiveDataSynchronizer<>(sleepDurationGoal);
+        
+        prefs.setSleepDurationGoal(123);
+        synchronizer.sync();
+        
+        prefs.setSleepDurationGoal(null);
+        synchronizer.sync();
+        assertThat(sleepDurationGoal.getValue(), is(nullValue()));
+    }
     
     @Test
     public void getSleepDurationGoal_isNullIfNotSet()

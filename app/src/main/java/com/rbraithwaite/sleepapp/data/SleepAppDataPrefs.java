@@ -1,5 +1,6 @@
 package com.rbraithwaite.sleepapp.data;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 
@@ -90,12 +91,8 @@ public class SleepAppDataPrefs
             @Override
             public void run()
             {
-                SharedPreferences prefs = getSharedPrefs();
-                SharedPreferences.Editor editor = prefs.edit();
-                
-                editor.putLong(CURRENT_SESSION_KEY,
-                               (startTime == null) ? NULL_LONG_VAL : startTime.getTime());
-                editor.commit();
+                commitLong(CURRENT_SESSION_KEY,
+                           (startTime == null) ? NULL_LONG_VAL : startTime.getTime());
                 if (mCurrentSession != null) {
                     mCurrentSession.postValue(startTime);
                 }
@@ -114,17 +111,12 @@ public class SleepAppDataPrefs
     //  something like commitWakeTimeGoal()?
     public void setWakeTimeGoal(final long wakeTimeGoalMillis)
     {
-        // REFACTOR [20-12-22 1:47AM] -- this logic duplicates setCurrentSession()
         mExecutor.execute(new Runnable()
         {
             @Override
             public void run()
             {
-                SharedPreferences prefs = getSharedPrefs();
-                SharedPreferences.Editor editor = prefs.edit();
-                
-                editor.putLong(WAKE_TIME_GOAL_KEY, wakeTimeGoalMillis);
-                editor.commit();
+                commitLong(WAKE_TIME_GOAL_KEY, wakeTimeGoalMillis);
                 if (mWakeTimeGoal != null) {
                     Long val = wakeTimeGoalMillis == NULL_LONG_VAL ? null : wakeTimeGoalMillis;
                     mWakeTimeGoal.postValue(val);
@@ -145,12 +137,44 @@ public class SleepAppDataPrefs
         //  transform the data at all here - it would be a 1:1 mapping.
         return createTrackingMediator(getSleepDurationGoalMutable());
     }
+    
+    /**
+     * Setting to null clears the current goal.
+     */
+    public void setSleepDurationGoal(final Integer goalMinutes)
+    {
+        mExecutor.execute(new Runnable()
+        {
+            @SuppressLint("ApplySharedPref") // suppress commit() warning
+            @Override
+            public void run()
+            {
+                commitInt(WAKE_TIME_GOAL_KEY,
+                          (goalMinutes == null) ? NULL_INT_VAL : goalMinutes);
+                if (mSleepDurationGoal != null) {
+                    mSleepDurationGoal.postValue(goalMinutes);
+                }
+            }
+        });
+    }
 
 
 //*********************************************************
 // private methods
 //*********************************************************
 
+    @SuppressLint("ApplySharedPref") // suppress commit() warning
+    private void commitInt(String key, int value)
+    {
+        getSharedPrefs().edit().putInt(key, value).commit();
+    }
+    
+    @SuppressLint("ApplySharedPref") // suppress commit() warning
+    private void commitLong(String key, long value)
+    {
+        getSharedPrefs().edit().putLong(key, value).commit();
+    }
+    
     // REFACTOR [21-01-6 12:59AM] -- This does not fully mirror Room behaviour - to do better, I
     //  should not post any value until the LiveData has an observer (override onActive()). This
     //  isn't a big deal, it's just that it's not as lazy as it could be.

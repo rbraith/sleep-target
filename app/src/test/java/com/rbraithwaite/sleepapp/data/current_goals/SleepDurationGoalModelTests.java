@@ -14,9 +14,33 @@ public class SleepDurationGoalModelTests
 //*********************************************************
 
     @Test
-    public void isSet_isFalseIfMinutesIsNull()
+    public void getHours_returnCorrectValue()
     {
-        SleepDurationGoalModel model = new SleepDurationGoalModel(null);
+        assertThat(new SleepDurationGoalModel(130).getHours(), is(2));
+    }
+    
+    @Test
+    public void getHours_nullIfUnsetModel()
+    {
+        assertThat(new SleepDurationGoalModel().getHours(), is(nullValue()));
+    }
+    
+    @Test
+    public void getRemainingMinutes_returnsCorrectValue()
+    {
+        assertThat(new SleepDurationGoalModel(165).getRemainingMinutes(), is(45));
+    }
+    
+    @Test
+    public void getRemainingMinutes_nullIfUnsetModel()
+    {
+        assertThat(new SleepDurationGoalModel().getRemainingMinutes(), is(nullValue()));
+    }
+    
+    @Test
+    public void isSet_isFalseIfEmptyModel()
+    {
+        SleepDurationGoalModel model = new SleepDurationGoalModel();
         assertThat(model.isSet(), is(false));
     }
     
@@ -30,7 +54,7 @@ public class SleepDurationGoalModelTests
     @Test
     public void inMinutes_returnNullIfModelIsNotSet()
     {
-        SleepDurationGoalModel model = new SleepDurationGoalModel(null);
+        SleepDurationGoalModel model = new SleepDurationGoalModel();
         assertThat(model.inMinutes(), is(nullValue()));
     }
     
@@ -40,5 +64,11 @@ public class SleepDurationGoalModelTests
         int expectedMinutes = 123;
         SleepDurationGoalModel model = new SleepDurationGoalModel(expectedMinutes);
         assertThat(model.inMinutes(), is(equalTo(expectedMinutes)));
+    }
+    
+    @Test
+    public void inMinutes_matchesConstructor()
+    {
+        assertThat(new SleepDurationGoalModel(2, 34).inMinutes(), is(154));
     }
 }

@@ -8,6 +8,7 @@ import com.rbraithwaite.sleepapp.TestUtils;
 import com.rbraithwaite.sleepapp.data.current_goals.CurrentGoalsRepository;
 import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
+import com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFormatting;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFragmentViewModel;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
 
@@ -64,7 +65,7 @@ public class SleepGoalsFragmentViewModelTests
     public void hasSleepDurationGoal_updatesProperly()
     {
         MutableLiveData<SleepDurationGoalModel> mockSleepDurationGoal = new MutableLiveData<>(
-                new SleepDurationGoalModel(null));
+                new SleepDurationGoalModel());
         when(mockCurrentGoalsRepository.getSleepDurationGoal()).thenReturn(mockSleepDurationGoal);
         
         // SUT
@@ -78,6 +79,21 @@ public class SleepGoalsFragmentViewModelTests
         // simulate setting a new goal
         mockSleepDurationGoal.setValue(new SleepDurationGoalModel(123));
         assertThat(hasSleepDurationGoal.getValue(), is(true));
+    }
+    
+    @Test
+    public void getSleepDurationGoalText_updatesFromRepository()
+    {
+        int testMinutes = 123;
+        SleepDurationGoalModel testSleepDurationGoal = new SleepDurationGoalModel(testMinutes);
+        when(mockCurrentGoalsRepository.getSleepDurationGoal()).thenReturn(
+                new MutableLiveData<>(testSleepDurationGoal));
+        
+        LiveData<String> sleepDurationGoalText = viewModel.getSleepDurationGoalText();
+        TestUtils.activateLocalLiveData(sleepDurationGoalText);
+        
+        assertThat(sleepDurationGoalText.getValue(), is(equalTo(
+                SleepGoalsFormatting.formatSleepDurationGoal(new SleepDurationGoalModel(testMinutes)))));
     }
     
     @Test
@@ -132,7 +148,7 @@ public class SleepGoalsFragmentViewModelTests
         when(mockCurrentGoalsRepository.getWakeTimeGoal()).thenReturn(new MutableLiveData<Long>(
                 expectedWakeTimeMillis));
         
-        LiveData<String> wakeTime = viewModel.getWakeTime();
+        LiveData<String> wakeTime = viewModel.getWakeTimeText();
         TestUtils.activateLocalLiveData(wakeTime);
         
         assertThat(wakeTime.getValue(),
@@ -166,5 +182,20 @@ public class SleepGoalsFragmentViewModelTests
                    is(equalTo(calendar.get(Calendar.HOUR_OF_DAY))));
         assertThat(defaultWakeTimeCalendar.get(Calendar.MINUTE),
                    is(equalTo(calendar.get(Calendar.MINUTE))));
+    }
+    
+    @Test
+    public void setSleepDurationGoal_callsRepository()
+    {
+        SleepDurationGoalModel testGoal = new SleepDurationGoalModel(1234);
+        
+        ArgumentCaptor<SleepDurationGoalModel> repoArg =
+                ArgumentCaptor.forClass(SleepDurationGoalModel.class);
+        viewModel.setSleepDurationGoal(testGoal.getHours(), testGoal.getRemainingMinutes());
+        verify(mockCurrentGoalsRepository, times(1))
+                .setSleepDurationGoal(repoArg.capture());
+        
+        SleepDurationGoalModel sleepDurationGoal = repoArg.getValue();
+        assertThat(sleepDurationGoal.inMinutes(), is(equalTo(testGoal.inMinutes())));
     }
 }

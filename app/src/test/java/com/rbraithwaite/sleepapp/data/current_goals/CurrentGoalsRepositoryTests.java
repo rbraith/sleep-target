@@ -86,4 +86,12 @@ public class CurrentGoalsRepositoryTests
         TestUtils.activateLocalLiveData(sleepDurationGoal);
         assertThat(sleepDurationGoal.getValue().inMinutes(), is(expected.getValue()));
     }
+    
+    @Test
+    public void setSleepDurationGoal_updatesPrefs()
+    {
+        int expectedMinutes = 123;
+        repository.setSleepDurationGoal(new SleepDurationGoalModel(expectedMinutes));
+        verify(mockPrefs, times(1)).setSleepDurationGoal(expectedMinutes);
+    }
 }

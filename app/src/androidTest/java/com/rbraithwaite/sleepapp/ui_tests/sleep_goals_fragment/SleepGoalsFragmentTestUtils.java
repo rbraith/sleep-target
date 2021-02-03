@@ -4,6 +4,7 @@ import androidx.test.espresso.contrib.PickerActions;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
+import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DurationPickerTestUtils;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -22,6 +23,14 @@ public class SleepGoalsFragmentTestUtils
 // api
 //*********************************************************
 
+    public static void addNewSleepDurationGoal(int hours, int minutes)
+    {
+        onView(withId(R.id.sleep_goals_new_duration_btn)).perform(click());
+        DurationPickerTestUtils.setDuration(hours, minutes);
+        DialogTestUtils.pressOK();
+    }
+    
+    
     public static void addNewWakeTime(int hour, int minute)
     {
         onView(withId(R.id.sleep_goals_new_waketime_btn)).perform(click());

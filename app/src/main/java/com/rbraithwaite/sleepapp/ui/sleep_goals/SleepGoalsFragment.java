@@ -3,7 +3,6 @@ package com.rbraithwaite.sleepapp.ui.sleep_goals;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,13 +15,12 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 
 import com.rbraithwaite.sleepapp.R;
+import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
 import com.rbraithwaite.sleepapp.ui.dialog.AlertDialogFragment;
 import com.rbraithwaite.sleepapp.ui.dialog.DurationPickerFragment;
 import com.rbraithwaite.sleepapp.ui.dialog.TimePickerFragment;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
-
-import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -40,7 +38,7 @@ public class SleepGoalsFragment
     
     private static final String PICKER_SLEEP_DURATION = "SleepDurationPicker";
     private static final String TAG = "SleepGoalsFragment";
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -61,13 +59,13 @@ public class SleepGoalsFragment
         initWakeTimeGoal(view);
         initSleepDurationGoal(view);
     }
-
+    
     @Override
     protected boolean getBottomNavVisibility() { return true; }
     
     @Override
     protected Class<SleepGoalsFragmentViewModel> getViewModelClass() { return SleepGoalsFragmentViewModel.class; }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -115,7 +113,7 @@ public class SleepGoalsFragment
     // REFACTOR [21-01-29 2:46AM] -- duplicate logic with initWakeTimeGoal()
     private void initSleepDurationGoal(View fragmentRoot)
     {
-        final View sleepDurationLayout = fragmentRoot.findViewById(R.id.sleep_goals_duration);
+        final View sleepDurationGoalLayout = fragmentRoot.findViewById(R.id.sleep_goals_duration);
         final Button buttonAddNewSleepDuration =
                 fragmentRoot.findViewById(R.id.sleep_goals_new_duration_btn);
         buttonAddNewSleepDuration.setOnClickListener(new View.OnClickListener()
@@ -123,10 +121,17 @@ public class SleepGoalsFragment
             @Override
             public void onClick(View v)
             {
-                List<Integer> defaultValues = getViewModel().getDefaultSleepDurationValues();
+                // REFACTOR [21-02-2 8:37PM] -- its not ideal having the view layer reference a
+                //  model like this, but what else can I do? This was originally a List<Integer> of
+                //  the form {hour, minute}, should I go back to that?
+                //  --
+                //  maybe i can have a ViewModel.createDurationPickerWithDefaultValues(listener)
+                //  this has its own problems though: I don't like having view references in the
+                //  view model layer either.
+                SleepDurationGoalModel defaultGoal = getViewModel().getDefaultSleepDurationGoal();
                 DurationPickerFragment durationPickerDialog = DurationPickerFragment.createInstance(
-                        defaultValues.get(0), // hour
-                        defaultValues.get(1), // minute
+                        defaultGoal.getHours(),
+                        defaultGoal.getRemainingMinutes(),
                         new DurationPickerFragment.OnDurationSetListener()
                         {
                             @Override
@@ -136,8 +141,7 @@ public class SleepGoalsFragment
                                     int hour,
                                     int minute)
                             {
-                                // TODO [21-01-29 7:44PM] -- set sleep duration goal.
-                                Log.d(TAG, "onDurationSet: hour: " + hour + ", minute: " + minute);
+                                getViewModel().setSleepDurationGoal(hour, minute);
                             }
                         });
                 durationPickerDialog.show(getChildFragmentManager(), PICKER_SLEEP_DURATION);
@@ -155,13 +159,31 @@ public class SleepGoalsFragment
                             // REFACTOR [21-01-29 2:47AM] -- consider making this:
                             //  toggleSleepDurationGoalDisplay(bool, view, view).
                             if (hasSleepDurationGoal) {
-                                sleepDurationLayout.setVisibility(View.VISIBLE);
+                                sleepDurationGoalLayout.setVisibility(View.VISIBLE);
                                 buttonAddNewSleepDuration.setVisibility(View.GONE);
                             } else {
-                                sleepDurationLayout.setVisibility(View.GONE);
+                                sleepDurationGoalLayout.setVisibility(View.GONE);
                                 buttonAddNewSleepDuration.setVisibility(View.VISIBLE);
                             }
                         }
+                    }
+                });
+        
+        initSleepDurationGoalLayout(sleepDurationGoalLayout);
+    }
+    
+    private void initSleepDurationGoalLayout(View sleepDurationGoalLayout)
+    {
+        final TextView sleepDurationGoalValue =
+                sleepDurationGoalLayout.findViewById(R.id.duration_value);
+        getViewModel().getSleepDurationGoalText().observe(
+                getViewLifecycleOwner(),
+                new Observer<String>()
+                {
+                    @Override
+                    public void onChanged(String sleepDurationGoal)
+                    {
+                        sleepDurationGoalValue.setText(sleepDurationGoal);
                     }
                 });
     }
@@ -170,7 +192,7 @@ public class SleepGoalsFragment
     private void initWakeTimeLayout(View wakeTimeLayout)
     {
         final TextView wakeTimeValue = wakeTimeLayout.findViewById(R.id.waketime_value);
-        getViewModel().getWakeTime().observe(
+        getViewModel().getWakeTimeText().observe(
                 getViewLifecycleOwner(),
                 new Observer<String>()
                 {

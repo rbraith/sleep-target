@@ -6,12 +6,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.TestUtils;
+import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestNavigate;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
+import com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFormatting;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFragment;
 
 import org.junit.Rule;
@@ -48,6 +50,27 @@ public class SleepGoalsFragmentTests
 // api
 //*********************************************************
 
+    @Test
+    public void addNewSleepDurationGoal_addsNewSleepDurationGoal()
+    {
+        // GIVEN the user is on the sleep goals screen
+        HiltFragmentTestHelper<SleepGoalsFragment> helper =
+                HiltFragmentTestHelper.launchFragment(SleepGoalsFragment.class);
+        
+        // WHEN the user adds a new sleep duration goal
+        int expectedHour = 12;
+        int expectedMinute = 34;
+        SleepGoalsFragmentTestUtils.addNewSleepDurationGoal(expectedHour, expectedMinute);
+        
+        
+        // THEN the value of the newly added goal is displayed
+        onView(withId(R.id.sleep_goals_new_duration_btn)).check(matches(not(isDisplayed())));
+        onView(withId(R.id.sleep_goals_duration)).check(matches(isDisplayed()));
+        onView(withId(R.id.duration_value)).check(matches(withText(
+                SleepGoalsFormatting.formatSleepDurationGoal(
+                        new SleepDurationGoalModel(expectedHour, expectedMinute)))));
+    }
+    
     @Test
     public void addNewSleepDurationButton_isDisplayedIfNoSleepDuration()
     {
