@@ -92,19 +92,48 @@ public class SleepTrackerFragment
 
     private void initGoalsDisplay(View fragmentRoot)
     {
-        final TextView wakeTimeText = fragmentRoot.findViewById(R.id.sleep_tracker_waketime);
-        getViewModel().getWakeTime().observe(
+        // wake-time goal
+        final TextView wakeTimeGoalTitle =
+                fragmentRoot.findViewById(R.id.sleep_tracker_waketime_goal_title);
+        final TextView wakeTimeGoalValue =
+                fragmentRoot.findViewById(R.id.sleep_tracker_waketime_goal_value);
+        getViewModel().getWakeTimeGoalText().observe(
                 getViewLifecycleOwner(),
                 new Observer<String>()
                 {
                     @Override
-                    public void onChanged(String waketime)
+                    public void onChanged(String wakeTimeGoalText)
                     {
-                        if (waketime == null) {
-                            wakeTimeText.setVisibility(View.GONE);
+                        if (wakeTimeGoalText == null) {
+                            wakeTimeGoalTitle.setVisibility(View.GONE);
+                            wakeTimeGoalValue.setVisibility(View.GONE);
                         } else {
-                            wakeTimeText.setVisibility(View.VISIBLE);
-                            wakeTimeText.setText("Wake-Time Goal: " + waketime);
+                            wakeTimeGoalTitle.setVisibility(View.VISIBLE);
+                            wakeTimeGoalValue.setVisibility(View.VISIBLE);
+                            wakeTimeGoalValue.setText(wakeTimeGoalText);
+                        }
+                    }
+                });
+        
+        // sleep duration goal
+        final TextView sleepDurationGoalTitle =
+                fragmentRoot.findViewById(R.id.sleep_tracker_duration_goal_title);
+        final TextView sleepDurationGoalValue =
+                fragmentRoot.findViewById(R.id.sleep_tracker_duration_goal_value);
+        getViewModel().getSleepDurationGoalText().observe(
+                getViewLifecycleOwner(),
+                new Observer<String>()
+                {
+                    @Override
+                    public void onChanged(String sleepDurationGoalText)
+                    {
+                        if (sleepDurationGoalText == null) {
+                            sleepDurationGoalTitle.setVisibility(View.GONE);
+                            sleepDurationGoalValue.setVisibility(View.GONE);
+                        } else {
+                            sleepDurationGoalTitle.setVisibility(View.VISIBLE);
+                            sleepDurationGoalValue.setVisibility(View.VISIBLE);
+                            sleepDurationGoalValue.setText(sleepDurationGoalText);
                         }
                     }
                 });

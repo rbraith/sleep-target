@@ -4,11 +4,13 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.R;
+import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestNavigate;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
+import com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFormatting;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFragment;
 import com.rbraithwaite.sleepapp.ui_tests.sleep_goals_fragment.SleepGoalsFragmentTestUtils;
 
@@ -38,12 +40,36 @@ public class SleepTrackerFragmentTests
 //*********************************************************
 
     @Test
+    public void sleepDurationGoal_displaysProperly()
+    {
+        // GIVEN there is no sleep duration goal set
+        ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
+        // check that the goal info is not displayed if there is no goal
+        onView(withId(R.id.sleep_tracker_duration_goal_title)).check(matches(not(isDisplayed())));
+        onView(withId(R.id.sleep_tracker_duration_goal_value)).check(matches(not(isDisplayed())));
+        
+        // WHEN the user sets a new sleep duration goal
+        UITestNavigate.fromHome_toGoals();
+        int testHours = 12;
+        int testMinutes = 34;
+        SleepGoalsFragmentTestUtils.addNewSleepDurationGoal(testHours, testMinutes);
+        UITestNavigate.up();
+        
+        // THEN that goal is displayed on the sleep tracker screen
+        onView(withId(R.id.sleep_tracker_duration_goal_title)).check(matches(isDisplayed()));
+        onView(withId(R.id.sleep_tracker_duration_goal_value)).check(matches(allOf(
+                isDisplayed(),
+                withText(SleepTrackerFormatting.formatSleepDurationGoal(
+                        new SleepDurationGoalModel(testHours, testMinutes))))));
+    }
+    
+    @Test
     public void wakeTime_isDisplayedWhenSet()
     {
         // GIVEN the user has set a wake-time goal
         ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
         // wake time info view is not displayed when there is no wake time
-        onView(withId(R.id.sleep_tracker_waketime)).check(matches(not(isDisplayed())));
+        onView(withId(R.id.sleep_tracker_waketime_goal_title)).check(matches(not(isDisplayed())));
         
         UITestNavigate.fromHome_toGoals();
         SleepGoalsFragmentTestUtils.addNewWakeTime(12, 34);
@@ -52,7 +78,8 @@ public class SleepTrackerFragmentTests
         UITestNavigate.up();
         
         // THEN the wake-time goal is displayed
-        onView(withId(R.id.sleep_tracker_waketime)).check(matches(isDisplayed()));
+        onView(withId(R.id.sleep_tracker_waketime_goal_title)).check(matches(isDisplayed()));
+        onView(withId(R.id.sleep_tracker_waketime_goal_value)).check(matches(isDisplayed()));
     }
     
     @Test

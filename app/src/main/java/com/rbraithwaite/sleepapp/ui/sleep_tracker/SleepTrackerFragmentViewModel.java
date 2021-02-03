@@ -8,6 +8,7 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.data.current_goals.CurrentGoalsRepository;
+import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.data.current_session.CurrentSessionModel;
 import com.rbraithwaite.sleepapp.data.current_session.CurrentSessionRepository;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
@@ -162,13 +163,15 @@ public class SleepTrackerFragmentViewModel
                     public String apply(CurrentSessionModel input)
                     {
                         return input.isSet() ?
+                                // REFACTOR [21-02-3 3:18PM] -- move this logic to
+                                //  SleepTrackerFormatting.
                                 mDateTimeFormatter.formatFullDate(input.getStart()) :
                                 null;
                     }
                 });
     }
     
-    public LiveData<String> getWakeTime()
+    public LiveData<String> getWakeTimeGoalText()
     {
         return Transformations.map(
                 mCurrentGoalsRepository.getWakeTimeGoal(),
@@ -179,12 +182,29 @@ public class SleepTrackerFragmentViewModel
                     {
                         return wakeTimeGoal == null ?
                                 null :
+                                // REFACTOR [21-02-3 3:12PM] -- move this logic to
+                                //  SleepTrackerFormatting.
                                 mDateTimeFormatter.formatTimeOfDay(DateUtils.getDateFromMillis(
                                         wakeTimeGoal));
                     }
                 });
     }
     
+    public LiveData<String> getSleepDurationGoalText()
+    {
+        return Transformations.map(
+                mCurrentGoalsRepository.getSleepDurationGoal(),
+                new Function<SleepDurationGoalModel, String>()
+                {
+                    @Override
+                    public String apply(SleepDurationGoalModel input)
+                    {
+                        return input.isSet() ?
+                                SleepTrackerFormatting.formatSleepDurationGoal(input) : null;
+                    }
+                });
+    }
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -200,6 +220,8 @@ public class SleepTrackerFragmentViewModel
                     @Override
                     public void onValue(Long wakeTimeGoalMillis)
                     {
+                        // REFACTOR [21-02-3 3:17PM] -- this should be CurrentSessionModel
+                        //  .getDuration.
                         long durationMillis = calculateDurationMillis(currentSession.getStart(),
                                                                       DateUtils.getNow());
                         Date wakeTimeGoal = (wakeTimeGoalMillis == null) ?
@@ -215,8 +237,8 @@ public class SleepTrackerFragmentViewModel
                     }
                 });
     }
-
-
+    
+    
     private long calculateDurationMillis(Date start, Date end)
     {
         return end.getTime() - start.getTime();

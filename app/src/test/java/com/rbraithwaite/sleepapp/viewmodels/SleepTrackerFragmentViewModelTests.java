@@ -8,12 +8,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.TestUtils;
 import com.rbraithwaite.sleepapp.data.current_goals.CurrentGoalsRepository;
+import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.data.current_session.CurrentSessionModel;
 import com.rbraithwaite.sleepapp.data.current_session.CurrentSessionRepository;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
+import com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFormatting;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFragmentViewModel;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
 import com.rbraithwaite.sleepapp.utils.TickingLiveData;
@@ -100,13 +102,27 @@ public class SleepTrackerFragmentViewModelTests
     }
     
     @Test
-    public void getWakeTime_getsWakeTime()
+    public void getSleepDurationGoalText_getsSleepDurationGoalText()
+    {
+        SleepDurationGoalModel goal = new SleepDurationGoalModel(123);
+        when(mockCurrentGoalsRepository.getSleepDurationGoal()).thenReturn(new MutableLiveData<>(
+                goal));
+        
+        LiveData<String> goalText = viewModel.getSleepDurationGoalText();
+        
+        TestUtils.activateLocalLiveData(goalText);
+        assertThat(goalText.getValue(),
+                   is(equalTo(SleepGoalsFormatting.formatSleepDurationGoal(goal))));
+    }
+    
+    @Test
+    public void getWakeTimeText_getsWakeTimeText()
     {
         Date timeOfDay = TestUtils.ArbitraryData.getDate();
         MutableLiveData<Long> mockWakeTime = new MutableLiveData<>(timeOfDay.getTime());
         when(mockCurrentGoalsRepository.getWakeTimeGoal()).thenReturn(mockWakeTime);
         
-        LiveData<String> wakeTime = viewModel.getWakeTime();
+        LiveData<String> wakeTime = viewModel.getWakeTimeGoalText();
         
         TestUtils.activateLocalLiveData(wakeTime);
         assertThat(wakeTime.getValue(),

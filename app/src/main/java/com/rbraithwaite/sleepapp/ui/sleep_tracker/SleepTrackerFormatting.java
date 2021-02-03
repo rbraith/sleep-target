@@ -1,22 +1,23 @@
-package com.rbraithwaite.sleepapp.ui.sleep_goals;
+package com.rbraithwaite.sleepapp.ui.sleep_tracker;
 
 import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.ui.format.CommonFormatting;
 
-public class SleepGoalsFormatting
+public class SleepTrackerFormatting
 {
 //*********************************************************
 // constructors
 //*********************************************************
 
-    private SleepGoalsFormatting() {/* No instantiation */}
-
+    private SleepTrackerFormatting() {/* No instantiation */}
+    
+    
 //*********************************************************
 // api
 //*********************************************************
 
-    public static String formatSleepDurationGoal(SleepDurationGoalModel goalModel)
+    public static String formatSleepDurationGoal(SleepDurationGoalModel sleepDurationGoal)
     {
-        return CommonFormatting.formatSleepDurationGoal(goalModel);
+        return CommonFormatting.formatSleepDurationGoal(sleepDurationGoal);
     }
 }
