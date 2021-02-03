@@ -210,4 +210,38 @@ public class SleepGoalsFragmentTests
         UITestNavigate.fromHome_toGoals();
         onView(withId(R.id.sleep_goals_waketime)).check(matches(isDisplayed()));
     }
+    
+    @Test
+    public void newSleepDurationGoal_isRetainedOnFragmentRestart()
+    {
+        // GIVEN the user has set a new sleep duration goal
+        ActivityScenario<MainActivity> mainActivityScenario =
+                ActivityScenario.launch(MainActivity.class);
+        UITestNavigate.fromHome_toGoals();
+        SleepGoalsFragmentTestUtils.addNewSleepDurationGoal(12, 21);
+        
+        // WHEN the fragment is restarted (eg via user navigation)
+        UITestNavigate.up();
+        UITestNavigate.fromHome_toGoals();
+        
+        // THEN the new sleep duration goal is retained
+        onView(withId(R.id.sleep_goals_duration)).check(matches(isDisplayed()));
+    }
+    
+    @Test
+    public void newSleepDurationGoal_isRetainedOnAppRestart()
+    {
+        // GIVEN the user has set a new sleep duration goal
+        ActivityScenario<MainActivity> mainActivityScenario =
+                ActivityScenario.launch(MainActivity.class);
+        UITestNavigate.fromHome_toGoals();
+        SleepGoalsFragmentTestUtils.addNewSleepDurationGoal(12, 34);
+    
+        // WHEN the app is restarted
+        mainActivityScenario = UITestUtils.restartApp(mainActivityScenario, MainActivity.class);
+    
+        // THEN the previously set sleep duration goal is still displayed
+        UITestNavigate.fromHome_toGoals();
+        onView(withId(R.id.sleep_goals_duration)).check(matches(isDisplayed()));
+    }
 }
