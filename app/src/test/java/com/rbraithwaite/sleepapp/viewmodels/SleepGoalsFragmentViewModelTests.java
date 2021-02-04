@@ -10,6 +10,7 @@ import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFormatting;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFragmentViewModel;
+import com.rbraithwaite.sleepapp.ui.sleep_goals.data.SleepDurationGoalUIData;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
 
 import org.junit.After;
@@ -94,6 +95,18 @@ public class SleepGoalsFragmentViewModelTests
         
         assertThat(sleepDurationGoalText.getValue(), is(equalTo(
                 SleepGoalsFormatting.formatSleepDurationGoal(new SleepDurationGoalModel(testMinutes)))));
+    }
+    
+    @Test
+    public void getSleepDurationGoal_callRepository()
+    {
+        LiveData<SleepDurationGoalModel> expected =
+                new MutableLiveData<>(new SleepDurationGoalModel(123));
+        when(mockCurrentGoalsRepository.getSleepDurationGoal()).thenReturn(expected);
+        LiveData<SleepDurationGoalUIData> goal = viewModel.getSleepDurationGoal();
+        TestUtils.activateLocalLiveData(goal);
+        assertThat(goal.getValue().hours, is(expected.getValue().getHours()));
+        assertThat(goal.getValue().remainingMinutes, is(expected.getValue().getRemainingMinutes()));
     }
     
     @Test

@@ -10,6 +10,7 @@ import com.rbraithwaite.sleepapp.data.current_goals.CurrentGoalsRepository;
 import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.ui.UIDependenciesModule;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
+import com.rbraithwaite.sleepapp.ui.sleep_goals.data.SleepDurationGoalUIData;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
 
 import java.util.Calendar;
@@ -130,10 +131,10 @@ public class SleepGoalsFragmentViewModel
                 });
     }
     
-    public SleepDurationGoalModel getDefaultSleepDurationGoal()
+    public SleepDurationGoalUIData getDefaultSleepDurationGoal()
     {
-        return new SleepDurationGoalModel(DEFAULT_SLEEP_DURATION_HOUR,
-                                          DEFAULT_SLEEP_DURATION_MINUTE);
+        return new SleepDurationGoalUIData(DEFAULT_SLEEP_DURATION_HOUR,
+                                           DEFAULT_SLEEP_DURATION_MINUTE);
     }
     
     public void setSleepDurationGoal(int hours, int minutes)
@@ -163,6 +164,24 @@ public class SleepGoalsFragmentViewModel
                 });
     }
     
+    public LiveData<SleepDurationGoalUIData> getSleepDurationGoal()
+    {
+        return Transformations.map(
+                getSleepDurationGoalModel(),
+                new Function<SleepDurationGoalModel, SleepDurationGoalUIData>()
+                {
+                    @Override
+                    public SleepDurationGoalUIData apply(SleepDurationGoalModel input)
+                    {
+                        // REFACTOR [21-02-3 6:15PM] -- extract this conversion logic.
+                        return new SleepDurationGoalUIData(
+                                input.getHours(),
+                                input.getRemainingMinutes()
+                        );
+                    }
+                });
+    }
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -174,7 +193,7 @@ public class SleepGoalsFragmentViewModel
         }
         return mWakeTimeGoalModel;
     }
-
+    
     // Retain a private reference to the current sleep duration goal, so that a new instance doesn't
     // need to be retrieved from the repo every time the fragment restarts.
     private LiveData<SleepDurationGoalModel> getSleepDurationGoalModel()

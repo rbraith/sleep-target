@@ -9,9 +9,11 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.pressImeActionButton;
 import static androidx.test.espresso.action.ViewActions.replaceText;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withParent;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
 
@@ -22,6 +24,7 @@ public class DurationPickerTestUtils
 //*********************************************************
 
     private DurationPickerTestUtils() {/* No instantiation */}
+
 
 //*********************************************************
 // api
@@ -56,20 +59,42 @@ public class DurationPickerTestUtils
         
         setNumberPicker(minute, R.id.minute_picker);
     }
+    
+    public static void checkMatchesDuration(int hours, int minutes)
+    {
+        checkHourPickerMatches(hours);
+        checkMinutePickerMatches(minutes);
+    }
+    
+    public static void checkHourPickerMatches(int hours)
+    {
+        // REFACTOR [21-02-3 5:29PM] -- this could be checkNumberPickerInput(id, value).
+        onPickerInput(R.id.hour_picker).check(matches(withText(Integer.toString(hours))));
+    }
+    
+    public static void checkMinutePickerMatches(int minutes)
+    {
+        onPickerInput(R.id.minute_picker).check(matches(withText(Integer.toString(minutes))));
+    }
 
 //*********************************************************
 // private methods
 //*********************************************************
 
-    private static void setNumberPicker(int number, final int pickerId)
+    private static ViewInteraction onPickerInput(final int pickerId)
     {
-        ViewInteraction onPickerInput = onView(allOf(
+        return onView(allOf(
                 withParent(withId(pickerId)),
                 withClassName(is("android.widget.NumberPicker$CustomEditText"))));
+    }
+    
+    private static void setNumberPicker(int number, final int pickerId)
+    {
+        ViewInteraction onThisPickerInput = onPickerInput(pickerId);
         
-        onPickerInput.perform(click());
-        onPickerInput.perform(replaceText(Integer.toString(number)));
-        onPickerInput.perform(closeSoftKeyboard());
-        onPickerInput.perform(pressImeActionButton());
+        onThisPickerInput.perform(click());
+        onThisPickerInput.perform(replaceText(Integer.toString(number)));
+        onThisPickerInput.perform(closeSoftKeyboard());
+        onThisPickerInput.perform(pressImeActionButton());
     }
 }

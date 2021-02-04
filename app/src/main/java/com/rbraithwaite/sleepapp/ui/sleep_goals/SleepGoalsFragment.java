@@ -15,11 +15,11 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 
 import com.rbraithwaite.sleepapp.R;
-import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
 import com.rbraithwaite.sleepapp.ui.dialog.AlertDialogFragment;
 import com.rbraithwaite.sleepapp.ui.dialog.DurationPickerFragment;
 import com.rbraithwaite.sleepapp.ui.dialog.TimePickerFragment;
+import com.rbraithwaite.sleepapp.ui.sleep_goals.data.SleepDurationGoalUIData;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -121,30 +121,7 @@ public class SleepGoalsFragment
             @Override
             public void onClick(View v)
             {
-                // REFACTOR [21-02-2 8:37PM] -- its not ideal having the view layer reference a
-                //  model like this, but what else can I do? This was originally a List<Integer> of
-                //  the form {hour, minute}, should I go back to that?
-                //  --
-                //  maybe i can have a ViewModel.createDurationPickerWithDefaultValues(listener)
-                //  this has its own problems though: I don't like having view references in the
-                //  view model layer either.
-                SleepDurationGoalModel defaultGoal = getViewModel().getDefaultSleepDurationGoal();
-                DurationPickerFragment durationPickerDialog = DurationPickerFragment.createInstance(
-                        defaultGoal.getHours(),
-                        defaultGoal.getRemainingMinutes(),
-                        new DurationPickerFragment.OnDurationSetListener()
-                        {
-                            @Override
-                            public void onDurationSet(
-                                    DialogInterface dialog,
-                                    int which,
-                                    int hour,
-                                    int minute)
-                            {
-                                getViewModel().setSleepDurationGoal(hour, minute);
-                            }
-                        });
-                durationPickerDialog.show(getChildFragmentManager(), PICKER_SLEEP_DURATION);
+                displaySleepDurationGoalPickerDialog(getViewModel().getDefaultSleepDurationGoal());
             }
         });
         
@@ -186,6 +163,27 @@ public class SleepGoalsFragment
                         sleepDurationGoalValue.setText(sleepDurationGoal);
                     }
                 });
+        
+        Button sleepDurationGoalEditButton =
+                sleepDurationGoalLayout.findViewById(R.id.duration_edit_btn);
+        sleepDurationGoalEditButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                LiveDataFuture.getValue(
+                        getViewModel().getSleepDurationGoal(),
+                        getViewLifecycleOwner(),
+                        new LiveDataFuture.OnValueListener<SleepDurationGoalUIData>()
+                        {
+                            @Override
+                            public void onValue(SleepDurationGoalUIData goal)
+                            {
+                                displaySleepDurationGoalPickerDialog(goal);
+                            }
+                        });
+            }
+        });
     }
     
     
@@ -232,6 +230,26 @@ public class SleepGoalsFragment
                 displayWakeTimeDeleteDialog();
             }
         });
+    }
+    
+    private void displaySleepDurationGoalPickerDialog(SleepDurationGoalUIData initialValue)
+    {
+        DurationPickerFragment durationPickerDialog = DurationPickerFragment.createInstance(
+                initialValue.hours,
+                initialValue.remainingMinutes,
+                new DurationPickerFragment.OnDurationSetListener()
+                {
+                    @Override
+                    public void onDurationSet(
+                            DialogInterface dialog,
+                            int which,
+                            int hour,
+                            int minute)
+                    {
+                        getViewModel().setSleepDurationGoal(hour, minute);
+                    }
+                });
+        durationPickerDialog.show(getChildFragmentManager(), PICKER_SLEEP_DURATION);
     }
     
     private void displayWakeTimeDeleteDialog()

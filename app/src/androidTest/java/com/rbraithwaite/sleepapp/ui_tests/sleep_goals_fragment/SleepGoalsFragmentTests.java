@@ -11,6 +11,7 @@ import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestNavigate;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
+import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DurationPickerTestUtils;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFormatting;
@@ -83,6 +84,34 @@ public class SleepGoalsFragmentTests
         onView(withId(R.id.sleep_goals_new_duration_btn)).check(matches(isDisplayed()));
         // AND the sleep duration goal info view is not displayed
         onView(withId(R.id.sleep_goals_duration)).check(matches(not(isDisplayed())));
+    }
+    
+    @Test
+    public void editSleepDurationGoal_editsGoal()
+    {
+        // GIVEN the user is on the sleep goals screen
+        HiltFragmentTestHelper<SleepGoalsFragment> helper =
+                HiltFragmentTestHelper.launchFragment(SleepGoalsFragment.class);
+        // AND the user has set a sleep duration goal
+        int testHours = 12;
+        int testMinutes = 34;
+        SleepGoalsFragmentTestUtils.addNewSleepDurationGoal(testHours, testMinutes);
+        
+        // WHEN the user edits that goal
+        onView(withId(R.id.duration_edit_btn)).perform(click());
+        
+        // THEN the duration picker displays with the correct values (the current sleep duration
+        // goal)
+        DurationPickerTestUtils.checkMatchesDuration(testHours, testMinutes);
+        // AND the current sleep duration goal is edited on positive confirmation of the dialog
+        int expectedHours = 21;
+        int expectedMinutes = 43;
+        DurationPickerTestUtils.setDuration(expectedHours, expectedMinutes);
+        DialogTestUtils.pressOK();
+        
+        onView(withId(R.id.duration_value)).check(matches(withText(
+                SleepGoalsFormatting.formatSleepDurationGoal(
+                        new SleepDurationGoalModel(expectedHours, expectedMinutes)))));
     }
     
     @Test
@@ -236,10 +265,10 @@ public class SleepGoalsFragmentTests
                 ActivityScenario.launch(MainActivity.class);
         UITestNavigate.fromHome_toGoals();
         SleepGoalsFragmentTestUtils.addNewSleepDurationGoal(12, 34);
-    
+        
         // WHEN the app is restarted
         mainActivityScenario = UITestUtils.restartApp(mainActivityScenario, MainActivity.class);
-    
+        
         // THEN the previously set sleep duration goal is still displayed
         UITestNavigate.fromHome_toGoals();
         onView(withId(R.id.sleep_goals_duration)).check(matches(isDisplayed()));
