@@ -115,17 +115,30 @@ public class SleepGoalsFragmentTests
     }
     
     @Test
+    public void deleteSleepDurationGoal_deletesGoal()
+    {
+        // GIVEN the user is on the sleep goal screen
+        // AND the user has set a sleep duration goal
+        HiltFragmentTestHelper<SleepGoalsFragment> helper =
+                SleepGoalsFragmentTestUtils.launchWithSleepDurationGoal(12, 34);
+        
+        // WHEN they delete that goal (confirming the dialog)
+        onView(withId(R.id.duration_delete_btn)).perform(click());
+        DialogTestUtils.pressOK();
+        
+        // THEN that goal is deleted
+        // AND the "add new sleep duration" button is displayed again
+        onView(withId(R.id.sleep_goals_waketime)).check(matches(not(isDisplayed())));
+        onView(withId(R.id.sleep_goals_new_waketime_btn)).check(matches(isDisplayed()));
+    }
+    
+    @Test
     public void deleteWakeTime_deletesWakeTime()
     {
-        // REFACTOR [21-01-18 4:47PM] -- call this SleepGoalsFragmentTestUtils.launchWithWakeTime
-        //  (hour, min)
         // GIVEN the user is on the sleep goals screen
-        HiltFragmentTestHelper<SleepGoalsFragment> helper =
-                HiltFragmentTestHelper.launchFragment(SleepGoalsFragment.class);
         // AND the user has set a wake-time goal
-        int testHourOfDay = 12;
-        int testMinute = 34;
-        SleepGoalsFragmentTestUtils.addNewWakeTime(testHourOfDay, testMinute);
+        HiltFragmentTestHelper<SleepGoalsFragment> helper =
+                SleepGoalsFragmentTestUtils.launchWithWakeTimeGoal(12, 34);
         
         // WHEN they delete that goal (confirming the dialog)
         onView(withId(R.id.waketime_delete_btn)).perform(click());

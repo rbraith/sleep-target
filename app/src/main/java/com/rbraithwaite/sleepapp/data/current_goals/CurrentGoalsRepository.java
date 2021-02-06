@@ -71,4 +71,9 @@ public class CurrentGoalsRepository
     {
         mDataPrefs.setSleepDurationGoal(sleepDurationGoal.inMinutes());
     }
+    
+    public void clearSleepDurationGoal()
+    {
+        mDataPrefs.clearSleepDurationGoal();
+    }
 }

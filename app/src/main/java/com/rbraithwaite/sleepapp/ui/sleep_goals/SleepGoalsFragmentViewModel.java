@@ -181,6 +181,11 @@ public class SleepGoalsFragmentViewModel
                     }
                 });
     }
+    
+    public void clearSleepDurationGoal()
+    {
+        mCurrentGoalsRepository.clearSleepDurationGoal();
+    }
 
 //*********************************************************
 // private methods

@@ -1,6 +1,5 @@
 package com.rbraithwaite.sleepapp.ui.sleep_goals;
 
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -16,7 +15,7 @@ import androidx.lifecycle.Observer;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
-import com.rbraithwaite.sleepapp.ui.dialog.AlertDialogFragment;
+import com.rbraithwaite.sleepapp.ui.dialog.DialogUtils;
 import com.rbraithwaite.sleepapp.ui.dialog.DurationPickerFragment;
 import com.rbraithwaite.sleepapp.ui.dialog.TimePickerFragment;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.data.SleepDurationGoalUIData;
@@ -35,6 +34,7 @@ public class SleepGoalsFragment
     private static final String WAKETIME_TIME_PICKER = "WakeTimeTimePicker";
     
     private static final String DIALOG_DELETE_WAKETIME = "DeleteWakeTime";
+    private static final String DIALOG_DELETE_DURATION = "DeleteDuration";
     
     private static final String PICKER_SLEEP_DURATION = "SleepDurationPicker";
     private static final String TAG = "SleepGoalsFragment";
@@ -151,7 +151,7 @@ public class SleepGoalsFragment
     
     private void initSleepDurationGoalLayout(View sleepDurationGoalLayout)
     {
-        final TextView sleepDurationGoalValue =
+        final TextView valueText =
                 sleepDurationGoalLayout.findViewById(R.id.duration_value);
         getViewModel().getSleepDurationGoalText().observe(
                 getViewLifecycleOwner(),
@@ -160,13 +160,12 @@ public class SleepGoalsFragment
                     @Override
                     public void onChanged(String sleepDurationGoal)
                     {
-                        sleepDurationGoalValue.setText(sleepDurationGoal);
+                        valueText.setText(sleepDurationGoal);
                     }
                 });
         
-        Button sleepDurationGoalEditButton =
-                sleepDurationGoalLayout.findViewById(R.id.duration_edit_btn);
-        sleepDurationGoalEditButton.setOnClickListener(new View.OnClickListener()
+        Button editButton = sleepDurationGoalLayout.findViewById(R.id.duration_edit_btn);
+        editButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
@@ -182,6 +181,17 @@ public class SleepGoalsFragment
                                 displaySleepDurationGoalPickerDialog(goal);
                             }
                         });
+            }
+        });
+        
+        Button deleteButton = sleepDurationGoalLayout.findViewById(R.id.duration_delete_btn);
+        deleteButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                displaySleepDurationGoalDeleteDialog();
+//                displayWakeTimeDeleteDialog();
             }
         });
     }
@@ -252,32 +262,39 @@ public class SleepGoalsFragment
         durationPickerDialog.show(getChildFragmentManager(), PICKER_SLEEP_DURATION);
     }
     
+    private void displaySleepDurationGoalDeleteDialog()
+    {
+        DialogUtils
+                .createDeleteDialog(
+                        requireContext(),
+                        R.string.sleep_goals_delete_duration_dialog_title,
+                        new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                getViewModel().clearSleepDurationGoal();
+                            }
+                        })
+                .show(getChildFragmentManager(), DIALOG_DELETE_DURATION);
+        ;
+    }
+    
     private void displayWakeTimeDeleteDialog()
     {
-        AlertDialogFragment alertDialog =
-                AlertDialogFragment.createInstance(new AlertDialogFragment.AlertDialogFactory()
-                {
-                    @Override
-                    public AlertDialog create()
-                    {
-                        return new AlertDialog.Builder(requireContext())
-                                .setTitle(R.string.sleep_goals_delete_waketime_dialog_title)
-                                .setIcon(R.drawable.ic_baseline_delete_forever_24)
-                                .setNegativeButton(R.string.cancel, null)
-                                .setPositiveButton(
-                                        R.string.delete,
-                                        new DialogInterface.OnClickListener()
-                                        {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which)
-                                            {
-                                                getViewModel().clearWakeTime();
-                                            }
-                                        })
-                                .create();
-                    }
-                });
-        alertDialog.show(getChildFragmentManager(), DIALOG_DELETE_WAKETIME);
+        DialogUtils
+                .createDeleteDialog(
+                        requireContext(),
+                        R.string.sleep_goals_delete_waketime_dialog_title,
+                        new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                getViewModel().clearWakeTime();
+                            }
+                        })
+                .show(getChildFragmentManager(), DIALOG_DELETE_WAKETIME);
     }
     
     private void displayWakeTimePickerDialog(long defaultValueMillis)

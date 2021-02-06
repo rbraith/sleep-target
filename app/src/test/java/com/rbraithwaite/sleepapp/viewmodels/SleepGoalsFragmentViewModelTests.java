@@ -110,6 +110,13 @@ public class SleepGoalsFragmentViewModelTests
     }
     
     @Test
+    public void clearSleepDurationGoal_callRepo()
+    {
+        viewModel.clearSleepDurationGoal();
+        verify(mockCurrentGoalsRepository, times(1)).clearSleepDurationGoal();
+    }
+    
+    @Test
     public void clearWakeTime_callsRepo()
     {
         viewModel.clearWakeTime();

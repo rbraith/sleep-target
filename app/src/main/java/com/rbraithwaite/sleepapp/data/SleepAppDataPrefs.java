@@ -116,6 +116,9 @@ public class SleepAppDataPrefs
             @Override
             public void run()
             {
+                // REFACTOR [21-02-6 2:01AM] -- change all this to behave like
+                //  setSleepDurationGoal().
+                //  This includes writing a new unit test for the new null arg behaviour.
                 commitLong(WAKE_TIME_GOAL_KEY, wakeTimeGoalMillis);
                 if (mWakeTimeGoal != null) {
                     Long val = wakeTimeGoalMillis == NULL_LONG_VAL ? null : wakeTimeGoalMillis;
@@ -145,17 +148,21 @@ public class SleepAppDataPrefs
     {
         mExecutor.execute(new Runnable()
         {
-            @SuppressLint("ApplySharedPref") // suppress commit() warning
             @Override
             public void run()
             {
-                commitInt(WAKE_TIME_GOAL_KEY,
+                commitInt(SLEEP_DURATION_GOAL_KEY,
                           (goalMinutes == null) ? NULL_INT_VAL : goalMinutes);
                 if (mSleepDurationGoal != null) {
                     mSleepDurationGoal.postValue(goalMinutes);
                 }
             }
         });
+    }
+    
+    public void clearSleepDurationGoal()
+    {
+        setSleepDurationGoal(null);
     }
 
 
@@ -204,10 +211,18 @@ public class SleepAppDataPrefs
         if (mSleepDurationGoal == null) {
             mSleepDurationGoal = new MutableLiveData<>();
             // asynchronously initialize the in-memory cache from the preferences
-            int sleepDurationGoalMinutes =
-                    getSharedPrefs().getInt(SLEEP_DURATION_GOAL_KEY, NULL_INT_VAL);
-            mSleepDurationGoal.postValue(
-                    sleepDurationGoalMinutes == NULL_INT_VAL ? null : sleepDurationGoalMinutes);
+            mExecutor.execute(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    int sleepDurationGoalMinutes =
+                            getSharedPrefs().getInt(SLEEP_DURATION_GOAL_KEY, NULL_INT_VAL);
+                    mSleepDurationGoal.postValue(
+                            sleepDurationGoalMinutes == NULL_INT_VAL ? null :
+                                    sleepDurationGoalMinutes);
+                }
+            });
         }
         return mSleepDurationGoal;
     }

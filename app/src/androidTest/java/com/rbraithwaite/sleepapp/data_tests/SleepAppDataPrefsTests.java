@@ -251,4 +251,20 @@ public class SleepAppDataPrefsTests
         synchronizer.sync();
         assertThat(wakeTime.getValue(), is(nullValue()));
     }
+    
+    @Test
+    public void clearSleepDurationGoal_clearsGoal()
+    {
+        int testGoal = 1234;
+        prefs.setSleepDurationGoal(testGoal);
+        LiveData<Integer> sleepDurationGoal = prefs.getSleepDurationGoal();
+        TestUtils.InstrumentationLiveDataSynchronizer<Integer> synchronizer =
+                new TestUtils.InstrumentationLiveDataSynchronizer<>(sleepDurationGoal);
+        assertThat(sleepDurationGoal.getValue(), is(testGoal));
+        
+        prefs.clearSleepDurationGoal();
+        
+        synchronizer.sync();
+        assertThat(sleepDurationGoal.getValue(), is(nullValue()));
+    }
 }
