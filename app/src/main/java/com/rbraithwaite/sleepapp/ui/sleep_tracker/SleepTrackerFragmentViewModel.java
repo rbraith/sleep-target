@@ -18,6 +18,7 @@ import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
+import com.rbraithwaite.sleepapp.utils.LiveDataUtils;
 import com.rbraithwaite.sleepapp.utils.TickingLiveData;
 
 import java.util.Date;
@@ -140,10 +141,7 @@ public class SleepTrackerFragmentViewModel
                                 public String onTick()
                                 {
                                     return durationFormatter.formatDurationMillis(
-                                            calculateDurationMillis(
-                                                    currentSession.getStart(),
-                                                    DateUtils.getNow()
-                                            ));
+                                            currentSession.getOngoingDurationMillis());
                                 }
                             };
                         }
@@ -211,28 +209,36 @@ public class SleepTrackerFragmentViewModel
 
     private void addCurrentSessionThenClear(final CurrentSessionModel currentSession)
     {
-        LiveDataFuture.getValue(
-                // REFACTOR [21-01-5 2:03AM] -- getWakeTimeGoal should return a Date.
+        LiveData<SleepSessionModel> sessionLive = LiveDataUtils.merge(
                 mCurrentGoalsRepository.getWakeTimeGoal(),
-                null,
-                new LiveDataFuture.OnValueListener<Long>()
+                mCurrentGoalsRepository.getSleepDurationGoal(),
+                new LiveDataUtils.Merger<Long, SleepDurationGoalModel, SleepSessionModel>()
                 {
                     @Override
-                    public void onValue(Long wakeTimeGoalMillis)
+                    public SleepSessionModel applyMerge(
+                            Long wakeTimeGoalMillis, SleepDurationGoalModel sleepDurationGoal)
                     {
-                        // REFACTOR [21-02-3 3:17PM] -- this should be CurrentSessionModel
-                        //  .getDuration.
-                        long durationMillis = calculateDurationMillis(currentSession.getStart(),
-                                                                      DateUtils.getNow());
+                        // REFACTOR [21-02-9 12:04AM] -- this should be WakeTimeGoalModel.asDate().
                         Date wakeTimeGoal = (wakeTimeGoalMillis == null) ?
-                                null :
-                                DateUtils.getDateFromMillis(wakeTimeGoalMillis);
+                                null : DateUtils.getDateFromMillis(wakeTimeGoalMillis);
                         
-                        mSleepSessionRepository.addSleepSession(new SleepSessionModel(
+                        return new SleepSessionModel(
                                 currentSession.getStart(),
-                                durationMillis,
-                                wakeTimeGoal));
-                        
+                                currentSession.getOngoingDurationMillis(),
+                                wakeTimeGoal,
+                                sleepDurationGoal);
+                    }
+                });
+        
+        LiveDataFuture.getValue(
+                sessionLive,
+                null,
+                new LiveDataFuture.OnValueListener<SleepSessionModel>()
+                {
+                    @Override
+                    public void onValue(SleepSessionModel session)
+                    {
+                        mSleepSessionRepository.addSleepSession(session);
                         mCurrentSessionRepository.clearCurrentSession();
                     }
                 });

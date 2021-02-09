@@ -102,4 +102,19 @@ public class UITestUtils
         });
         return sessionArchiveCount.get();
     }
+    
+    /**
+     * This blocks its thread until a displaying snackbar has finished. It does not work with
+     * snackbars using Snackbar.LENGTH_INDEFINITE
+     */
+    public static void waitForSnackbarToFinish()
+    {
+        // HACK [21-02-8 9:48PM] -- This is a ducktape solution, Thread.sleep = bad bad bad. Figure
+        //  out a way to query the state of the snackbar and block the thread accordingly.
+        try {
+            Thread.sleep(3500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 }

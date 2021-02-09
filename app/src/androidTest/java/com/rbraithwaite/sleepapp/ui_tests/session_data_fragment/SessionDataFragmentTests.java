@@ -2,17 +2,20 @@ package com.rbraithwaite.sleepapp.ui_tests.session_data_fragment;
 
 import android.os.Bundle;
 
+import androidx.test.espresso.ViewInteraction;
 import androidx.test.espresso.contrib.PickerActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.TestUtils;
+import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
+import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFormatting;
 import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragment;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
 
@@ -31,6 +34,7 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoActions.setDatePickerDate;
 import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoMatchers.datePickerWithDate;
@@ -42,6 +46,7 @@ import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDa
 import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onEndTimeTextView;
 import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onStartDateTextView;
 import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onStartTimeTextView;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.not;
 
 @RunWith(AndroidJUnit4.class)
@@ -59,6 +64,37 @@ public class SessionDataFragmentTests
 // api
 //*********************************************************
 
+    @Test
+    public void sleepDurationGoal_isNotDisplayedIfGoalIsNotSet()
+    {
+        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
+        initialData.setSleepDurationGoal(new SleepDurationGoalModel());
+        
+        HiltFragmentTestHelper<SessionDataFragment> testHelper =
+                launchWithSleepSession(initialData);
+        
+        onView(withId(R.id.session_data_duration_layout)).check(matches(not(isDisplayed())));
+    }
+    
+    @Test
+    public void sleepDurationGoal_isDisplayedCorrectlyWhenProvided()
+    {
+        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
+        initialData.setSleepDurationGoal(new SleepDurationGoalModel(123));
+        
+        HiltFragmentTestHelper<SessionDataFragment> testHelper =
+                launchWithSleepSession(initialData);
+        
+        ViewInteraction onDurationValue =
+                onView(allOf(
+                        withId(R.id.session_data_duration_value),
+                        withParent(withId(R.id.session_data_duration_layout))));
+        
+        onDurationValue.check(matches(isDisplayed()));
+        onDurationValue.check(matches(withText(
+                SessionDataFormatting.formatSleepDurationGoal(initialData.getSleepDurationGoal()))));
+    }
+    
     @Test
     public void wakeTimeDialog_reflectsSetWakeTime()
     {

@@ -20,6 +20,7 @@ public class SleepSessionContract
         public static final String START_TIME = "start_time";
         public static final String DURATION = "duration";
         public static final String WAKE_TIME_GOAL = "wake_time_goal";
+        public static final String SLEEP_DURATION_GOAL = "sleep_duration_goal";
     }
 
 //*********************************************************

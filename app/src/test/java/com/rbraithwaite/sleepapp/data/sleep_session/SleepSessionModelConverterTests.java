@@ -32,6 +32,8 @@ public class SleepSessionModelConverterTests
         assertThat(model.getStart(), is(equalTo(entity.startTime)));
         assertThat(model.getDuration(), is(equalTo(entity.duration)));
         assertThat(model.getWakeTimeGoal(), is(equalTo(entity.wakeTimeGoal)));
+        assertThat(model.getSleepDurationGoal().inMinutes(),
+                   is(equalTo(entity.sleepDurationGoalMinutes)));
     }
     
     @Test
@@ -50,5 +52,7 @@ public class SleepSessionModelConverterTests
         assertThat(model.getStart(), is(equalTo(entity.startTime)));
         assertThat(model.getDuration(), is(equalTo(entity.duration)));
         assertThat(model.getWakeTimeGoal(), is(equalTo(entity.wakeTimeGoal)));
+        assertThat(model.getSleepDurationGoal().inMinutes(),
+                   is(equalTo(entity.sleepDurationGoalMinutes)));
     }
 }

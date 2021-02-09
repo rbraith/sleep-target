@@ -12,6 +12,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.rbraithwaite.sleepapp.data.SleepAppDataPrefs;
+import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
@@ -141,7 +142,8 @@ public class TestUtils
             return new SleepSessionModel(
                     getDate(),
                     getDurationMillis(),
-                    getWakeTimeGoal());
+                    getWakeTimeGoal(),
+                    getSleepDurationGoalModel());
         }
         
         public static Date getWakeTimeGoal()
@@ -153,6 +155,11 @@ public class TestUtils
         }
         
         public static long getDurationMillis() {return 5000L;}
+        
+        public static SleepDurationGoalModel getSleepDurationGoalModel()
+        {
+            return new SleepDurationGoalModel(1234);
+        }
     }
 
 

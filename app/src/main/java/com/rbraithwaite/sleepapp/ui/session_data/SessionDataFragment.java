@@ -62,7 +62,7 @@ public class SessionDataFragment
     private static final String DIALOG_END_TIME_PICKER = "EndTimePicker";
     private static final String DIALOG_WAKETIME_TIME_PICKER = "WakeTimePicker";
     private static final String DIALOG_DELETE_WAKETIME = "DeleteWakeTimeGoal";
-    
+
 //*********************************************************
 // public constants
 //*********************************************************
@@ -139,7 +139,7 @@ public class SessionDataFragment
 //*********************************************************
 
     public SessionDataFragment() { setHasOptionsMenu(true); }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -173,6 +173,7 @@ public class SessionDataFragment
         initEndDateTime(view.findViewById(R.id.session_data_end_time));
         initSessionDuration(view);
         initWakeTimeGoal(view);
+        initSleepDurationGoal(view);
         
         // init back press behaviour
         requireActivity().getOnBackPressedDispatcher().addCallback(
@@ -233,10 +234,10 @@ public class SessionDataFragment
     
     @Override
     protected boolean getBottomNavVisibility() { return false; }
-
+    
     @Override
     protected Class<SessionDataFragmentViewModel> getViewModelClass() { return SessionDataFragmentViewModel.class; }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -254,13 +255,13 @@ public class SessionDataFragment
                 .actionSessionArchiveToSessionData(args)
                 .getArguments();
     }
-
+    
     // TODO [21-12-31 1:54AM] -- I should think more about possible ways of unit testing this.
     public void completed()
     {
         clearSessionDataThenNavigateUp();
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -271,8 +272,32 @@ public class SessionDataFragment
         Navigation.findNavController(getView()).navigateUp();
     }
     
+    private void initSleepDurationGoal(View fragmentRoot)
+    {
+        final View sleepDurationGoalLayout =
+                fragmentRoot.findViewById(R.id.session_data_duration_layout);
+        final TextView sleepDurationGoalValue =
+                sleepDurationGoalLayout.findViewById(R.id.session_data_duration_value);
+        getViewModel().getSleepDurationGoalText().observe(
+                getViewLifecycleOwner(),
+                new Observer<String>()
+                {
+                    @Override
+                    public void onChanged(String sleepDurationGoalText)
+                    {
+                        if (sleepDurationGoalText == null) {
+                            sleepDurationGoalLayout.setVisibility(View.GONE);
+                        } else {
+                            sleepDurationGoalLayout.setVisibility(View.VISIBLE);
+                            sleepDurationGoalValue.setText(sleepDurationGoalText);
+                        }
+                    }
+                });
+    }
+    
     private void initWakeTimeGoal(final View fragmentRoot)
     {
+        // edit button
         // REFACTOR [21-01-27 11:28PM] -- maybe search from wakeTimeLayout instead?
         final TextView wakeTimeText = fragmentRoot.findViewById(R.id.session_data_goal_waketime);
         wakeTimeText.setOnClickListener(new View.OnClickListener()
@@ -283,6 +308,8 @@ public class SessionDataFragment
                 displayWakeTimeGoalDialog();
             }
         });
+        
+        // add button
         final Button addWakeTimeButton =
                 fragmentRoot.findViewById(R.id.session_data_add_waketime_btn);
         addWakeTimeButton.setOnClickListener(new View.OnClickListener()
@@ -293,6 +320,8 @@ public class SessionDataFragment
                 displayWakeTimeGoalDialog();
             }
         });
+        
+        // delete button
         final ImageButton deleteWakeTimeButton =
                 fragmentRoot.findViewById(R.id.session_data_delete_waketime_btn);
         deleteWakeTimeButton.setOnClickListener(new View.OnClickListener()
@@ -317,6 +346,8 @@ public class SessionDataFragment
                                   DIALOG_DELETE_WAKETIME);
             }
         });
+        
+        // toggle display
         final View wakeTimeLayout = fragmentRoot.findViewById(R.id.session_data_waketime_layout);
         getViewModel().getWakeTimeGoal().observe(
                 getViewLifecycleOwner(),

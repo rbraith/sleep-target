@@ -7,6 +7,7 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.data.current_goals.CurrentGoalsRepository;
+import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.ui.UIDependenciesModule;
@@ -15,6 +16,7 @@ import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_archive.data.SessionArchiveListItem;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
+import com.rbraithwaite.sleepapp.utils.LiveDataUtils;
 
 import java.util.List;
 
@@ -95,21 +97,24 @@ public class SessionArchiveFragmentViewModel
     {
         // REFACTOR [21-01-5 9:14PM] -- consider making this lazy init & storing the value in a
         //  field (avoid re-instantiation of the mapped LiveData?)
-        // LiveData retval & mapping are needed because the wake-time goal is returned from the
-        // repository asynchronously.
-        return Transformations.map(
+        // LiveData retval & mapping are needed because the wake-time & sleep duration goals are
+        // returned from the repository asynchronously.
+        return LiveDataUtils.merge(
                 mCurrentGoalsRepository.getWakeTimeGoal(),
-                new Function<Long, SleepSessionWrapper>()
+                mCurrentGoalsRepository.getSleepDurationGoal(),
+                new LiveDataUtils.Merger<Long, SleepDurationGoalModel, SleepSessionWrapper>()
                 {
                     @Override
-                    public SleepSessionWrapper apply(Long wakeTimeGoal)
+                    public SleepSessionWrapper applyMerge(
+                            Long wakeTimeGoal, SleepDurationGoalModel sleepDurationGoal)
                     {
                         return new SleepSessionWrapper(
                                 new SleepSessionModel(
                                         DateUtils.getNow(),
                                         0,
                                         wakeTimeGoal == null ?
-                                                null : DateUtils.getDateFromMillis(wakeTimeGoal)));
+                                                null : DateUtils.getDateFromMillis(wakeTimeGoal),
+                                        sleepDurationGoal));
                     }
                 });
     }

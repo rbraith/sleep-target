@@ -6,8 +6,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.TestUtils;
 import com.rbraithwaite.sleepapp.data.current_goals.CurrentGoalsRepository;
+import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionRepository;
+import com.rbraithwaite.sleepapp.test_utils.data.MockRepositoryUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragmentViewModel;
@@ -72,7 +74,10 @@ public class SessionArchiveFragmentViewModelTests
     @Test
     public void getInitialAddSessionData_returnsZeroId()
     {
-        when(mockCurrentGoalsRepository.getWakeTimeGoal()).thenReturn(new MutableLiveData<Long>(null));
+        MockRepositoryUtils.setupCurrentGoalsRepositoryWithState(
+                mockCurrentGoalsRepository,
+                new MutableLiveData<Long>(null),
+                new MutableLiveData<>(new SleepDurationGoalModel()));
         
         LiveData<SleepSessionWrapper> sleepSession = viewModel.getInitialAddSessionData();
         TestUtils.activateLocalLiveData(sleepSession);
@@ -84,7 +89,10 @@ public class SessionArchiveFragmentViewModelTests
     public void getInitialAddSessionData_usesCurrentWakeTimeGoal()
     {
         LiveData<Long> wakeTimeGoal = new MutableLiveData<>(100L);
-        when(mockCurrentGoalsRepository.getWakeTimeGoal()).thenReturn(wakeTimeGoal);
+        MockRepositoryUtils.setupCurrentGoalsRepositoryWithState(
+                mockCurrentGoalsRepository,
+                wakeTimeGoal,
+                new MutableLiveData<>(new SleepDurationGoalModel()));
         
         LiveData<SleepSessionWrapper> sleepSessionWrapper = viewModel.getInitialAddSessionData();
         TestUtils.activateLocalLiveData(sleepSessionWrapper);
@@ -179,11 +187,12 @@ public class SessionArchiveFragmentViewModelTests
         String expectedFormattedStartTime = dateTimeFormatter.formatFullDate(start);
         String expectedFormattedEndTime = dateTimeFormatter.formatFullDate(end);
         
-        SleepSessionModel mockData = new SleepSessionModel(start, duration, null);
+        SleepSessionModel mockData = new SleepSessionModel(start, duration, null, null);
         
         LiveData<SleepSessionModel> mockLiveData = new MutableLiveData<>(mockData);
         when(mockSleepSessionRepository.getSleepSession(sessionID)).thenReturn(mockLiveData);
         
+        // SUT
         LiveData<SessionArchiveListItem> retrievedListItemLiveData =
                 viewModel.getListItemData(sessionID);
         // REFACTOR [20-11-14 7:50PM] -- consider grouping LiveData utils into

@@ -24,4 +24,6 @@ public class SleepSessionEntity
     public long duration;
     @ColumnInfo(name = SleepSessionContract.Columns.WAKE_TIME_GOAL)
     public Date wakeTimeGoal;
+    @ColumnInfo(name = SleepSessionContract.Columns.SLEEP_DURATION_GOAL)
+    public Integer sleepDurationGoalMinutes;
 }

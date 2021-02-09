@@ -7,17 +7,21 @@ import com.rbraithwaite.sleepapp.TestUtils;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
+import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFormatting;
 import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragmentViewModel;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -35,6 +39,10 @@ public class SessionDataFragmentViewModelTests
 
     SessionDataFragmentViewModel viewModel;
     DateTimeFormatter dateTimeFormatter;
+    
+//    @Rule
+//    // protection against potentially infinitely blocked threads
+//    public Timeout timeout = new Timeout(10, TimeUnit.SECONDS);
 
 //*********************************************************
 // api
@@ -52,6 +60,19 @@ public class SessionDataFragmentViewModelTests
     {
         viewModel = null;
         dateTimeFormatter = null;
+    }
+    
+    @Test
+    public void getSleepDurationGoalText_reflectsInitialData()
+    {
+        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
+        viewModel.initSessionData(new SleepSessionWrapper(initialData));
+        
+        LiveData<String> sleepDurationGoalText = viewModel.getSleepDurationGoalText();
+        TestUtils.activateLocalLiveData(sleepDurationGoalText);
+        
+        assertThat(sleepDurationGoalText.getValue(), is(equalTo(
+                SessionDataFormatting.formatSleepDurationGoal(initialData.getSleepDurationGoal()))));
     }
     
     @Test
@@ -188,7 +209,8 @@ public class SessionDataFragmentViewModelTests
                 5,
                 startDateTime,
                 duration,
-                TestUtils.ArbitraryData.getWakeTimeGoal());
+                TestUtils.ArbitraryData.getWakeTimeGoal(),
+                TestUtils.ArbitraryData.getSleepDurationGoalModel());
         viewModel.initSessionData(new SleepSessionWrapper(expected));
         
         // check result values
@@ -198,6 +220,8 @@ public class SessionDataFragmentViewModelTests
         assertThat(result.getStart(), is(equalTo(expected.getStart())));
         assertThat(result.getDuration(), is(equalTo(expected.getDuration())));
         assertThat(result.getWakeTimeGoal(), is(equalTo(expected.getWakeTimeGoal())));
+        // REFACTOR [21-02-7 1:52AM] -- SleepDurationGoalModel.equals()
+        assertThat(result.getSleepDurationGoal(), is(equalTo(expected.getSleepDurationGoal())));
     }
     
     @Test(expected = SessionDataFragmentViewModel.InvalidDateTimeException.class)

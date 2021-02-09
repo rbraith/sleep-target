@@ -1,5 +1,6 @@
 package com.rbraithwaite.sleepapp.data.sleep_session;
 
+import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
 
 import java.io.Serializable;
@@ -16,33 +17,41 @@ public class SleepSessionModel
     private Date mStart;
     private long mDuration;
     private Date mWakeTimeGoal;
+    private SleepDurationGoalModel mSleepDurationGoal;
 
 //*********************************************************
 // public constants
 //*********************************************************
 
     public static final long serialVersionUID = 20210112L;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
 
-    public SleepSessionModel(int id, Date start, long duration, Date wakeTimeGoal)
+    public SleepSessionModel(
+            int id,
+            Date start,
+            long duration,
+            Date wakeTimeGoal,
+            SleepDurationGoalModel sleepDurationGoal)
     {
         mId = id;
         mStart = start;
         mDuration = duration;
         mWakeTimeGoal = wakeTimeGoal;
+        mSleepDurationGoal = sleepDurationGoal;
     }
     
-    public SleepSessionModel(Date start, long duration, Date wakeTimeGoal)
+    public SleepSessionModel(
+            Date start,
+            long duration,
+            Date wakeTimeGoal,
+            SleepDurationGoalModel sleepDurationGoal)
     {
-        mId = 0;
-        mStart = start;
-        mDuration = duration;
-        mWakeTimeGoal = wakeTimeGoal;
+        this(0, start, duration, wakeTimeGoal, sleepDurationGoal);
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -97,5 +106,15 @@ public class SleepSessionModel
         
         return DateUtils.getDateFromMillis(
                 start.getTime() + durationMillis);
+    }
+    
+    public SleepDurationGoalModel getSleepDurationGoal()
+    {
+        return mSleepDurationGoal;
+    }
+    
+    public void setSleepDurationGoal(SleepDurationGoalModel sleepDurationGoal)
+    {
+        mSleepDurationGoal = sleepDurationGoal;
     }
 }

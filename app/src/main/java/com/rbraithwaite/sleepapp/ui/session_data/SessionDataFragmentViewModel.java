@@ -9,6 +9,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
+import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.data.database.convert.DateConverter;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
 import com.rbraithwaite.sleepapp.ui.UIDependenciesModule;
@@ -16,6 +17,7 @@ import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
+import com.rbraithwaite.sleepapp.utils.LiveDataUtils;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -50,6 +52,7 @@ public class SessionDataFragmentViewModel
     DateTimeFormatter mDateTimeFormatter;
     
     MutableLiveData<Date> mWakeTimeGoal;
+    MutableLiveData<SleepDurationGoalModel> mSleepDurationGoal;
 
 //*********************************************************
 // public helpers
@@ -87,7 +90,8 @@ public class SessionDataFragmentViewModel
                 mSessionId,
                 DateUtils.getDateFromMillis(getStartDateTime().getValue()),
                 getEndDateTime().getValue() - getStartDateTime().getValue(),
-                getWakeTimeGoalMutable().getValue()));
+                getWakeTimeGoalMutable().getValue(),
+                getSleepDurationGoalMutable().getValue()));
     }
     
     public LiveData<String> getSessionDuration()
@@ -299,9 +303,9 @@ public class SessionDataFragmentViewModel
             //  breaking it down like this (this breaking-down behaviour is legacy).
             mSessionId = sleepSession.getId();
             getStartDateTimeMutable().setValue(sleepSession.getStart().getTime());
-            getEndDateTimeMutable().setValue(
-                    sleepSession.getStart().getTime() + sleepSession.getDuration());
+            getEndDateTimeMutable().setValue(sleepSession.getEnd().getTime());
             getWakeTimeGoalMutable().setValue(sleepSession.getWakeTimeGoal());
+            getSleepDurationGoalMutable().setValue(sleepSession.getSleepDurationGoal());
             
             mIsInitialized = true;
         }
@@ -358,6 +362,24 @@ public class SessionDataFragmentViewModel
     public void clearWakeTimeGoal()
     {
         getWakeTimeGoalMutable().setValue(null);
+    }
+    
+    public LiveData<String> getSleepDurationGoalText()
+    {
+        return Transformations.map(
+                getSleepDurationGoalMutable(),
+                new Function<SleepDurationGoalModel, String>()
+                {
+                    @Override
+                    public String apply(SleepDurationGoalModel input)
+                    {
+                        // REFACTOR [21-02-7 1:56AM] -- should this null behaviour be in
+                        //  SessionDataFormatting.formatSleepDurationGoal instead?
+                        return input.isSet() ?
+                                SessionDataFormatting.formatSleepDurationGoal(input) :
+                                null;
+                    }
+                });
     }
 
 //*********************************************************
@@ -441,29 +463,27 @@ public class SessionDataFragmentViewModel
         }
     }
     
+    private MutableLiveData<SleepDurationGoalModel> getSleepDurationGoalMutable()
+    {
+        mSleepDurationGoal = LiveDataUtils.lazyInitMutable(mSleepDurationGoal);
+        return mSleepDurationGoal;
+    }
+    
     private MutableLiveData<Date> getWakeTimeGoalMutable()
     {
-        // REFACTOR [21-01-5 10:11PM] -- duplicated lazy init logic
-        //  extract to a utility? or at least a private method eg getLazyInitializedMutableLiveData.
-        if (mWakeTimeGoal == null) {
-            mWakeTimeGoal = new MutableLiveData<>(null);
-        }
+        mWakeTimeGoal = LiveDataUtils.lazyInitMutable(mWakeTimeGoal, null);
         return mWakeTimeGoal;
     }
     
     private MutableLiveData<Long> getStartDateTimeMutable()
     {
-        if (mStartDateTime == null) {
-            mStartDateTime = new MutableLiveData<>(null);
-        }
+        mStartDateTime = LiveDataUtils.lazyInitMutable(mStartDateTime, null);
         return mStartDateTime;
     }
     
     private MutableLiveData<Long> getEndDateTimeMutable()
     {
-        if (mEndDateTime == null) {
-            mEndDateTime = new MutableLiveData<>(null);
-        }
+        mEndDateTime = LiveDataUtils.lazyInitMutable(mEndDateTime, null);
         return mEndDateTime;
     }
 
