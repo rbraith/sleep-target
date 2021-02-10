@@ -381,6 +381,11 @@ public class SessionDataFragmentViewModel
                     }
                 });
     }
+    
+    public void clearSleepDurationGoal()
+    {
+        getSleepDurationGoalMutable().setValue(new SleepDurationGoalModel());
+    }
 
 //*********************************************************
 // private methods

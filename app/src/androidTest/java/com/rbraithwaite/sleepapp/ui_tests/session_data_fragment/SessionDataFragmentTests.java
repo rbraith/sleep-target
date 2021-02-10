@@ -65,6 +65,25 @@ public class SessionDataFragmentTests
 //*********************************************************
 
     @Test
+    public void deleteSleepDurationGoalButton_deletesGoal()
+    {
+        // GIVEN the user is on the session data screen
+        // AND there is a set sleep duration goal
+        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
+        initialData.setSleepDurationGoal(TestUtils.ArbitraryData.getSleepDurationGoalModel());
+        
+        HiltFragmentTestHelper<SessionDataFragment> testHelper =
+                SessionDataFragmentTestUtils.launchWithSleepSession(initialData);
+        
+        // WHEN the user deletes the sleep duration goal
+        onView(withId(R.id.session_data_delete_duration_btn)).perform(click());
+        DialogTestUtils.pressOK();
+        
+        // THEN the sleep duration goal is deleted
+        onView(withId(R.id.session_data_duration_layout)).check(matches(not(isDisplayed())));
+    }
+    
+    @Test
     public void sleepDurationGoal_isNotDisplayedIfGoalIsNotSet()
     {
         SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();

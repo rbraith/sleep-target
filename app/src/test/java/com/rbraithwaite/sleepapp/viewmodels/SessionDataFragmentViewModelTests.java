@@ -13,20 +13,17 @@ import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
 // REFACTOR [20-12-8 8:52PM] -- consider splitting this into separate test classes?
@@ -39,7 +36,7 @@ public class SessionDataFragmentViewModelTests
 
     SessionDataFragmentViewModel viewModel;
     DateTimeFormatter dateTimeFormatter;
-    
+
 //    @Rule
 //    // protection against potentially infinitely blocked threads
 //    public Timeout timeout = new Timeout(10, TimeUnit.SECONDS);
@@ -76,6 +73,22 @@ public class SessionDataFragmentViewModelTests
     }
     
     @Test
+    public void clearSleepDurationGoal_clearsGoal()
+    {
+        viewModel.initSessionData(new SleepSessionWrapper(TestUtils.ArbitraryData.getSleepSessionModel()));
+        
+        LiveData<String> goalText = viewModel.getSleepDurationGoalText();
+        TestUtils.activateLocalLiveData(goalText);
+        
+        assertThat(goalText.getValue(), is(notNullValue()));
+        
+        // SUT
+        viewModel.clearSleepDurationGoal();
+        
+        assertThat(goalText.getValue(), is(nullValue()));
+    }
+    
+    @Test
     public void clearWakeTimeGoal_clearsWakeTimeGoal()
     {
         viewModel.initSessionData(new SleepSessionWrapper(TestUtils.ArbitraryData.getSleepSessionModel()));
@@ -85,9 +98,10 @@ public class SessionDataFragmentViewModelTests
         TestUtils.activateLocalLiveData(wakeTimeGoalText);
         TestUtils.activateLocalLiveData(wakeTimeGoalMillis);
         
-        assertThat(wakeTimeGoalText.getValue(), is(not(nullValue())));
-        assertThat(wakeTimeGoalMillis.getValue(), is(not(nullValue())));
+        assertThat(wakeTimeGoalText.getValue(), is(notNullValue()));
+        assertThat(wakeTimeGoalMillis.getValue(), is(notNullValue()));
         
+        // SUT
         viewModel.clearWakeTimeGoal();
         
         assertThat(wakeTimeGoalText.getValue(), is(nullValue()));

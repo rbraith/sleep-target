@@ -62,6 +62,7 @@ public class SessionDataFragment
     private static final String DIALOG_END_TIME_PICKER = "EndTimePicker";
     private static final String DIALOG_WAKETIME_TIME_PICKER = "WakeTimePicker";
     private static final String DIALOG_DELETE_WAKETIME = "DeleteWakeTimeGoal";
+    private static final String DIALOG_DELETE_DURATION = "DeleteSleepDurationGoal";
 
 //*********************************************************
 // public constants
@@ -274,6 +275,7 @@ public class SessionDataFragment
     
     private void initSleepDurationGoal(View fragmentRoot)
     {
+        // toggle display
         final View sleepDurationGoalLayout =
                 fragmentRoot.findViewById(R.id.session_data_duration_layout);
         final TextView sleepDurationGoalValue =
@@ -293,6 +295,30 @@ public class SessionDataFragment
                         }
                     }
                 });
+        
+        // delete button
+        ImageButton deleteButton =
+                sleepDurationGoalLayout.findViewById(R.id.session_data_delete_duration_btn);
+        deleteButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                AlertDialogFragment deleteDialog = DialogUtils.createDeleteDialog(
+                        requireContext(),
+                        R.string.session_data_delete_duration_dialog_title,
+                        new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                getViewModel().clearSleepDurationGoal();
+                            }
+                        });
+                
+                deleteDialog.show(getChildFragmentManager(), DIALOG_DELETE_DURATION);
+            }
+        });
     }
     
     private void initWakeTimeGoal(final View fragmentRoot)
@@ -341,9 +367,7 @@ public class SessionDataFragment
                             }
                         });
                 
-                // REFACTOR [21-01-28 12:34AM] -- should be just getChildFragmentManager() oops
-                deleteDialog.show(SessionDataFragment.this.getChildFragmentManager(),
-                                  DIALOG_DELETE_WAKETIME);
+                deleteDialog.show(getChildFragmentManager(), DIALOG_DELETE_WAKETIME);
             }
         });
         
