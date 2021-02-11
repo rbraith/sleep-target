@@ -68,6 +68,7 @@ def initArgParser():
     parser.add_argument("-s", "--sub", action="store_true", help="If the path is a directory, apply this script recursively to all subdirs.")
     parser.add_argument("-v", "--vcs", action="store_true", help="Only apply this script to changed files in the repo index.")
     parser.add_argument("-c", "--clear", action="store_true", help="Delete existing section headers then quit.")
+    parser.add_argument("-C", "--check", action="store_true", help="Check for files containing intermediate tags.")
 
     return parser
 
@@ -284,6 +285,11 @@ if __name__ == "__main__":
         validatePathExists(p)
 
     filelist = collectJavaFiles(args.path, args.sub, args.vcs)
+
+    # ________________________________________ check for rearranged files
+    if args.check:
+        for f in filelist: print(f)
+        sys.exit()
 
     # ________________________________________ clear headers only
     if args.clear:
