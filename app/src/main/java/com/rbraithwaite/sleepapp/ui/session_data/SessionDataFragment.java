@@ -371,6 +371,15 @@ public class SessionDataFragment
                 deleteDialog.show(getChildFragmentManager(), DIALOG_DELETE_DURATION);
             }
         });
+        
+        // edit button
+        sleepDurationGoalValue.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v)
+            {
+                displayDurationPickerDialog();
+            }
+        });
     }
     
     private void initWakeTimeGoal(final View fragmentRoot)

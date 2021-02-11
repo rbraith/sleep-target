@@ -166,6 +166,45 @@ public class SessionDataFragmentTests
     }
     
     @Test
+    public void editSleepDurationGoal_displaysProperDefaultValue()
+    {
+        // GIVEN the user has set a sleep duration goal in the session data fragment
+        SleepSessionModel sleepSession = TestUtils.ArbitraryData.getSleepSessionModel();
+        HiltFragmentTestHelper<SessionDataFragment> testHelper =
+                launchWithSleepSession(sleepSession);
+        
+        // WHEN the user goes to edit the sleep duration goal
+        onView(withId(R.id.session_data_duration_value)).perform(click());
+        
+        // THEN the edit dialog displays the correct default value (which is the set goal value)
+        SleepDurationGoalModel expected = TestUtils.ArbitraryData.getSleepDurationGoalModel();
+        DurationPickerTestUtils.checkMatchesDuration(expected.getHours(),
+                                                     expected.getRemainingMinutes());
+    }
+    
+    @Test
+    public void editSleepDurationGoal_editsGoal()
+    {
+        // GIVEN the user goes to edit the sleep duration goal
+        SleepSessionModel sleepSession = TestUtils.ArbitraryData.getSleepSessionModel();
+        SleepDurationGoalModel initialGoal = new SleepDurationGoalModel(123);
+        sleepSession.setSleepDurationGoal(initialGoal);
+        HiltFragmentTestHelper<SessionDataFragment> testHelper =
+                launchWithSleepSession(sleepSession);
+        
+        // WHEN the user edits the values and confirms the dialog
+        SleepDurationGoalModel updatedGoal = new SleepDurationGoalModel(321);
+        onView(withId(R.id.session_data_duration_value)).perform(click());
+        DurationPickerTestUtils.setDuration(updatedGoal.getHours(),
+                                            updatedGoal.getRemainingMinutes());
+        DialogTestUtils.pressOK();
+        
+        // THEN the sleep duration goal is updated
+        onView(withId(R.id.session_data_duration_value)).check(matches(withText(
+                SessionDataFormatting.formatSleepDurationGoal(updatedGoal))));
+    }
+    
+    @Test
     public void wakeTimeDialog_reflectsSetWakeTime()
     {
         // GIVEN the user has set a wake-time goal in the session data fragment
