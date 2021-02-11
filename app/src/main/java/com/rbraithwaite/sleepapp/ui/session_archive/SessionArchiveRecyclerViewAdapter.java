@@ -67,6 +67,7 @@ public class SessionArchiveRecyclerViewAdapter
         TextView stopTime;
         TextView duration;
         ImageView wakeTimeGoalIcon;
+        ImageView sleepDurationGoalIcon;
         
         public ViewHolder(
                 @NonNull View itemView,
@@ -75,11 +76,13 @@ public class SessionArchiveRecyclerViewAdapter
             super(itemView);
             Log.d(TAG, "new viewholder created");
             
-            // REFACTOR [20-12-11 3:08PM] -- rename stop to end.
             this.startTime = itemView.findViewById(R.id.session_archive_list_item_start_VALUE);
+            // REFACTOR [20-12-11 3:08PM] -- rename stop to end.
             this.stopTime = itemView.findViewById(R.id.session_archive_list_item_stop_VALUE);
             this.duration = itemView.findViewById(R.id.session_archive_list_item_duration_VALUE);
             this.wakeTimeGoalIcon = itemView.findViewById(R.id.session_archive_list_item_waketime);
+            this.sleepDurationGoalIcon =
+                    itemView.findViewById(R.id.session_archive_list_item_goal_duration);
             
             itemView.setOnClickListener(new View.OnClickListener()
             {
@@ -192,6 +195,11 @@ public class SessionArchiveRecyclerViewAdapter
                                 viewHolder.wakeTimeGoalIcon.setVisibility(View.VISIBLE);
                             } else {
                                 viewHolder.wakeTimeGoalIcon.setVisibility(View.INVISIBLE);
+                            }
+                            if (sessionArchiveListItem.hasSleepDurationGoal) {
+                                viewHolder.sleepDurationGoalIcon.setVisibility(View.VISIBLE);
+                            } else {
+                                viewHolder.sleepDurationGoalIcon.setVisibility(View.INVISIBLE);
                             }
                         }
                     }

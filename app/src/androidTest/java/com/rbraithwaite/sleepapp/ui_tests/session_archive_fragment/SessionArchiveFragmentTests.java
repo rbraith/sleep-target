@@ -11,6 +11,7 @@ import com.rbraithwaite.sleepapp.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestNavigate;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
+import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DurationPickerTestUtils;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragment;
@@ -33,6 +34,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 
 @RunWith(AndroidJUnit4.class)
@@ -42,6 +44,39 @@ public class SessionArchiveFragmentTests
 // api
 //*********************************************************
 
+    @Test
+    public void listItemSleepDurationGoalIcon_isNotDisplayedWhenNoGoalIsSet()
+    {
+        // GIVEN the user is on the session archive screen
+        ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
+        UITestNavigate.fromHome_toSessionArchive();
+        
+        // WHEN there is an archived session with no sleep duration goal
+        onView(withId(R.id.session_archive_fab)).perform(click());
+        SessionDataFragmentTestUtils.pressPositive();
+        
+        // THEN that archived session list item does not display the sleep duration goal icon
+        onView(withId(R.id.session_archive_list_item_goal_duration)).check(matches(not(isDisplayed())));
+    }
+    
+    @Test
+    public void listItemSleepDurationGoalIcon_isDisplayedIfGoalIsSet()
+    {
+        // GIVEN the user is on the session archive screen
+        ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
+        UITestNavigate.fromHome_toSessionArchive();
+        
+        // WHEN there is an archived session with a sleep duration goal
+        onView(withId(R.id.session_archive_fab)).perform(click());
+        onView(withId(R.id.session_data_add_duration_btn)).perform(click());
+        DurationPickerTestUtils.setDuration(12, 34);
+        DialogTestUtils.pressOK();
+        SessionDataFragmentTestUtils.pressPositive();
+        
+        // THEN that archived session list item displays the sleep duration goal icon
+        onView(withId(R.id.session_archive_list_item_goal_duration)).check(matches(isDisplayed()));
+    }
+    
     @Test
     public void deleteSession_deletesSessionOnDialogConfirm()
     {

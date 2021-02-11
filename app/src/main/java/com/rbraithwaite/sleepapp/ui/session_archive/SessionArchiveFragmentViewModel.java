@@ -150,6 +150,7 @@ public class SessionArchiveFragmentViewModel
                 mDateTimeFormatter.formatFullDate(sleepSession.getEnd()),
                 // REFACTOR [21-01-13 2:06AM] -- inject this.
                 new DurationFormatter().formatDurationMillis(sleepSession.getDuration()),
-                (sleepSession.getWakeTimeGoal() != null));
+                (sleepSession.getWakeTimeGoal() != null),
+                sleepSession.getSleepDurationGoal().isSet());
     }
 }

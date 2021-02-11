@@ -83,6 +83,7 @@ public class SleepAppTests
                                                                                          testMinutes)))));
     }
     
+    // BUG [21-02-11 3:00PM] -- flaky test :/
     @Test
     public void addSleepDurationGoalDefault_isCurrentGoal()
     {

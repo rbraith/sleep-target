@@ -187,7 +187,11 @@ public class SessionArchiveFragmentViewModelTests
         String expectedFormattedStartTime = dateTimeFormatter.formatFullDate(start);
         String expectedFormattedEndTime = dateTimeFormatter.formatFullDate(end);
         
-        SleepSessionModel mockData = new SleepSessionModel(start, duration, null, null);
+        SleepSessionModel mockData = new SleepSessionModel(
+                start,
+                duration,
+                null,
+                new SleepDurationGoalModel(123));
         
         LiveData<SleepSessionModel> mockLiveData = new MutableLiveData<>(mockData);
         when(mockSleepSessionRepository.getSleepSession(sessionID)).thenReturn(mockLiveData);
@@ -203,6 +207,7 @@ public class SessionArchiveFragmentViewModelTests
         assertThat(retrievedListItem.startTime, is(equalTo(expectedFormattedStartTime)));
         assertThat(retrievedListItem.endTime, is(equalTo(expectedFormattedEndTime)));
         assertThat(retrievedListItem.sessionDuration, is(equalTo(expectedFormattedDuration)));
+        assertThat(retrievedListItem.hasSleepDurationGoal, is(true));
     }
     
     @Test
