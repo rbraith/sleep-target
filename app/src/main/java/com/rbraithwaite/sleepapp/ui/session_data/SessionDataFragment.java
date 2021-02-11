@@ -27,8 +27,10 @@ import com.rbraithwaite.sleepapp.ui.BaseFragment;
 import com.rbraithwaite.sleepapp.ui.dialog.AlertDialogFragment;
 import com.rbraithwaite.sleepapp.ui.dialog.DatePickerFragment;
 import com.rbraithwaite.sleepapp.ui.dialog.DialogUtils;
+import com.rbraithwaite.sleepapp.ui.dialog.DurationPickerFragment;
 import com.rbraithwaite.sleepapp.ui.dialog.TimePickerFragment;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragmentDirections;
+import com.rbraithwaite.sleepapp.ui.session_data.data.SessionDataSleepDurationGoal;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
 
@@ -61,6 +63,7 @@ public class SessionDataFragment
     private static final String DIALOG_END_DATE_PICKER = "EndDatePicker";
     private static final String DIALOG_END_TIME_PICKER = "EndTimePicker";
     private static final String DIALOG_WAKETIME_TIME_PICKER = "WakeTimePicker";
+    private static final String DIALOG_DURATION_PICKER = "DurationPicker";
     private static final String DIALOG_DELETE_WAKETIME = "DeleteWakeTimeGoal";
     private static final String DIALOG_DELETE_DURATION = "DeleteSleepDurationGoal";
 
@@ -273,8 +276,55 @@ public class SessionDataFragment
         Navigation.findNavController(getView()).navigateUp();
     }
     
+    private void displayDurationPickerDialog()
+    {
+        LiveDataFuture.getValue(
+                getViewModel().getSleepDurationGoal(),
+                getViewLifecycleOwner(),
+                new LiveDataFuture.OnValueListener<SessionDataSleepDurationGoal>()
+                {
+                    @Override
+                    public void onValue(SessionDataSleepDurationGoal value)
+                    {
+                        if (value == null) {
+                            value = getViewModel().getDefaultSleepDurationGoal();
+                        }
+                        
+                        DurationPickerFragment durationPickerDialog =
+                                DurationPickerFragment.createInstance(
+                                        value.hours,
+                                        value.remainingMinutes,
+                                        new DurationPickerFragment.OnDurationSetListener()
+                                        {
+                                            @Override
+                                            public void onDurationSet(
+                                                    DialogInterface dialog,
+                                                    int which,
+                                                    int hour,
+                                                    int minute)
+                                            {
+                                                getViewModel().setSleepDurationGoal(hour, minute);
+                                            }
+                                        });
+                        durationPickerDialog.show(getChildFragmentManager(),
+                                                  DIALOG_DURATION_PICKER);
+                    }
+                });
+    }
+    
     private void initSleepDurationGoal(View fragmentRoot)
     {
+        // add button
+        final Button addButton = fragmentRoot.findViewById(R.id.session_data_add_duration_btn);
+        addButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                displayDurationPickerDialog();
+            }
+        });
+        
         // toggle display
         final View sleepDurationGoalLayout =
                 fragmentRoot.findViewById(R.id.session_data_duration_layout);
@@ -288,8 +338,10 @@ public class SessionDataFragment
                     public void onChanged(String sleepDurationGoalText)
                     {
                         if (sleepDurationGoalText == null) {
+                            addButton.setVisibility(View.VISIBLE);
                             sleepDurationGoalLayout.setVisibility(View.GONE);
                         } else {
+                            addButton.setVisibility(View.GONE);
                             sleepDurationGoalLayout.setVisibility(View.VISIBLE);
                             sleepDurationGoalValue.setText(sleepDurationGoalText);
                         }
@@ -411,12 +463,14 @@ public class SessionDataFragment
                     @Override
                     public void onValue(Long wakeTimeGoalMillis)
                     {
-                        long defaultValue =
-                                wakeTimeGoalMillis == null ?
-                                        viewModel.getDefaultWakeTimeGoalMillis() :
-                                        wakeTimeGoalMillis;
+                        if (wakeTimeGoalMillis == null) {
+                            wakeTimeGoalMillis = viewModel.getDefaultWakeTimeGoalMillis();
+                        }
                         
-                        timePicker.setArguments(TimePickerFragment.createArguments(defaultValue));
+                        // REFACTOR [21-02-9 11:37PM] -- this could be TimePickerFragment
+                        //  .createInstance.
+                        timePicker.setArguments(TimePickerFragment.createArguments(
+                                wakeTimeGoalMillis));
                         timePicker.setOnTimeSetListener(new TimePickerFragment.OnTimeSetListener()
                         {
                             @Override

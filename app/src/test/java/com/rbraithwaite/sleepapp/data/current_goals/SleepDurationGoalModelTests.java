@@ -14,6 +14,12 @@ public class SleepDurationGoalModelTests
 //*********************************************************
 
     @Test
+    public void createWithoutSettingGoal_has_isSet_returnFalse()
+    {
+        assertThat(SleepDurationGoalModel.createWithoutSettingGoal().isSet(), is(false));
+    }
+    
+    @Test
     public void getHours_returnCorrectValue()
     {
         assertThat(new SleepDurationGoalModel(130).getHours(), is(2));
@@ -22,7 +28,7 @@ public class SleepDurationGoalModelTests
     @Test
     public void getHours_nullIfUnsetModel()
     {
-        assertThat(new SleepDurationGoalModel().getHours(), is(nullValue()));
+        assertThat(SleepDurationGoalModel.createWithoutSettingGoal().getHours(), is(nullValue()));
     }
     
     @Test
@@ -34,14 +40,8 @@ public class SleepDurationGoalModelTests
     @Test
     public void getRemainingMinutes_nullIfUnsetModel()
     {
-        assertThat(new SleepDurationGoalModel().getRemainingMinutes(), is(nullValue()));
-    }
-    
-    @Test
-    public void isSet_isFalseIfEmptyModel()
-    {
-        SleepDurationGoalModel model = new SleepDurationGoalModel();
-        assertThat(model.isSet(), is(false));
+        assertThat(SleepDurationGoalModel.createWithoutSettingGoal().getRemainingMinutes(),
+                   is(nullValue()));
     }
     
     @Test
@@ -54,7 +54,7 @@ public class SleepDurationGoalModelTests
     @Test
     public void inMinutes_returnNullIfModelIsNotSet()
     {
-        SleepDurationGoalModel model = new SleepDurationGoalModel();
+        SleepDurationGoalModel model = SleepDurationGoalModel.createWithoutSettingGoal();
         assertThat(model.inMinutes(), is(nullValue()));
     }
     

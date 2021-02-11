@@ -66,7 +66,7 @@ public class SleepGoalsFragmentViewModelTests
     public void hasSleepDurationGoal_updatesProperly()
     {
         MutableLiveData<SleepDurationGoalModel> mockSleepDurationGoal = new MutableLiveData<>(
-                new SleepDurationGoalModel());
+                SleepDurationGoalModel.createWithoutSettingGoal());
         when(mockCurrentGoalsRepository.getSleepDurationGoal()).thenReturn(mockSleepDurationGoal);
         
         // SUT

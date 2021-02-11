@@ -15,6 +15,7 @@ import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
 import com.rbraithwaite.sleepapp.ui.UIDependenciesModule;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
+import com.rbraithwaite.sleepapp.ui.session_data.data.SessionDataSleepDurationGoal;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
 import com.rbraithwaite.sleepapp.utils.DateUtils;
 import com.rbraithwaite.sleepapp.utils.LiveDataUtils;
@@ -37,22 +38,27 @@ public class SessionDataFragmentViewModel
     private int mSessionId = 0;
     
     private boolean mIsInitialized;
-
-//*********************************************************
-// package properties
-//*********************************************************
-
-    LiveData<String> mStartTime;
-    LiveData<String> mStartDate;
-    LiveData<String> mEndTime;
-    LiveData<String> mEndDate;
-    LiveData<String> mSessionDuration;
-    MutableLiveData<Long> mStartDateTime;
-    MutableLiveData<Long> mEndDateTime;
-    DateTimeFormatter mDateTimeFormatter;
     
-    MutableLiveData<Date> mWakeTimeGoal;
-    MutableLiveData<SleepDurationGoalModel> mSleepDurationGoal;
+    private LiveData<String> mStartTime;
+    private LiveData<String> mStartDate;
+    private LiveData<String> mEndTime;
+    private LiveData<String> mEndDate;
+    private LiveData<String> mSessionDuration;
+    private MutableLiveData<Long> mStartDateTime;
+    private MutableLiveData<Long> mEndDateTime;
+    
+    private DateTimeFormatter mDateTimeFormatter;
+    
+    private MutableLiveData<Date> mWakeTimeGoal;
+    private MutableLiveData<SleepDurationGoalModel> mSleepDurationGoal;
+    
+//*********************************************************
+// public constants
+//*********************************************************
+
+    public static final int DEFAULT_SLEEP_DURATION_GOAL_HOURS = 8;
+    
+    public static final int DEFAULT_SLEEP_DURATION_GOAL_MINUTES = 0;
 
 //*********************************************************
 // public helpers
@@ -66,7 +72,7 @@ public class SessionDataFragmentViewModel
             super(message);
         }
     }
-
+    
 //*********************************************************
 // constructors
 //*********************************************************
@@ -77,7 +83,7 @@ public class SessionDataFragmentViewModel
     {
         mDateTimeFormatter = dateTimeFormatter;
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -384,7 +390,37 @@ public class SessionDataFragmentViewModel
     
     public void clearSleepDurationGoal()
     {
-        getSleepDurationGoalMutable().setValue(new SleepDurationGoalModel());
+        getSleepDurationGoalMutable().setValue(SleepDurationGoalModel.createWithoutSettingGoal());
+    }
+    
+    public LiveData<SessionDataSleepDurationGoal> getSleepDurationGoal()
+    {
+        return Transformations.map(
+                getSleepDurationGoalMutable(),
+                new Function<SleepDurationGoalModel, SessionDataSleepDurationGoal>()
+                {
+                    @Override
+                    public SessionDataSleepDurationGoal apply(SleepDurationGoalModel input)
+                    {
+                        if (!input.isSet()) {
+                            return null;
+                        }
+                        return new SessionDataSleepDurationGoal(
+                                input.getHours(), input.getRemainingMinutes());
+                    }
+                });
+    }
+    
+    public SessionDataSleepDurationGoal getDefaultSleepDurationGoal()
+    {
+        return new SessionDataSleepDurationGoal(
+                DEFAULT_SLEEP_DURATION_GOAL_HOURS,
+                DEFAULT_SLEEP_DURATION_GOAL_MINUTES);
+    }
+    
+    public void setSleepDurationGoal(int hours, int minutes)
+    {
+        getSleepDurationGoalMutable().setValue(new SleepDurationGoalModel(hours, minutes));
     }
 
 //*********************************************************

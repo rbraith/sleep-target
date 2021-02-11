@@ -30,7 +30,7 @@ public class SleepSessionModelConverter
         }
         
         SleepDurationGoalModel sleepDurationGoal = (entity.sleepDurationGoalMinutes == null) ?
-                new SleepDurationGoalModel() :
+                SleepDurationGoalModel.createWithoutSettingGoal() :
                 new SleepDurationGoalModel(entity.sleepDurationGoalMinutes);
         
         return new SleepSessionModel(

@@ -4,11 +4,13 @@ import androidx.lifecycle.LiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.TestUtils;
+import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFormatting;
 import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragmentViewModel;
+import com.rbraithwaite.sleepapp.ui.session_data.data.SessionDataSleepDurationGoal;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
 
 import org.junit.After;
@@ -37,10 +39,6 @@ public class SessionDataFragmentViewModelTests
     SessionDataFragmentViewModel viewModel;
     DateTimeFormatter dateTimeFormatter;
 
-//    @Rule
-//    // protection against potentially infinitely blocked threads
-//    public Timeout timeout = new Timeout(10, TimeUnit.SECONDS);
-
 //*********************************************************
 // api
 //*********************************************************
@@ -57,6 +55,46 @@ public class SessionDataFragmentViewModelTests
     {
         viewModel = null;
         dateTimeFormatter = null;
+    }
+    
+    @Test
+    public void setSleepDurationGoal_updatesSleepDurationGoal()
+    {
+        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
+        // initial goal value
+        initialData.setSleepDurationGoal(new SleepDurationGoalModel(12, 34));
+        
+        viewModel.initSessionData(new SleepSessionWrapper(initialData));
+        
+        LiveData<String> goalText = viewModel.getSleepDurationGoalText();
+        LiveData<SessionDataSleepDurationGoal> goal = viewModel.getSleepDurationGoal();
+        TestUtils.activateLocalLiveData(goalText);
+        TestUtils.activateLocalLiveData(goal);
+        
+        // SUT - change from the initial goal value
+        SleepDurationGoalModel newGoal = new SleepDurationGoalModel(11, 22);
+        viewModel.setSleepDurationGoal(newGoal.getHours(), newGoal.getRemainingMinutes());
+        
+        // verify the LiveData
+        assertThat(goalText.getValue(),
+                   is(equalTo(SessionDataFormatting.formatSleepDurationGoal(newGoal))));
+        assertThat(goal.getValue().hours, is(equalTo(newGoal.getHours())));
+        assertThat(goal.getValue().remainingMinutes, is(equalTo(newGoal.getRemainingMinutes())));
+    }
+    
+    @Test
+    public void getSleepDurationGoal_reflectsInitialData()
+    {
+        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
+        viewModel.initSessionData(new SleepSessionWrapper(initialData));
+        
+        // SUT
+        LiveData<SessionDataSleepDurationGoal> goal = viewModel.getSleepDurationGoal();
+        TestUtils.activateLocalLiveData(goal);
+        
+        assertThat(goal.getValue().hours, is(initialData.getSleepDurationGoal().getHours()));
+        assertThat(goal.getValue().remainingMinutes,
+                   is(initialData.getSleepDurationGoal().getRemainingMinutes()));
     }
     
     @Test

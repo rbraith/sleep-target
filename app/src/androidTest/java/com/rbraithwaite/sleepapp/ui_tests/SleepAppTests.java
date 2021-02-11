@@ -84,6 +84,26 @@ public class SleepAppTests
     }
     
     @Test
+    public void addSleepDurationGoalDefault_isCurrentGoal()
+    {
+        // GIVEN the user has a sleep duration goal set
+        int testHours = 12;
+        int testMinutes = 34;
+        ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
+        UITestNavigate.fromHome_toGoals();
+        SleepGoalsFragmentTestUtils.addNewSleepDurationGoal(testHours, testMinutes);
+        
+        // WHEN the user is on the add session screen
+        UITestNavigate.up();
+        UITestNavigate.fromHome_toAddSession();
+        
+        // THEN the default sleep duration goal matches the current goal
+        onView(withId(R.id.session_data_duration_value)).check(matches(withText(
+                SessionDataFormatting.formatSleepDurationGoal(
+                        new SleepDurationGoalModel(testHours, testMinutes)))));
+    }
+    
+    @Test
     public void addSessionDefaultWakeTime_isCurrentWakeTime()
     {
         int testHour = 12;

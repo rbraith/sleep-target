@@ -13,10 +13,12 @@ import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
+import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DurationPickerTestUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFormatting;
 import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragment;
+import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragmentViewModel;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
 
 import org.junit.Rule;
@@ -65,6 +67,66 @@ public class SessionDataFragmentTests
 //*********************************************************
 
     @Test
+    public void addSleepDurationGoalButton_addsGoal()
+    {
+        // GIVEN the user is on a session data screen with no sleep duration goal
+        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
+        initialData.setSleepDurationGoal(SleepDurationGoalModel.createWithoutSettingGoal()); //
+        // set to empty goal
+        
+        HiltFragmentTestHelper<SessionDataFragment> testHelper =
+                SessionDataFragmentTestUtils.launchWithSleepSession(initialData);
+        
+        // WHEN the user adds a sleep duration goal
+        onView(withId(R.id.session_data_add_duration_btn)).perform(click());
+        int testHours = 12;
+        int testMinutes = 34;
+        DurationPickerTestUtils.setDuration(testHours, testMinutes);
+        DialogTestUtils.pressOK();
+        
+        // THEN that new sleep duration goal is displayed on the screen
+        onView(withId(R.id.session_data_duration_value)).check(matches(withText(
+                SessionDataFormatting.formatSleepDurationGoal(
+                        new SleepDurationGoalModel(testHours, testMinutes)))));
+    }
+    
+    @Test
+    public void addSleepDurationGoalButton_isDisplayedWhenGoalIsNotSet()
+    {
+        // GIVEN the user is on the session data screen
+        // WHEN no sleep duration goal has been set for the displayed session
+        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
+        initialData.setSleepDurationGoal(SleepDurationGoalModel.createWithoutSettingGoal());
+        
+        HiltFragmentTestHelper<SessionDataFragment> testHelper =
+                SessionDataFragmentTestUtils.launchWithSleepSession(initialData);
+        
+        // THEN the "add new sleep duration goal" button is displayed
+        onView(withId(R.id.session_data_duration_layout)).check(matches(not(isDisplayed())));
+        onView(withId(R.id.session_data_add_duration_btn)).check(matches(isDisplayed()));
+    }
+    
+    @Test
+    public void addSleepDurationGoal_hasCorrectDefaultValue()
+    {
+        // GIVEN the user is on the session data screen
+        // AND no sleep duration goal is set for the session
+        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
+        initialData.setSleepDurationGoal(SleepDurationGoalModel.createWithoutSettingGoal());
+        
+        HiltFragmentTestHelper<SessionDataFragment> testHelper =
+                SessionDataFragmentTestUtils.launchWithSleepSession(initialData);
+        
+        // WHEN the user goes to add a sleep duration goal to the session
+        onView(withId(R.id.session_data_add_duration_btn)).perform(click());
+        
+        // THEN the correct default value is displayed in the dialog
+        DurationPickerTestUtils.checkMatchesDuration(
+                SessionDataFragmentViewModel.DEFAULT_SLEEP_DURATION_GOAL_HOURS,
+                SessionDataFragmentViewModel.DEFAULT_SLEEP_DURATION_GOAL_MINUTES);
+    }
+    
+    @Test
     public void deleteSleepDurationGoalButton_deletesGoal()
     {
         // GIVEN the user is on the session data screen
@@ -80,18 +142,6 @@ public class SessionDataFragmentTests
         DialogTestUtils.pressOK();
         
         // THEN the sleep duration goal is deleted
-        onView(withId(R.id.session_data_duration_layout)).check(matches(not(isDisplayed())));
-    }
-    
-    @Test
-    public void sleepDurationGoal_isNotDisplayedIfGoalIsNotSet()
-    {
-        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
-        initialData.setSleepDurationGoal(new SleepDurationGoalModel());
-        
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                launchWithSleepSession(initialData);
-        
         onView(withId(R.id.session_data_duration_layout)).check(matches(not(isDisplayed())));
     }
     
@@ -112,6 +162,7 @@ public class SessionDataFragmentTests
         onDurationValue.check(matches(isDisplayed()));
         onDurationValue.check(matches(withText(
                 SessionDataFormatting.formatSleepDurationGoal(initialData.getSleepDurationGoal()))));
+        onView(withId(R.id.session_data_add_duration_btn)).check(matches(not(isDisplayed())));
     }
     
     @Test

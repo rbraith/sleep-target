@@ -253,6 +253,8 @@ public class SleepGoalsFragmentTests
         onView(withId(R.id.sleep_goals_waketime)).check(matches(isDisplayed()));
     }
     
+    // BUG [21-02-10 9:00PM] -- this test is being flaky, something to do with setting the
+    //  duration picker.
     @Test
     public void newSleepDurationGoal_isRetainedOnFragmentRestart()
     {

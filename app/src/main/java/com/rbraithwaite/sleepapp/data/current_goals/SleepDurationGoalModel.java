@@ -12,9 +12,7 @@ public class SleepDurationGoalModel
 // constructors
 //*********************************************************
 
-    // REFACTOR [21-02-2 1:43AM] -- should maybe use a static factory here instead.
-    //  createUnset().
-    public SleepDurationGoalModel()
+    private SleepDurationGoalModel()
     {
         mMinutes = null;
     }
@@ -34,11 +32,16 @@ public class SleepDurationGoalModel
         // REFACTOR [21-02-2 1:38AM] -- extract this conversion logic.
         mMinutes = (hours * 60) + minutes;
     }
-
-
+    
 //*********************************************************
 // api
 //*********************************************************
+
+    public static SleepDurationGoalModel createWithoutSettingGoal()
+    {
+        return new SleepDurationGoalModel();
+    }
+
 
     
     /**
@@ -72,6 +75,7 @@ public class SleepDurationGoalModel
         // using unsafe here so that isSet isn't checked redundantly
         return mMinutes - (getHoursUnsafe() * 60);
     }
+
 
 //*********************************************************
 // private methods

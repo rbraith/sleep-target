@@ -61,7 +61,8 @@ public class CurrentGoalsRepository
                     {
                         // REFACTOR [21-02-2 1:43AM] -- move this logic into SleepDurationGoalModel?
                         //  maybe as a static factory - createWithOptionalMinutes()?
-                        return (input == null) ? new SleepDurationGoalModel() :
+                        return (input == null) ?
+                                SleepDurationGoalModel.createWithoutSettingGoal() :
                                 new SleepDurationGoalModel(input);
                     }
                 });

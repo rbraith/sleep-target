@@ -62,7 +62,7 @@ public class SessionDataFormattingTests
     public void formatSleepDurationGoal_unsetArg()
     {
         assertThat(
-                SleepGoalsFormatting.formatSleepDurationGoal(new SleepDurationGoalModel()),
+                SleepGoalsFormatting.formatSleepDurationGoal(SleepDurationGoalModel.createWithoutSettingGoal()),
                 is(""));
     }
 }

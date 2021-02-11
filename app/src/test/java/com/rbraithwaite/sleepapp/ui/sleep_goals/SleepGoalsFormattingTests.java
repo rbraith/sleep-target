@@ -52,7 +52,7 @@ public class SleepGoalsFormattingTests
                     is(equalTo(expected)));
         }
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -61,7 +61,7 @@ public class SleepGoalsFormattingTests
     public void formatSleepDurationGoal_unsetArg()
     {
         assertThat(
-                SleepGoalsFormatting.formatSleepDurationGoal(new SleepDurationGoalModel()),
+                SleepGoalsFormatting.formatSleepDurationGoal(SleepDurationGoalModel.createWithoutSettingGoal()),
                 is(""));
     }
 }
