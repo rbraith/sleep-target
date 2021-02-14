@@ -273,7 +273,7 @@ public class SessionDataFragment
     private void clearSessionDataThenNavigateUp()
     {
         getViewModel().clearSessionData();
-        Navigation.findNavController(getView()).navigateUp();
+        getNavController().navigateUp();
     }
     
     private void displayDurationPickerDialog()

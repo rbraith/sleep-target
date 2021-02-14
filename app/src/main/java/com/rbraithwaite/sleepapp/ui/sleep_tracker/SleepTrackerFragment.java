@@ -1,5 +1,7 @@
 package com.rbraithwaite.sleepapp.ui.sleep_tracker;
 
+import android.app.PendingIntent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -14,9 +16,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 import androidx.navigation.NavController;
+import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
+import com.rbraithwaite.sleepapp.BuildConfig;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
 
@@ -69,6 +73,19 @@ public class SleepTrackerFragment
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater)
     {
         inflater.inflate(R.menu.sleeptracker_menu, menu);
+        
+        if (BuildConfig.DEBUG) {
+            MenuItem devToolsOption = menu.add("Dev Tools");
+            devToolsOption.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item)
+                {
+                    NavDirections toDevTools = SleepTrackerFragmentDirections.actionNavSleeptrackerToDebugNavgraph();
+                    getNavController().navigate(toDevTools);
+                    return true;
+                }
+            });
+        }
     }
     
     @Override
@@ -234,9 +251,7 @@ public class SleepTrackerFragment
     // REFACTOR [20-11-15 1:55AM] -- should extract this as a general utility.
     private boolean handleNavigationMenuItem(MenuItem item)
     {
-        NavController navController =
-                Navigation.findNavController(requireActivity(), R.id.main_navhost);
-        return NavigationUI.onNavDestinationSelected(item, navController)
+        return NavigationUI.onNavDestinationSelected(item, getNavController())
                || super.onOptionsItemSelected(item);
     }
 }

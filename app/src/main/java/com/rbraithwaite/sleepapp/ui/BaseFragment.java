@@ -7,6 +7,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+
+import com.rbraithwaite.sleepapp.R;
 
 public abstract class BaseFragment<V extends ViewModel>
         extends Fragment
@@ -40,8 +44,6 @@ public abstract class BaseFragment<V extends ViewModel>
 // protected api
 //*********************************************************
 
-    //    protected abstract <V extends ViewModel> Class<V> getViewModelType();
-//
     protected V getViewModel()
     {
         if (mViewModel == null) {
@@ -49,6 +51,14 @@ public abstract class BaseFragment<V extends ViewModel>
             mViewModel = new ViewModelProvider(requireActivity()).get(getViewModelClass());
         }
         return mViewModel;
+    }
+    
+    /**
+     * This assumes that this fragment is inside MainActivity
+     */
+    protected NavController getNavController()
+    {
+        return Navigation.findNavController(requireActivity(), R.id.main_navhost);
     }
 
 //*********************************************************

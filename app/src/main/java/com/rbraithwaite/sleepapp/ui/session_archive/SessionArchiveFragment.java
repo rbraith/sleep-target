@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -127,8 +126,8 @@ public class SessionArchiveFragment
                                     @Override
                                     public void onValue(SleepSessionWrapper initialEditData)
                                     {
-                                        Navigation.findNavController(getView())
-                                                .navigate(toEditSessionScreen(initialEditData));
+                                        getNavController().navigate(toEditSessionScreen(
+                                                initialEditData));
                                     }
                                 });
                     }
@@ -177,7 +176,7 @@ public class SessionArchiveFragment
                                 SessionArchiveFragmentDirections.actionSessionArchiveToSessionData(
                                         argsBuilder.build());
                         
-                        Navigation.findNavController(getView()).navigate(toAddSessionScreen);
+                        getNavController().navigate(toAddSessionScreen);
                     }
                 }
         );
