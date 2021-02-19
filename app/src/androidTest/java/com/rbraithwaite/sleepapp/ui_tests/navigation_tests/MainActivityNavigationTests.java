@@ -38,6 +38,22 @@ public class MainActivityNavigationTests
 //*********************************************************
 // api
 //*********************************************************
+    
+    @Test
+    public void navigateFromSleepTrackerToSleepStats()
+    {
+        // GIVEN the user is on the sleep tracker screen
+        ActivityScenario<MainActivity> mainActivityScenario =
+                ActivityScenario.launch(MainActivity.class);
+        
+        // WHEN they press the stats screen menu button
+        onView(withId(R.id.nav_sleepstats)).perform(click());
+        
+        // THEN the stats screen is displayed
+        onView(withId(R.id.stats_sleep_intervals_layout)).check(matches(isDisplayed()));
+        // AND the bottomnav remains visible
+        UITestUtils.checkBottomNavIsDisplayed(true);
+    }
 
     @Test
     public void navigateFromSleepTrackerToSleepGoals()

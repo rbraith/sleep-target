@@ -37,4 +37,8 @@
         android:name="com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFragment"
         android:label="SleepGoalsFragment" />
     <include app:graph="@navigation/debug_navgraph" />
+    <fragment
+        android:id="@+id/nav_sleepstats"
+        android:name="com.rbraithwaite.sleepapp.ui.stats.StatsFragment"
+        android:label="StatsFragment" />
 </navigation>

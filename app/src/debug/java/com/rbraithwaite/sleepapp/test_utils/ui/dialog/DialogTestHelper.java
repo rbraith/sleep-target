@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.test.core.app.ActivityScenario;
 
-import com.rbraithwaite.sleepapp.TestUtils;
+import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 
 
 

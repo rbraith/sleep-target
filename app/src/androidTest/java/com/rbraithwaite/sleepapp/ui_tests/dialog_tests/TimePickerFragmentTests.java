@@ -4,7 +4,7 @@ import android.widget.TimePicker;
 
 import androidx.test.espresso.contrib.PickerActions;
 
-import com.rbraithwaite.sleepapp.TestUtils;
+import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.ui.dialog.TimePickerFragment;

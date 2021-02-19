@@ -1,6 +1,6 @@
 package com.rbraithwaite.sleepapp.data.current_session;
 
-import com.rbraithwaite.sleepapp.TestUtils;
+import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 
 import org.junit.Test;
 

@@ -1,6 +1,6 @@
 package com.rbraithwaite.sleepapp.data.sleep_session;
 
-import com.rbraithwaite.sleepapp.TestUtils;
+import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 
 import org.junit.Test;

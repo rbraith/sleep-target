@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp;
+package com.rbraithwaite.sleepapp.test_utils;
 
 import android.app.Activity;
 import android.content.Context;
