@@ -1,15 +1,13 @@
-package com.rbraithwaite.sleepapp.viewmodels;
+package com.rbraithwaite.sleepapp.ui.session_data;
 
 import androidx.lifecycle.LiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
+import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
-import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFormatting;
-import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragmentViewModel;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SessionDataSleepDurationGoal;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
 

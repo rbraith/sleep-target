@@ -7,10 +7,12 @@ import androidx.room.Room;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionDao;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
+import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
+import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModelConverter;
+import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 
 import org.junit.After;
 import org.junit.Before;
@@ -67,6 +69,79 @@ public class SleepSessionDaoTests
     public void teardown()
     {
         database.close();
+    }
+    
+    @Test
+    public void getSleepSessionsInRange_returnsCorrectSleepSessions()
+    {
+        int year = 2021;
+        int month = 1;
+        int rangeStartDay = 21;
+        int rangeEndDay = 24;
+        GregorianCalendar rangeStart = new GregorianCalendar(year, month, rangeStartDay);
+        GregorianCalendar rangeEnd = new GregorianCalendar(year, month, rangeEndDay);
+        
+        long hourInMillis = 60 * 60 * 1000;
+        
+        // outside of range (too early)
+        SleepSessionModel sleepSession1 = TestUtils.ArbitraryData.getSleepSessionModel();
+        sleepSession1.setStart(new GregorianCalendar(year, month, rangeStartDay - 1).getTime());
+        sleepSession1.setDuration(hourInMillis);
+        
+        // starting before range, ending in range
+        SleepSessionModel sleepSession2 = TestUtils.ArbitraryData.getSleepSessionModel();
+        sleepSession2.setStart(new GregorianCalendar(year,
+                                                     month,
+                                                     rangeStartDay - 1,
+                                                     22,
+                                                     0).getTime());
+        sleepSession2.setDuration(hourInMillis * 4);
+        
+        // fully in range
+        SleepSessionModel sleepSession3 = TestUtils.ArbitraryData.getSleepSessionModel();
+        sleepSession3.setStart(new GregorianCalendar(year, month, rangeStartDay, 5, 0).getTime());
+        sleepSession3.setDuration(hourInMillis);
+        
+        // starting in range, ending after range
+        SleepSessionModel sleepSession4 = TestUtils.ArbitraryData.getSleepSessionModel();
+        sleepSession4.setStart(new GregorianCalendar(year,
+                                                     month,
+                                                     rangeEndDay - 1,
+                                                     22,
+                                                     0).getTime());
+        sleepSession4.setDuration(hourInMillis * 4);
+        
+        // outside of range (too late)
+        SleepSessionModel sleepSession5 = TestUtils.ArbitraryData.getSleepSessionModel();
+        sleepSession5.setStart(new GregorianCalendar(year, month, rangeEndDay, 5, 0).getTime());
+        
+        sleepSessionDao.addSleepSession(SleepSessionModelConverter.convertModelToEntity(
+                sleepSession1));
+        sleepSessionDao.addSleepSession(SleepSessionModelConverter.convertModelToEntity(
+                sleepSession2));
+        sleepSessionDao.addSleepSession(SleepSessionModelConverter.convertModelToEntity(
+                sleepSession3));
+        sleepSessionDao.addSleepSession(SleepSessionModelConverter.convertModelToEntity(
+                sleepSession4));
+        sleepSessionDao.addSleepSession(SleepSessionModelConverter.convertModelToEntity(
+                sleepSession5));
+        
+        // SUT
+        LiveData<List<SleepSessionEntity>> entities = sleepSessionDao.getSleepSessionsInRange(
+                rangeStart.getTimeInMillis(),
+                rangeEnd.getTimeInMillis());
+        TestUtils.InstrumentationLiveDataSynchronizer<List<SleepSessionEntity>> synchronizer =
+                new TestUtils.InstrumentationLiveDataSynchronizer<>(entities);
+        
+        // verify
+        SleepSessionModel[] modelsInRange = {sleepSession2, sleepSession3, sleepSession4};
+        assertThat(entities.getValue().size(), is(modelsInRange.length));
+        for (int i = 0; i < modelsInRange.length; i++) {
+            assertThat(entities.getValue().get(i).startTime,
+                       is(equalTo(modelsInRange[i].getStart())));
+            assertThat(entities.getValue().get(i).duration,
+                       is(equalTo(modelsInRange[i].getDuration())));
+        }
     }
     
     @Test

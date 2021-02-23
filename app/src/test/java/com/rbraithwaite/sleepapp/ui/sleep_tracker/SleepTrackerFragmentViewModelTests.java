@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.viewmodels;
+package com.rbraithwaite.sleepapp.ui.sleep_tracker;
 
 import android.os.Looper;
 
@@ -6,20 +6,19 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.data.current_goals.CurrentGoalsRepository;
 import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.data.current_session.CurrentSessionModel;
 import com.rbraithwaite.sleepapp.data.current_session.CurrentSessionRepository;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionRepository;
+import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.data.MockRepositoryUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFormatting;
-import com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFragmentViewModel;
-import com.rbraithwaite.sleepapp.utils.DateUtils;
 import com.rbraithwaite.sleepapp.utils.TickingLiveData;
+import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import org.junit.After;
 import org.junit.Before;
@@ -296,7 +295,7 @@ public class SleepTrackerFragmentViewModelTests
         SleepSessionModel addSleepSession = addSleepSessionArg.getValue();
         assertThat(addSleepSession.getStart(), is(equalTo(startTime.getValue().getStart())));
         assertThat(addSleepSession.getWakeTimeGoal(),
-                   is(equalTo(DateUtils.getDateFromMillis(wakeTimeGoal.getValue()))));
+                   is(equalTo(TimeUtils.getDateFromMillis(wakeTimeGoal.getValue()))));
         assertThat(addSleepSession.getSleepDurationGoal(),
                    is(equalTo(sleepDurationGoal.getValue())));
     }

@@ -4,10 +4,10 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.data.SleepAppDataPrefs;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionDao;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
+import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 
 import org.junit.After;
 import org.junit.Before;
@@ -17,6 +17,9 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -60,6 +63,20 @@ public class SleepSessionRepositoryTests
         mockPrefs = null;
         mockSleepSessionDao = null;
         repository = null;
+    }
+    
+    @Test
+    public void getSleepSessionsInRange_callsDao()
+    {
+        GregorianCalendar cal = TestUtils.ArbitraryData.getCalendar();
+        Date start = cal.getTime();
+        cal.add(Calendar.DAY_OF_YEAR, 2);
+        Date end = cal.getTime();
+        
+        repository.getSleepSessionsInRange(start, end);
+        verify(mockSleepSessionDao, times(1)).getSleepSessionsInRange(
+                start.getTime(),
+                end.getTime());
     }
     
     @Test

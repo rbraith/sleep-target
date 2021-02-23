@@ -17,7 +17,7 @@ import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragment;
 import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragmentViewModel;
 import com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils;
-import com.rbraithwaite.sleepapp.utils.DateUtils;
+import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -237,9 +237,9 @@ public class SessionArchiveFragmentTests
         // these checks work because there will be only one list item at this point
         DateTimeFormatter formatter = new DateTimeFormatter();
         String expectedStartDateTimeText =
-                formatter.formatFullDate(DateUtils.getDateFromMillis(startDateTime.ref));
+                formatter.formatFullDate(TimeUtils.getDateFromMillis(startDateTime.ref));
         String expectedEndDateTimeText =
-                formatter.formatFullDate(DateUtils.getDateFromMillis(endDateTime.ref));
+                formatter.formatFullDate(TimeUtils.getDateFromMillis(endDateTime.ref));
         onView(withId(R.id.session_archive_list_item_card)).check(matches(isDisplayed()));
         onView(withId(R.id.session_archive_list_item_start_VALUE)).check(matches(withText(
                 expectedStartDateTimeText)));

@@ -15,8 +15,8 @@ import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_archive.data.SessionArchiveListItem;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
-import com.rbraithwaite.sleepapp.utils.DateUtils;
 import com.rbraithwaite.sleepapp.utils.LiveDataUtils;
+import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import java.util.List;
 
@@ -110,10 +110,10 @@ public class SessionArchiveFragmentViewModel
                     {
                         return new SleepSessionWrapper(
                                 new SleepSessionModel(
-                                        DateUtils.getNow(),
+                                        TimeUtils.getNow(),
                                         0,
                                         wakeTimeGoal == null ?
-                                                null : DateUtils.getDateFromMillis(wakeTimeGoal),
+                                                null : TimeUtils.getDateFromMillis(wakeTimeGoal),
                                         sleepDurationGoal));
                     }
                 });

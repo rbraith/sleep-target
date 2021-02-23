@@ -17,8 +17,8 @@ import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SessionDataSleepDurationGoal;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
-import com.rbraithwaite.sleepapp.utils.DateUtils;
 import com.rbraithwaite.sleepapp.utils.LiveDataUtils;
+import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -51,7 +51,7 @@ public class SessionDataFragmentViewModel
     
     private MutableLiveData<Date> mWakeTimeGoal;
     private MutableLiveData<SleepDurationGoalModel> mSleepDurationGoal;
-    
+
 //*********************************************************
 // public constants
 //*********************************************************
@@ -72,7 +72,7 @@ public class SessionDataFragmentViewModel
             super(message);
         }
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -83,7 +83,7 @@ public class SessionDataFragmentViewModel
     {
         mDateTimeFormatter = dateTimeFormatter;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -94,7 +94,7 @@ public class SessionDataFragmentViewModel
         //  an internal SleepSessionModel member, instead of needing to recompose one here.
         return new SleepSessionWrapper(new SleepSessionModel(
                 mSessionId,
-                DateUtils.getDateFromMillis(getStartDateTime().getValue()),
+                TimeUtils.getDateFromMillis(getStartDateTime().getValue()),
                 getEndDateTime().getValue() - getStartDateTime().getValue(),
                 getWakeTimeGoalMutable().getValue(),
                 getSleepDurationGoalMutable().getValue()));
@@ -493,7 +493,7 @@ public class SessionDataFragmentViewModel
     
     private String formatDateTimeMillisFromType(long dateMillis, DateTimeFormatType formatType)
     {
-        Date date = DateUtils.getDateFromMillis(dateMillis);
+        Date date = TimeUtils.getDateFromMillis(dateMillis);
         switch (formatType) {
         case DATE:
             return mDateTimeFormatter.formatDate(date);

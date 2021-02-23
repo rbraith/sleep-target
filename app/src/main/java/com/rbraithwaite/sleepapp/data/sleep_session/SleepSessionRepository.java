@@ -2,12 +2,15 @@ package com.rbraithwaite.sleepapp.data.sleep_session;
 
 import androidx.arch.core.util.Function;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
 import com.rbraithwaite.sleepapp.data.SleepAppDataPrefs;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionDao;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -24,7 +27,7 @@ public class SleepSessionRepository
     private SleepAppDataPrefs mDataPrefs;
     private SleepSessionDao mSleepSessionDao;
     private Executor mExecutor;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -39,7 +42,7 @@ public class SleepSessionRepository
         mSleepSessionDao = sleepSessionDao;
         mExecutor = executor;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -99,5 +102,45 @@ public class SleepSessionRepository
     public LiveData<List<Integer>> getAllSleepSessionIds()
     {
         return mSleepSessionDao.getAllSleepSessionIds();
+    }
+    
+    /**
+     * Returns the sleep sessions whose start OR end times fall within the provided range.
+     */
+    public LiveData<List<SleepSessionModel>> getSleepSessionsInRange(
+            Date start,
+            Date end)
+    {
+        // switchMap() is used so that I can have a LiveData backend to post values to
+        // asynchronously while also handling the asynchronicity of the Dao call
+        return Transformations.switchMap(
+                mSleepSessionDao.getSleepSessionsInRange(
+                        start.getTime(),
+                        end.getTime()),
+                new Function<List<SleepSessionEntity>, LiveData<List<SleepSessionModel>>>()
+                {
+                    @Override
+                    public LiveData<List<SleepSessionModel>> apply(final List<SleepSessionEntity> input)
+                    {
+                        final MutableLiveData<List<SleepSessionModel>> liveData =
+                                new MutableLiveData<>();
+                        // map the input to the SleepSessionModel list asynchronously
+                        mExecutor.execute(new Runnable()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                // List.stream() requires api 24+ :/
+                                List<SleepSessionModel> result = new ArrayList<>();
+                                for (SleepSessionEntity entity : input) {
+                                    result.add(SleepSessionModelConverter.convertEntityToModel(
+                                            entity));
+                                }
+                                liveData.postValue(result);
+                            }
+                        });
+                        return liveData;
+                    }
+                });
     }
 }

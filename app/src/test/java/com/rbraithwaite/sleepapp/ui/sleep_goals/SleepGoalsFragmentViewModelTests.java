@@ -1,17 +1,15 @@
-package com.rbraithwaite.sleepapp.viewmodels;
+package com.rbraithwaite.sleepapp.ui.sleep_goals;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.data.current_goals.CurrentGoalsRepository;
 import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
+import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
-import com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFormatting;
-import com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFragmentViewModel;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.data.SleepDurationGoalUIData;
-import com.rbraithwaite.sleepapp.utils.DateUtils;
+import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import org.junit.After;
 import org.junit.Before;
@@ -173,7 +171,7 @@ public class SleepGoalsFragmentViewModelTests
         
         assertThat(wakeTime.getValue(),
                    is(equalTo(dateTimeFormatter.formatTimeOfDay(
-                           DateUtils.getDateFromMillis(expectedWakeTimeMillis)))));
+                           TimeUtils.getDateFromMillis(expectedWakeTimeMillis)))));
     }
     
     @Test

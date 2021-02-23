@@ -17,6 +17,7 @@ public class SleepSessionModelConverter
         SleepSessionEntity entity = new SleepSessionEntity();
         entity.id = model.getId();
         entity.startTime = model.getStart();
+        entity.endTime = model.getEnd();
         entity.duration = model.getDuration();
         entity.wakeTimeGoal = model.getWakeTimeGoal();
         entity.sleepDurationGoalMinutes = model.getSleepDurationGoal().inMinutes();

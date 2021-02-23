@@ -36,4 +36,13 @@ public abstract class SleepSessionDao
     @Query("SELECT " + SleepSessionContract.Columns.ID +
            " FROM " + SleepSessionContract.TABLE_NAME)
     public abstract LiveData<List<Integer>> getAllSleepSessionIds();
+    
+    @Query("SELECT * FROM " + SleepSessionContract.TABLE_NAME +
+           " WHERE " +
+           "(" + SleepSessionContract.Columns.START_TIME + " BETWEEN :start AND :end)" +
+           " OR " +
+           "(" + SleepSessionContract.Columns.END_TIME + " BETWEEN :start AND :end)")
+    public abstract LiveData<List<SleepSessionEntity>> getSleepSessionsInRange(
+            long start,
+            long end);
 }

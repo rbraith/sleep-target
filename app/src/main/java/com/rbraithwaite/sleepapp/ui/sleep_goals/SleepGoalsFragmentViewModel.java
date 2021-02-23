@@ -11,7 +11,7 @@ import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.ui.UIDependenciesModule;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.data.SleepDurationGoalUIData;
-import com.rbraithwaite.sleepapp.utils.DateUtils;
+import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -80,7 +80,7 @@ public class SleepGoalsFragmentViewModel
                             return null;
                         }
                         return mDateTimeFormatter.formatTimeOfDay(
-                                DateUtils.getDateFromMillis(wakeTimeMillis));
+                                TimeUtils.getDateFromMillis(wakeTimeMillis));
                     }
                 });
     }

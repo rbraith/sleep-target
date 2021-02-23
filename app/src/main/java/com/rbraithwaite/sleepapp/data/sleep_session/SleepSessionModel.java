@@ -1,7 +1,7 @@
 package com.rbraithwaite.sleepapp.data.sleep_session;
 
 import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
-import com.rbraithwaite.sleepapp.utils.DateUtils;
+import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -104,7 +104,7 @@ public class SleepSessionModel
         }
         long durationMillis = getDuration();
         
-        return DateUtils.getDateFromMillis(
+        return TimeUtils.getDateFromMillis(
                 start.getTime() + durationMillis);
     }
     

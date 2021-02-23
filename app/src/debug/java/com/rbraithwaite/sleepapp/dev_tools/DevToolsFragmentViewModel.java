@@ -27,15 +27,15 @@ public class DevToolsFragmentViewModel
     // SleepSessionRepository and SleepSessionDao, which isn't ideal
     private SleepAppDatabase mDatabase;
     private Executor mExecutor;
-    private GregorianCalendar defaultBaseDay = new GregorianCalendar(2021, 2, 14);
+    private GregorianCalendar defaultBaseDay = new GregorianCalendar(2021, 1, 14);
     private GregorianCalendar mBaseDay;
 
 //*********************************************************
 // private constants
 //*********************************************************
 
-    private static final long RANDOM_SEED = 12345L;
-    
+    private static final long RANDOM_SEED = 123456L;
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -44,8 +44,8 @@ public class DevToolsFragmentViewModel
     {
         void onComplete();
     }
-    
-    
+
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -61,7 +61,7 @@ public class DevToolsFragmentViewModel
         mBaseDay = new GregorianCalendar();
         mBaseDay.setTimeInMillis(defaultBaseDay.getTimeInMillis());
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -105,7 +105,7 @@ public class DevToolsFragmentViewModel
                 },
                 listener);
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

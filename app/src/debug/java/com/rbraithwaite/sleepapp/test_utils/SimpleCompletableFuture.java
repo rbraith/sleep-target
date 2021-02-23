@@ -1,6 +1,6 @@
 package com.rbraithwaite.sleepapp.test_utils;
 
-import com.rbraithwaite.sleepapp.utils.DateUtils;
+import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -11,6 +11,8 @@ import java.util.concurrent.TimeoutException;
 // It was a mistake to implement this interface lol, this is way overkill for what I needed.
 // I should have just made my own super basic one with get() and complete(), but oh well the
 // work is done.
+
+
 /**
  * This is because apparently CompletableFuture is >= API 24 :( https://developer.android
  * .com/reference/java/util/concurrent/CompletableFuture
@@ -26,7 +28,7 @@ public class SimpleCompletableFuture<T>
     private volatile boolean mIsDone = false;
     private volatile boolean mGetWasCalled = false;
     private volatile T mValue;
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -88,12 +90,12 @@ public class SimpleCompletableFuture<T>
         // HACK [20-11-20 1:01AM] -- there is definitely a better way to track the timeout.
         long timeoutMillis = unit.toMillis(timeout);
         long elapsedTimeMillis = 0;
-        long startTime = DateUtils.getNow().getTime();
+        long startTime = TimeUtils.getNow().getTime();
         while (!mIsDone && (elapsedTimeMillis < timeoutMillis)) {
             if (mIsCancelled) {
                 throw new CancellationException("cancelled");
             }
-            elapsedTimeMillis = DateUtils.getNow().getTime() - startTime;
+            elapsedTimeMillis = TimeUtils.getNow().getTime() - startTime;
         }
         if (mIsDone) {
             return mValue;
@@ -102,7 +104,7 @@ public class SimpleCompletableFuture<T>
             throw new TimeoutException("timed out");
         }
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************

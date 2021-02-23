@@ -16,10 +16,10 @@ import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.ui.UIDependenciesModule;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
-import com.rbraithwaite.sleepapp.utils.DateUtils;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
 import com.rbraithwaite.sleepapp.utils.LiveDataUtils;
 import com.rbraithwaite.sleepapp.utils.TickingLiveData;
+import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import java.util.Date;
 
@@ -91,7 +91,7 @@ public class SleepTrackerFragmentViewModel
      */
     public void startSleepSession()
     {
-        mCurrentSessionRepository.setCurrentSession(DateUtils.getNow());
+        mCurrentSessionRepository.setCurrentSession(TimeUtils.getNow());
     }
     
     public void endSleepSession()
@@ -182,7 +182,7 @@ public class SleepTrackerFragmentViewModel
                                 null :
                                 // REFACTOR [21-02-3 3:12PM] -- move this logic to
                                 //  SleepTrackerFormatting.
-                                mDateTimeFormatter.formatTimeOfDay(DateUtils.getDateFromMillis(
+                                mDateTimeFormatter.formatTimeOfDay(TimeUtils.getDateFromMillis(
                                         wakeTimeGoal));
                     }
                 });
@@ -220,7 +220,7 @@ public class SleepTrackerFragmentViewModel
                     {
                         // REFACTOR [21-02-9 12:04AM] -- this should be WakeTimeGoalModel.asDate().
                         Date wakeTimeGoal = (wakeTimeGoalMillis == null) ?
-                                null : DateUtils.getDateFromMillis(wakeTimeGoalMillis);
+                                null : TimeUtils.getDateFromMillis(wakeTimeGoalMillis);
                         
                         return new SleepSessionModel(
                                 currentSession.getStart(),

@@ -1,6 +1,6 @@
 package com.rbraithwaite.sleepapp.data.current_session;
 
-import com.rbraithwaite.sleepapp.utils.DateUtils;
+import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import java.util.Date;
 
@@ -51,6 +51,6 @@ public class CurrentSessionModel
      */
     public long getOngoingDurationMillis()
     {
-        return DateUtils.getNow().getTime() - mStart.getTime();
+        return TimeUtils.getNow().getTime() - mStart.getTime();
     }
 }
