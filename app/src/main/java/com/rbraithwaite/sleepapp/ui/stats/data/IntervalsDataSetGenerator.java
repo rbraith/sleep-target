@@ -7,24 +7,68 @@ import org.achartengine.model.RangeCategorySeries;
 import org.achartengine.model.XYMultipleSeriesDataset;
 
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class IntervalDataSet
+import javax.inject.Inject;
+
+// REFACTOR [21-02-24 9:34PM] -- 'Generator' is the wrong name for this class, but 'Converter'
+//  doesn't feel great either idk.
+public class IntervalsDataSetGenerator
 {
 //*********************************************************
-// package properties
+// private constants
 //*********************************************************
 
-    XYMultipleSeriesDataset mDataSet;
+    private static final String TAG = "IntervalsDataSetGenerat";
+
+
+//*********************************************************
+// public helpers
+//*********************************************************
+
+    public static class Config
+    {
+        public DateRange dateRange;
+        public boolean invert;
+        
+        public Config(DateRange dateRange, boolean invert)
+        {
+            this.dateRange = dateRange;
+            this.invert = invert;
+        }
+        
+        @Override
+        public int hashCode()
+        {
+            int hash = 7;
+            int prime = 13;
+            hash = prime * hash + (invert ? 1 : 0);
+            hash = prime * hash + dateRange.hashCode();
+            return hash;
+        }
+        
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) { return true; }
+            if (o == null || getClass() != o.getClass()) { return false; }
+            Config config = (Config) o;
+            return invert == config.invert &&
+                   dateRange.equals(config.dateRange);
+        }
+    }
+
     
 //*********************************************************
 // constructors
 //*********************************************************
 
-    private IntervalDataSet() {/* No instantiation */}
+    @Inject
+    public IntervalsDataSetGenerator()
+    {
+    }
 
 //*********************************************************
 // api
@@ -33,33 +77,27 @@ public class IntervalDataSet
     
     /**
      * Each series X-value of the returned data set represents a 24hr window into which sleep
-     * sessions are placed, with the first window beginning on range.getStart(). Sleep sessions
-     * which span multiple 24hr windows are divided into separate data points at the window
+     * sessions are placed, with the first window beginning on config.dateRange.getStart(). Sleep
+     * sessions which span multiple 24hr windows are divided into separate data points at the window
      * boundaries. Some Y-values are "filler" with min/max values of 0 - this happens when sleep
      * sessions are not evenly distributed between the days of the range, and so these filler values
      * are used to ensure sleep session data occurs at the right series index (the right day).
      *
      * @param sleepSessions The sleep sessions to convert
-     * @param range         The range to define how the sleep sessions are split up
-     * @param invert        Whether or not the sign of the returned data should be inverted. This is
-     *                      used to display data going from top to bottom in charts.
+     * @param config        The configuration for the data - e.g. the date range used to control how
+     *                      the sleep sessions are split up, and whether or not the data should be
+     *                      inverted
      *
      * @return a new IntervalDataSet instance
      */
-    public static IntervalDataSet fromSleepSessionRange(
+    public XYMultipleSeriesDataset generateFromConfig(
             List<SleepSessionModel> sleepSessions,
-            DateRange range,
-            boolean invert)
+            Config config)
     {
-        IntervalDataSet dataSet = new IntervalDataSet();
-        dataSet.mDataSet = convertBucketsToDataSet(
-                splitSleepSessionRangeToBuckets(sleepSessions, range, invert));
-        return dataSet;
-    }
-    
-    public XYMultipleSeriesDataset getDataSet()
-    {
-        return mDataSet;
+        return convertBucketsToDataSet(splitSleepSessionRangeToBuckets(
+                sleepSessions,
+                config.dateRange,
+                config.invert));
     }
     
 //*********************************************************
@@ -67,8 +105,8 @@ public class IntervalDataSet
 //*********************************************************
 
     // TODO [21-02-21 3:35PM] what do i do about overlapping sleep sessions? - i should probably
-    //  prevent  them from being possible to create in the first place.
-    private static XYMultipleSeriesDataset convertBucketsToDataSet(
+    //  prevent them from being possible to create in the first place.
+    private XYMultipleSeriesDataset convertBucketsToDataSet(
             Map<Long, List<IntervalDataPoint>> dataPointBuckets)
     {
         final int BUCKET_COUNT = dataPointBuckets.size();
@@ -107,30 +145,26 @@ public class IntervalDataSet
      * A tree map is returned to ensure that the keys remain sorted in ascending order.
      * </p>
      */
-    private static TreeMap<Long, List<IntervalDataPoint>> createMapWithEmptyBuckets(DateRange range)
+    private TreeMap<Long, List<IntervalDataPoint>> createMapWithEmptyBuckets(DateRange range)
     {
         TreeMap<Long, List<IntervalDataPoint>> dataPointBuckets = new TreeMap<>();
-        
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.setTime(range.getStart());
-        long key = cal.getTimeInMillis();
+        long key = range.getStart().getTime();
         long rangeEnd = range.getEnd().getTime();
         while (key < rangeEnd) {
             dataPointBuckets.put(key, new ArrayList<IntervalDataPoint>());
             key += TimeUtils.MILLIS_24_HOURS;
         }
-        
         return dataPointBuckets;
     }
     
-    private static boolean keyIsInRange(long key, DateRange range)
+    private boolean keyIsInRange(long key, DateRange range)
     {
         return (key >= range.getStart().getTime() && key <= range.getEnd().getTime());
     }
     
     /**
      * This method converts the provided sleep sessions into
-     * {@link IntervalDataSet.IntervalDataPoint
+     * {@link IntervalsDataSetGenerator.IntervalDataPoint
      * IntervalDataPoints} and splits them up into 24hr-buckets, starting from {@link
      * DateRange#getStart() range.getStart()}. If a sleep session does not fit entirely into one of
      * the buckets, it is divided up until the pieces fit.
@@ -142,7 +176,7 @@ public class IntervalDataSet
      *
      * @return The sleep sessions converted to data points and placed into buckets
      */
-    private static Map<Long, List<IntervalDataPoint>> splitSleepSessionRangeToBuckets(
+    private Map<Long, List<IntervalDataPoint>> splitSleepSessionRangeToBuckets(
             List<SleepSessionModel> sleepSessions,
             DateRange range,
             boolean invert)
@@ -155,27 +189,17 @@ public class IntervalDataSet
         long relNextKeyTime =
                 relKeyTime + TimeUtils.MILLIS_24_HOURS; // (rel)ative to the 24hr clock
         
-        GregorianCalendar cal = new GregorianCalendar();
         for (SleepSessionModel sleepSession : sleepSessions) {
-            cal.setTime(sleepSession.getStart());
-            long relStartTime = TimeUtils.getTimeOfDay(cal);
+            long key = getKeyForSession(sleepSession.getStart().getTime(), dataPointBuckets);
+            long relStartTime = TimeUtils.getTimeOfDay(sleepSession.getStart());
             
-            // setting the calendar to the key's time of day so that I can extract the
-            // correct absolute key value
-            TimeUtils.setCalendarTimeOfDay(cal, relKeyTime);
-            long key = cal.getTimeInMillis();
-            long offset = 0;
-            if (relStartTime < relKeyTime) {
-                // If the range start time is greater than (comes after) the sleep session start
-                // time, it means the key time is from the previous calendar day. The sleep session
-                // start time falls somewhere between its key and the next key - a 24hr window. In
-                // addition, in these cases you must also offset the start & ends of the data
-                // points by 24hrs. This is because if the range does not start at midnight, one
-                // 24hr bucket will be comprised of hours from 2 different days, and you need to
-                // have the start & end times relative to the correct day to display properly.
-                key -= TimeUtils.MILLIS_24_HOURS;
-                offset = TimeUtils.MILLIS_24_HOURS;
-            }
+            // If the relative session start time is less than the relative key time, you need to
+            // offset the data by 24hrs in order for it to display properly. This is because
+            // when the range does not start at midnight, one 24hr buckets will contain time from
+            // 2 different days, and you must select the right day to display the data relative to
+            // (eg 0400 or 2800).
+            long offset = relStartTime < relKeyTime ? TimeUtils.MILLIS_24_HOURS : 0;
+            
             int sign = invert ? -1 : 1;
             
             long remainingDuration = sleepSession.getDuration();
@@ -212,6 +236,24 @@ public class IntervalDataSet
         return dataPointBuckets;
     }
     
+    /**
+     * The key returned is the largest one in the map that is less than sessionStartTime.
+     */
+    // OPTIMIZE [21-02-24 8:31PM] -- this makes generateFromConfig() O(n^2) right now - really bad
+    //  for year ranges. I can get it to O(nlogn) by using a binary search on buckets (its an
+    //  ordered map)
+    private long getKeyForSession(long sessionStartTime, Map<Long, List<IntervalDataPoint>> buckets)
+    {
+        long result = -1;
+        for (Map.Entry<Long, List<IntervalDataPoint>> entry : buckets.entrySet()) {
+            long key = entry.getKey();
+            if (key < sessionStartTime) {
+                result = Math.max(result, key);
+            }
+        }
+        return result;
+    }
+
 //*********************************************************
 // private helpers
 //*********************************************************

@@ -38,7 +38,7 @@ public class MainActivityNavigationTests
 //*********************************************************
 // api
 //*********************************************************
-    
+
     @Test
     public void navigateFromSleepTrackerToSleepStats()
     {
@@ -50,11 +50,11 @@ public class MainActivityNavigationTests
         onView(withId(R.id.nav_sleepstats)).perform(click());
         
         // THEN the stats screen is displayed
-        onView(withId(R.id.stats_sleep_intervals_layout)).check(matches(isDisplayed()));
+        onView(withId(R.id.stats_intervals_layout)).check(matches(isDisplayed()));
         // AND the bottomnav remains visible
         UITestUtils.checkBottomNavIsDisplayed(true);
     }
-
+    
     @Test
     public void navigateFromSleepTrackerToSleepGoals()
     {

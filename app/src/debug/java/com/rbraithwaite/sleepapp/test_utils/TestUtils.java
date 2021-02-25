@@ -16,6 +16,7 @@ import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
+import com.rbraithwaite.sleepapp.ui.stats.data.DateRange;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -159,6 +160,11 @@ public class TestUtils
         public static SleepDurationGoalModel getSleepDurationGoalModel()
         {
             return new SleepDurationGoalModel(1234);
+        }
+        
+        public static DateRange getDateRange()
+        {
+            return DateRange.asWeekOf(getDate());
         }
     }
 

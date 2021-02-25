@@ -6,20 +6,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
 import com.rbraithwaite.sleepapp.ui.stats.data.DateRange;
-import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
+import com.rbraithwaite.sleepapp.ui.stats.data.IntervalsDataSetGenerator;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
 import org.achartengine.chart.BarChart;
+import org.achartengine.chart.RangeBarChart;
 import org.achartengine.model.RangeCategorySeries;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
@@ -40,6 +42,10 @@ public class StatsFragment
 
     private boolean mIsIntervalDataInverted = true;
     
+    private IntervalsDataSetGenerator.Config mIntervalsConfig;
+    
+    private RangeBarChart mIntervalsChart;
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -57,42 +63,7 @@ public class StatsFragment
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState)
     {
-        // unless state was retained, use default week
-        //  (default week is the week that today is a part of (starting on mon))
-        
-        StatsFragmentViewModel viewModel = getViewModel();
-        // TODO [21-02-20 1:27AM] -- I will need to account for retained state here.
-        // REFACTOR [21-02-21 7:08PM] -- eventually it might be better to use that switchmap
-        //  pattern where you pass a key to the viewmodel and have a value livedata that updates.
-        final DateRange defaultRange = viewModel.getDefaultIntervalsDateRange();
-        LiveData<XYMultipleSeriesDataset> intervalDataSet =
-                viewModel.getIntervalDataSetFromDateRange(defaultRange, mIsIntervalDataInverted);
-        
-        LiveDataFuture.getValue(
-                intervalDataSet,
-                getViewLifecycleOwner(),
-                new LiveDataFuture.OnValueListener<XYMultipleSeriesDataset>()
-                {
-                    @Override
-                    public void onValue(XYMultipleSeriesDataset dataSet)
-                    {
-                        XYMultipleSeriesRenderer multipleSeriesRenderer = createRenderer(
-                                dataSet,
-                                defaultRange,
-                                StatsFragmentViewModel.DEFAULT_CHART_OFFSET_HOURS,
-                                mIsIntervalDataInverted);
-                        
-                        GraphicalView rangeBarChart = ChartFactory.getRangeBarChartView(
-                                requireContext(),
-                                dataSet,
-                                multipleSeriesRenderer,
-                                BarChart.Type.STACKED);
-                        
-                        FrameLayout intervalsLayout =
-                                view.findViewById(R.id.stats_sleep_intervals_layout);
-                        intervalsLayout.addView(rangeBarChart);
-                    }
-                });
+        initIntervalsChart(view);
     }
     
     @Override
@@ -108,8 +79,95 @@ public class StatsFragment
     }
     
 //*********************************************************
+// api
+//*********************************************************
+
+    public DateRange getIntervalsDateRange()
+    {
+        if (mIntervalsConfig == null) {
+            return null;
+        }
+        return mIntervalsConfig.dateRange;
+    }
+    
+    public void setIntervalsDateRange(DateRange intervalsDateRange)
+    {
+        mIntervalsConfig.dateRange = new DateRange(intervalsDateRange);
+        getViewModel().configureIntervalsDataSet(mIntervalsConfig);
+    }
+    
+//*********************************************************
 // private methods
 //*********************************************************
+
+    private void initIntervalsChart(final View fragmentRoot)
+    {
+        final StatsFragmentViewModel viewModel = getViewModel();
+        
+        final DateRange defaultRange = viewModel.getDefaultIntervalsDateRange();
+        
+        // TODO [21-02-24 12:19AM] -- I will need to account for fragment recreation here
+        //  (retained state)
+        //  The viewmodel can store the config.
+        mIntervalsConfig = new IntervalsDataSetGenerator.Config(
+                defaultRange,
+                mIsIntervalDataInverted);
+        
+        viewModel.configureIntervalsDataSet(mIntervalsConfig);
+        
+        viewModel.getIntervalsDataSet().observe(
+                getViewLifecycleOwner(),
+                new Observer<XYMultipleSeriesDataset>()
+                {
+                    @Override
+                    public void onChanged(XYMultipleSeriesDataset dataSet)
+                    {
+                        XYMultipleSeriesRenderer multipleSeriesRenderer = createRenderer(
+                                dataSet,
+                                defaultRange,
+                                StatsFragmentViewModel.DEFAULT_INTERVALS_OFFSET_HOURS,
+                                mIsIntervalDataInverted);
+                        
+                        GraphicalView intervalsChart = ChartFactory.getRangeBarChartView(
+                                requireContext(),
+                                dataSet,
+                                multipleSeriesRenderer,
+                                BarChart.Type.STACKED);
+                        
+                        FrameLayout intervalsLayout =
+                                fragmentRoot.findViewById(R.id.stats_intervals_layout);
+                        intervalsLayout.removeAllViews();
+                        intervalsLayout.addView(intervalsChart);
+                    }
+                });
+        
+        View intervalsTimePeriodSelector =
+                fragmentRoot.findViewById(R.id.stats_intervals_time_period_selector);
+        ImageButton intervalsBack =
+                intervalsTimePeriodSelector.findViewById(R.id.stats_time_period_back);
+        intervalsBack.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                mIntervalsConfig.dateRange.offsetDays(
+                        mIntervalsConfig.dateRange.getDifferenceInDays() * -1);
+                viewModel.configureIntervalsDataSet(mIntervalsConfig);
+            }
+        });
+        
+        ImageButton intervalsForward =
+                intervalsTimePeriodSelector.findViewById(R.id.stats_time_period_forward);
+        intervalsForward.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                mIntervalsConfig.dateRange.offsetDays(mIntervalsConfig.dateRange.getDifferenceInDays());
+                viewModel.configureIntervalsDataSet(mIntervalsConfig);
+            }
+        });
+    }
 
     private XYMultipleSeriesRenderer createRenderer(
             XYMultipleSeriesDataset dataSet,
