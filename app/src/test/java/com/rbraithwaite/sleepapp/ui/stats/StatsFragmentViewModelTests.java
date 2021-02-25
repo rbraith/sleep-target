@@ -9,11 +9,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
+import com.rbraithwaite.sleepapp.ui.stats.data.DateRange;
 import com.rbraithwaite.sleepapp.ui.stats.data.IntervalsDataSetGenerator;
 
-import org.achartengine.model.RangeCategorySeries;
 import org.achartengine.model.XYMultipleSeriesDataset;
-import org.achartengine.model.XYSeries;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -73,6 +72,18 @@ public class StatsFragmentViewModelTests
     }
     
     @Test
+    public void getIntervalsValueText_updatesFromConfig()
+    {
+        DateRange range = TestUtils.ArbitraryData.getDateRange();
+        viewModel.configureIntervalsDataSet(new IntervalsDataSetGenerator.Config(range, false));
+        
+        LiveData<String> valueText = viewModel.getIntervalsValueText();
+        TestUtils.activateLocalLiveData(valueText);
+        
+        assertThat(valueText.getValue(), is(equalTo(StatsFormatting.formatIntervalsRange(range))));
+    }
+    
+    @Test
     public void configureIntervalsDataSet_updates_getIntervalsDataSet()
     {
         // this is just to avoid a NullPointerException
@@ -95,33 +106,5 @@ public class StatsFragmentViewModelTests
                         testConfig.dateRange.getEnd());
         verify(mockIntervalsDataSetGenerator, times(1))
                 .generateFromConfig(anyList(), eq(testConfig));
-    }
-    
-    
-    // clarifying AChartEngine behaviour for myself
-    @Test
-    public void RangeCategorySeries_toXYSeries_createsPairedXPoints()
-    {
-        RangeCategorySeries testSeries = new RangeCategorySeries("test");
-        // data point #1
-        testSeries.add(1, 4.5); // this becomes [0](1, 1.0), [1](1, 4.5)
-        // data point #2
-        testSeries.add(3, 5.4); // this becomes [2](2, 3.0), [3](2, 5.4)
-        
-        XYSeries testXYSeries = testSeries.toXYSeries();
-        
-        assertThat(testXYSeries.getItemCount(), is(equalTo(4)));
-        
-        // range data point #1
-        assertThat((int) testXYSeries.getX(0), is(equalTo(1)));
-        assertThat(testXYSeries.getY(0), is(equalTo(1.0)));
-        assertThat((int) testXYSeries.getX(1), is(equalTo(1)));
-        assertThat(testXYSeries.getY(1), is(equalTo(4.5)));
-        
-        // range data point #2
-        assertThat((int) testXYSeries.getX(2), is(equalTo(2)));
-        assertThat(testXYSeries.getY(2), is(equalTo(3.0)));
-        assertThat((int) testXYSeries.getX(3), is(equalTo(2)));
-        assertThat(testXYSeries.getY(3), is(equalTo(5.4)));
     }
 }

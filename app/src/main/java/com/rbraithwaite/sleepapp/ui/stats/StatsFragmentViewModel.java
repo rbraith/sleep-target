@@ -45,7 +45,7 @@ public class StatsFragmentViewModel
     SleepSessionRepository mSleepSessionRepository;
     
     Executor mExecutor;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -60,7 +60,7 @@ public class StatsFragmentViewModel
         mIntervalsDataSetGenerator = intervalsDataSetGenerator;
         mExecutor = executor;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -90,6 +90,20 @@ public class StatsFragmentViewModel
         return mIntervalsDataSet;
     }
     
+    public LiveData<String> getIntervalsValueText()
+    {
+        return Transformations.map(
+                mIntervalsConfig,
+                new Function<IntervalsDataSetGenerator.Config, String>()
+                {
+                    @Override
+                    public String apply(IntervalsDataSetGenerator.Config config)
+                    {
+                        return StatsFormatting.formatIntervalsRange(config.dateRange);
+                    }
+                });
+    }
+
 //*********************************************************
 // private methods
 //*********************************************************

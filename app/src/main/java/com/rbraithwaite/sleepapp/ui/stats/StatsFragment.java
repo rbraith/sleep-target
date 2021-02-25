@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -77,7 +78,7 @@ public class StatsFragment
     {
         return StatsFragmentViewModel.class;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -95,7 +96,7 @@ public class StatsFragment
         mIntervalsConfig.dateRange = new DateRange(intervalsDateRange);
         getViewModel().configureIntervalsDataSet(mIntervalsConfig);
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -143,6 +144,8 @@ public class StatsFragment
         
         View intervalsTimePeriodSelector =
                 fragmentRoot.findViewById(R.id.stats_intervals_time_period_selector);
+        
+        // time period back
         ImageButton intervalsBack =
                 intervalsTimePeriodSelector.findViewById(R.id.stats_time_period_back);
         intervalsBack.setOnClickListener(new View.OnClickListener()
@@ -156,6 +159,7 @@ public class StatsFragment
             }
         });
         
+        // time period forward
         ImageButton intervalsForward =
                 intervalsTimePeriodSelector.findViewById(R.id.stats_time_period_forward);
         intervalsForward.setOnClickListener(new View.OnClickListener()
@@ -167,8 +171,24 @@ public class StatsFragment
                 viewModel.configureIntervalsDataSet(mIntervalsConfig);
             }
         });
+        
+        // time period value text
+        final TextView intervalsValueText =
+                intervalsTimePeriodSelector.findViewById(R.id.stats_time_period_value);
+        viewModel.getIntervalsValueText().observe(
+                getViewLifecycleOwner(),
+                new Observer<String>()
+                {
+                    @Override
+                    public void onChanged(String s)
+                    {
+                        if (s != null) {
+                            intervalsValueText.setText(s);
+                        }
+                    }
+                });
     }
-
+    
     private XYMultipleSeriesRenderer createRenderer(
             XYMultipleSeriesDataset dataSet,
             DateRange range,
