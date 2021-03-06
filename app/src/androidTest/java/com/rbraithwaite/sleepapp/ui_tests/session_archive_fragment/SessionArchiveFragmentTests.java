@@ -236,10 +236,11 @@ public class SessionArchiveFragmentTests
         // THEN a new session is added with the correct values in the archive
         // these checks work because there will be only one list item at this point
         DateTimeFormatter formatter = new DateTimeFormatter();
+        TimeUtils timeUtils = new TimeUtils();
         String expectedStartDateTimeText =
-                formatter.formatFullDate(TimeUtils.getDateFromMillis(startDateTime.ref));
+                formatter.formatFullDate(timeUtils.getDateFromMillis(startDateTime.ref));
         String expectedEndDateTimeText =
-                formatter.formatFullDate(TimeUtils.getDateFromMillis(endDateTime.ref));
+                formatter.formatFullDate(timeUtils.getDateFromMillis(endDateTime.ref));
         onView(withId(R.id.session_archive_list_item_card)).check(matches(isDisplayed()));
         onView(withId(R.id.session_archive_list_item_start_VALUE)).check(matches(withText(
                 expectedStartDateTimeText)));

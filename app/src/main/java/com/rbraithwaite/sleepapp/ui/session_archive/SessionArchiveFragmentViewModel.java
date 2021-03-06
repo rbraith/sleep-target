@@ -30,6 +30,7 @@ public class SessionArchiveFragmentViewModel
     private SleepSessionRepository mSleepSessionRepository;
     private CurrentGoalsRepository mCurrentGoalsRepository;
     private DateTimeFormatter mDateTimeFormatter;
+    private TimeUtils mTimeUtils;
 
 //*********************************************************
 // private constants
@@ -50,8 +51,9 @@ public class SessionArchiveFragmentViewModel
         mCurrentGoalsRepository = currentGoalsRepository;
         mSleepSessionRepository = sleepSessionRepository;
         mDateTimeFormatter = dateTimeFormatter;
+        mTimeUtils = createTimeUtils();
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -60,7 +62,7 @@ public class SessionArchiveFragmentViewModel
     {
         mSleepSessionRepository.addSleepSession(sleepSession.getValue());
     }
-    
+
     public void updateSleepSession(SleepSessionWrapper sleepSession)
     {
         mSleepSessionRepository.updateSleepSession(sleepSession.getValue());
@@ -110,10 +112,10 @@ public class SessionArchiveFragmentViewModel
                     {
                         return new SleepSessionWrapper(
                                 new SleepSessionModel(
-                                        TimeUtils.getNow(),
+                                        mTimeUtils.getNow(),
                                         0,
                                         wakeTimeGoal == null ?
-                                                null : TimeUtils.getDateFromMillis(wakeTimeGoal),
+                                                null : mTimeUtils.getDateFromMillis(wakeTimeGoal),
                                         sleepDurationGoal));
                     }
                 });
@@ -131,6 +133,17 @@ public class SessionArchiveFragmentViewModel
                         return new SleepSessionWrapper(input);
                     }
                 });
+    }
+    
+//*********************************************************
+// protected api
+//*********************************************************
+
+    // REFACTOR [21-03-5 12:52AM] -- consider ctor injecting this instead? the main reason I'm using
+    //  a factory method here is so that I didn't need to update the test class.
+    protected TimeUtils createTimeUtils()
+    {
+        return new TimeUtils();
     }
 
 

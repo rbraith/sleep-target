@@ -171,7 +171,7 @@ public class SleepGoalsFragmentViewModelTests
         
         assertThat(wakeTime.getValue(),
                    is(equalTo(dateTimeFormatter.formatTimeOfDay(
-                           TimeUtils.getDateFromMillis(expectedWakeTimeMillis)))));
+                           new TimeUtils().getDateFromMillis(expectedWakeTimeMillis)))));
     }
     
     @Test

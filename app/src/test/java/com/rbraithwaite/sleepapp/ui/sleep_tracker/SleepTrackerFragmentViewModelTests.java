@@ -295,7 +295,7 @@ public class SleepTrackerFragmentViewModelTests
         SleepSessionModel addSleepSession = addSleepSessionArg.getValue();
         assertThat(addSleepSession.getStart(), is(equalTo(startTime.getValue().getStart())));
         assertThat(addSleepSession.getWakeTimeGoal(),
-                   is(equalTo(TimeUtils.getDateFromMillis(wakeTimeGoal.getValue()))));
+                   is(equalTo(new TimeUtils().getDateFromMillis(wakeTimeGoal.getValue()))));
         assertThat(addSleepSession.getSleepDurationGoal(),
                    is(equalTo(sleepDurationGoal.getValue())));
     }

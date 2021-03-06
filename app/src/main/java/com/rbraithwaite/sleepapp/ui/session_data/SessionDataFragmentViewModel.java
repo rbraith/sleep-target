@@ -51,6 +51,8 @@ public class SessionDataFragmentViewModel
     
     private MutableLiveData<Date> mWakeTimeGoal;
     private MutableLiveData<SleepDurationGoalModel> mSleepDurationGoal;
+    
+    private TimeUtils mTimeUtils;
 
 //*********************************************************
 // public constants
@@ -82,8 +84,9 @@ public class SessionDataFragmentViewModel
             @UIDependenciesModule.SessionDataDateTimeFormatter DateTimeFormatter dateTimeFormatter)
     {
         mDateTimeFormatter = dateTimeFormatter;
+        mTimeUtils = createTimeUtils();
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -94,12 +97,12 @@ public class SessionDataFragmentViewModel
         //  an internal SleepSessionModel member, instead of needing to recompose one here.
         return new SleepSessionWrapper(new SleepSessionModel(
                 mSessionId,
-                TimeUtils.getDateFromMillis(getStartDateTime().getValue()),
+                mTimeUtils.getDateFromMillis(getStartDateTime().getValue()),
                 getEndDateTime().getValue() - getStartDateTime().getValue(),
                 getWakeTimeGoalMutable().getValue(),
                 getSleepDurationGoalMutable().getValue()));
     }
-    
+
     public LiveData<String> getSessionDuration()
     {
         // REFACTOR [21-01-11 3:18AM] -- inject this.
@@ -422,6 +425,16 @@ public class SessionDataFragmentViewModel
     {
         getSleepDurationGoalMutable().setValue(new SleepDurationGoalModel(hours, minutes));
     }
+    
+//*********************************************************
+// protected api
+//*********************************************************
+
+    // REFACTOR [21-03-5 12:53AM] -- consider ctor injecting this instead?
+    protected TimeUtils createTimeUtils()
+    {
+        return new TimeUtils();
+    }
 
 //*********************************************************
 // private methods
@@ -493,7 +506,7 @@ public class SessionDataFragmentViewModel
     
     private String formatDateTimeMillisFromType(long dateMillis, DateTimeFormatType formatType)
     {
-        Date date = TimeUtils.getDateFromMillis(dateMillis);
+        Date date = mTimeUtils.getDateFromMillis(dateMillis);
         switch (formatType) {
         case DATE:
             return mDateTimeFormatter.formatDate(date);

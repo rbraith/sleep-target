@@ -4,6 +4,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import javax.inject.Inject;
+
 // TODO [20-11-27 1:16AM] -- consider redesigning to be more OOP
 //  should be an instantiable obj w/ instance methods instead of
 //  a collection of static methods?
@@ -13,33 +15,35 @@ public class TimeUtils
 // public constants
 //*********************************************************
 
-    public static final long MILLIS_24_HOURS = TimeUtils.hoursToMillis(24);
+    public static final long MILLIS_24_HOURS = 86400000;
 
 //*********************************************************
 // constructors
 //*********************************************************
 
-    private TimeUtils() {/* No instantiation */}
-    
+    // REFACTOR [21-03-4 11:58PM] -- call this TimeService instead?
+    @Inject
+    public TimeUtils() {}
+
 //*********************************************************
 // api
 //*********************************************************
 
     // TODO [20-11-15 1:05AM] -- think about how I could test this.
     //  idk if I could? probably not a huge deal
-    public static Date getNow()
+    public Date getNow()
     {
         return new GregorianCalendar().getTime();
     }
     
-    public static Date getDateFromMillis(long dateMillis)
+    public Date getDateFromMillis(long dateMillis)
     {
         GregorianCalendar calendar = new GregorianCalendar();
         calendar.setTimeInMillis(dateMillis);
         return calendar.getTime();
     }
     
-    public static void setCalendarTimeOfDay(Calendar cal, long newTimeOfDayMillis)
+    public void setCalendarTimeOfDay(Calendar cal, long newTimeOfDayMillis)
     {
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
@@ -49,7 +53,7 @@ public class TimeUtils
         cal.add(Calendar.MILLISECOND, (int) newTimeOfDayMillis);
     }
     
-    public static long getTimeOfDay(Calendar cal)
+    public long getTimeOfDay(Calendar cal)
     {
         return timeToMillis(
                 cal.get(Calendar.HOUR_OF_DAY),
@@ -58,14 +62,14 @@ public class TimeUtils
                 cal.get(Calendar.MILLISECOND));
     }
     
-    public static long getTimeOfDay(Date date)
+    public long getTimeOfDay(Date date)
     {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTime(date);
         return getTimeOfDay(cal);
     }
     
-    public static long timeToMillis(int hours, int minutes, int seconds, int millis)
+    public long timeToMillis(int hours, int minutes, int seconds, int millis)
     {
         long hourMillis = hours * 60 * 60 * 1000;
         long minuteMillis = minutes * 60 * 1000;
@@ -74,8 +78,13 @@ public class TimeUtils
         return hourMillis + minuteMillis + secondMillis + millis;
     }
     
-    public static long hoursToMillis(int hours)
+    public long hoursToMillis(int hours)
     {
         return timeToMillis(hours, 0, 0, 0);
+    }
+    
+    public double millisToHours(long millis)
+    {
+        return ((millis / 1000.0) / 60.0) / 60.0;
     }
 }

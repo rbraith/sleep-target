@@ -2,6 +2,7 @@ package com.rbraithwaite.sleepapp.ui.stats.data;
 
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
+import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import org.achartengine.model.RangeCategorySeries;
 import org.achartengine.model.XYMultipleSeriesDataset;
@@ -12,12 +13,11 @@ import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import static com.rbraithwaite.sleepapp.utils.TimeUtils.hoursToMillis;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
-public class IntervalsDataSetGeneratorTests
+public class SleepIntervalsDataSetTests
 {
 //*********************************************************
 // api
@@ -54,15 +54,16 @@ public class IntervalsDataSetGeneratorTests
     public void generateFromConfig_generatesCorrectData()
     {
         // setup test data
+        TimeUtils timeUtils = new TimeUtils();
         // 1 hr over into 02/20
         GregorianCalendar start1 = new GregorianCalendar(2021, 1, 19, 23, 0);
-        long duration1 = hoursToMillis(2);
+        long duration1 = timeUtils.hoursToMillis(2);
         // 3 hrs in 02/21
         GregorianCalendar start2 = new GregorianCalendar(2021, 1, 21, 1, 0);
-        long duration2 = hoursToMillis(3);
+        long duration2 = timeUtils.hoursToMillis(3);
         // 1 hr in 02/21
         GregorianCalendar start3 = new GregorianCalendar(2021, 1, 21, 5, 0);
-        long duration3 = hoursToMillis(1);
+        long duration3 = timeUtils.hoursToMillis(1);
         
         SleepSessionModel sleepSession1 = TestUtils.ArbitraryData.getSleepSessionModel();
         sleepSession1.setStart(start1.getTime());
@@ -76,10 +77,11 @@ public class IntervalsDataSetGeneratorTests
         sleepSession3.setStart(start3.getTime());
         sleepSession3.setDuration(duration3);
         
-        IntervalsDataSetGenerator.Config config = new IntervalsDataSetGenerator.Config(
+        SleepIntervalsDataSet.Config config = new SleepIntervalsDataSet.Config(
                 new DateRange(
                         new GregorianCalendar(2021, 2, 20).getTime(),
                         new GregorianCalendar(2021, 2, 22).getTime()),
+                1000,
                 false);
         
         List<SleepSessionModel> sleepSessions = Arrays.asList(
@@ -87,9 +89,11 @@ public class IntervalsDataSetGeneratorTests
                 sleepSession2,
                 sleepSession3);
         
-        IntervalsDataSetGenerator generator = new IntervalsDataSetGenerator();
+        SleepIntervalsDataSet.Generator generator = new SleepIntervalsDataSet.Generator();
+        
         // SUT
-        XYMultipleSeriesDataset dataSet = generator.generateFromConfig(sleepSessions, config);
+        SleepIntervalsDataSet sleepIntervals = generator.generateFromConfig(sleepSessions, config);
+        XYMultipleSeriesDataset dataSet = sleepIntervals.getDataSet();
         
         // verifying expected point data
         //
@@ -100,18 +104,18 @@ public class IntervalsDataSetGeneratorTests
                 // series 1
                 {
                         {1.0, 0},
-                        {1.0, (double) hoursToMillis(1)},
+                        {1.0, (double) timeUtils.hoursToMillis(1)},
                         
-                        {2.0, (double) hoursToMillis(1)},
-                        {2.0, (double) hoursToMillis(4)}
+                        {2.0, (double) timeUtils.hoursToMillis(1)},
+                        {2.0, (double) timeUtils.hoursToMillis(4)}
                 },
                 // series 2
                 {
                         {1.0, 0},
                         {1.0, 0},
                         
-                        {2.0, (double) hoursToMillis(5)},
-                        {2.0, (double) hoursToMillis(6)}
+                        {2.0, (double) timeUtils.hoursToMillis(5)},
+                        {2.0, (double) timeUtils.hoursToMillis(6)}
                 }
         };
         

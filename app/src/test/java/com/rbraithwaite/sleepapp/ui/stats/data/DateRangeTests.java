@@ -1,6 +1,7 @@
 package com.rbraithwaite.sleepapp.ui.stats.data;
 
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
+import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import org.junit.Test;
 
@@ -18,6 +19,44 @@ public class DateRangeTests
 // api
 //*********************************************************
 
+    @Test
+    public void asYearOf_createsCorrectObj()
+    {
+        // date the test was written, is the reason for this value
+        GregorianCalendar testDay = new GregorianCalendar(2021, 1, 26);
+        DateRange testRange =
+                DateRange.asYearOf(testDay.getTime(), new TimeUtils().hoursToMillis(2));
+        
+        assertThat(
+                testRange.getStart(),
+                is(equalTo(new GregorianCalendar(2021, 0, 1, 2, 0).getTime())));
+        
+        assertThat(
+                testRange.getEnd(),
+                is(equalTo(new GregorianCalendar(2022, 0, 1, 2, 0).getTime())));
+        
+        assertThat(testRange.getDifferenceInDays(), is(equalTo(365)));
+    }
+    
+    @Test
+    public void asMonthOf_createsCorrectObj()
+    {
+        // date the test was written, is the reason for this value
+        GregorianCalendar testDay = new GregorianCalendar(2021, 1, 26);
+        DateRange testRange =
+                DateRange.asMonthOf(testDay.getTime(), new TimeUtils().hoursToMillis(2));
+        
+        assertThat(
+                testRange.getStart(),
+                is(equalTo(new GregorianCalendar(2021, 1, 1, 2, 0).getTime())));
+        
+        assertThat(
+                testRange.getEnd(),
+                is(equalTo(new GregorianCalendar(2021, 2, 1, 2, 0).getTime())));
+        
+        assertThat(testRange.getDifferenceInDays(), is(equalTo(28)));
+    }
+    
     @Test
     public void asWeekOf_createsCorrectObj()
     {

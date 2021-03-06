@@ -2,6 +2,8 @@ package com.rbraithwaite.sleepapp.utils;
 
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Calendar;
@@ -15,16 +17,29 @@ public class TimeUtilsTests
 //*********************************************************
 // api
 //*********************************************************
+    
+    TimeUtils timeUtils;
+    
+    @Before
+    public void setup() {
+        timeUtils = new TimeUtils();
+    }
+    
+    @After
+    public void teardown() {
+        timeUtils = null;
+    }
+    
 
     @Test
     public void setCalendarTimeOfDay_positiveInput()
     {
         GregorianCalendar cal = TestUtils.ArbitraryData.getCalendar();
-        TimeUtils.setCalendarTimeOfDay(cal, 0);
+        timeUtils.setCalendarTimeOfDay(cal, 0);
         
         checkCalendarTimeOfDay(cal, 0, 0, 0, 0);
-        
-        TimeUtils.setCalendarTimeOfDay(cal, TimeUtils.timeToMillis(
+    
+        timeUtils.setCalendarTimeOfDay(cal, timeUtils.timeToMillis(
                 1, 2, 3, 4));
         
         checkCalendarTimeOfDay(cal, 1, 2, 3, 4);
@@ -34,17 +49,17 @@ public class TimeUtilsTests
     public void getTimeOfDay_reflects_setCalendarTimeOfDay()
     {
         GregorianCalendar cal = TestUtils.ArbitraryData.getCalendar();
-        long expectedTimeOfDay = TimeUtils.timeToMillis(1, 2, 3, 4);
-        TimeUtils.setCalendarTimeOfDay(cal, expectedTimeOfDay);
+        long expectedTimeOfDay = timeUtils.timeToMillis(1, 2, 3, 4);
+        timeUtils.setCalendarTimeOfDay(cal, expectedTimeOfDay);
         
-        assertThat(TimeUtils.getTimeOfDay(cal), is(expectedTimeOfDay));
-        assertThat(TimeUtils.getTimeOfDay(cal.getTime()), is(expectedTimeOfDay));
+        assertThat(timeUtils.getTimeOfDay(cal), is(expectedTimeOfDay));
+        assertThat(timeUtils.getTimeOfDay(cal.getTime()), is(expectedTimeOfDay));
     }
     
     @Test
     public void timeToMillis_positiveInput()
     {
-        assertThat(TimeUtils.timeToMillis(1, 2, 3, 4), is(3723004L));
+        assertThat(timeUtils.timeToMillis(1, 2, 3, 4), is(3723004L));
     }
     
 //*********************************************************

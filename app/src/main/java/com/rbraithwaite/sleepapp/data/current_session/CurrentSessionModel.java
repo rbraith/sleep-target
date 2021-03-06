@@ -11,6 +11,7 @@ public class CurrentSessionModel
 //*********************************************************
 
     private Date mStart;
+    private TimeUtils mTimeUtils;
 
 //*********************************************************
 // constructors
@@ -18,12 +19,13 @@ public class CurrentSessionModel
 
     public CurrentSessionModel()
     {
-        mStart = null;
+        this(null);
     }
     
     public CurrentSessionModel(Date start)
     {
         mStart = start;
+        mTimeUtils = createTimeUtils();
     }
 
 //*********************************************************
@@ -51,6 +53,15 @@ public class CurrentSessionModel
      */
     public long getOngoingDurationMillis()
     {
-        return TimeUtils.getNow().getTime() - mStart.getTime();
+        return mTimeUtils.getNow().getTime() - mStart.getTime();
+    }
+    
+//*********************************************************
+// protected api
+//*********************************************************
+
+    protected TimeUtils createTimeUtils()
+    {
+        return new TimeUtils();
     }
 }

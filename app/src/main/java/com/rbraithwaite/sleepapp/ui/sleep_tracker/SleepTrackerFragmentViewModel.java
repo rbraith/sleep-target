@@ -38,6 +38,8 @@ public class SleepTrackerFragmentViewModel
     private LiveData<String> mCurrentSleepSessionDuration;
     
     private DateTimeFormatter mDateTimeFormatter;
+    
+    private TimeUtils mTimeUtils;
 
 //*********************************************************
 // private constants
@@ -60,8 +62,9 @@ public class SleepTrackerFragmentViewModel
         mCurrentSessionRepository = currentSessionRepository;
         mCurrentGoalsRepository = currentGoalsRepository;
         mDateTimeFormatter = dateTimeFormatter;
+        mTimeUtils = createTimeUtils();
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -83,7 +86,7 @@ public class SleepTrackerFragmentViewModel
         }
         return mInSleepSession;
     }
-    
+
     /**
      * If a new session is started while one is currently ongoing, the ongoing session is discarded.
      * If you want to retain that session instead, call
@@ -91,7 +94,7 @@ public class SleepTrackerFragmentViewModel
      */
     public void startSleepSession()
     {
-        mCurrentSessionRepository.setCurrentSession(TimeUtils.getNow());
+        mCurrentSessionRepository.setCurrentSession(mTimeUtils.getNow());
     }
     
     public void endSleepSession()
@@ -182,7 +185,7 @@ public class SleepTrackerFragmentViewModel
                                 null :
                                 // REFACTOR [21-02-3 3:12PM] -- move this logic to
                                 //  SleepTrackerFormatting.
-                                mDateTimeFormatter.formatTimeOfDay(TimeUtils.getDateFromMillis(
+                                mDateTimeFormatter.formatTimeOfDay(mTimeUtils.getDateFromMillis(
                                         wakeTimeGoal));
                     }
                 });
@@ -202,6 +205,15 @@ public class SleepTrackerFragmentViewModel
                     }
                 });
     }
+    
+//*********************************************************
+// protected api
+//*********************************************************
+
+    protected TimeUtils createTimeUtils()
+    {
+        return new TimeUtils();
+    }
 
 //*********************************************************
 // private methods
@@ -220,7 +232,7 @@ public class SleepTrackerFragmentViewModel
                     {
                         // REFACTOR [21-02-9 12:04AM] -- this should be WakeTimeGoalModel.asDate().
                         Date wakeTimeGoal = (wakeTimeGoalMillis == null) ?
-                                null : TimeUtils.getDateFromMillis(wakeTimeGoalMillis);
+                                null : mTimeUtils.getDateFromMillis(wakeTimeGoalMillis);
                         
                         return new SleepSessionModel(
                                 currentSession.getStart(),

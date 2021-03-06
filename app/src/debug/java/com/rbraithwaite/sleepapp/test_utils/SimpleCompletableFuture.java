@@ -13,6 +13,7 @@ import java.util.concurrent.TimeoutException;
 // work is done.
 
 
+
 /**
  * This is because apparently CompletableFuture is >= API 24 :( https://developer.android
  * .com/reference/java/util/concurrent/CompletableFuture
@@ -87,15 +88,16 @@ public class SimpleCompletableFuture<T>
             TimeoutException
     {
         mGetWasCalled = true;
+        TimeUtils timeUtils = createTimeUtils();
         // HACK [20-11-20 1:01AM] -- there is definitely a better way to track the timeout.
         long timeoutMillis = unit.toMillis(timeout);
         long elapsedTimeMillis = 0;
-        long startTime = TimeUtils.getNow().getTime();
+        long startTime = timeUtils.getNow().getTime();
         while (!mIsDone && (elapsedTimeMillis < timeoutMillis)) {
             if (mIsCancelled) {
                 throw new CancellationException("cancelled");
             }
-            elapsedTimeMillis = TimeUtils.getNow().getTime() - startTime;
+            elapsedTimeMillis = timeUtils.getNow().getTime() - startTime;
         }
         if (mIsDone) {
             return mValue;
@@ -104,7 +106,7 @@ public class SimpleCompletableFuture<T>
             throw new TimeoutException("timed out");
         }
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -115,5 +117,14 @@ public class SimpleCompletableFuture<T>
         //  maybe have it return a bool - false if already was done?
         mValue = value;
         mIsDone = true;
+    }
+
+//*********************************************************
+// protected api
+//*********************************************************
+
+    protected TimeUtils createTimeUtils()
+    {
+        return new TimeUtils();
     }
 }

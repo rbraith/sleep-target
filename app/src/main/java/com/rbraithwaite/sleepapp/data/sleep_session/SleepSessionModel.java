@@ -18,6 +18,7 @@ public class SleepSessionModel
     private long mDuration;
     private Date mWakeTimeGoal;
     private SleepDurationGoalModel mSleepDurationGoal;
+    private TimeUtils mTimeUtils;
 
 //*********************************************************
 // public constants
@@ -41,6 +42,8 @@ public class SleepSessionModel
         mDuration = duration;
         mWakeTimeGoal = wakeTimeGoal;
         mSleepDurationGoal = sleepDurationGoal;
+        
+        mTimeUtils = createTimeUtils();
     }
     
     public SleepSessionModel(
@@ -51,7 +54,7 @@ public class SleepSessionModel
     {
         this(0, start, duration, wakeTimeGoal, sleepDurationGoal);
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -60,7 +63,7 @@ public class SleepSessionModel
     {
         return mId;
     }
-    
+
     public void setId(int id)
     {
         mId = id;
@@ -104,7 +107,7 @@ public class SleepSessionModel
         }
         long durationMillis = getDuration();
         
-        return TimeUtils.getDateFromMillis(
+        return mTimeUtils.getDateFromMillis(
                 start.getTime() + durationMillis);
     }
     
@@ -116,5 +119,14 @@ public class SleepSessionModel
     public void setSleepDurationGoal(SleepDurationGoalModel sleepDurationGoal)
     {
         mSleepDurationGoal = sleepDurationGoal;
+    }
+    
+//*********************************************************
+// protected api
+//*********************************************************
+
+    protected TimeUtils createTimeUtils()
+    {
+        return new TimeUtils();
     }
 }

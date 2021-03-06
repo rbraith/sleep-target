@@ -29,6 +29,8 @@ public class SleepGoalsFragmentViewModel
     private DateTimeFormatter mDateTimeFormatter;
     
     private LiveData<SleepDurationGoalModel> mSleepDurationGoalModel;
+    
+    private TimeUtils mTimeUtils;
 
 //*********************************************************
 // public constants
@@ -51,8 +53,9 @@ public class SleepGoalsFragmentViewModel
     {
         mCurrentGoalsRepository = currentGoalsRepository;
         mDateTimeFormatter = dateTimeFormatter;
+        mTimeUtils = createTimeUtils();
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -64,7 +67,7 @@ public class SleepGoalsFragmentViewModel
         calendar.set(Calendar.MINUTE, DEFAULT_WAKETIME_MINUTE);
         return calendar.getTimeInMillis();
     }
-    
+
     public LiveData<String> getWakeTimeText()
     {
         return Transformations.map(
@@ -80,7 +83,7 @@ public class SleepGoalsFragmentViewModel
                             return null;
                         }
                         return mDateTimeFormatter.formatTimeOfDay(
-                                TimeUtils.getDateFromMillis(wakeTimeMillis));
+                                mTimeUtils.getDateFromMillis(wakeTimeMillis));
                     }
                 });
     }
@@ -185,6 +188,15 @@ public class SleepGoalsFragmentViewModel
     public void clearSleepDurationGoal()
     {
         mCurrentGoalsRepository.clearSleepDurationGoal();
+    }
+    
+//*********************************************************
+// protected api
+//*********************************************************
+
+    protected TimeUtils createTimeUtils()
+    {
+        return new TimeUtils();
     }
 
 //*********************************************************

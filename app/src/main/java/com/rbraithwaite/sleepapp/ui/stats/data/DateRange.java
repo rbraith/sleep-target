@@ -15,16 +15,22 @@ public class DateRange
     private Date mStart;
     private Date mEnd;
     private int mDifferenceInDays;
+    private TimeUtils mTimeUtils;
 
 //*********************************************************
 // constructors
 //*********************************************************
 
+    // used with the static factory methods
+    private DateRange()
+    {
+        mTimeUtils = createTimeUtils();
+    }
+    
     public DateRange(Date start, Date end)
     {
-        mStart = start;
-        mEnd = end;
-        mDifferenceInDays = (int) (((((end.getTime() - start.getTime()) / 1000) / 60) / 60) / 24);
+        init(start, end);
+        mTimeUtils = createTimeUtils();
     }
     
     public DateRange(DateRange other)
@@ -32,8 +38,9 @@ public class DateRange
         mStart = other.mStart;
         mEnd = other.mEnd;
         mDifferenceInDays = other.mDifferenceInDays;
+        mTimeUtils = other.mTimeUtils;
     }
-
+    
 //*********************************************************
 // overrides
 //*********************************************************
@@ -73,26 +80,70 @@ public class DateRange
      */
     public static DateRange asWeekOf(Date date, int offsetMillis)
     {
+        DateRange dateRange = new DateRange();
+        
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTime(date);
         // start
+        // I need to account Calendar's default week starting on sunday instead of monday
+        cal.setFirstDayOfWeek(Calendar.MONDAY);
         cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-        TimeUtils.setCalendarTimeOfDay(cal, offsetMillis);
+        dateRange.mTimeUtils.setCalendarTimeOfDay(cal, offsetMillis);
         Date start = cal.getTime();
         
         // end
         cal.add(Calendar.DAY_OF_WEEK, 7);
         Date end = cal.getTime();
         
-        return new DateRange(start, end);
+        return dateRange.init(start, end);
     }
-    
+
     /**
      * Returns the week of the date, with the start and end being at midnight.
      */
     public static DateRange asWeekOf(Date date)
     {
         return DateRange.asWeekOf(date, 0);
+    }
+    
+    public static DateRange asMonthOf(Date date, long offsetMillis)
+    {
+        DateRange dateRange = new DateRange();
+        
+        GregorianCalendar start = new GregorianCalendar();
+        start.setTime(date);
+        start.set(Calendar.DAY_OF_MONTH, 1);
+        GregorianCalendar end = new GregorianCalendar();
+        end.setTime(start.getTime());
+        end.add(Calendar.MONTH, 1);
+        
+        dateRange.mTimeUtils.setCalendarTimeOfDay(start, offsetMillis);
+        dateRange.mTimeUtils.setCalendarTimeOfDay(end, offsetMillis);
+        
+        return dateRange.init(start.getTime(), end.getTime());
+    }
+
+    public static DateRange asMonthOf(Date date)
+    {
+        return DateRange.asMonthOf(date, 0);
+    }
+    
+    public static DateRange asYearOf(Date date, long offsetMillis)
+    {
+        // REFACTOR [21-02-26 11:15PM] -- this duplicates the logic in asMonthOf().
+        DateRange dateRange = new DateRange();
+        
+        GregorianCalendar start = new GregorianCalendar();
+        start.setTime(date);
+        start.set(Calendar.DAY_OF_YEAR, 1);
+        GregorianCalendar end = new GregorianCalendar();
+        end.setTime(start.getTime());
+        end.add(Calendar.YEAR, 1);
+        
+        dateRange.mTimeUtils.setCalendarTimeOfDay(start, offsetMillis);
+        dateRange.mTimeUtils.setCalendarTimeOfDay(end, offsetMillis);
+        
+        return dateRange.init(start.getTime(), end.getTime());
     }
     
     public Date getStart()
@@ -122,5 +173,31 @@ public class DateRange
         mEnd = cal.getTime();
         
         return this;
+    }
+    
+//*********************************************************
+// protected api
+//*********************************************************
+
+    protected TimeUtils createTimeUtils()
+    {
+        return new TimeUtils();
+    }
+    
+//*********************************************************
+// private methods
+//*********************************************************
+
+    private DateRange init(Date start, Date end)
+    {
+        mStart = start;
+        mEnd = end;
+        mDifferenceInDays = computeDifferenceInDays(start, end);
+        return this;
+    }
+    
+    private int computeDifferenceInDays(Date start, Date end)
+    {
+        return (int) (((((end.getTime() - start.getTime()) / 1000) / 60) / 60) / 24);
     }
 }

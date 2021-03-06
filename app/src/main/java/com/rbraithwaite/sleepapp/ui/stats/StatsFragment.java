@@ -1,51 +1,40 @@
 package com.rbraithwaite.sleepapp.ui.stats;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
-import com.rbraithwaite.sleepapp.ui.stats.data.DateRange;
-import com.rbraithwaite.sleepapp.ui.stats.data.IntervalsDataSetGenerator;
-import com.rbraithwaite.sleepapp.utils.TimeUtils;
+import com.rbraithwaite.sleepapp.ui.stats.charts.SleepIntervalsChartFactory;
+import com.rbraithwaite.sleepapp.ui.stats.data.SleepIntervalsDataSet;
+import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
 
-import org.achartengine.ChartFactory;
-import org.achartengine.GraphicalView;
-import org.achartengine.chart.BarChart;
-import org.achartengine.chart.RangeBarChart;
-import org.achartengine.model.RangeCategorySeries;
-import org.achartengine.model.XYMultipleSeriesDataset;
-import org.achartengine.model.XYSeries;
-import org.achartengine.renderer.XYMultipleSeriesRenderer;
-import org.achartengine.renderer.XYSeriesRenderer;
+import javax.inject.Inject;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.Locale;
+import dagger.hilt.android.AndroidEntryPoint;
 
+@AndroidEntryPoint
 public class StatsFragment
         extends BaseFragment<StatsFragmentViewModel>
 {
 //*********************************************************
-// private properties
+// package properties
 //*********************************************************
 
-    private boolean mIsIntervalDataInverted = true;
-    
-    private IntervalsDataSetGenerator.Config mIntervalsConfig;
-    
-    private RangeBarChart mIntervalsChart;
+    @Inject
+    SleepIntervalsChartFactory mSleepIntervalsChartFactory;
 
 //*********************************************************
 // overrides
@@ -78,25 +67,15 @@ public class StatsFragment
     {
         return StatsFragmentViewModel.class;
     }
-
-//*********************************************************
-// api
-//*********************************************************
-
-    public DateRange getIntervalsDateRange()
+    
+    // REFACTOR [21-03-4 11:43PM] -- maybe just make BaseFragment.getViewModel() public?
+    // Using this for tests
+    @Override
+    public StatsFragmentViewModel getViewModel()
     {
-        if (mIntervalsConfig == null) {
-            return null;
-        }
-        return mIntervalsConfig.dateRange;
+        return super.getViewModel();
     }
     
-    public void setIntervalsDateRange(DateRange intervalsDateRange)
-    {
-        mIntervalsConfig.dateRange = new DateRange(intervalsDateRange);
-        getViewModel().configureIntervalsDataSet(mIntervalsConfig);
-    }
-
 //*********************************************************
 // private methods
 //*********************************************************
@@ -105,40 +84,48 @@ public class StatsFragment
     {
         final StatsFragmentViewModel viewModel = getViewModel();
         
-        final DateRange defaultRange = viewModel.getDefaultIntervalsDateRange();
-        
-        // TODO [21-02-24 12:19AM] -- I will need to account for fragment recreation here
-        //  (retained state)
-        //  The viewmodel can store the config.
-        mIntervalsConfig = new IntervalsDataSetGenerator.Config(
-                defaultRange,
-                mIsIntervalDataInverted);
-        
-        viewModel.configureIntervalsDataSet(mIntervalsConfig);
-        
+        // bind chart to data
         viewModel.getIntervalsDataSet().observe(
                 getViewLifecycleOwner(),
-                new Observer<XYMultipleSeriesDataset>()
+                new Observer<SleepIntervalsDataSet>()
                 {
                     @Override
-                    public void onChanged(XYMultipleSeriesDataset dataSet)
+                    public void onChanged(SleepIntervalsDataSet dataSet)
                     {
-                        XYMultipleSeriesRenderer multipleSeriesRenderer = createRenderer(
-                                dataSet,
-                                defaultRange,
-                                StatsFragmentViewModel.DEFAULT_INTERVALS_OFFSET_HOURS,
-                                mIsIntervalDataInverted);
-                        
-                        GraphicalView intervalsChart = ChartFactory.getRangeBarChartView(
-                                requireContext(),
-                                dataSet,
-                                multipleSeriesRenderer,
-                                BarChart.Type.STACKED);
-                        
-                        FrameLayout intervalsLayout =
-                                fragmentRoot.findViewById(R.id.stats_intervals_layout);
-                        intervalsLayout.removeAllViews();
-                        intervalsLayout.addView(intervalsChart);
+                        LiveData<View> chartLiveData = null;
+                        switch (viewModel.getIntervalsResolution()) {
+                        case WEEK:
+                            chartLiveData = mSleepIntervalsChartFactory.createRangeChartAsync(
+                                    requireContext(),
+                                    dataSet);
+                            break;
+                        case MONTH:
+                            chartLiveData = mSleepIntervalsChartFactory.createMonthChartAsync(
+                                    requireContext(),
+                                    dataSet,
+                                    viewModel.getIntervalsResolutionValue());
+                            break;
+                        case YEAR:
+                            chartLiveData = mSleepIntervalsChartFactory.createYearChartAsync(
+                                    requireContext(),
+                                    dataSet,
+                                    viewModel.getIntervalsResolutionValue());
+                            break;
+                        }
+                        LiveDataFuture.getValue(
+                                chartLiveData,
+                                getViewLifecycleOwner(),
+                                new LiveDataFuture.OnValueListener<View>()
+                                {
+                                    @Override
+                                    public void onValue(View chart)
+                                    {
+                                        FrameLayout intervalsLayout =
+                                                fragmentRoot.findViewById(R.id.stats_intervals_layout);
+                                        intervalsLayout.removeAllViews();
+                                        intervalsLayout.addView(chart);
+                                    }
+                                });
                     }
                 });
         
@@ -153,9 +140,7 @@ public class StatsFragment
             @Override
             public void onClick(View v)
             {
-                mIntervalsConfig.dateRange.offsetDays(
-                        mIntervalsConfig.dateRange.getDifferenceInDays() * -1);
-                viewModel.configureIntervalsDataSet(mIntervalsConfig);
+                getViewModel().stepIntervalsRange(StatsFragmentViewModel.Step.BACKWARD);
             }
         });
         
@@ -167,8 +152,7 @@ public class StatsFragment
             @Override
             public void onClick(View v)
             {
-                mIntervalsConfig.dateRange.offsetDays(mIntervalsConfig.dateRange.getDifferenceInDays());
-                viewModel.configureIntervalsDataSet(mIntervalsConfig);
+                getViewModel().stepIntervalsRange(StatsFragmentViewModel.Step.FORWARD);
             }
         });
         
@@ -187,113 +171,65 @@ public class StatsFragment
                         }
                     }
                 });
+        
+        // intervals more options
+        ImageButton moreButton =
+                intervalsTimePeriodSelector.findViewById(R.id.stats_time_period_more);
+        moreButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                // REFACTOR [21-03-3 12:54AM] -- extract as a generic popup menu utility.
+                PopupMenu popup = new PopupMenu(requireContext(), v);
+                popup.inflate(R.menu.stats_intervals_popup_menu);
+                
+                MenuItem previouslyChecked = popup.getMenu().findItem(
+                        getIntervalsResolutionMenuItemId(
+                                getViewModel().getIntervalsResolution()));
+                previouslyChecked.setChecked(true);
+                
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener()
+                {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item)
+                    {
+                        switch (item.getItemId()) {
+                        case R.id.stats_intervals_resolution_week:
+                            item.setChecked(true);
+                            getViewModel().setIntervalsResolution(StatsFragmentViewModel.Resolution.WEEK);
+                            return true;
+                        case R.id.stats_intervals_resolution_month:
+                            item.setChecked(true);
+                            getViewModel().setIntervalsResolution(StatsFragmentViewModel.Resolution.MONTH);
+                            return true;
+                        case R.id.stats_intervals_resolution_year:
+                            item.setChecked(true);
+                            getViewModel().setIntervalsResolution(StatsFragmentViewModel.Resolution.YEAR);
+                            return true;
+                        default:
+                            return false;
+                        }
+                    }
+                });
+                
+                popup.show();
+            }
+        });
     }
     
-    private XYMultipleSeriesRenderer createRenderer(
-            XYMultipleSeriesDataset dataSet,
-            DateRange range,
-            int hoursOffset,
-            boolean invert)
-    {
-        XYMultipleSeriesRenderer multipleSeriesRenderer = new XYMultipleSeriesRenderer();
-        
-        for (XYSeries series : dataSet.getSeries()) {
-            multipleSeriesRenderer.addSeriesRenderer(new XYSeriesRenderer());
-        }
-        
-        // X axis
-        // -----------------------------------------------------
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.setTime(range.getStart());
-        // If the chart's offset is > 12, more of the next day will be displayed in the column
-        // than the current day, so mark the chart with the next day instead
-        if (hoursOffset > 12) {
-            cal.add(Calendar.DAY_OF_WEEK, 1);
-        }
-        // REFACTOR [21-02-22 10:34PM] -- I shouldn't be using SimpleDateFormat here.
-        SimpleDateFormat xLabelFormatter = new SimpleDateFormat("M/d", Locale.CANADA);
-        for (int i = 0; i < range.getDifferenceInDays(); i++) {
-            // labels need to start at 1 since that's what the series starts at apparently :/
-            multipleSeriesRenderer.addXTextLabel(i + 1, xLabelFormatter.format(cal.getTime()));
-            cal.add(Calendar.DAY_OF_WEEK, 1);
-        }
-        multipleSeriesRenderer.setXLabels(0);
-        multipleSeriesRenderer.setXAxisMin(0.5f);
-        multipleSeriesRenderer.setXAxisMax(7.5f);
-        
-        // Y axis
-        // -----------------------------------------------------
-        int sign = invert ? -1 : 1;
-        
-        for (int i = 1; i < 25; i++) {
-            if (i % 2 == 0) {
-                multipleSeriesRenderer.addYTextLabel(
-                        sign * TimeUtils.hoursToMillis(i + hoursOffset),
-                        getHourLabel(i + hoursOffset));
-            }
-        }
-        multipleSeriesRenderer.addYTextLabel(
-                sign * TimeUtils.hoursToMillis(hoursOffset), getHourLabel(hoursOffset));
-        multipleSeriesRenderer.setYLabels(0);
-        double yMin;
-        double yMax;
-        if (invert) {
-            yMin = sign * TimeUtils.hoursToMillis(24 + hoursOffset);
-            yMax = sign * TimeUtils.hoursToMillis(hoursOffset);
-        } else {
-            yMin = sign * TimeUtils.hoursToMillis(hoursOffset);
-            yMax = sign * TimeUtils.hoursToMillis(24 + hoursOffset);
-        }
-        multipleSeriesRenderer.setYAxisMin(yMin);
-        multipleSeriesRenderer.setYAxisMax(yMax);
-        
-        
-        // HACK [21-02-22 11:23PM] -- i need to find a better way than this lol.
-        //  likely solution: derive a renderer and override something.
-        // midnight line
-        // -----------------------------------------------------
-        if (hoursOffset != 0) {
-            // fake a grid line with a series lol
-            RangeCategorySeries midnightLine = new RangeCategorySeries("midnight");
-            long midnight = TimeUtils.MILLIS_24_HOURS;
-            // 10000 is just a good factor for allowing the coarseness of adjustment with the first
-            // factor that I wanted
-            double width = 30 * 10000;
-            for (int i = 0; i < range.getDifferenceInDays(); i++) {
-                midnightLine.add(sign * midnight, sign * (midnight + width));
-            }
-            dataSet.addSeries(midnightLine.toXYSeries());
-            XYSeriesRenderer midnightRenderer = new XYSeriesRenderer();
-            midnightRenderer.setColor(Color.RED);
-            multipleSeriesRenderer.addSeriesRenderer(midnightRenderer);
-        }
-        
-        // misc
-        // -----------------------------------------------------
-        multipleSeriesRenderer.setLabelsTextSize(30);
-        multipleSeriesRenderer.setAxisTitleTextSize(50);
-        multipleSeriesRenderer.setBackgroundColor(Color.GREEN);
-        multipleSeriesRenderer.setShowCustomTextGridY(true);
-        multipleSeriesRenderer.setGridColor(Color.RED);
-        
-        multipleSeriesRenderer.setPanEnabled(false);
-        
-        multipleSeriesRenderer.setYLabelsPadding(50);
-        multipleSeriesRenderer.setMargins(new int[] {35, 100, 0, 15}); // top, left, bottom, right
-        multipleSeriesRenderer.setShowLegend(false);
-        
-        return multipleSeriesRenderer;
-    }
     
-    private String getHourLabel(int hour)
+    private int getIntervalsResolutionMenuItemId(StatsFragmentViewModel.Resolution intervalsResolution)
     {
-        hour = hour % 24;
-        String period = "am";
-        if (hour >= 12) {
-            if (hour < 24) { period = "pm"; }
-            if (hour > 12) { hour -= 12; }
+        switch (intervalsResolution) {
+        case WEEK:
+            return R.id.stats_intervals_resolution_week;
+        case MONTH:
+            return R.id.stats_intervals_resolution_month;
+        case YEAR:
+            return R.id.stats_intervals_resolution_year;
+        default:
+            return -1;
         }
-        if (hour == 0) { hour = 12; }
-        return hour + period;
     }
 }

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group
+        android:id="@+id/stats_intervals_resolution_selector"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/stats_intervals_resolution_week"
+            android:checked="true"
+            android:title="Week" />
+        <item
+            android:id="@+id/stats_intervals_resolution_month"
+            android:title="Month" />
+        <item
+            android:id="@+id/stats_intervals_resolution_year"
+            android:title="Year" />
+    </group>
+</menu>
