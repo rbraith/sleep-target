@@ -264,7 +264,7 @@ public class SessionDataFragmentViewModelTests
         viewModel.initSessionData(new SleepSessionWrapper(expected));
         
         // check result values
-        SleepSessionModel result = viewModel.getResult().getValue();
+        SleepSessionModel result = viewModel.getResult().getModel();
         // REFACTOR [21-12-30 3:05PM] -- implement SleepSessionModel.equals().
         assertThat(result.getId(), is(equalTo(expected.getId())));
         assertThat(result.getStart(), is(equalTo(expected.getStart())));

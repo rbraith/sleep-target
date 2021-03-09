@@ -6,10 +6,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.data.current_goals.CurrentGoalsRepository;
 import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
+import com.rbraithwaite.sleepapp.data.current_goals.WakeTimeGoalModel;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.data.SleepDurationGoalUIData;
-import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import org.junit.After;
 import org.junit.Before;
@@ -124,7 +124,7 @@ public class SleepGoalsFragmentViewModelTests
     @Test
     public void hasWakeTime_updatesProperly()
     {
-        MutableLiveData<Long> mockWakeTimeGoal = new MutableLiveData<>(null);
+        MutableLiveData<WakeTimeGoalModel> mockWakeTimeGoal = new MutableLiveData<>(null);
         when(mockCurrentGoalsRepository.getWakeTimeGoal()).thenReturn(mockWakeTimeGoal);
         
         LiveData<Boolean> hasWakeTime = viewModel.hasWakeTime();
@@ -133,7 +133,7 @@ public class SleepGoalsFragmentViewModelTests
         
         assertThat(hasWakeTime.getValue(), is(false));
         
-        mockWakeTimeGoal.setValue(12345L);
+        mockWakeTimeGoal.setValue(TestUtils.ArbitraryData.getWakeTimeGoalModel());
         synchronizer.sync();
         assertThat(hasWakeTime.getValue(), is(true));
         
@@ -147,41 +147,43 @@ public class SleepGoalsFragmentViewModelTests
         
         viewModel.setWakeTime(calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
         
-        ArgumentCaptor<Long> setWakeTimeGoalArg = ArgumentCaptor.forClass(Long.class);
+        ArgumentCaptor<WakeTimeGoalModel> arg = ArgumentCaptor.forClass(WakeTimeGoalModel.class);
         verify(mockCurrentGoalsRepository, times(1))
-                .setWakeTimeGoal(setWakeTimeGoalArg.capture());
+                .setWakeTimeGoal(arg.capture());
         
-        Long wakeTime = setWakeTimeGoalArg.getValue();
+        WakeTimeGoalModel wakeTime = arg.getValue();
         GregorianCalendar calendar2 = new GregorianCalendar();
-        calendar2.setTimeInMillis(wakeTime);
+        calendar2.setTime(wakeTime.asDate());
         assertThat(calendar.get(Calendar.HOUR_OF_DAY), is(calendar2.get(Calendar.HOUR_OF_DAY)));
         assertThat(calendar.get(Calendar.MINUTE), is(calendar2.get(Calendar.MINUTE)));
     }
     
     @Test
-    public void getWakeTime_updatesFromRepository()
+    public void getWakeTimeText_updatesFromRepository()
     {
-        long expectedWakeTimeMillis = TestUtils.ArbitraryData.getDate().getTime();
+        WakeTimeGoalModel expectedWakeTime = TestUtils.ArbitraryData.getWakeTimeGoalModel();
         
-        when(mockCurrentGoalsRepository.getWakeTimeGoal()).thenReturn(new MutableLiveData<Long>(
-                expectedWakeTimeMillis));
+        when(mockCurrentGoalsRepository.getWakeTimeGoal()).thenReturn(
+                new MutableLiveData<>(expectedWakeTime));
         
-        LiveData<String> wakeTime = viewModel.getWakeTimeText();
-        TestUtils.activateLocalLiveData(wakeTime);
+        LiveData<String> wakeTimeText = viewModel.getWakeTimeText();
+        TestUtils.activateLocalLiveData(wakeTimeText);
         
-        assertThat(wakeTime.getValue(),
-                   is(equalTo(dateTimeFormatter.formatTimeOfDay(
-                           new TimeUtils().getDateFromMillis(expectedWakeTimeMillis)))));
+        assertThat(wakeTimeText.getValue(),
+                   is(equalTo(dateTimeFormatter.formatTimeOfDay(expectedWakeTime.asDate()))));
     }
     
     @Test
-    public void getWakeTimeGoalMillis_callsRepository()
+    public void getWakeTimeGoalDateMillis_callsRepository()
     {
-        LiveData<Long> expected = new MutableLiveData<>(12345L);
+        LiveData<WakeTimeGoalModel> expected =
+                new MutableLiveData<>(TestUtils.ArbitraryData.getWakeTimeGoalModel());
         when(mockCurrentGoalsRepository.getWakeTimeGoal()).thenReturn(expected);
         
-        LiveData<Long> wakeTimeGoalMillis = viewModel.getWakeTimeMillis();
-        assertThat(wakeTimeGoalMillis, is(expected));
+        LiveData<Long> wakeTimeGoalMillis = viewModel.getWakeTimeGoalDateMillis();
+        TestUtils.activateLocalLiveData(wakeTimeGoalMillis);
+        assertThat(wakeTimeGoalMillis.getValue(),
+                   is(equalTo((long) expected.getValue().asDate().getTime())));
     }
     
     @Test

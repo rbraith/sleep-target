@@ -6,6 +6,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.data.current_goals.CurrentGoalsRepository;
 import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
+import com.rbraithwaite.sleepapp.data.current_goals.WakeTimeGoalModel;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
@@ -75,19 +76,20 @@ public class SessionArchiveFragmentViewModelTests
     {
         MockRepositoryUtils.setupCurrentGoalsRepositoryWithState(
                 mockCurrentGoalsRepository,
-                new MutableLiveData<Long>(null),
+                new MutableLiveData<WakeTimeGoalModel>(null),
                 new MutableLiveData<>(SleepDurationGoalModel.createWithoutSettingGoal()));
         
         LiveData<SleepSessionWrapper> sleepSession = viewModel.getInitialAddSessionData();
         TestUtils.activateLocalLiveData(sleepSession);
-        SleepSessionModel sleepSessionModel = sleepSession.getValue().getValue();
+        SleepSessionModel sleepSessionModel = sleepSession.getValue().getModel();
         assertThat(sleepSessionModel.getId(), is(0));
     }
     
     @Test
     public void getInitialAddSessionData_usesCurrentWakeTimeGoal()
     {
-        LiveData<Long> wakeTimeGoal = new MutableLiveData<>(100L);
+        LiveData<WakeTimeGoalModel> wakeTimeGoal =
+                new MutableLiveData<>(TestUtils.ArbitraryData.getWakeTimeGoalModel());
         MockRepositoryUtils.setupCurrentGoalsRepositoryWithState(
                 mockCurrentGoalsRepository,
                 wakeTimeGoal,
@@ -95,9 +97,9 @@ public class SessionArchiveFragmentViewModelTests
         
         LiveData<SleepSessionWrapper> sleepSessionWrapper = viewModel.getInitialAddSessionData();
         TestUtils.activateLocalLiveData(sleepSessionWrapper);
-        SleepSessionModel sleepSessionModel = sleepSessionWrapper.getValue().getValue();
+        SleepSessionModel sleepSessionModel = sleepSessionWrapper.getValue().getModel();
         assertThat(sleepSessionModel.getWakeTimeGoal().getTime(),
-                   is(equalTo(wakeTimeGoal.getValue())));
+                   is(equalTo(wakeTimeGoal.getValue().asDate().getTime())));
     }
     
     @Test
@@ -113,7 +115,7 @@ public class SessionArchiveFragmentViewModelTests
         LiveData<SleepSessionWrapper> sleepSession = viewModel.getSleepSession(testId);
         
         TestUtils.activateLocalLiveData(sleepSession);
-        assertThat(sleepSession.getValue().getValue(), is(expected));
+        assertThat(sleepSession.getValue().getModel(), is(expected));
     }
     
     @Test

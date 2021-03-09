@@ -44,7 +44,7 @@ the ones used to reformat and rearrange the code. (ie, recursive
 subdirectories and VCS mask)
 """
 
-USAGE = "python -m fix-sections <path>... [--sub|--vcs]"
+USAGE = "python -m fix-sections <path>... [options]"
 
 PREFIX_SECTION_HEADER = "//!section!"
 PREFIX_SECTION_END = "//!end!"
@@ -69,6 +69,7 @@ def initArgParser():
     parser.add_argument("-v", "--vcs", action="store_true", help="Only apply this script to changed files in the repo index.")
     parser.add_argument("-c", "--clear", action="store_true", help="Delete existing section headers then quit.")
     parser.add_argument("-C", "--check", action="store_true", help="Check for files containing intermediate tags.")
+    parser.add_argument("-q", "--quiet", action="store_true", help="Prints the filenames of failed files, otherwise prints nothing.")
 
     return parser
 
@@ -318,16 +319,24 @@ if __name__ == "__main__":
             processFile(f)
             fixedFiles.append(f)
 
+    if args.quiet:
+        if invalidFiles:
+            for f in invalidFiles: print(f, file=sys.stderr)
+            sys.exit(1)
+        sys.exit()
+
+    exitCode = 0
     if invalidFiles:
+        exitCode = 1
         print("\n".join([
             "Some files have unrecognized rearrange formatting. This can happen when",
             "reformatting from the project tools window. Running rearrange on these",
             "files again should fix the problem, either from the project tools window",
             "or on each file individually.",
             "---------------------------------------------------------"
-        ]))
-        for f in invalidFiles: print(f)
-        print("")
+        ]), file=sys.stderr)
+        for f in invalidFiles: print(f, file=sys.stderr)
+        print("", file=sys.stderr)
 
     if fixedFiles:
         print("\n".join([
@@ -335,3 +344,5 @@ if __name__ == "__main__":
             "---------------------------------------------------------"
         ]))
         for f in fixedFiles: print(f)
+
+    sys.exit(exitCode)

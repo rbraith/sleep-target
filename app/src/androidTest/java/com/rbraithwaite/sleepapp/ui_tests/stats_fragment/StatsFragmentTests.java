@@ -114,28 +114,34 @@ public class StatsFragmentTests
         HiltFragmentTestHelper<StatsFragment> helper =
                 HiltFragmentTestHelper.launchFragment(StatsFragment.class);
         
-        final GregorianCalendar date = new GregorianCalendar(2021, 2, 4);
-        final TimeUtils stubTimeUtils = new TimeUtils()
-        {
-            @Override
-            public Date getNow()
-            {
-                return date.getTime();
-            }
-        };
+        // TODO [21-03-9 3:07PM] -- Currently this test is using the actual now, because the
+        //  intervals config is initialized before I have a chance to inject a stub TimeUtils.
+        //  This isn't a huge problem - the test would only flake in the extremely rare case that
+        //  the week were to change between the time it takes to init the config when the fragment
+        //  launches and the time it takes to instantiate testDateRange below.
+//        final GregorianCalendar date = new GregorianCalendar(2021, 2, 4);
+//        final TimeUtils stubTimeUtils = new TimeUtils()
+//        {
+//            @Override
+//            public Date getNow()
+//            {
+//                return date.getTime();
+//            }
+//        };
+//        helper.performSyncedFragmentAction(new HiltFragmentTestHelper
+//        .SyncedFragmentAction<StatsFragment>()
+//        {
+//            @Override
+//            public void perform(StatsFragment fragment)
+//            {
+//                fragment.getViewModel().setTimeUtils(stubTimeUtils);
+//            }
+//        });
         
-        helper.performSyncedFragmentAction(new HiltFragmentTestHelper.SyncedFragmentAction<StatsFragment>()
-        {
-            @Override
-            public void perform(StatsFragment fragment)
-            {
-                fragment.getViewModel().setTimeUtils(stubTimeUtils);
-            }
-        });
-        
+        TimeUtils timeUtils = new TimeUtils();
         final DateRange testDateRange = DateRange.asWeekOf(
-                date.getTime(),
-                (int) stubTimeUtils.hoursToMillis(
+                timeUtils.getNow(),
+                (int) timeUtils.hoursToMillis(
                         StatsFragmentViewModel.DEFAULT_INTERVALS_OFFSET_HOURS));
         
         helper.performSyncedFragmentAction(new HiltFragmentTestHelper.SyncedFragmentAction<StatsFragment>()

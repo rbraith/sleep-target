@@ -7,6 +7,7 @@ import java.io.Serializable;
 // REFACTOR [21-01-9 2:43AM] -- consider just using Bundles instead?
 
 
+
 /**
  * A simple wrapper used to transport sleep session data between view models without polluting the
  * view layer (where the transportation occurs) with references to that data (the view layer should
@@ -35,12 +36,12 @@ public class SleepSessionWrapper
     {
         mSleepSession = sleepSession;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
 
-    public SleepSessionModel getValue()
+    public SleepSessionModel getModel()
     {
         return mSleepSession;
     }

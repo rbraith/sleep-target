@@ -217,16 +217,16 @@ public class SleepGoalsFragment
             public void onClick(View v)
             {
                 LiveDataFuture.getValue(
-                        getViewModel().getWakeTimeMillis(),
+                        getViewModel().getWakeTimeGoalDateMillis(),
                         getViewLifecycleOwner(),
                         new LiveDataFuture.OnValueListener<Long>()
                         {
                             @Override
-                            public void onValue(Long wakeTimeMillis)
+                            public void onValue(Long wakeTimeDateMillis)
                             {
                                 // No null check needed since in theory this button should not
                                 // even be visible unless there is already a wake-time.
-                                displayWakeTimePickerDialog(wakeTimeMillis);
+                                displayWakeTimePickerDialog(wakeTimeDateMillis);
                             }
                         });
             }
@@ -297,7 +297,7 @@ public class SleepGoalsFragment
                 .show(getChildFragmentManager(), DIALOG_DELETE_WAKETIME);
     }
     
-    private void displayWakeTimePickerDialog(long defaultValueMillis)
+    private void displayWakeTimePickerDialog(long defaultValueDateMillis)
     {
         TimePickerFragment timePicker = new TimePickerFragment();
         // SMELL [20-12-21 10:39PM] -- since the time picker is relative, it doesn't make
@@ -306,7 +306,7 @@ public class SleepGoalsFragment
         //  picker)
         //  ---
         //  consider passing direct hour & minute values instead.
-        timePicker.setArguments(TimePickerFragment.createArguments(defaultValueMillis));
+        timePicker.setArguments(TimePickerFragment.createArguments(defaultValueDateMillis));
         timePicker.setOnTimeSetListener(new TimePickerFragment.OnTimeSetListener()
         {
             @Override

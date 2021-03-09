@@ -86,7 +86,7 @@ public class SessionDataFragmentViewModel
         mDateTimeFormatter = dateTimeFormatter;
         mTimeUtils = createTimeUtils();
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -102,7 +102,7 @@ public class SessionDataFragmentViewModel
                 getWakeTimeGoalMutable().getValue(),
                 getSleepDurationGoalMutable().getValue()));
     }
-
+    
     public LiveData<String> getSessionDuration()
     {
         // REFACTOR [21-01-11 3:18AM] -- inject this.
@@ -306,7 +306,7 @@ public class SessionDataFragmentViewModel
     public void initSessionData(SleepSessionWrapper initialData)
     {
         if (!sessionDataIsInitialized()) {
-            SleepSessionModel sleepSession = initialData.getValue();
+            SleepSessionModel sleepSession = initialData.getModel();
             
             // REFACTOR [21-12-29 3:08AM] -- I should just store the SleepSessionModel instead of
             //  breaking it down like this (this breaking-down behaviour is legacy).
@@ -425,7 +425,7 @@ public class SessionDataFragmentViewModel
     {
         getSleepDurationGoalMutable().setValue(new SleepDurationGoalModel(hours, minutes));
     }
-    
+
 //*********************************************************
 // protected api
 //*********************************************************

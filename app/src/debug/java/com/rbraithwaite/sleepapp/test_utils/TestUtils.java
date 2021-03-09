@@ -13,7 +13,9 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.rbraithwaite.sleepapp.data.SleepAppDataPrefs;
 import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
+import com.rbraithwaite.sleepapp.data.current_goals.WakeTimeGoalModel;
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
+import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
 import com.rbraithwaite.sleepapp.ui.stats.data.DateRange;
@@ -165,6 +167,19 @@ public class TestUtils
         public static DateRange getDateRange()
         {
             return DateRange.asWeekOf(getDate());
+        }
+        
+        public static WakeTimeGoalEntity getWakeTimeGoalEntity()
+        {
+            WakeTimeGoalEntity entity = new WakeTimeGoalEntity();
+            entity.editTime = getDate();
+            entity.wakeTimeGoal = 12345;
+            return entity;
+        }
+        
+        public static WakeTimeGoalModel getWakeTimeGoalModel()
+        {
+            return new WakeTimeGoalModel(TestUtils.ArbitraryData.getDate(), 12345);
         }
     }
 

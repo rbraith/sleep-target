@@ -10,6 +10,7 @@ import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.ui.stats.data.SleepIntervalsDataSet;
+import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import org.junit.After;
 import org.junit.Before;
@@ -17,6 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -130,6 +132,17 @@ public class StatsFragmentViewModelTests
     @Test
     public void stepIntervalsRange_updatesIntervalsConfig()
     {
+        final GregorianCalendar date = new GregorianCalendar(2021, 2, 4);
+        final TimeUtils stubTimeUtils = new TimeUtils()
+        {
+            @Override
+            public Date getNow()
+            {
+                return date.getTime();
+            }
+        };
+        viewModel.setTimeUtils(stubTimeUtils);
+        
         SleepIntervalsDataSet.Config config1 = viewModel.getIntervalsDataSetConfig();
         long start1 = config1.dateRange.getStart().getTime();
         int diffDays1 = config1.dateRange.getDifferenceInDays();

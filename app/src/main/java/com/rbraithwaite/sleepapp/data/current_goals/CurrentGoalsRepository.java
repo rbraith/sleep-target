@@ -5,6 +5,11 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
 
 import com.rbraithwaite.sleepapp.data.SleepAppDataPrefs;
+import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalDao;
+import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalEntity;
+import com.rbraithwaite.sleepapp.utils.TimeUtils;
+
+import java.util.concurrent.Executor;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -18,36 +23,72 @@ public class CurrentGoalsRepository
 //*********************************************************
 
     private SleepAppDataPrefs mDataPrefs;
+    private WakeTimeGoalDao mWakeTimeGoalDao;
+    private TimeUtils mTimeUtils;
+    private Executor mExecutor;
 
 //*********************************************************
 // constructors
 //*********************************************************
 
     @Inject
-    public CurrentGoalsRepository(SleepAppDataPrefs dataPrefs)
+    public CurrentGoalsRepository(
+            SleepAppDataPrefs dataPrefs,
+            WakeTimeGoalDao wakeTimeGoalDao,
+            TimeUtils timeUtils,
+            Executor executor)
     {
         mDataPrefs = dataPrefs;
+        mWakeTimeGoalDao = wakeTimeGoalDao;
+        mTimeUtils = timeUtils;
+        mExecutor = executor;
     }
 
 //*********************************************************
 // api
 //*********************************************************
 
-    // REFACTOR [21-02-2 1:18AM] -- this should return a WakeTimeGoalModel.
-    public LiveData<Long> getWakeTimeGoal()
+    public LiveData<WakeTimeGoalModel> getWakeTimeGoal()
     {
-        return mDataPrefs.getWakeTimeGoal();
+        return Transformations.map(
+                mWakeTimeGoalDao.getCurrentWakeTimeGoal(),
+                new Function<WakeTimeGoalEntity, WakeTimeGoalModel>()
+                {
+                    @Override
+                    public WakeTimeGoalModel apply(WakeTimeGoalEntity input)
+                    {
+                        return WakeTimeGoalModelConverter.convertEntityToModel(input);
+                    }
+                }
+        );
     }
     
-    // REFACTOR [21-02-2 1:18AM] -- this should take a WakeTimeGoalModel.
-    public void setWakeTimeGoal(long wakeTimeGoalMillis)
+    public void setWakeTimeGoal(final WakeTimeGoalModel wakeTimeGoal)
     {
-        mDataPrefs.setWakeTimeGoal(wakeTimeGoalMillis);
+        mExecutor.execute(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                mWakeTimeGoalDao.updateWakeTimeGoal(
+                        WakeTimeGoalModelConverter.convertModelToEntity(wakeTimeGoal));
+            }
+        });
     }
     
     public void clearWakeTimeGoal()
     {
-        mDataPrefs.clearWakeTimeGoal();
+        mExecutor.execute(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                WakeTimeGoalEntity entity = new WakeTimeGoalEntity();
+                entity.editTime = mTimeUtils.getNow();
+                entity.wakeTimeGoal = WakeTimeGoalEntity.NO_GOAL;
+                mWakeTimeGoalDao.updateWakeTimeGoal(entity);
+            }
+        });
     }
     
     public LiveData<SleepDurationGoalModel> getSleepDurationGoal()

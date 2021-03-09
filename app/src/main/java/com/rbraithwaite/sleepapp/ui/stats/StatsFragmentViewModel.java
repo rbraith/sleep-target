@@ -52,7 +52,7 @@ public class StatsFragmentViewModel
     // it includes the start of the monday (ie the first 24hrs of the range goes
     // from sun 4pm - mon 4pm)
     public static final int DEFAULT_INTERVALS_OFFSET_HOURS = -8;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -67,13 +67,13 @@ public class StatsFragmentViewModel
         // TODO [21-02-26 10:25PM] -- future feature: custom chart resolutions.
 //        CUSTOM
     }
-
+    
     public enum Step
     {
         FORWARD,
         BACKWARD
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -88,8 +88,8 @@ public class StatsFragmentViewModel
         mSleepIntervalsDataSetGenerator = sleepIntervalsDataSetGenerator;
         mExecutor = executor;
         mTimeUtils = createTimeUtils();
-        mIntervalsConfig = new MutableLiveData<>(getDefaultIntervalsDataSetConfig());
     }
+
 
 //*********************************************************
 // api
@@ -150,7 +150,7 @@ public class StatsFragmentViewModel
      */
     public void configureIntervalsDataSet(SleepIntervalsDataSet.Config config)
     {
-        mIntervalsConfig.setValue(config);
+        getIntervalsConfigMutable().setValue(config);
     }
     
     public LiveData<SleepIntervalsDataSet> getIntervalsDataSet()
@@ -167,7 +167,7 @@ public class StatsFragmentViewModel
     public LiveData<String> getIntervalsValueText()
     {
         return Transformations.map(
-                mIntervalsConfig,
+                getIntervalsConfigMutable(),
                 new Function<SleepIntervalsDataSet.Config, String>()
                 {
                     @Override
@@ -202,7 +202,7 @@ public class StatsFragmentViewModel
     
     public DateRange getIntervalsDateRange()
     {
-        return mIntervalsConfig.getValue().dateRange;
+        return getIntervalsConfigMutable().getValue().dateRange;
     }
     
     public Resolution getIntervalsResolution()
@@ -216,7 +216,7 @@ public class StatsFragmentViewModel
         if (intervalsResolution != mIntervalsResolution) {
             mIntervalsResolution = intervalsResolution;
             
-            SleepIntervalsDataSet.Config config = mIntervalsConfig.getValue();
+            SleepIntervalsDataSet.Config config = getIntervalsConfigMutable().getValue();
             
             Date date;
             boolean invert = DEFAULT_INTERVALS_INVERT;
@@ -263,7 +263,7 @@ public class StatsFragmentViewModel
     //  and it doesn't make sense for StatsFragment to ever know about SleepIntervalsDataSet.Config
     public SleepIntervalsDataSet.Config getIntervalsDataSetConfig()
     {
-        return mIntervalsConfig.getValue();
+        return getIntervalsConfigMutable().getValue();
     }
     
     /**
@@ -303,13 +303,21 @@ public class StatsFragmentViewModel
     {
         return new TimeUtils();
     }
-    
-    // SMELL [21-03-2 5:23PM] -- I don't think this is a great solution - think harder about a
-    //  better one.
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
+
+    private MutableLiveData<SleepIntervalsDataSet.Config> getIntervalsConfigMutable()
+    {
+        if (mIntervalsConfig == null) {
+            mIntervalsConfig = new MutableLiveData<>(getDefaultIntervalsDataSetConfig());
+        }
+        return mIntervalsConfig;
+    }
+    
+    // SMELL [21-03-2 5:23PM] -- I don't think this is a great solution - think harder about a
+    //  better one.
 
     private SleepIntervalsDataSet.Config getDefaultIntervalsDataSetConfig()
     {
@@ -319,13 +327,13 @@ public class StatsFragmentViewModel
                 offsetMillis,
                 DEFAULT_INTERVALS_INVERT);
     }
-
+    
     private void initIntervalsDataSet()
     {
         // the intervals data set is bound to the configuration, so that it gets updated when the
         // intervals are reconfigured
         mIntervalsDataSet = Transformations.switchMap(
-                mIntervalsConfig,
+                getIntervalsConfigMutable(),
                 new Function<SleepIntervalsDataSet.Config, LiveData<SleepIntervalsDataSet>>()
                 {
                     @Override

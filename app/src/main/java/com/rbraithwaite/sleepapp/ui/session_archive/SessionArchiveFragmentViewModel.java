@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.data.current_goals.CurrentGoalsRepository;
 import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
+import com.rbraithwaite.sleepapp.data.current_goals.WakeTimeGoalModel;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.ui.UIDependenciesModule;
@@ -18,6 +19,7 @@ import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
 import com.rbraithwaite.sleepapp.utils.LiveDataUtils;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
+import java.util.Date;
 import java.util.List;
 
 public class SessionArchiveFragmentViewModel
@@ -53,24 +55,24 @@ public class SessionArchiveFragmentViewModel
         mDateTimeFormatter = dateTimeFormatter;
         mTimeUtils = createTimeUtils();
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
 
     public void addSleepSession(SleepSessionWrapper sleepSession)
     {
-        mSleepSessionRepository.addSleepSession(sleepSession.getValue());
+        mSleepSessionRepository.addSleepSession(sleepSession.getModel());
     }
-
+    
     public void updateSleepSession(SleepSessionWrapper sleepSession)
     {
-        mSleepSessionRepository.updateSleepSession(sleepSession.getValue());
+        mSleepSessionRepository.updateSleepSession(sleepSession.getModel());
     }
     
     public int deleteSession(SleepSessionWrapper sessionToDelete)
     {
-        int id = sessionToDelete.getValue().getId();
+        int id = sessionToDelete.getModel().getId();
         mSleepSessionRepository.deleteSleepSession(id);
         return id;
     }
@@ -104,18 +106,26 @@ public class SessionArchiveFragmentViewModel
         return LiveDataUtils.merge(
                 mCurrentGoalsRepository.getWakeTimeGoal(),
                 mCurrentGoalsRepository.getSleepDurationGoal(),
-                new LiveDataUtils.Merger<Long, SleepDurationGoalModel, SleepSessionWrapper>()
+                new LiveDataUtils.Merger<WakeTimeGoalModel, SleepDurationGoalModel,
+                        SleepSessionWrapper>()
                 {
                     @Override
                     public SleepSessionWrapper applyMerge(
-                            Long wakeTimeGoal, SleepDurationGoalModel sleepDurationGoal)
+                            WakeTimeGoalModel wakeTimeGoal,
+                            SleepDurationGoalModel sleepDurationGoal)
                     {
+                        Date wakeTimeGoalDate = null;
+                        if (wakeTimeGoal != null && wakeTimeGoal.isSet()) {
+                            wakeTimeGoalDate = wakeTimeGoal.asDate();
+                        }
+                        
                         return new SleepSessionWrapper(
                                 new SleepSessionModel(
                                         mTimeUtils.getNow(),
                                         0,
-                                        wakeTimeGoal == null ?
-                                                null : mTimeUtils.getDateFromMillis(wakeTimeGoal),
+                                        // REFACTOR [21-03-8 10:59PM] -- change this to take the
+                                        //  wake-time goal model instead.
+                                        wakeTimeGoalDate,
                                         sleepDurationGoal));
                     }
                 });
@@ -134,7 +144,7 @@ public class SessionArchiveFragmentViewModel
                     }
                 });
     }
-    
+
 //*********************************************************
 // protected api
 //*********************************************************

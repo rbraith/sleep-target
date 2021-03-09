@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.data.current_goals.CurrentGoalsRepository;
 import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
+import com.rbraithwaite.sleepapp.data.current_goals.WakeTimeGoalModel;
 import com.rbraithwaite.sleepapp.ui.UIDependenciesModule;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.data.SleepDurationGoalUIData;
@@ -24,7 +25,7 @@ public class SleepGoalsFragmentViewModel
 //*********************************************************
 
     private CurrentGoalsRepository mCurrentGoalsRepository;
-    private LiveData<Long> mWakeTimeGoalModel;
+    private LiveData<WakeTimeGoalModel> mWakeTimeGoalModel;
     
     private DateTimeFormatter mDateTimeFormatter;
     
@@ -55,7 +56,7 @@ public class SleepGoalsFragmentViewModel
         mDateTimeFormatter = dateTimeFormatter;
         mTimeUtils = createTimeUtils();
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -67,52 +68,60 @@ public class SleepGoalsFragmentViewModel
         calendar.set(Calendar.MINUTE, DEFAULT_WAKETIME_MINUTE);
         return calendar.getTimeInMillis();
     }
-
+    
     public LiveData<String> getWakeTimeText()
     {
         return Transformations.map(
                 getWakeTimeGoalModel(),
-                new Function<Long, String>()
+                new Function<WakeTimeGoalModel, String>()
                 {
                     @Override
-                    public String apply(Long wakeTimeMillis)
+                    public String apply(WakeTimeGoalModel wakeTimeGoal)
                     {
                         // REFACTOR [21-02-2 9:08PM] -- put all this logic into
                         //  SleepGoalsFormatting?
-                        if (wakeTimeMillis == null) {
+                        if (wakeTimeGoal == null || !wakeTimeGoal.isSet()) {
                             return null;
                         }
-                        return mDateTimeFormatter.formatTimeOfDay(
-                                mTimeUtils.getDateFromMillis(wakeTimeMillis));
+                        return mDateTimeFormatter.formatTimeOfDay(wakeTimeGoal.asDate());
                     }
                 });
     }
     
     public void setWakeTime(int hourOfDay, int minute)
     {
-        GregorianCalendar calendar = new GregorianCalendar();
-        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-        calendar.set(Calendar.MINUTE, minute);
-        mCurrentGoalsRepository.setWakeTimeGoal(calendar.getTimeInMillis());
+        mCurrentGoalsRepository.setWakeTimeGoal(new WakeTimeGoalModel(
+                mTimeUtils.getNow(),
+                (int) mTimeUtils.timeToMillis(hourOfDay, minute, 0, 0)
+        ));
     }
     
     public LiveData<Boolean> hasWakeTime()
     {
         return Transformations.map(
                 getWakeTimeGoalModel(),
-                new Function<Long, Boolean>()
+                new Function<WakeTimeGoalModel, Boolean>()
                 {
                     @Override
-                    public Boolean apply(Long wakeTime)
+                    public Boolean apply(WakeTimeGoalModel wakeTimeGoal)
                     {
-                        return (wakeTime != null);
+                        return (wakeTimeGoal != null && wakeTimeGoal.isSet());
                     }
                 });
     }
     
-    public LiveData<Long> getWakeTimeMillis()
+    public LiveData<Long> getWakeTimeGoalDateMillis()
     {
-        return getWakeTimeGoalModel();
+        return Transformations.map(
+                getWakeTimeGoalModel(),
+                new Function<WakeTimeGoalModel, Long>()
+                {
+                    @Override
+                    public Long apply(WakeTimeGoalModel input)
+                    {
+                        return input.asDate().getTime();
+                    }
+                });
     }
     
     public void clearWakeTime()
@@ -189,7 +198,7 @@ public class SleepGoalsFragmentViewModel
     {
         mCurrentGoalsRepository.clearSleepDurationGoal();
     }
-    
+
 //*********************************************************
 // protected api
 //*********************************************************
@@ -203,7 +212,7 @@ public class SleepGoalsFragmentViewModel
 // private methods
 //*********************************************************
 
-    private LiveData<Long> getWakeTimeGoalModel()
+    private LiveData<WakeTimeGoalModel> getWakeTimeGoalModel()
     {
         if (mWakeTimeGoalModel == null) {
             mWakeTimeGoalModel = mCurrentGoalsRepository.getWakeTimeGoal();

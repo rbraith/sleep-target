@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.rbraithwaite.sleepapp.data.current_goals.CurrentGoalsRepository;
 import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
+import com.rbraithwaite.sleepapp.data.current_goals.WakeTimeGoalModel;
 import com.rbraithwaite.sleepapp.data.current_session.CurrentSessionModel;
 import com.rbraithwaite.sleepapp.data.current_session.CurrentSessionRepository;
 
@@ -24,14 +25,14 @@ public class MockRepositoryUtils
 //*********************************************************
 
     private MockRepositoryUtils() {/* No instantiation */}
-    
+
 //*********************************************************
 // api
 //*********************************************************
 
     public static void setupCurrentGoalsRepositoryWithState(
             CurrentGoalsRepository mockRepo,
-            LiveData<Long> wakeTimeGoal,
+            LiveData<WakeTimeGoalModel> wakeTimeGoal,
             LiveData<SleepDurationGoalModel> sleepDurationGoal)
     {
         when(mockRepo.getWakeTimeGoal()).thenReturn(wakeTimeGoal);
