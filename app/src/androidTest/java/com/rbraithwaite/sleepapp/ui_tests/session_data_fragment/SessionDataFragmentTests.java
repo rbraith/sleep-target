@@ -7,9 +7,9 @@ import androidx.test.espresso.contrib.PickerActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.R;
-import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
+import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
@@ -71,7 +71,7 @@ public class SessionDataFragmentTests
     {
         // GIVEN the user is on a session data screen with no sleep duration goal
         SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
-        initialData.setSleepDurationGoal(SleepDurationGoalModel.createWithoutSettingGoal()); //
+        initialData.setSleepDurationGoal(SleepDurationGoalModel.createWithNoGoal()); //
         // set to empty goal
         
         HiltFragmentTestHelper<SessionDataFragment> testHelper =
@@ -96,7 +96,7 @@ public class SessionDataFragmentTests
         // GIVEN the user is on the session data screen
         // WHEN no sleep duration goal has been set for the displayed session
         SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
-        initialData.setSleepDurationGoal(SleepDurationGoalModel.createWithoutSettingGoal());
+        initialData.setSleepDurationGoal(SleepDurationGoalModel.createWithNoGoal());
         
         HiltFragmentTestHelper<SessionDataFragment> testHelper =
                 SessionDataFragmentTestUtils.launchWithSleepSession(initialData);
@@ -112,7 +112,7 @@ public class SessionDataFragmentTests
         // GIVEN the user is on the session data screen
         // AND no sleep duration goal is set for the session
         SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
-        initialData.setSleepDurationGoal(SleepDurationGoalModel.createWithoutSettingGoal());
+        initialData.setSleepDurationGoal(SleepDurationGoalModel.createWithNoGoal());
         
         HiltFragmentTestHelper<SessionDataFragment> testHelper =
                 SessionDataFragmentTestUtils.launchWithSleepSession(initialData);

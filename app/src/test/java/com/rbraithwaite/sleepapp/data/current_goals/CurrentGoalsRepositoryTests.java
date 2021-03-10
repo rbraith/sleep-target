@@ -5,6 +5,8 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.data.SleepAppDataPrefs;
+import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDurationGoalDao;
+import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDurationGoalEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalDao;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalEntity;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
@@ -34,6 +36,7 @@ public class CurrentGoalsRepositoryTests
 
     SleepAppDataPrefs mockPrefs;
     WakeTimeGoalDao mockWakeTimeGoalDao;
+    SleepDurationGoalDao mockSleepDurationGoalDao;
     CurrentGoalsRepository repository;
 
 //*********************************************************
@@ -45,10 +48,12 @@ public class CurrentGoalsRepositoryTests
     {
         mockPrefs = mock(SleepAppDataPrefs.class);
         mockWakeTimeGoalDao = mock(WakeTimeGoalDao.class);
+        mockSleepDurationGoalDao = mock(SleepDurationGoalDao.class);
         // REFACTOR [21-03-8 11:15PM] -- time utils should be mocked.
         repository = new CurrentGoalsRepository(
                 mockPrefs,
                 mockWakeTimeGoalDao,
+                mockSleepDurationGoalDao,
                 new TimeUtils(),
                 new TestUtils.SynchronizedExecutor());
     }
@@ -61,21 +66,22 @@ public class CurrentGoalsRepositoryTests
     }
     
     @Test
-    public void clearWakeTimeGoal_updatesPrefs()
+    public void clearWakeTimeGoal_updatesDatabase()
     {
         repository.clearWakeTimeGoal();
         verify(mockWakeTimeGoalDao, times(1)).updateWakeTimeGoal(any(WakeTimeGoalEntity.class));
     }
     
     @Test
-    public void clearSleepDurationGoal_updatesPrefs()
+    public void clearSleepDurationGoal_updatesDatabase()
     {
         repository.clearSleepDurationGoal();
-        verify(mockPrefs, times(1)).clearSleepDurationGoal();
+        verify(mockSleepDurationGoalDao, times(1))
+                .updateSleepDurationGoal(any(SleepDurationGoalEntity.class));
     }
     
     @Test
-    public void getWakeTimeGoal_updatesFromPrefs()
+    public void getWakeTimeGoal_updatesFromDatabase()
     {
         LiveData<WakeTimeGoalEntity> expected =
                 new MutableLiveData<>(TestUtils.ArbitraryData.getWakeTimeGoalEntity());
@@ -90,7 +96,7 @@ public class CurrentGoalsRepositoryTests
     }
     
     @Test
-    public void setWakeTimeGoal_updatesPrefs()
+    public void setWakeTimeGoal_updatesDatabase()
     {
         WakeTimeGoalModel expected = TestUtils.ArbitraryData.getWakeTimeGoalModel();
         
@@ -105,23 +111,34 @@ public class CurrentGoalsRepositoryTests
     }
     
     @Test
-    public void getSleepDurationGoal_updatesFromPrefs()
+    public void getSleepDurationGoal_updatesFromDatabase()
     {
-        LiveData<Integer> expected = new MutableLiveData<>(12345);
-        when(mockPrefs.getSleepDurationGoal()).thenReturn(expected);
+        LiveData<SleepDurationGoalEntity> expected =
+                new MutableLiveData<>(TestUtils.ArbitraryData.getSleepDurationGoalEntity());
+        when(mockSleepDurationGoalDao.getCurrentSleepDurationGoal()).thenReturn(expected);
         
         // SUT
         LiveData<SleepDurationGoalModel> sleepDurationGoal = repository.getSleepDurationGoal();
         
         TestUtils.activateLocalLiveData(sleepDurationGoal);
-        assertThat(sleepDurationGoal.getValue().inMinutes(), is(expected.getValue()));
+        assertThat(sleepDurationGoal.getValue().inMinutes(), is(expected.getValue().goalMinutes));
+        assertThat(sleepDurationGoal.getValue().getEditTime(),
+                   is(equalTo(expected.getValue().editTime)));
     }
     
     @Test
-    public void setSleepDurationGoal_updatesPrefs()
+    public void setSleepDurationGoal_updatesDatabase()
     {
-        int expectedMinutes = 123;
-        repository.setSleepDurationGoal(new SleepDurationGoalModel(expectedMinutes));
-        verify(mockPrefs, times(1)).setSleepDurationGoal(expectedMinutes);
+        SleepDurationGoalModel model = TestUtils.ArbitraryData.getSleepDurationGoalModel();
+        repository.setSleepDurationGoal(model);
+        
+        ArgumentCaptor<SleepDurationGoalEntity> arg =
+                ArgumentCaptor.forClass(SleepDurationGoalEntity.class);
+        verify(mockSleepDurationGoalDao, times(1)).updateSleepDurationGoal(arg.capture());
+        SleepDurationGoalEntity entity = arg.getValue();
+        
+        assertThat(entity.id, is(0));
+        assertThat(entity.editTime, is(model.getEditTime()));
+        assertThat(entity.goalMinutes, is(model.inMinutes()));
     }
 }

@@ -61,7 +61,7 @@ public class CommonFormattingTests
     public void formatSleepDurationGoal_unsetArg()
     {
         assertThat(
-                CommonFormatting.formatSleepDurationGoal(SleepDurationGoalModel.createWithoutSettingGoal()),
+                CommonFormatting.formatSleepDurationGoal(SleepDurationGoalModel.createWithNoGoal()),
                 is(""));
     }
 }

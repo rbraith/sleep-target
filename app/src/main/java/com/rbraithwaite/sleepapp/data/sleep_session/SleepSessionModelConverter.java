@@ -20,7 +20,9 @@ public class SleepSessionModelConverter
         entity.endTime = model.getEnd();
         entity.duration = model.getDuration();
         entity.wakeTimeGoal = model.getWakeTimeGoal();
-        entity.sleepDurationGoalMinutes = model.getSleepDurationGoal().inMinutes();
+        SleepDurationGoalModel sleepDurationGoal = model.getSleepDurationGoal();
+        entity.sleepDurationGoalMinutes =
+                sleepDurationGoal == null ? null : sleepDurationGoal.inMinutes();
         return entity;
     }
     
@@ -31,7 +33,7 @@ public class SleepSessionModelConverter
         }
         
         SleepDurationGoalModel sleepDurationGoal = (entity.sleepDurationGoalMinutes == null) ?
-                SleepDurationGoalModel.createWithoutSettingGoal() :
+                SleepDurationGoalModel.createWithNoGoal() :
                 new SleepDurationGoalModel(entity.sleepDurationGoalMinutes);
         
         return new SleepSessionModel(

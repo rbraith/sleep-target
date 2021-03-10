@@ -230,7 +230,7 @@ public class SleepTrackerFragmentViewModelTests
         MockRepositoryUtils.setupCurrentGoalsRepositoryWithState(
                 mockCurrentGoalsRepository,
                 new MutableLiveData<WakeTimeGoalModel>(null),
-                new MutableLiveData<>(SleepDurationGoalModel.createWithoutSettingGoal()));
+                new MutableLiveData<>(SleepDurationGoalModel.createWithNoGoal()));
         
         // run the test
         LiveData<Boolean> inSleepSession = viewModel.inSleepSession();

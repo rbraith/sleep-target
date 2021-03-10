@@ -15,6 +15,7 @@ import com.rbraithwaite.sleepapp.data.SleepAppDataPrefs;
 import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.data.current_goals.WakeTimeGoalModel;
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
+import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDurationGoalEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
@@ -180,6 +181,14 @@ public class TestUtils
         public static WakeTimeGoalModel getWakeTimeGoalModel()
         {
             return new WakeTimeGoalModel(TestUtils.ArbitraryData.getDate(), 12345);
+        }
+        
+        public static SleepDurationGoalEntity getSleepDurationGoalEntity()
+        {
+            SleepDurationGoalEntity entity = new SleepDurationGoalEntity();
+            entity.editTime = getDate();
+            entity.goalMinutes = 1234;
+            return entity;
         }
     }
 

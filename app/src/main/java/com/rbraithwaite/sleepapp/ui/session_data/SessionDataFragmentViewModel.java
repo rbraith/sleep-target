@@ -384,16 +384,17 @@ public class SessionDataFragmentViewModel
                     {
                         // REFACTOR [21-02-7 1:56AM] -- should this null behaviour be in
                         //  SessionDataFormatting.formatSleepDurationGoal instead?
-                        return input.isSet() ?
-                                SessionDataFormatting.formatSleepDurationGoal(input) :
-                                null;
+                        if (input == null || !input.isSet()) {
+                            return null;
+                        }
+                        return SessionDataFormatting.formatSleepDurationGoal(input);
                     }
                 });
     }
     
     public void clearSleepDurationGoal()
     {
-        getSleepDurationGoalMutable().setValue(SleepDurationGoalModel.createWithoutSettingGoal());
+        getSleepDurationGoalMutable().setValue(SleepDurationGoalModel.createWithNoGoal());
     }
     
     public LiveData<SessionDataSleepDurationGoal> getSleepDurationGoal()
@@ -405,7 +406,7 @@ public class SessionDataFragmentViewModel
                     @Override
                     public SessionDataSleepDurationGoal apply(SleepDurationGoalModel input)
                     {
-                        if (!input.isSet()) {
+                        if (input == null || !input.isSet()) {
                             return null;
                         }
                         return new SessionDataSleepDurationGoal(

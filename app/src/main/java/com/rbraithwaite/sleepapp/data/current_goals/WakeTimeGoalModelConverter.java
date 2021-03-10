@@ -5,6 +5,12 @@ import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoal
 public class WakeTimeGoalModelConverter
 {
 //*********************************************************
+// constructors
+//*********************************************************
+
+    private WakeTimeGoalModelConverter() {/* No instantiation */}
+    
+//*********************************************************
 // api
 //*********************************************************
 

@@ -11,14 +11,14 @@ public class CommonFormatting
 //*********************************************************
 
     private CommonFormatting() {/* No instantiation */}
-    
+
 //*********************************************************
 // api
 //*********************************************************
 
     public static String formatSleepDurationGoal(SleepDurationGoalModel goalModel)
     {
-        if (!goalModel.isSet()) {
+        if (goalModel == null || !goalModel.isSet()) {
             return "";
         }
         

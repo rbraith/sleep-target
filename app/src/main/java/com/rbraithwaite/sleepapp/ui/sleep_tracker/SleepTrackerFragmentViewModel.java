@@ -199,8 +199,10 @@ public class SleepTrackerFragmentViewModel
                     @Override
                     public String apply(SleepDurationGoalModel input)
                     {
-                        return input.isSet() ?
-                                SleepTrackerFormatting.formatSleepDurationGoal(input) : null;
+                        if (input == null || !input.isSet()) {
+                            return null;
+                        }
+                        return SleepTrackerFormatting.formatSleepDurationGoal(input);
                     }
                 });
     }

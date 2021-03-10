@@ -138,7 +138,7 @@ public class SleepGoalsFragmentViewModel
                     @Override
                     public Boolean apply(SleepDurationGoalModel sleepDurationGoal)
                     {
-                        return sleepDurationGoal.isSet();
+                        return (sleepDurationGoal != null && sleepDurationGoal.isSet());
                     }
                 });
     }

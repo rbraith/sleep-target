@@ -5,6 +5,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
 
 import com.rbraithwaite.sleepapp.data.SleepAppDataPrefs;
+import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDurationGoalDao;
+import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDurationGoalEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalDao;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalEntity;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
@@ -24,6 +26,7 @@ public class CurrentGoalsRepository
 
     private SleepAppDataPrefs mDataPrefs;
     private WakeTimeGoalDao mWakeTimeGoalDao;
+    private SleepDurationGoalDao mSleepDurationGoalDao;
     private TimeUtils mTimeUtils;
     private Executor mExecutor;
 
@@ -35,11 +38,13 @@ public class CurrentGoalsRepository
     public CurrentGoalsRepository(
             SleepAppDataPrefs dataPrefs,
             WakeTimeGoalDao wakeTimeGoalDao,
+            SleepDurationGoalDao sleepDurationGoalDao,
             TimeUtils timeUtils,
             Executor executor)
     {
         mDataPrefs = dataPrefs;
         mWakeTimeGoalDao = wakeTimeGoalDao;
+        mSleepDurationGoalDao = sleepDurationGoalDao;
         mTimeUtils = timeUtils;
         mExecutor = executor;
     }
@@ -94,28 +99,42 @@ public class CurrentGoalsRepository
     public LiveData<SleepDurationGoalModel> getSleepDurationGoal()
     {
         return Transformations.map(
-                mDataPrefs.getSleepDurationGoal(),
-                new Function<Integer, SleepDurationGoalModel>()
+                mSleepDurationGoalDao.getCurrentSleepDurationGoal(),
+                new Function<SleepDurationGoalEntity, SleepDurationGoalModel>()
                 {
                     @Override
-                    public SleepDurationGoalModel apply(Integer input)
+                    public SleepDurationGoalModel apply(SleepDurationGoalEntity input)
                     {
-                        // REFACTOR [21-02-2 1:43AM] -- move this logic into SleepDurationGoalModel?
-                        //  maybe as a static factory - createWithOptionalMinutes()?
-                        return (input == null) ?
-                                SleepDurationGoalModel.createWithoutSettingGoal() :
-                                new SleepDurationGoalModel(input);
+                        return SleepDurationGoalModelConverter.convertEntityToModel(input);
                     }
                 });
     }
     
-    public void setSleepDurationGoal(SleepDurationGoalModel sleepDurationGoal)
+    public void setSleepDurationGoal(final SleepDurationGoalModel sleepDurationGoal)
     {
-        mDataPrefs.setSleepDurationGoal(sleepDurationGoal.inMinutes());
+        mExecutor.execute(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                mSleepDurationGoalDao.updateSleepDurationGoal(
+                        SleepDurationGoalModelConverter.convertModelToEntity(sleepDurationGoal));
+            }
+        });
     }
     
     public void clearSleepDurationGoal()
     {
-        mDataPrefs.clearSleepDurationGoal();
+        mExecutor.execute(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                SleepDurationGoalEntity entity = new SleepDurationGoalEntity();
+                entity.editTime = mTimeUtils.getNow();
+                entity.goalMinutes = SleepDurationGoalEntity.NO_GOAL;
+                mSleepDurationGoalDao.updateSleepDurationGoal(entity);
+            }
+        });
     }
 }

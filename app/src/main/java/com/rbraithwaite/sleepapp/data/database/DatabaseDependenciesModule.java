@@ -4,6 +4,7 @@ import android.content.Context;
 
 import androidx.room.Room;
 
+import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDurationGoalDao;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalDao;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionDao;
 
@@ -45,6 +46,13 @@ public class DatabaseDependenciesModule
     public static WakeTimeGoalDao provideWakeTimeGoalDao(SleepAppDatabase database)
     {
         return database.getWakeTimeGoalDao();
+    }
+    
+    @Singleton
+    @Provides
+    public static SleepDurationGoalDao provideSleepDurationGoalDao(SleepAppDatabase database)
+    {
+        return database.getSleepDurationGoalDao();
     }
     
     // REFACTOR [21-03-9 2:16AM] -- I should add a qualifier to make it explicit that this is async.

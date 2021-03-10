@@ -77,7 +77,7 @@ public class SessionArchiveFragmentViewModelTests
         MockRepositoryUtils.setupCurrentGoalsRepositoryWithState(
                 mockCurrentGoalsRepository,
                 new MutableLiveData<WakeTimeGoalModel>(null),
-                new MutableLiveData<>(SleepDurationGoalModel.createWithoutSettingGoal()));
+                new MutableLiveData<>(SleepDurationGoalModel.createWithNoGoal()));
         
         LiveData<SleepSessionWrapper> sleepSession = viewModel.getInitialAddSessionData();
         TestUtils.activateLocalLiveData(sleepSession);
@@ -93,7 +93,7 @@ public class SessionArchiveFragmentViewModelTests
         MockRepositoryUtils.setupCurrentGoalsRepositoryWithState(
                 mockCurrentGoalsRepository,
                 wakeTimeGoal,
-                new MutableLiveData<>(SleepDurationGoalModel.createWithoutSettingGoal()));
+                new MutableLiveData<>(SleepDurationGoalModel.createWithNoGoal()));
         
         LiveData<SleepSessionWrapper> sleepSessionWrapper = viewModel.getInitialAddSessionData();
         TestUtils.activateLocalLiveData(sleepSessionWrapper);
