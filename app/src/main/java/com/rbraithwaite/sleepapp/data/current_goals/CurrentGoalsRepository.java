@@ -23,8 +23,7 @@ public class CurrentGoalsRepository
 //*********************************************************
 // private properties
 //*********************************************************
-
-    private SleepAppDataPrefs mDataPrefs;
+    
     private WakeTimeGoalDao mWakeTimeGoalDao;
     private SleepDurationGoalDao mSleepDurationGoalDao;
     private TimeUtils mTimeUtils;
@@ -36,13 +35,11 @@ public class CurrentGoalsRepository
 
     @Inject
     public CurrentGoalsRepository(
-            SleepAppDataPrefs dataPrefs,
             WakeTimeGoalDao wakeTimeGoalDao,
             SleepDurationGoalDao sleepDurationGoalDao,
             TimeUtils timeUtils,
             Executor executor)
     {
-        mDataPrefs = dataPrefs;
         mWakeTimeGoalDao = wakeTimeGoalDao;
         mSleepDurationGoalDao = sleepDurationGoalDao;
         mTimeUtils = timeUtils;

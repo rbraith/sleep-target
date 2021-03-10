@@ -100,6 +100,8 @@ public class SleepAppDataPrefs
         });
     }
     
+    // REFACTOR [21-03-9 10:27PM] -- delete all the deprecated goal methods in here.
+    @Deprecated
     public LiveData<Long> getWakeTimeGoal()
     {
         return createTrackingMediator(getWakeTimeGoalMutable());
@@ -109,6 +111,7 @@ public class SleepAppDataPrefs
     //  It's not ideal to be persisting to the prefs every time setWakeTimeGoal()
     //  is called, although this would require a significant design change - would I need
     //  something like commitWakeTimeGoal()?
+    @Deprecated
     public void setWakeTimeGoal(final long wakeTimeGoalMillis)
     {
         mExecutor.execute(new Runnable()
@@ -128,11 +131,13 @@ public class SleepAppDataPrefs
         });
     }
     
+    @Deprecated
     public synchronized void clearWakeTimeGoal()
     {
         setWakeTimeGoal(NULL_LONG_VAL);
     }
     
+    @Deprecated
     public LiveData<Integer> getSleepDurationGoal()
     {
         // REFACTOR [21-01-29 3:24PM] -- should I just use Transformations.map() here? I think
@@ -144,6 +149,7 @@ public class SleepAppDataPrefs
     /**
      * Setting to null clears the current goal.
      */
+    @Deprecated
     public void setSleepDurationGoal(final Integer goalMinutes)
     {
         mExecutor.execute(new Runnable()
@@ -160,6 +166,7 @@ public class SleepAppDataPrefs
         });
     }
     
+    @Deprecated
     public void clearSleepDurationGoal()
     {
         setSleepDurationGoal(null);
@@ -206,6 +213,7 @@ public class SleepAppDataPrefs
     //  getCurrentSessionMutable. I can't see a clean way to fix this, since I would need to
     //  parameterize both the prefs value retrieval behaviour and the postValue formatting
     //  behaviour, which would make calls to whatever interface I made really verbose.
+    @Deprecated
     private MutableLiveData<Integer> getSleepDurationGoalMutable()
     {
         if (mSleepDurationGoal == null) {
@@ -227,6 +235,7 @@ public class SleepAppDataPrefs
         return mSleepDurationGoal;
     }
     
+    @Deprecated
     private MutableLiveData<Long> getWakeTimeGoalMutable()
     {
         if (mWakeTimeGoal == null) {
@@ -248,6 +257,7 @@ public class SleepAppDataPrefs
     }
     
     // REFACTOR [21-01-13 11:59PM] -- duplicates logic from getWakeTimeGoalMutable.
+    @Deprecated
     private MutableLiveData<Date> getCurrentSessionMutable()
     {
         if (mCurrentSession == null) {
