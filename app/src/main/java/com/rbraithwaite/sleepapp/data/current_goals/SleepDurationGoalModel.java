@@ -54,6 +54,11 @@ public class SleepDurationGoalModel
 //*********************************************************
 // api
 //*********************************************************
+    
+    public static SleepDurationGoalModel createWithNoGoal(Date editTime)
+    {
+        return new SleepDurationGoalModel(editTime);
+    }
 
     public static SleepDurationGoalModel createWithNoGoal()
     {

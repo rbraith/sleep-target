@@ -183,7 +183,6 @@ public class SleepSessionDaoTests
         SleepSessionEntity updatedSleepSession = new SleepSessionEntity();
         updatedSleepSession.startTime = newStartDate;
         updatedSleepSession.duration = newDuration;
-        updatedSleepSession.wakeTimeGoal = newWakeTimeGoal;
         updatedSleepSession.id = testSleepSessionId;
         
         sleepSessionDao.updateSleepSession(updatedSleepSession);
@@ -195,7 +194,6 @@ public class SleepSessionDaoTests
         assertThat(sleepSession.getValue().id, is(testSleepSessionId));
         assertThat(sleepSession.getValue().startTime, is(equalTo(newStartDate)));
         assertThat(sleepSession.getValue().duration, is(newDuration));
-        assertThat(sleepSession.getValue().wakeTimeGoal, is(equalTo(newWakeTimeGoal)));
     }
     
     // TODO [20-12-16 12:37AM] -- define updateSleepSession() behaviour on null or invalid args.

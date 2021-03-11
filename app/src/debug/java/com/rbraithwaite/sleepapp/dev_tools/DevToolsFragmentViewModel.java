@@ -139,9 +139,6 @@ public class DevToolsFragmentViewModel
         // 8pm -> 4am
         entity.startTime = randomStartTime(baseDay, 20, 28, rand);
         entity.duration = randomDurationHours(5, 10, rand) * 60 * 1000;
-        // 5am -> 12pm
-        entity.wakeTimeGoal = randomWakeTimeGoal(baseDay, 5, 12, rand);
-        entity.sleepDurationGoalMinutes = randomDurationHours(5, 10, rand);
         return entity;
     }
     

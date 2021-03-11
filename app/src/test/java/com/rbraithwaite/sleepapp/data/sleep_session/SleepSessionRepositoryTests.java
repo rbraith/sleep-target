@@ -106,7 +106,6 @@ public class SleepSessionRepositoryTests
         assertThat(sleepSessionModel.getId(), is(testEntity.id));
         assertThat(sleepSessionModel.getStart(), is(equalTo(testEntity.startTime)));
         assertThat(sleepSessionModel.getDuration(), is(equalTo(testEntity.duration)));
-        assertThat(sleepSessionModel.getWakeTimeGoal(), is(equalTo(testEntity.wakeTimeGoal)));
     }
     
     @Test
@@ -135,7 +134,6 @@ public class SleepSessionRepositoryTests
         assertThat(sleepSessionEntity.id, is(testSleepSession.getId()));
         assertThat(sleepSessionEntity.startTime, is(testSleepSession.getStart()));
         assertThat(sleepSessionEntity.duration, is(testSleepSession.getDuration()));
-        assertThat(sleepSessionEntity.wakeTimeGoal, is(testSleepSession.getWakeTimeGoal()));
     }
     
     // TODO [20-12-16 12:37AM] -- define updateSleepSession() behaviour on null or invalid args.
@@ -154,6 +152,5 @@ public class SleepSessionRepositoryTests
         assertThat(testSleepSession.getId(), is(equalTo(daoArg.id)));
         assertThat(testSleepSession.getStart(), is(equalTo(daoArg.startTime)));
         assertThat(testSleepSession.getDuration(), is(equalTo(daoArg.duration)));
-        assertThat(testSleepSession.getWakeTimeGoal(), is(equalTo(daoArg.wakeTimeGoal)));
     }
 }

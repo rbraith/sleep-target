@@ -1,6 +1,5 @@
 package com.rbraithwaite.sleepapp.data.sleep_session;
 
-import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import java.io.Serializable;
@@ -16,8 +15,6 @@ public class SleepSessionModel
     private int mId;
     private Date mStart;
     private long mDuration;
-    private Date mWakeTimeGoal;
-    private SleepDurationGoalModel mSleepDurationGoal;
     private TimeUtils mTimeUtils;
 
 //*********************************************************
@@ -33,28 +30,22 @@ public class SleepSessionModel
     public SleepSessionModel(
             int id,
             Date start,
-            long duration,
-            Date wakeTimeGoal,
-            SleepDurationGoalModel sleepDurationGoal)
+            long duration)
     {
         mId = id;
         mStart = start;
         mDuration = duration;
-        mWakeTimeGoal = wakeTimeGoal;
-        mSleepDurationGoal = sleepDurationGoal;
         
         mTimeUtils = createTimeUtils();
     }
     
     public SleepSessionModel(
             Date start,
-            long duration,
-            Date wakeTimeGoal,
-            SleepDurationGoalModel sleepDurationGoal)
+            long duration)
     {
-        this(0, start, duration, wakeTimeGoal, sleepDurationGoal);
+        this(0, start, duration);
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -63,7 +54,7 @@ public class SleepSessionModel
     {
         return mId;
     }
-
+    
     public void setId(int id)
     {
         mId = id;
@@ -89,16 +80,6 @@ public class SleepSessionModel
         mDuration = duration;
     }
     
-    public Date getWakeTimeGoal()
-    {
-        return mWakeTimeGoal;
-    }
-    
-    public void setWakeTimeGoal(Date wakeTimeGoal)
-    {
-        mWakeTimeGoal = wakeTimeGoal;
-    }
-    
     public Date getEnd()
     {
         Date start = getStart();
@@ -110,17 +91,7 @@ public class SleepSessionModel
         return mTimeUtils.getDateFromMillis(
                 start.getTime() + durationMillis);
     }
-    
-    public SleepDurationGoalModel getSleepDurationGoal()
-    {
-        return mSleepDurationGoal;
-    }
-    
-    public void setSleepDurationGoal(SleepDurationGoalModel sleepDurationGoal)
-    {
-        mSleepDurationGoal = sleepDurationGoal;
-    }
-    
+
 //*********************************************************
 // protected api
 //*********************************************************

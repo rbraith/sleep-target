@@ -3,12 +3,10 @@ package com.rbraithwaite.sleepapp.ui.session_archive;
 import androidx.arch.core.util.Function;
 import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import com.rbraithwaite.sleepapp.data.current_goals.CurrentGoalsRepository;
-import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
-import com.rbraithwaite.sleepapp.data.current_goals.WakeTimeGoalModel;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.ui.UIDependenciesModule;
@@ -16,10 +14,8 @@ import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_archive.data.SessionArchiveListItem;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
-import com.rbraithwaite.sleepapp.utils.LiveDataUtils;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
-import java.util.Date;
 import java.util.List;
 
 public class SessionArchiveFragmentViewModel
@@ -30,7 +26,6 @@ public class SessionArchiveFragmentViewModel
 //*********************************************************
 
     private SleepSessionRepository mSleepSessionRepository;
-    private CurrentGoalsRepository mCurrentGoalsRepository;
     private DateTimeFormatter mDateTimeFormatter;
     private TimeUtils mTimeUtils;
 
@@ -47,10 +42,8 @@ public class SessionArchiveFragmentViewModel
     @ViewModelInject
     public SessionArchiveFragmentViewModel(
             SleepSessionRepository sleepSessionRepository,
-            CurrentGoalsRepository currentGoalsRepository,
             @UIDependenciesModule.SessionArchiveDateTimeFormatter DateTimeFormatter dateTimeFormatter)
     {
-        mCurrentGoalsRepository = currentGoalsRepository;
         mSleepSessionRepository = sleepSessionRepository;
         mDateTimeFormatter = dateTimeFormatter;
         mTimeUtils = createTimeUtils();
@@ -101,34 +94,12 @@ public class SessionArchiveFragmentViewModel
     {
         // REFACTOR [21-01-5 9:14PM] -- consider making this lazy init & storing the value in a
         //  field (avoid re-instantiation of the mapped LiveData?)
-        // LiveData retval & mapping are needed because the wake-time & sleep duration goals are
-        // returned from the repository asynchronously.
-        return LiveDataUtils.merge(
-                mCurrentGoalsRepository.getWakeTimeGoal(),
-                mCurrentGoalsRepository.getSleepDurationGoal(),
-                new LiveDataUtils.Merger<WakeTimeGoalModel, SleepDurationGoalModel,
-                        SleepSessionWrapper>()
-                {
-                    @Override
-                    public SleepSessionWrapper applyMerge(
-                            WakeTimeGoalModel wakeTimeGoal,
-                            SleepDurationGoalModel sleepDurationGoal)
-                    {
-                        Date wakeTimeGoalDate = null;
-                        if (wakeTimeGoal != null && wakeTimeGoal.isSet()) {
-                            wakeTimeGoalDate = wakeTimeGoal.asDate();
-                        }
-                        
-                        return new SleepSessionWrapper(
-                                new SleepSessionModel(
-                                        mTimeUtils.getNow(),
-                                        0,
-                                        // REFACTOR [21-03-8 10:59PM] -- change this to take the
-                                        //  wake-time goal model instead.
-                                        wakeTimeGoalDate,
-                                        sleepDurationGoal));
-                    }
-                });
+        // REFACTOR [21-03-10 8:29PM] -- Returning a LiveData here is legacy behaviour, due to
+        //  the sleep sessions previously using wake-time & sleep duration goal data which needed
+        //  to be retrieved asynchronously from a CurrentGoalsRepository.
+        return new MutableLiveData<>(new SleepSessionWrapper(new SleepSessionModel(
+                mTimeUtils.getNow(),
+                0)));
     }
     
     public LiveData<SleepSessionWrapper> getSleepSession(int id)
@@ -167,14 +138,10 @@ public class SessionArchiveFragmentViewModel
         if (sleepSession == null) {
             return null;
         }
-        
-        SleepDurationGoalModel sleepDurationGoal = sleepSession.getSleepDurationGoal();
         return SessionArchiveListItem.create(
                 mDateTimeFormatter.formatFullDate(sleepSession.getStart()),
                 mDateTimeFormatter.formatFullDate(sleepSession.getEnd()),
                 // REFACTOR [21-01-13 2:06AM] -- inject this.
-                new DurationFormatter().formatDurationMillis(sleepSession.getDuration()),
-                (sleepSession.getWakeTimeGoal() != null),
-                (sleepDurationGoal != null && sleepDurationGoal.isSet()));
+                new DurationFormatter().formatDurationMillis(sleepSession.getDuration()));
     }
 }

@@ -18,11 +18,8 @@ import com.rbraithwaite.sleepapp.ui.UIDependenciesModule;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
-import com.rbraithwaite.sleepapp.utils.LiveDataUtils;
 import com.rbraithwaite.sleepapp.utils.TickingLiveData;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
-
-import java.util.Date;
 
 public class SleepTrackerFragmentViewModel
         extends ViewModel
@@ -222,39 +219,11 @@ public class SleepTrackerFragmentViewModel
 
     private void addCurrentSessionThenClear(final CurrentSessionModel currentSession)
     {
-        LiveData<SleepSessionModel> sessionLive = LiveDataUtils.merge(
-                mCurrentGoalsRepository.getWakeTimeGoal(),
-                mCurrentGoalsRepository.getSleepDurationGoal(),
-                new LiveDataUtils.Merger<WakeTimeGoalModel, SleepDurationGoalModel,
-                        SleepSessionModel>()
-                {
-                    @Override
-                    public SleepSessionModel applyMerge(
-                            WakeTimeGoalModel wakeTimeGoal,
-                            SleepDurationGoalModel sleepDurationGoal)
-                    {
-                        Date wakeTimeGoalDate =
-                                (wakeTimeGoal == null) ? null : wakeTimeGoal.asDate();
-                        
-                        return new SleepSessionModel(
-                                currentSession.getStart(),
-                                currentSession.getOngoingDurationMillis(),
-                                wakeTimeGoalDate,
-                                sleepDurationGoal);
-                    }
-                });
+        SleepSessionModel session = new SleepSessionModel(
+                currentSession.getStart(),
+                currentSession.getOngoingDurationMillis());
         
-        LiveDataFuture.getValue(
-                sessionLive,
-                null,
-                new LiveDataFuture.OnValueListener<SleepSessionModel>()
-                {
-                    @Override
-                    public void onValue(SleepSessionModel session)
-                    {
-                        mSleepSessionRepository.addSleepSession(session);
-                        mCurrentSessionRepository.clearCurrentSession();
-                    }
-                });
+        mSleepSessionRepository.addSleepSession(session);
+        mCurrentSessionRepository.clearCurrentSession();
     }
 }

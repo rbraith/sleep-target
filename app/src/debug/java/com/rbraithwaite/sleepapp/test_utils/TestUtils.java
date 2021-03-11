@@ -136,8 +136,6 @@ public class TestUtils
             SleepSessionEntity sleepSessionEntity = new SleepSessionEntity();
             sleepSessionEntity.startTime = getDate();
             sleepSessionEntity.duration = getDurationMillis();
-            sleepSessionEntity.wakeTimeGoal = getWakeTimeGoal();
-            
             return sleepSessionEntity;
         }
         
@@ -145,9 +143,7 @@ public class TestUtils
         {
             return new SleepSessionModel(
                     getDate(),
-                    getDurationMillis(),
-                    getWakeTimeGoal(),
-                    getSleepDurationGoalModel());
+                    getDurationMillis());
         }
         
         public static Date getWakeTimeGoal()

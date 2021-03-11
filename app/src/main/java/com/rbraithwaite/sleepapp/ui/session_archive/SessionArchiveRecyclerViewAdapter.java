@@ -4,7 +4,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -66,8 +65,6 @@ public class SessionArchiveRecyclerViewAdapter
         TextView startTime;
         TextView stopTime;
         TextView duration;
-        ImageView wakeTimeGoalIcon;
-        ImageView sleepDurationGoalIcon;
         
         public ViewHolder(
                 @NonNull View itemView,
@@ -80,9 +77,6 @@ public class SessionArchiveRecyclerViewAdapter
             // REFACTOR [20-12-11 3:08PM] -- rename stop to end.
             this.stopTime = itemView.findViewById(R.id.session_archive_list_item_stop_VALUE);
             this.duration = itemView.findViewById(R.id.session_archive_list_item_duration_VALUE);
-            this.wakeTimeGoalIcon = itemView.findViewById(R.id.session_archive_list_item_waketime);
-            this.sleepDurationGoalIcon =
-                    itemView.findViewById(R.id.session_archive_list_item_goal_duration);
             
             itemView.setOnClickListener(new View.OnClickListener()
             {
@@ -191,16 +185,6 @@ public class SessionArchiveRecyclerViewAdapter
                             viewHolder.startTime.setText(sessionArchiveListItem.startTime);
                             viewHolder.stopTime.setText(sessionArchiveListItem.endTime);
                             viewHolder.duration.setText(sessionArchiveListItem.sessionDuration);
-                            if (sessionArchiveListItem.hasWakeTimeGoal) {
-                                viewHolder.wakeTimeGoalIcon.setVisibility(View.VISIBLE);
-                            } else {
-                                viewHolder.wakeTimeGoalIcon.setVisibility(View.INVISIBLE);
-                            }
-                            if (sessionArchiveListItem.hasSleepDurationGoal) {
-                                viewHolder.sleepDurationGoalIcon.setVisibility(View.VISIBLE);
-                            } else {
-                                viewHolder.sleepDurationGoalIcon.setVisibility(View.INVISIBLE);
-                            }
                         }
                     }
                 });

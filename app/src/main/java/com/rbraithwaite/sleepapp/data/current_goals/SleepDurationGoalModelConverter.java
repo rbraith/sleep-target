@@ -31,6 +31,9 @@ public class SleepDurationGoalModelConverter
         if (entity == null) {
             return null;
         }
+        if (entity.goalMinutes == SleepDurationGoalEntity.NO_GOAL) {
+            return SleepDurationGoalModel.createWithNoGoal(entity.editTime);
+        }
         return new SleepDurationGoalModel(
                 entity.editTime,
                 entity.goalMinutes);

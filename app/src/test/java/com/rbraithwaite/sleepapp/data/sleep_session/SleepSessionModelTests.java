@@ -27,9 +27,7 @@ public class SleepSessionModelTests
         
         SleepSessionModel sleepSessionModel = new SleepSessionModel(
                 calendar.getTime(),
-                sessionDurationMillis,
-                null,
-                null);
+                sessionDurationMillis);
         
         calendar.add(Calendar.MILLISECOND, sessionDurationMillis);
         Date expectedEnd = calendar.getTime();
@@ -42,9 +40,7 @@ public class SleepSessionModelTests
     {
         SleepSessionModel sleepSessionModel = new SleepSessionModel(
                 null,
-                1234,
-                null,
-                null);
+                1234);
         
         assertThat(sleepSessionModel.getEnd(), is(nullValue()));
     }

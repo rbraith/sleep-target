@@ -51,7 +51,6 @@ public class CurrentGoalsRepositoryTests
         mockSleepDurationGoalDao = mock(SleepDurationGoalDao.class);
         // REFACTOR [21-03-8 11:15PM] -- time utils should be mocked.
         repository = new CurrentGoalsRepository(
-                mockPrefs,
                 mockWakeTimeGoalDao,
                 mockSleepDurationGoalDao,
                 new TimeUtils(),

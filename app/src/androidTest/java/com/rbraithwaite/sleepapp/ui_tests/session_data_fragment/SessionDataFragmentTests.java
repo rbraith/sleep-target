@@ -2,23 +2,18 @@ package com.rbraithwaite.sleepapp.ui_tests.session_data_fragment;
 
 import android.os.Bundle;
 
-import androidx.test.espresso.ViewInteraction;
 import androidx.test.espresso.contrib.PickerActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.R;
-import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
-import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DurationPickerTestUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
-import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFormatting;
 import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragment;
-import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragmentViewModel;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
 
 import org.junit.Rule;
@@ -36,20 +31,16 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoActions.setDatePickerDate;
 import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoMatchers.datePickerWithDate;
 import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoMatchers.timePickerWithTime;
 import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.onDatePicker;
 import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.onTimePicker;
-import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.launchWithSleepSession;
 import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onEndDateTextView;
 import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onEndTimeTextView;
 import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onStartDateTextView;
 import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onStartTimeTextView;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.not;
 
 @RunWith(AndroidJUnit4.class)
 public class SessionDataFragmentTests
@@ -66,251 +57,6 @@ public class SessionDataFragmentTests
 // api
 //*********************************************************
 
-    @Test
-    public void addSleepDurationGoalButton_addsGoal()
-    {
-        // GIVEN the user is on a session data screen with no sleep duration goal
-        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
-        initialData.setSleepDurationGoal(SleepDurationGoalModel.createWithNoGoal()); //
-        // set to empty goal
-        
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                SessionDataFragmentTestUtils.launchWithSleepSession(initialData);
-        
-        // WHEN the user adds a sleep duration goal
-        onView(withId(R.id.session_data_add_duration_btn)).perform(click());
-        int testHours = 12;
-        int testMinutes = 34;
-        DurationPickerTestUtils.setDuration(testHours, testMinutes);
-        DialogTestUtils.pressOK();
-        
-        // THEN that new sleep duration goal is displayed on the screen
-        onView(withId(R.id.session_data_duration_value)).check(matches(withText(
-                SessionDataFormatting.formatSleepDurationGoal(
-                        new SleepDurationGoalModel(testHours, testMinutes)))));
-    }
-    
-    @Test
-    public void addSleepDurationGoalButton_isDisplayedWhenGoalIsNotSet()
-    {
-        // GIVEN the user is on the session data screen
-        // WHEN no sleep duration goal has been set for the displayed session
-        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
-        initialData.setSleepDurationGoal(SleepDurationGoalModel.createWithNoGoal());
-        
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                SessionDataFragmentTestUtils.launchWithSleepSession(initialData);
-        
-        // THEN the "add new sleep duration goal" button is displayed
-        onView(withId(R.id.session_data_duration_layout)).check(matches(not(isDisplayed())));
-        onView(withId(R.id.session_data_add_duration_btn)).check(matches(isDisplayed()));
-    }
-    
-    @Test
-    public void addSleepDurationGoal_hasCorrectDefaultValue()
-    {
-        // GIVEN the user is on the session data screen
-        // AND no sleep duration goal is set for the session
-        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
-        initialData.setSleepDurationGoal(SleepDurationGoalModel.createWithNoGoal());
-        
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                SessionDataFragmentTestUtils.launchWithSleepSession(initialData);
-        
-        // WHEN the user goes to add a sleep duration goal to the session
-        onView(withId(R.id.session_data_add_duration_btn)).perform(click());
-        
-        // THEN the correct default value is displayed in the dialog
-        DurationPickerTestUtils.checkMatchesDuration(
-                SessionDataFragmentViewModel.DEFAULT_SLEEP_DURATION_GOAL_HOURS,
-                SessionDataFragmentViewModel.DEFAULT_SLEEP_DURATION_GOAL_MINUTES);
-    }
-    
-    @Test
-    public void deleteSleepDurationGoalButton_deletesGoal()
-    {
-        // GIVEN the user is on the session data screen
-        // AND there is a set sleep duration goal
-        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
-        initialData.setSleepDurationGoal(TestUtils.ArbitraryData.getSleepDurationGoalModel());
-        
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                SessionDataFragmentTestUtils.launchWithSleepSession(initialData);
-        
-        // WHEN the user deletes the sleep duration goal
-        onView(withId(R.id.session_data_delete_duration_btn)).perform(click());
-        DialogTestUtils.pressOK();
-        
-        // THEN the sleep duration goal is deleted
-        onView(withId(R.id.session_data_duration_layout)).check(matches(not(isDisplayed())));
-    }
-    
-    @Test
-    public void sleepDurationGoal_isDisplayedCorrectlyWhenProvided()
-    {
-        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
-        initialData.setSleepDurationGoal(new SleepDurationGoalModel(123));
-        
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                launchWithSleepSession(initialData);
-        
-        ViewInteraction onDurationValue =
-                onView(allOf(
-                        withId(R.id.session_data_duration_value),
-                        withParent(withId(R.id.session_data_duration_layout))));
-        
-        onDurationValue.check(matches(isDisplayed()));
-        onDurationValue.check(matches(withText(
-                SessionDataFormatting.formatSleepDurationGoal(initialData.getSleepDurationGoal()))));
-        onView(withId(R.id.session_data_add_duration_btn)).check(matches(not(isDisplayed())));
-    }
-    
-    @Test
-    public void editSleepDurationGoal_displaysProperDefaultValue()
-    {
-        // GIVEN the user has set a sleep duration goal in the session data fragment
-        SleepSessionModel sleepSession = TestUtils.ArbitraryData.getSleepSessionModel();
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                launchWithSleepSession(sleepSession);
-        
-        // WHEN the user goes to edit the sleep duration goal
-        onView(withId(R.id.session_data_duration_value)).perform(click());
-        
-        // THEN the edit dialog displays the correct default value (which is the set goal value)
-        SleepDurationGoalModel expected = TestUtils.ArbitraryData.getSleepDurationGoalModel();
-        DurationPickerTestUtils.checkMatchesDuration(expected.getHours(),
-                                                     expected.getRemainingMinutes());
-    }
-    
-    @Test
-    public void editSleepDurationGoal_editsGoal()
-    {
-        // GIVEN the user goes to edit the sleep duration goal
-        SleepSessionModel sleepSession = TestUtils.ArbitraryData.getSleepSessionModel();
-        SleepDurationGoalModel initialGoal = new SleepDurationGoalModel(123);
-        sleepSession.setSleepDurationGoal(initialGoal);
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                launchWithSleepSession(sleepSession);
-        
-        // WHEN the user edits the values and confirms the dialog
-        SleepDurationGoalModel updatedGoal = new SleepDurationGoalModel(321);
-        onView(withId(R.id.session_data_duration_value)).perform(click());
-        DurationPickerTestUtils.setDuration(updatedGoal.getHours(),
-                                            updatedGoal.getRemainingMinutes());
-        DialogTestUtils.pressOK();
-        
-        // THEN the sleep duration goal is updated
-        onView(withId(R.id.session_data_duration_value)).check(matches(withText(
-                SessionDataFormatting.formatSleepDurationGoal(updatedGoal))));
-    }
-    
-    @Test
-    public void wakeTimeDialog_reflectsSetWakeTime()
-    {
-        // GIVEN the user has set a wake-time goal in the session data fragment
-        SleepSessionModel sleepSession = TestUtils.ArbitraryData.getSleepSessionModel();
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                launchWithSleepSession(sleepSession);
-        
-        // WHEN the user goes to edit the wake-time goal
-        onView(withId(R.id.session_data_goal_waketime)).perform(click());
-        
-        // THEN the time picker displays the set wake-time goal value (as opposed to the default
-        //  value)
-        GregorianCalendar calendar = new GregorianCalendar();
-        calendar.setTime(sleepSession.getWakeTimeGoal());
-        onTimePicker().check(matches(timePickerWithTime(
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE))));
-    }
-    
-    @Test
-    public void wakeTime_updatesWhenPositiveDialogIsConfirmed()
-    {
-        // GIVEN the user goes to edit the wake-time goal
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                launchWithSleepSession(TestUtils.ArbitraryData.getSleepSessionModel());
-        
-        onView(withId(R.id.session_data_goal_waketime)).perform(click());
-        
-        GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
-        calendar.add(Calendar.HOUR_OF_DAY, 5);
-        
-        onTimePicker().perform(PickerActions.setTime(
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE)));
-        
-        // WHEN the user confirms the dialog
-        DialogTestUtils.pressOK();
-        
-        // THEN the wake-time goal is updated
-        onView(withId(R.id.session_data_goal_waketime)).check(matches(withText(
-                // REFACTOR [21-01-15 10:46PM] -- this should be SessionDataFragment's
-                //  DateTimeFormatter.
-                new DateTimeFormatter().formatTimeOfDay(calendar.getTime()))));
-    }
-    
-    @Test
-    public void addWakeTimeButton_isDisplayedWhenWakeTimeIsNull()
-    {
-        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
-        initialData.setWakeTimeGoal(null);
-        
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                launchWithSleepSession(initialData);
-        
-        onView(withId(R.id.session_data_add_waketime_btn)).check(matches(isDisplayed()));
-        onView(withId(R.id.session_data_waketime_layout)).check(matches(not(isDisplayed())));
-    }
-    
-    @Test
-    public void deleteWakeTimeButton_deletesWakeTime()
-    {
-        // GIVEN the user is on the session data screen
-        // AND there is a set wake-time goal
-        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
-        initialData.setWakeTimeGoal(TestUtils.ArbitraryData.getWakeTimeGoal());
-        
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                SessionDataFragmentTestUtils.launchWithSleepSession(initialData);
-        
-        // WHEN the user deletes the wake-time goal
-        onView(withId(R.id.session_data_delete_waketime_btn)).perform(click());
-        DialogTestUtils.pressOK();
-        
-        // THEN the wake-time goal is deleted
-        // AND the 'add wake-time goal' button is displayed
-        onView(withId(R.id.session_data_waketime_layout)).check(matches(not(isDisplayed())));
-        onView(withId(R.id.session_data_add_waketime_btn)).check(matches(isDisplayed()));
-    }
-    
-    @Test
-    public void addWakeTimeButton_addsWakeTime()
-    {
-        // GIVEN the user is on the session data screen
-        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
-        // AND there is no wake-time
-        initialData.setWakeTimeGoal(null);
-        
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                SessionDataFragmentTestUtils.launchWithSleepSession(initialData);
-        
-        // WHEN the user clicks the "add wake-time" button
-        onView(withId(R.id.session_data_add_waketime_btn)).perform(click());
-        // AND confirms the dialog
-        GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
-        onTimePicker().perform(PickerActions.setTime(
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE)));
-        DialogTestUtils.pressOK();
-        
-        // THEN the display is updated with the new wake-time
-        onView(withId(R.id.session_data_goal_waketime)).check(matches(withText(
-                // REFACTOR [21-01-15 9:01PM] -- this should be SessionDataFragment's
-                //  DateTimeFormatter dependency.
-                new DateTimeFormatter().formatTimeOfDay(calendar.getTime()))));
-    }
-    
     @Test
     public void startTime_updatesWhenPositiveDialogIsConfirmed()
     {

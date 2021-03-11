@@ -30,8 +30,6 @@ public class SleepAppDataPrefs
     private Context mContext;
     
     private MutableLiveData<Date> mCurrentSession;
-    private MutableLiveData<Long> mWakeTimeGoal;
-    private MutableLiveData<Integer> mSleepDurationGoal;
 
 //*********************************************************
 // private constants
@@ -40,9 +38,7 @@ public class SleepAppDataPrefs
     private static final long NULL_LONG_VAL = -1L;
     private static final int NULL_INT_VAL = -1;
     
-    private static final String WAKE_TIME_GOAL_KEY = "wake time goal";
     private static final String CURRENT_SESSION_KEY = "current sleep session";
-    private static final String SLEEP_DURATION_GOAL_KEY = "sleep duration goal";
 
 //*********************************************************
 // public constants
@@ -78,6 +74,9 @@ public class SleepAppDataPrefs
      */
     public LiveData<Date> getCurrentSession()
     {
+        // REFACTOR [21-01-29 3:24PM] -- should I just use Transformations.map() here? I think
+        //  it does essentially the same thing as createTrackingMediator, but I don't need to
+        //  transform the data at all here - it would be a 1:1 mapping.
         return createTrackingMediator(getCurrentSessionMutable());
     }
     
@@ -91,6 +90,11 @@ public class SleepAppDataPrefs
             @Override
             public void run()
             {
+                // REFACTOR [21-01-11 9:59PM]
+                //  It's not ideal to be persisting to the prefs every time setCurrentSession()
+                //  is called, although this would require a significant design change - would I
+                //  need
+                //  something like commitCurrentSession()?
                 commitLong(CURRENT_SESSION_KEY,
                            (startTime == null) ? NULL_LONG_VAL : startTime.getTime());
                 if (mCurrentSession != null) {
@@ -99,79 +103,6 @@ public class SleepAppDataPrefs
             }
         });
     }
-    
-    // REFACTOR [21-03-9 10:27PM] -- delete all the deprecated goal methods in here.
-    @Deprecated
-    public LiveData<Long> getWakeTimeGoal()
-    {
-        return createTrackingMediator(getWakeTimeGoalMutable());
-    }
-    
-    // REFACTOR [21-01-11 9:59PM]
-    //  It's not ideal to be persisting to the prefs every time setWakeTimeGoal()
-    //  is called, although this would require a significant design change - would I need
-    //  something like commitWakeTimeGoal()?
-    @Deprecated
-    public void setWakeTimeGoal(final long wakeTimeGoalMillis)
-    {
-        mExecutor.execute(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                // REFACTOR [21-02-6 2:01AM] -- change all this to behave like
-                //  setSleepDurationGoal().
-                //  This includes writing a new unit test for the new null arg behaviour.
-                commitLong(WAKE_TIME_GOAL_KEY, wakeTimeGoalMillis);
-                if (mWakeTimeGoal != null) {
-                    Long val = wakeTimeGoalMillis == NULL_LONG_VAL ? null : wakeTimeGoalMillis;
-                    mWakeTimeGoal.postValue(val);
-                }
-            }
-        });
-    }
-    
-    @Deprecated
-    public synchronized void clearWakeTimeGoal()
-    {
-        setWakeTimeGoal(NULL_LONG_VAL);
-    }
-    
-    @Deprecated
-    public LiveData<Integer> getSleepDurationGoal()
-    {
-        // REFACTOR [21-01-29 3:24PM] -- should I just use Transformations.map() here? I think
-        //  it does essentially the same thing as createTrackingMediator, but I don't need to
-        //  transform the data at all here - it would be a 1:1 mapping.
-        return createTrackingMediator(getSleepDurationGoalMutable());
-    }
-    
-    /**
-     * Setting to null clears the current goal.
-     */
-    @Deprecated
-    public void setSleepDurationGoal(final Integer goalMinutes)
-    {
-        mExecutor.execute(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                commitInt(SLEEP_DURATION_GOAL_KEY,
-                          (goalMinutes == null) ? NULL_INT_VAL : goalMinutes);
-                if (mSleepDurationGoal != null) {
-                    mSleepDurationGoal.postValue(goalMinutes);
-                }
-            }
-        });
-    }
-    
-    @Deprecated
-    public void clearSleepDurationGoal()
-    {
-        setSleepDurationGoal(null);
-    }
-
 
 //*********************************************************
 // private methods
@@ -209,55 +140,6 @@ public class SleepAppDataPrefs
         return mediator;
     }
     
-    // REFACTOR [21-01-29 3:00PM] -- duplicates logic from getWakeTimeGoalMutable and
-    //  getCurrentSessionMutable. I can't see a clean way to fix this, since I would need to
-    //  parameterize both the prefs value retrieval behaviour and the postValue formatting
-    //  behaviour, which would make calls to whatever interface I made really verbose.
-    @Deprecated
-    private MutableLiveData<Integer> getSleepDurationGoalMutable()
-    {
-        if (mSleepDurationGoal == null) {
-            mSleepDurationGoal = new MutableLiveData<>();
-            // asynchronously initialize the in-memory cache from the preferences
-            mExecutor.execute(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    int sleepDurationGoalMinutes =
-                            getSharedPrefs().getInt(SLEEP_DURATION_GOAL_KEY, NULL_INT_VAL);
-                    mSleepDurationGoal.postValue(
-                            sleepDurationGoalMinutes == NULL_INT_VAL ? null :
-                                    sleepDurationGoalMinutes);
-                }
-            });
-        }
-        return mSleepDurationGoal;
-    }
-    
-    @Deprecated
-    private MutableLiveData<Long> getWakeTimeGoalMutable()
-    {
-        if (mWakeTimeGoal == null) {
-            mWakeTimeGoal = new MutableLiveData<>();
-            // asynchronously initialize the in-memory cache from the preferences
-            mExecutor.execute(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    // REFACTOR [21-01-11 10:04PM] -- This should be getWakeTimeGoalPersisted.
-                    long wakeTimeGoal =
-                            getSharedPrefs().getLong(WAKE_TIME_GOAL_KEY, NULL_LONG_VAL);
-                    mWakeTimeGoal.postValue(wakeTimeGoal == NULL_LONG_VAL ? null : wakeTimeGoal);
-                }
-            });
-        }
-        return mWakeTimeGoal;
-    }
-    
-    // REFACTOR [21-01-13 11:59PM] -- duplicates logic from getWakeTimeGoalMutable.
-    @Deprecated
     private MutableLiveData<Date> getCurrentSessionMutable()
     {
         if (mCurrentSession == null) {

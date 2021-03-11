@@ -6,8 +6,8 @@ import androidx.lifecycle.LiveData;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.data.SleepAppDataPrefs;
+import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 
 import org.junit.After;
 import org.junit.Before;
@@ -139,132 +139,5 @@ public class SleepAppDataPrefsTests
         TestUtils.activateInstrumentationLiveData(currentSession);
         
         assertThat(currentSession.getValue(), is(nullValue()));
-    }
-    
-    @Test
-    public void getSleepDurationGoal_reflects_setSleepDurationGoal_afterSecondCall()
-    {
-        LiveData<Integer> sleepDurationGoal1 = prefs.getSleepDurationGoal();
-        TestUtils.InstrumentationLiveDataSynchronizer<Integer> synchronizer =
-                new TestUtils.InstrumentationLiveDataSynchronizer<>(sleepDurationGoal1);
-        
-        // second call to getSleepDurationGoal
-        // sleepDurationGoal1 should still be receiving updates after this
-        LiveData<Integer> sleepDurationGoal2 = prefs.getSleepDurationGoal();
-        
-        int testDuration1 = 123;
-        prefs.setSleepDurationGoal(testDuration1);
-        synchronizer.sync();
-        assertThat(sleepDurationGoal1.getValue(), is(equalTo(testDuration1)));
-    }
-    
-    @Test
-    public void getSleepDurationGoal_reflects_setSleepDurationGoal()
-    {
-        LiveData<Integer> sleepDurationGoal = prefs.getSleepDurationGoal();
-        TestUtils.InstrumentationLiveDataSynchronizer<Integer> synchronizer =
-                new TestUtils.InstrumentationLiveDataSynchronizer<>(sleepDurationGoal);
-        
-        int testDuration1 = 123;
-        prefs.setSleepDurationGoal(testDuration1);
-        synchronizer.sync();
-        assertThat(sleepDurationGoal.getValue(), is(equalTo(testDuration1)));
-        
-        int testDuration2 = 456;
-        prefs.setSleepDurationGoal(testDuration2);
-        synchronizer.sync();
-        assertThat(sleepDurationGoal.getValue(), is(equalTo(testDuration2)));
-    }
-    
-    @Test
-    public void setSleepDurationGoal_setNull()
-    {
-        LiveData<Integer> sleepDurationGoal = prefs.getSleepDurationGoal();
-        TestUtils.InstrumentationLiveDataSynchronizer<Integer> synchronizer =
-                new TestUtils.InstrumentationLiveDataSynchronizer<>(sleepDurationGoal);
-        
-        prefs.setSleepDurationGoal(123);
-        synchronizer.sync();
-        
-        prefs.setSleepDurationGoal(null);
-        synchronizer.sync();
-        assertThat(sleepDurationGoal.getValue(), is(nullValue()));
-    }
-    
-    @Test
-    public void getSleepDurationGoal_isNullIfNotSet()
-    {
-        LiveData<Integer> sleepDurationGoal = prefs.getSleepDurationGoal();
-        TestUtils.activateInstrumentationLiveData(sleepDurationGoal);
-        assertThat(sleepDurationGoal.getValue(), is(nullValue()));
-    }
-    
-    @Test
-    public void getWakeTimeGoal_reflects_setWakeTimeGoal()
-    {
-        LiveData<Long> wakeTimeGoal = prefs.getWakeTimeGoal();
-        TestUtils.InstrumentationLiveDataSynchronizer<Long> synchronizer =
-                new TestUtils.InstrumentationLiveDataSynchronizer<>(wakeTimeGoal);
-        
-        // starts null
-        assertThat(wakeTimeGoal.getValue(), is(nullValue()));
-        
-        // setting the wake time
-        long expectedWakeTime = 12345L;
-        prefs.setWakeTimeGoal(expectedWakeTime);
-        
-        // verify
-        synchronizer.sync();
-        assertThat(wakeTimeGoal.getValue(), is(expectedWakeTime));
-    }
-    
-    @Test
-    public void getWakeTimeGoal_reflects_setWakeTimeGoal_afterSecondCall()
-    {
-        LiveData<Long> wakeTimeGoal = prefs.getWakeTimeGoal();
-        TestUtils.InstrumentationLiveDataSynchronizer<Long> synchronizer =
-                new TestUtils.InstrumentationLiveDataSynchronizer<>(wakeTimeGoal);
-        
-        // a second call to getWakeTimeGoal
-        // wakeTimeGoal should still be getting updates after this call
-        LiveData<Long> wakeTimeGoal2 = prefs.getWakeTimeGoal();
-        
-        long expectedWakeTime = 12345L;
-        prefs.setWakeTimeGoal(expectedWakeTime);
-        
-        synchronizer.sync();
-        assertThat(wakeTimeGoal.getValue(), is(expectedWakeTime));
-    }
-    
-    @Test
-    public void clearWakeTimeGoal_clearsWakeTimeGoal()
-    {
-        long wakeTimeVal = 12345;
-        prefs.setWakeTimeGoal(wakeTimeVal);
-        LiveData<Long> wakeTime = prefs.getWakeTimeGoal();
-        TestUtils.InstrumentationLiveDataSynchronizer<Long> synchronizer =
-                new TestUtils.InstrumentationLiveDataSynchronizer<>(wakeTime);
-        assertThat(wakeTime.getValue(), is(wakeTimeVal));
-        
-        prefs.clearWakeTimeGoal();
-        
-        synchronizer.sync();
-        assertThat(wakeTime.getValue(), is(nullValue()));
-    }
-    
-    @Test
-    public void clearSleepDurationGoal_clearsGoal()
-    {
-        int testGoal = 1234;
-        prefs.setSleepDurationGoal(testGoal);
-        LiveData<Integer> sleepDurationGoal = prefs.getSleepDurationGoal();
-        TestUtils.InstrumentationLiveDataSynchronizer<Integer> synchronizer =
-                new TestUtils.InstrumentationLiveDataSynchronizer<>(sleepDurationGoal);
-        assertThat(sleepDurationGoal.getValue(), is(testGoal));
-        
-        prefs.clearSleepDurationGoal();
-        
-        synchronizer.sync();
-        assertThat(sleepDurationGoal.getValue(), is(nullValue()));
     }
 }

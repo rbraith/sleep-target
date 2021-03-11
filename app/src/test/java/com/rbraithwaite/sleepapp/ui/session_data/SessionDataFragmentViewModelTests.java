@@ -3,12 +3,10 @@ package com.rbraithwaite.sleepapp.ui.session_data;
 import androidx.lifecycle.LiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
-import com.rbraithwaite.sleepapp.ui.session_data.data.SessionDataSleepDurationGoal;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
 
 import org.junit.After;
@@ -23,7 +21,6 @@ import java.util.GregorianCalendar;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
 // REFACTOR [20-12-8 8:52PM] -- consider splitting this into separate test classes?
@@ -53,150 +50,6 @@ public class SessionDataFragmentViewModelTests
     {
         viewModel = null;
         dateTimeFormatter = null;
-    }
-    
-    @Test
-    public void setSleepDurationGoal_updatesSleepDurationGoal()
-    {
-        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
-        // initial goal value
-        initialData.setSleepDurationGoal(new SleepDurationGoalModel(12, 34));
-        
-        viewModel.initSessionData(new SleepSessionWrapper(initialData));
-        
-        LiveData<String> goalText = viewModel.getSleepDurationGoalText();
-        LiveData<SessionDataSleepDurationGoal> goal = viewModel.getSleepDurationGoal();
-        TestUtils.activateLocalLiveData(goalText);
-        TestUtils.activateLocalLiveData(goal);
-        
-        // SUT - change from the initial goal value
-        SleepDurationGoalModel newGoal = new SleepDurationGoalModel(11, 22);
-        viewModel.setSleepDurationGoal(newGoal.getHours(), newGoal.getRemainingMinutes());
-        
-        // verify the LiveData
-        assertThat(goalText.getValue(),
-                   is(equalTo(SessionDataFormatting.formatSleepDurationGoal(newGoal))));
-        assertThat(goal.getValue().hours, is(equalTo(newGoal.getHours())));
-        assertThat(goal.getValue().remainingMinutes, is(equalTo(newGoal.getRemainingMinutes())));
-    }
-    
-    @Test
-    public void getSleepDurationGoal_reflectsInitialData()
-    {
-        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
-        viewModel.initSessionData(new SleepSessionWrapper(initialData));
-        
-        // SUT
-        LiveData<SessionDataSleepDurationGoal> goal = viewModel.getSleepDurationGoal();
-        TestUtils.activateLocalLiveData(goal);
-        
-        assertThat(goal.getValue().hours, is(initialData.getSleepDurationGoal().getHours()));
-        assertThat(goal.getValue().remainingMinutes,
-                   is(initialData.getSleepDurationGoal().getRemainingMinutes()));
-    }
-    
-    @Test
-    public void getSleepDurationGoalText_reflectsInitialData()
-    {
-        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
-        viewModel.initSessionData(new SleepSessionWrapper(initialData));
-        
-        LiveData<String> sleepDurationGoalText = viewModel.getSleepDurationGoalText();
-        TestUtils.activateLocalLiveData(sleepDurationGoalText);
-        
-        assertThat(sleepDurationGoalText.getValue(), is(equalTo(
-                SessionDataFormatting.formatSleepDurationGoal(initialData.getSleepDurationGoal()))));
-    }
-    
-    @Test
-    public void clearSleepDurationGoal_clearsGoal()
-    {
-        viewModel.initSessionData(new SleepSessionWrapper(TestUtils.ArbitraryData.getSleepSessionModel()));
-        
-        LiveData<String> goalText = viewModel.getSleepDurationGoalText();
-        TestUtils.activateLocalLiveData(goalText);
-        
-        assertThat(goalText.getValue(), is(notNullValue()));
-        
-        // SUT
-        viewModel.clearSleepDurationGoal();
-        
-        assertThat(goalText.getValue(), is(nullValue()));
-    }
-    
-    @Test
-    public void clearWakeTimeGoal_clearsWakeTimeGoal()
-    {
-        viewModel.initSessionData(new SleepSessionWrapper(TestUtils.ArbitraryData.getSleepSessionModel()));
-        
-        LiveData<String> wakeTimeGoalText = viewModel.getWakeTimeGoal();
-        LiveData<Long> wakeTimeGoalMillis = viewModel.getWakeTimeGoalMillis();
-        TestUtils.activateLocalLiveData(wakeTimeGoalText);
-        TestUtils.activateLocalLiveData(wakeTimeGoalMillis);
-        
-        assertThat(wakeTimeGoalText.getValue(), is(notNullValue()));
-        assertThat(wakeTimeGoalMillis.getValue(), is(notNullValue()));
-        
-        // SUT
-        viewModel.clearWakeTimeGoal();
-        
-        assertThat(wakeTimeGoalText.getValue(), is(nullValue()));
-        assertThat(wakeTimeGoalMillis.getValue(), is(nullValue()));
-    }
-    
-    @Test
-    public void setWakeTimeGoal_updatesWakeTimeGoal()
-    {
-        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
-        GregorianCalendar calendar = new GregorianCalendar();
-        calendar.set(Calendar.HOUR_OF_DAY, 12);
-        calendar.set(Calendar.MINUTE, 34);
-        initialData.setWakeTimeGoal(calendar.getTime());
-        
-        viewModel.initSessionData(new SleepSessionWrapper(initialData));
-        
-        LiveData<String> wakeTimeGoalText = viewModel.getWakeTimeGoal();
-        LiveData<Long> wakeTimeGoalMillis = viewModel.getWakeTimeGoalMillis();
-        TestUtils.activateLocalLiveData(wakeTimeGoalText);
-        TestUtils.activateLocalLiveData(wakeTimeGoalMillis);
-        
-        calendar.set(Calendar.HOUR_OF_DAY, 21);
-        calendar.set(Calendar.MINUTE, 43);
-        viewModel.setWakeTimeGoal(
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE));
-        
-        assertThat(wakeTimeGoalText.getValue(),
-                   // REFACTOR [21-01-15 9:33PM] -- this should be SessionDataFragment's
-                   //  DateTimeFormatter.
-                   is(equalTo(new DateTimeFormatter().formatTimeOfDay(calendar.getTime()))));
-        assertThat(wakeTimeGoalMillis.getValue(), is(equalTo(calendar.getTimeInMillis())));
-    }
-    
-    @Test
-    public void getWakeTimeGoalMillis_reflectsInitialData()
-    {
-        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
-        viewModel.initSessionData(new SleepSessionWrapper(initialData));
-        
-        LiveData<Long> wakeTimeGoalMillis = viewModel.getWakeTimeGoalMillis();
-        TestUtils.activateLocalLiveData(wakeTimeGoalMillis);
-        
-        assertThat(wakeTimeGoalMillis.getValue(),
-                   is(equalTo(initialData.getWakeTimeGoal().getTime())));
-    }
-    
-    @Test
-    public void getWakeTimeGoal_reflectsInitialData()
-    {
-        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
-        viewModel.initSessionData(new SleepSessionWrapper(initialData));
-        
-        LiveData<String> wakeTimeGoal = viewModel.getWakeTimeGoal();
-        TestUtils.activateLocalLiveData(wakeTimeGoal);
-        
-        assertThat(wakeTimeGoal.getValue(), is(equalTo(
-                dateTimeFormatter.formatTimeOfDay(initialData.getWakeTimeGoal()))));
     }
     
     @Test
@@ -258,9 +111,7 @@ public class SessionDataFragmentViewModelTests
         SleepSessionModel expected = new SleepSessionModel(
                 5,
                 startDateTime,
-                duration,
-                TestUtils.ArbitraryData.getWakeTimeGoal(),
-                TestUtils.ArbitraryData.getSleepDurationGoalModel());
+                duration);
         viewModel.initSessionData(new SleepSessionWrapper(expected));
         
         // check result values
@@ -269,9 +120,6 @@ public class SessionDataFragmentViewModelTests
         assertThat(result.getId(), is(equalTo(expected.getId())));
         assertThat(result.getStart(), is(equalTo(expected.getStart())));
         assertThat(result.getDuration(), is(equalTo(expected.getDuration())));
-        assertThat(result.getWakeTimeGoal(), is(equalTo(expected.getWakeTimeGoal())));
-        // REFACTOR [21-02-7 1:52AM] -- SleepDurationGoalModel.equals()
-        assertThat(result.getSleepDurationGoal(), is(equalTo(expected.getSleepDurationGoal())));
     }
     
     @Test(expected = SessionDataFragmentViewModel.InvalidDateTimeException.class)

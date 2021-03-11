@@ -4,13 +4,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.rbraithwaite.sleepapp.data.current_goals.CurrentGoalsRepository;
-import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
-import com.rbraithwaite.sleepapp.data.current_goals.WakeTimeGoalModel;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
 import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
-import com.rbraithwaite.sleepapp.test_utils.data.MockRepositoryUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_archive.data.SessionArchiveListItem;
@@ -44,7 +40,6 @@ public class SessionArchiveFragmentViewModelTests
 //*********************************************************
 
     SleepSessionRepository mockSleepSessionRepository;
-    CurrentGoalsRepository mockCurrentGoalsRepository;
     SessionArchiveFragmentViewModel viewModel;
     DateTimeFormatter dateTimeFormatter;
 
@@ -56,10 +51,9 @@ public class SessionArchiveFragmentViewModelTests
     public void setup()
     {
         mockSleepSessionRepository = mock(SleepSessionRepository.class);
-        mockCurrentGoalsRepository = mock(CurrentGoalsRepository.class);
         dateTimeFormatter = new DateTimeFormatter();
         viewModel = new SessionArchiveFragmentViewModel(
-                mockSleepSessionRepository, mockCurrentGoalsRepository, dateTimeFormatter);
+                mockSleepSessionRepository, dateTimeFormatter);
     }
     
     @After
@@ -67,39 +61,16 @@ public class SessionArchiveFragmentViewModelTests
     {
         viewModel = null;
         mockSleepSessionRepository = null;
-        mockCurrentGoalsRepository = null;
         dateTimeFormatter = null;
     }
     
     @Test
     public void getInitialAddSessionData_returnsZeroId()
     {
-        MockRepositoryUtils.setupCurrentGoalsRepositoryWithState(
-                mockCurrentGoalsRepository,
-                new MutableLiveData<WakeTimeGoalModel>(null),
-                new MutableLiveData<>(SleepDurationGoalModel.createWithNoGoal()));
-        
         LiveData<SleepSessionWrapper> sleepSession = viewModel.getInitialAddSessionData();
         TestUtils.activateLocalLiveData(sleepSession);
         SleepSessionModel sleepSessionModel = sleepSession.getValue().getModel();
         assertThat(sleepSessionModel.getId(), is(0));
-    }
-    
-    @Test
-    public void getInitialAddSessionData_usesCurrentWakeTimeGoal()
-    {
-        LiveData<WakeTimeGoalModel> wakeTimeGoal =
-                new MutableLiveData<>(TestUtils.ArbitraryData.getWakeTimeGoalModel());
-        MockRepositoryUtils.setupCurrentGoalsRepositoryWithState(
-                mockCurrentGoalsRepository,
-                wakeTimeGoal,
-                new MutableLiveData<>(SleepDurationGoalModel.createWithNoGoal()));
-        
-        LiveData<SleepSessionWrapper> sleepSessionWrapper = viewModel.getInitialAddSessionData();
-        TestUtils.activateLocalLiveData(sleepSessionWrapper);
-        SleepSessionModel sleepSessionModel = sleepSessionWrapper.getValue().getModel();
-        assertThat(sleepSessionModel.getWakeTimeGoal().getTime(),
-                   is(equalTo(wakeTimeGoal.getValue().asDate().getTime())));
     }
     
     @Test
@@ -190,9 +161,7 @@ public class SessionArchiveFragmentViewModelTests
         
         SleepSessionModel mockData = new SleepSessionModel(
                 start,
-                duration,
-                null,
-                new SleepDurationGoalModel(123));
+                duration);
         
         LiveData<SleepSessionModel> mockLiveData = new MutableLiveData<>(mockData);
         when(mockSleepSessionRepository.getSleepSession(sessionID)).thenReturn(mockLiveData);
@@ -208,7 +177,6 @@ public class SessionArchiveFragmentViewModelTests
         assertThat(retrievedListItem.startTime, is(equalTo(expectedFormattedStartTime)));
         assertThat(retrievedListItem.endTime, is(equalTo(expectedFormattedEndTime)));
         assertThat(retrievedListItem.sessionDuration, is(equalTo(expectedFormattedDuration)));
-        assertThat(retrievedListItem.hasSleepDurationGoal, is(true));
     }
     
     @Test

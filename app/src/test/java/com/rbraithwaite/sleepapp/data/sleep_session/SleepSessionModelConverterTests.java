@@ -1,7 +1,7 @@
 package com.rbraithwaite.sleepapp.data.sleep_session;
 
-import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
+import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 
 import org.junit.Test;
 
@@ -31,9 +31,6 @@ public class SleepSessionModelConverterTests
         assertThat(model.getId(), is(equalTo(entity.id)));
         assertThat(model.getStart(), is(equalTo(entity.startTime)));
         assertThat(model.getDuration(), is(equalTo(entity.duration)));
-        assertThat(model.getWakeTimeGoal(), is(equalTo(entity.wakeTimeGoal)));
-        assertThat(model.getSleepDurationGoal().inMinutes(),
-                   is(equalTo(entity.sleepDurationGoalMinutes)));
     }
     
     @Test
@@ -51,8 +48,5 @@ public class SleepSessionModelConverterTests
         assertThat(model.getId(), is(equalTo(entity.id)));
         assertThat(model.getStart(), is(equalTo(entity.startTime)));
         assertThat(model.getDuration(), is(equalTo(entity.duration)));
-        assertThat(model.getWakeTimeGoal(), is(equalTo(entity.wakeTimeGoal)));
-        assertThat(model.getSleepDurationGoal().inMinutes(),
-                   is(equalTo(entity.sleepDurationGoalMinutes)));
     }
 }

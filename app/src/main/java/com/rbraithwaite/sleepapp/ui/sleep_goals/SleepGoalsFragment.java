@@ -191,7 +191,6 @@ public class SleepGoalsFragment
             public void onClick(View v)
             {
                 displaySleepDurationGoalDeleteDialog();
-//                displayWakeTimeDeleteDialog();
             }
         });
     }

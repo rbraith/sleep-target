@@ -49,18 +49,7 @@ public class SessionDataFragmentViewModel
     
     private DateTimeFormatter mDateTimeFormatter;
     
-    private MutableLiveData<Date> mWakeTimeGoal;
-    private MutableLiveData<SleepDurationGoalModel> mSleepDurationGoal;
-    
     private TimeUtils mTimeUtils;
-
-//*********************************************************
-// public constants
-//*********************************************************
-
-    public static final int DEFAULT_SLEEP_DURATION_GOAL_HOURS = 8;
-    
-    public static final int DEFAULT_SLEEP_DURATION_GOAL_MINUTES = 0;
 
 //*********************************************************
 // public helpers
@@ -98,9 +87,7 @@ public class SessionDataFragmentViewModel
         return new SleepSessionWrapper(new SleepSessionModel(
                 mSessionId,
                 mTimeUtils.getDateFromMillis(getStartDateTime().getValue()),
-                getEndDateTime().getValue() - getStartDateTime().getValue(),
-                getWakeTimeGoalMutable().getValue(),
-                getSleepDurationGoalMutable().getValue()));
+                getEndDateTime().getValue() - getStartDateTime().getValue()));
     }
     
     public LiveData<String> getSessionDuration()
@@ -140,26 +127,30 @@ public class SessionDataFragmentViewModel
     
     public LiveData<String> getStartTime()
     {
-        return lazyInitLiveDateTime(mStartTime,
-                                    getStartDateTimeMutable(),
-                                    DateTimeFormatType.TIME_OF_DAY);
+        mStartTime = lazyInitLiveDateTime(mStartTime,
+                                          getStartDateTimeMutable(),
+                                          DateTimeFormatType.TIME_OF_DAY);
+        return mStartTime;
     }
     
     public LiveData<String> getEndTime()
     {
-        return lazyInitLiveDateTime(mEndTime,
+        mEndTime = lazyInitLiveDateTime(mEndTime,
                                     getEndDateTimeMutable(),
                                     DateTimeFormatType.TIME_OF_DAY);
+        return mEndTime;
     }
     
     public LiveData<String> getEndDate()
     {
-        return lazyInitLiveDateTime(mEndDate, getEndDateTimeMutable(), DateTimeFormatType.DATE);
+        mEndDate = lazyInitLiveDateTime(mEndDate, getEndDateTimeMutable(), DateTimeFormatType.DATE);
+        return mEndDate;
     }
     
     public LiveData<String> getStartDate()
     {
-        return lazyInitLiveDateTime(mStartDate, getStartDateTimeMutable(), DateTimeFormatType.DATE);
+        mStartDate = lazyInitLiveDateTime(mStartDate, getStartDateTimeMutable(), DateTimeFormatType.DATE);
+        return mStartDate;
     }
     
     public void setStartDate(int year, int month, int dayOfMonth)
@@ -273,28 +264,10 @@ public class SessionDataFragmentViewModel
         getStartDateTimeMutable().setValue(startTime);
     }
     
-    public LiveData<String> getWakeTimeGoal()
-    {
-        return Transformations.map(
-                getWakeTimeGoalMutable(),
-                new Function<Date, String>()
-                {
-                    @Override
-                    public String apply(Date wakeTimeGoal)
-                    {
-                        if (wakeTimeGoal == null) {
-                            return null;
-                        }
-                        return mDateTimeFormatter.formatTimeOfDay(wakeTimeGoal);
-                    }
-                });
-    }
-    
     public void clearSessionData()
     {
         getStartDateTimeMutable().setValue(null);
         getEndDateTimeMutable().setValue(null);
-        getWakeTimeGoalMutable().setValue(null);
         
         mIsInitialized = false;
     }
@@ -313,8 +286,6 @@ public class SessionDataFragmentViewModel
             mSessionId = sleepSession.getId();
             getStartDateTimeMutable().setValue(sleepSession.getStart().getTime());
             getEndDateTimeMutable().setValue(sleepSession.getEnd().getTime());
-            getWakeTimeGoalMutable().setValue(sleepSession.getWakeTimeGoal());
-            getSleepDurationGoalMutable().setValue(sleepSession.getSleepDurationGoal());
             
             mIsInitialized = true;
         }
@@ -323,108 +294,6 @@ public class SessionDataFragmentViewModel
     public boolean sessionDataIsInitialized()
     {
         return mIsInitialized;
-    }
-    
-    // REFACTOR [21-01-15 9:29PM] -- I need to make the wake-time goal representation consistent,
-    //  right now its mixing Date & Long all over the place.
-    public LiveData<Long> getWakeTimeGoalMillis()
-    {
-        return Transformations.map(
-                getWakeTimeGoalMutable(),
-                new Function<Date, Long>()
-                {
-                    @Override
-                    public Long apply(Date input)
-                    {
-                        return DateConverter.convertDateToMillis(input);
-                    }
-                });
-    }
-    
-    public void setWakeTimeGoal(int hourOfDay, int minute)
-    {
-        Date wakeTimeGoal = getWakeTimeGoalMutable().getValue();
-        GregorianCalendar calendar = new GregorianCalendar();
-        if (wakeTimeGoal != null) {
-            calendar.setTime(wakeTimeGoal);
-        }
-        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-        calendar.set(Calendar.MINUTE, minute);
-        getWakeTimeGoalMutable().setValue(calendar.getTime());
-    }
-    
-    public long getDefaultWakeTimeGoalMillis()
-    {
-        int defaultHourOfDay = 8;
-        int defaultMinute = 0;
-        
-        GregorianCalendar calendar = new GregorianCalendar(
-                2021,
-                01,
-                15,
-                defaultHourOfDay,
-                defaultMinute);
-        
-        return calendar.getTimeInMillis();
-    }
-    
-    public void clearWakeTimeGoal()
-    {
-        getWakeTimeGoalMutable().setValue(null);
-    }
-    
-    public LiveData<String> getSleepDurationGoalText()
-    {
-        return Transformations.map(
-                getSleepDurationGoalMutable(),
-                new Function<SleepDurationGoalModel, String>()
-                {
-                    @Override
-                    public String apply(SleepDurationGoalModel input)
-                    {
-                        // REFACTOR [21-02-7 1:56AM] -- should this null behaviour be in
-                        //  SessionDataFormatting.formatSleepDurationGoal instead?
-                        if (input == null || !input.isSet()) {
-                            return null;
-                        }
-                        return SessionDataFormatting.formatSleepDurationGoal(input);
-                    }
-                });
-    }
-    
-    public void clearSleepDurationGoal()
-    {
-        getSleepDurationGoalMutable().setValue(SleepDurationGoalModel.createWithNoGoal());
-    }
-    
-    public LiveData<SessionDataSleepDurationGoal> getSleepDurationGoal()
-    {
-        return Transformations.map(
-                getSleepDurationGoalMutable(),
-                new Function<SleepDurationGoalModel, SessionDataSleepDurationGoal>()
-                {
-                    @Override
-                    public SessionDataSleepDurationGoal apply(SleepDurationGoalModel input)
-                    {
-                        if (input == null || !input.isSet()) {
-                            return null;
-                        }
-                        return new SessionDataSleepDurationGoal(
-                                input.getHours(), input.getRemainingMinutes());
-                    }
-                });
-    }
-    
-    public SessionDataSleepDurationGoal getDefaultSleepDurationGoal()
-    {
-        return new SessionDataSleepDurationGoal(
-                DEFAULT_SLEEP_DURATION_GOAL_HOURS,
-                DEFAULT_SLEEP_DURATION_GOAL_MINUTES);
-    }
-    
-    public void setSleepDurationGoal(int hours, int minutes)
-    {
-        getSleepDurationGoalMutable().setValue(new SleepDurationGoalModel(hours, minutes));
     }
 
 //*********************************************************
@@ -516,18 +385,6 @@ public class SessionDataFragmentViewModel
         default:
             throw new IllegalArgumentException("Invalid format type.");
         }
-    }
-    
-    private MutableLiveData<SleepDurationGoalModel> getSleepDurationGoalMutable()
-    {
-        mSleepDurationGoal = LiveDataUtils.lazyInitMutable(mSleepDurationGoal);
-        return mSleepDurationGoal;
-    }
-    
-    private MutableLiveData<Date> getWakeTimeGoalMutable()
-    {
-        mWakeTimeGoal = LiveDataUtils.lazyInitMutable(mWakeTimeGoal, null);
-        return mWakeTimeGoal;
     }
     
     private MutableLiveData<Long> getStartDateTimeMutable()

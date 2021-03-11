@@ -69,25 +69,5 @@
             app:layout_constraintStart_toStartOf="parent"
             tools:text="1h 23m 45s" />
 
-        <ImageView
-            android:id="@+id/session_archive_list_item_waketime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="16dp"
-            app:layout_constraintStart_toEndOf="@+id/session_archive_list_item_start_VALUE"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_baseline_alarm_24" />
-
-        <ImageView
-            android:id="@+id/session_archive_list_item_goal_duration"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            app:layout_constraintStart_toEndOf="@+id/session_archive_list_item_waketime"
-            app:layout_constraintTop_toTopOf="@+id/session_archive_list_item_waketime"
-            app:srcCompat="@drawable/session_archive_list_item_duration_icon" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

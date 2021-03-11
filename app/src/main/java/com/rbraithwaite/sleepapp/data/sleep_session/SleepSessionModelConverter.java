@@ -1,6 +1,5 @@
 package com.rbraithwaite.sleepapp.data.sleep_session;
 
-import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 
 public class SleepSessionModelConverter
@@ -19,10 +18,6 @@ public class SleepSessionModelConverter
         entity.startTime = model.getStart();
         entity.endTime = model.getEnd();
         entity.duration = model.getDuration();
-        entity.wakeTimeGoal = model.getWakeTimeGoal();
-        SleepDurationGoalModel sleepDurationGoal = model.getSleepDurationGoal();
-        entity.sleepDurationGoalMinutes =
-                sleepDurationGoal == null ? null : sleepDurationGoal.inMinutes();
         return entity;
     }
     
@@ -32,15 +27,9 @@ public class SleepSessionModelConverter
             return null;
         }
         
-        SleepDurationGoalModel sleepDurationGoal = (entity.sleepDurationGoalMinutes == null) ?
-                SleepDurationGoalModel.createWithNoGoal() :
-                new SleepDurationGoalModel(entity.sleepDurationGoalMinutes);
-        
         return new SleepSessionModel(
                 entity.id,
                 entity.startTime,
-                entity.duration,
-                entity.wakeTimeGoal,
-                sleepDurationGoal);
+                entity.duration);
     }
 }

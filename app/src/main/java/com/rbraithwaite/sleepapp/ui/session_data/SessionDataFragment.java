@@ -1,6 +1,5 @@
 package com.rbraithwaite.sleepapp.ui.session_data;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,9 +8,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -19,20 +16,14 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
-import androidx.navigation.Navigation;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
-import com.rbraithwaite.sleepapp.ui.dialog.AlertDialogFragment;
 import com.rbraithwaite.sleepapp.ui.dialog.DatePickerFragment;
-import com.rbraithwaite.sleepapp.ui.dialog.DialogUtils;
-import com.rbraithwaite.sleepapp.ui.dialog.DurationPickerFragment;
 import com.rbraithwaite.sleepapp.ui.dialog.TimePickerFragment;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragmentDirections;
-import com.rbraithwaite.sleepapp.ui.session_data.data.SessionDataSleepDurationGoal;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
-import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
 
 import java.io.Serializable;
 
@@ -62,10 +53,6 @@ public class SessionDataFragment
     private static final String DIALOG_START_TIME_PICKER = "StartTimePicker";
     private static final String DIALOG_END_DATE_PICKER = "EndDatePicker";
     private static final String DIALOG_END_TIME_PICKER = "EndTimePicker";
-    private static final String DIALOG_WAKETIME_TIME_PICKER = "WakeTimePicker";
-    private static final String DIALOG_DURATION_PICKER = "DurationPicker";
-    private static final String DIALOG_DELETE_WAKETIME = "DeleteWakeTimeGoal";
-    private static final String DIALOG_DELETE_DURATION = "DeleteSleepDurationGoal";
 
 //*********************************************************
 // public constants
@@ -176,8 +163,6 @@ public class SessionDataFragment
         initStartDateTime(view.findViewById(R.id.session_data_start_time));
         initEndDateTime(view.findViewById(R.id.session_data_end_time));
         initSessionDuration(view);
-        initWakeTimeGoal(view);
-        initSleepDurationGoal(view);
         
         // init back press behaviour
         requireActivity().getOnBackPressedDispatcher().addCallback(
@@ -274,224 +259,6 @@ public class SessionDataFragment
     {
         getViewModel().clearSessionData();
         getNavController().navigateUp();
-    }
-    
-    private void displayDurationPickerDialog()
-    {
-        LiveDataFuture.getValue(
-                getViewModel().getSleepDurationGoal(),
-                getViewLifecycleOwner(),
-                new LiveDataFuture.OnValueListener<SessionDataSleepDurationGoal>()
-                {
-                    @Override
-                    public void onValue(SessionDataSleepDurationGoal value)
-                    {
-                        if (value == null) {
-                            value = getViewModel().getDefaultSleepDurationGoal();
-                        }
-                        
-                        DurationPickerFragment durationPickerDialog =
-                                DurationPickerFragment.createInstance(
-                                        value.hours,
-                                        value.remainingMinutes,
-                                        new DurationPickerFragment.OnDurationSetListener()
-                                        {
-                                            @Override
-                                            public void onDurationSet(
-                                                    DialogInterface dialog,
-                                                    int which,
-                                                    int hour,
-                                                    int minute)
-                                            {
-                                                getViewModel().setSleepDurationGoal(hour, minute);
-                                            }
-                                        });
-                        durationPickerDialog.show(getChildFragmentManager(),
-                                                  DIALOG_DURATION_PICKER);
-                    }
-                });
-    }
-    
-    private void initSleepDurationGoal(View fragmentRoot)
-    {
-        // add button
-        final Button addButton = fragmentRoot.findViewById(R.id.session_data_add_duration_btn);
-        addButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                displayDurationPickerDialog();
-            }
-        });
-        
-        // toggle display
-        final View sleepDurationGoalLayout =
-                fragmentRoot.findViewById(R.id.session_data_duration_layout);
-        final TextView sleepDurationGoalValue =
-                sleepDurationGoalLayout.findViewById(R.id.session_data_duration_value);
-        getViewModel().getSleepDurationGoalText().observe(
-                getViewLifecycleOwner(),
-                new Observer<String>()
-                {
-                    @Override
-                    public void onChanged(String sleepDurationGoalText)
-                    {
-                        if (sleepDurationGoalText == null) {
-                            addButton.setVisibility(View.VISIBLE);
-                            sleepDurationGoalLayout.setVisibility(View.GONE);
-                        } else {
-                            addButton.setVisibility(View.GONE);
-                            sleepDurationGoalLayout.setVisibility(View.VISIBLE);
-                            sleepDurationGoalValue.setText(sleepDurationGoalText);
-                        }
-                    }
-                });
-        
-        // delete button
-        ImageButton deleteButton =
-                sleepDurationGoalLayout.findViewById(R.id.session_data_delete_duration_btn);
-        deleteButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                AlertDialogFragment deleteDialog = DialogUtils.createDeleteDialog(
-                        requireContext(),
-                        R.string.session_data_delete_duration_dialog_title,
-                        new DialogInterface.OnClickListener()
-                        {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which)
-                            {
-                                getViewModel().clearSleepDurationGoal();
-                            }
-                        });
-                
-                deleteDialog.show(getChildFragmentManager(), DIALOG_DELETE_DURATION);
-            }
-        });
-        
-        // edit button
-        sleepDurationGoalValue.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v)
-            {
-                displayDurationPickerDialog();
-            }
-        });
-    }
-    
-    private void initWakeTimeGoal(final View fragmentRoot)
-    {
-        // edit button
-        // REFACTOR [21-01-27 11:28PM] -- maybe search from wakeTimeLayout instead?
-        final TextView wakeTimeText = fragmentRoot.findViewById(R.id.session_data_goal_waketime);
-        wakeTimeText.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                displayWakeTimeGoalDialog();
-            }
-        });
-        
-        // add button
-        final Button addWakeTimeButton =
-                fragmentRoot.findViewById(R.id.session_data_add_waketime_btn);
-        addWakeTimeButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                displayWakeTimeGoalDialog();
-            }
-        });
-        
-        // delete button
-        final ImageButton deleteWakeTimeButton =
-                fragmentRoot.findViewById(R.id.session_data_delete_waketime_btn);
-        deleteWakeTimeButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                AlertDialogFragment deleteDialog = DialogUtils.createDeleteDialog(
-                        requireContext(),
-                        R.string.session_data_delete_waketime_dialog_title,
-                        new DialogInterface.OnClickListener()
-                        {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which)
-                            {
-                                getViewModel().clearWakeTimeGoal();
-                            }
-                        });
-                
-                deleteDialog.show(getChildFragmentManager(), DIALOG_DELETE_WAKETIME);
-            }
-        });
-        
-        // toggle display
-        final View wakeTimeLayout = fragmentRoot.findViewById(R.id.session_data_waketime_layout);
-        getViewModel().getWakeTimeGoal().observe(
-                getViewLifecycleOwner(),
-                new Observer<String>()
-                {
-                    @Override
-                    public void onChanged(String wakeTimeGoal)
-                    {
-                        // REFACTOR [21-01-15 8:32PM] -- consider using a WakeTimeGoalModel with an
-                        //  unset state, instead of using null.
-                        if (wakeTimeGoal == null) {
-                            addWakeTimeButton.setVisibility(View.VISIBLE);
-                            wakeTimeLayout.setVisibility(View.GONE);
-                        } else {
-                            addWakeTimeButton.setVisibility(View.GONE);
-                            wakeTimeLayout.setVisibility(View.VISIBLE);
-                            wakeTimeText.setText(wakeTimeGoal);
-                        }
-                    }
-                });
-    }
-    
-    private void displayWakeTimeGoalDialog()
-    {
-        final SessionDataFragmentViewModel viewModel = getViewModel();
-        final TimePickerFragment timePicker = new TimePickerFragment();
-        
-        // REFACTOR [21-01-15 11:06PM] -- consider instead adding an observer during the
-        //  initialization of the fragment, which just updates an mWakeTimeGoalMillis property.
-        // This LiveDataFuture is needed to activate getWakeTimeGoalMillis() (otherwise it is
-        // always null).
-        LiveDataFuture.getValue(
-                viewModel.getWakeTimeGoalMillis(),
-                getViewLifecycleOwner(),
-                new LiveDataFuture.OnValueListener<Long>()
-                {
-                    @Override
-                    public void onValue(Long wakeTimeGoalMillis)
-                    {
-                        if (wakeTimeGoalMillis == null) {
-                            wakeTimeGoalMillis = viewModel.getDefaultWakeTimeGoalMillis();
-                        }
-                        
-                        // REFACTOR [21-02-9 11:37PM] -- this could be TimePickerFragment
-                        //  .createInstance.
-                        timePicker.setArguments(TimePickerFragment.createArguments(
-                                wakeTimeGoalMillis));
-                        timePicker.setOnTimeSetListener(new TimePickerFragment.OnTimeSetListener()
-                        {
-                            @Override
-                            public void onTimeSet(TimePicker view, int hourOfDay, int minute)
-                            {
-                                viewModel.setWakeTimeGoal(hourOfDay, minute);
-                            }
-                        });
-                        timePicker.show(getChildFragmentManager(), DIALOG_WAKETIME_TIME_PICKER);
-                    }
-                }
-        );
     }
     
     private void initSessionDuration(View fragmentRoot)
