@@ -2,6 +2,9 @@ package com.rbraithwaite.sleepapp.data.sleep_session;
 
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SleepSessionModelConverter
 {
 //*********************************************************
@@ -31,5 +34,16 @@ public class SleepSessionModelConverter
                 entity.id,
                 entity.startTime,
                 entity.duration);
+    }
+    
+    public static List<SleepSessionModel> convertAllEntitiesToModels(List<SleepSessionEntity> entities)
+    {
+        // List.stream() requires api 24+ :/
+        List<SleepSessionModel> result = new ArrayList<>();
+        for (SleepSessionEntity entity : entities) {
+            result.add(SleepSessionModelConverter.convertEntityToModel(
+                    entity));
+        }
+        return result;
     }
 }

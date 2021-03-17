@@ -18,6 +18,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -62,6 +68,97 @@ public class CurrentGoalsRepositoryTests
     {
         mockPrefs = null;
         repository = null;
+    }
+    
+    @Test
+    public void getSleepDurationGoalHistory_returnsEmptyListIfNoHistory()
+    {
+        when(mockSleepDurationGoalDao.getSleepDurationGoalHistory()).thenReturn(
+                new MutableLiveData<List<SleepDurationGoalEntity>>(new ArrayList<SleepDurationGoalEntity>()));
+        
+        LiveData<List<SleepDurationGoalModel>> goalHistory =
+                repository.getSleepDurationGoalHistory();
+        TestUtils.activateLocalLiveData(goalHistory);
+        assertThat(goalHistory.getValue().size(), is(equalTo(0)));
+    }
+    
+    @Test
+    public void getSleepDurationGoalHistory_returnsHistory()
+    {
+        // setup
+        GregorianCalendar cal = new GregorianCalendar(2021, 2, 14);
+        SleepDurationGoalEntity goal1 = new SleepDurationGoalEntity();
+        goal1.editTime = cal.getTime();
+        goal1.goalMinutes = 123;
+        
+        cal.add(Calendar.HOUR, 4);
+        SleepDurationGoalEntity goal2 = new SleepDurationGoalEntity();
+        goal2.editTime = cal.getTime();
+        goal2.goalMinutes = 123;
+        
+        List<SleepDurationGoalEntity> expected = Arrays.asList(goal1, goal2);
+        
+        when(mockSleepDurationGoalDao.getSleepDurationGoalHistory()).thenReturn(new MutableLiveData<>(
+                expected));
+        
+        // SUT
+        LiveData<List<SleepDurationGoalModel>> goalHistory =
+                repository.getSleepDurationGoalHistory();
+        
+        // verify
+        TestUtils.activateLocalLiveData(goalHistory);
+        assertThat(goalHistory.getValue().size(), is(expected.size()));
+        for (int i = 0; i < expected.size(); i++) {
+            SleepDurationGoalEntity entity = expected.get(i);
+            SleepDurationGoalModel model = goalHistory.getValue().get(i);
+            
+            assertThat(model.getEditTime(), is(equalTo(entity.editTime)));
+            assertThat(model.inMinutes(), is(equalTo(entity.goalMinutes)));
+        }
+    }
+    
+    @Test
+    public void getWakeTimeGoalHistory_returnsEmptyListIfNoHistory()
+    {
+        when(mockWakeTimeGoalDao.getWakeTimeGoalHistory()).thenReturn(
+                new MutableLiveData<List<WakeTimeGoalEntity>>(new ArrayList<WakeTimeGoalEntity>()));
+        
+        LiveData<List<WakeTimeGoalModel>> goalHistory = repository.getWakeTimeGoalHistory();
+        TestUtils.activateLocalLiveData(goalHistory);
+        assertThat(goalHistory.getValue().size(), is(equalTo(0)));
+    }
+    
+    @Test
+    public void getWakeTimeGoalHistory_returnsHistory()
+    {
+        // setup
+        GregorianCalendar cal = new GregorianCalendar(2021, 2, 14);
+        WakeTimeGoalEntity goal1 = new WakeTimeGoalEntity();
+        goal1.editTime = cal.getTime();
+        goal1.wakeTimeGoal = 500;
+        
+        cal.add(Calendar.HOUR, 4);
+        WakeTimeGoalEntity goal2 = new WakeTimeGoalEntity();
+        goal2.editTime = cal.getTime();
+        goal2.wakeTimeGoal = 500;
+        
+        List<WakeTimeGoalEntity> expected = Arrays.asList(goal1, goal2);
+        
+        when(mockWakeTimeGoalDao.getWakeTimeGoalHistory()).thenReturn(new MutableLiveData<>(expected));
+        
+        // SUT
+        LiveData<List<WakeTimeGoalModel>> goalHistory = repository.getWakeTimeGoalHistory();
+        
+        // verify
+        TestUtils.activateLocalLiveData(goalHistory);
+        assertThat(goalHistory.getValue().size(), is(expected.size()));
+        for (int i = 0; i < expected.size(); i++) {
+            WakeTimeGoalEntity entity = expected.get(i);
+            WakeTimeGoalModel model = goalHistory.getValue().get(i);
+            
+            assertThat(model.getEditTime(), is(equalTo(entity.editTime)));
+            assertThat(model.getGoalMillis(), is(equalTo(entity.wakeTimeGoal)));
+        }
     }
     
     @Test

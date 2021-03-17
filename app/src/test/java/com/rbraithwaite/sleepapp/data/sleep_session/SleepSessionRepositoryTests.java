@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.rbraithwaite.sleepapp.data.SleepAppDataPrefs;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionDao;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
@@ -38,7 +37,6 @@ public class SleepSessionRepositoryTests
 // package properties
 //*********************************************************
 
-    SleepAppDataPrefs mockPrefs;
     SleepSessionDao mockSleepSessionDao;
     
     SleepSessionRepository repository;
@@ -50,19 +48,27 @@ public class SleepSessionRepositoryTests
     @Before
     public void setup()
     {
-        mockPrefs = mock(SleepAppDataPrefs.class);
         mockSleepSessionDao = mock(SleepSessionDao.class);
         Executor synchronousExecutor = new TestUtils.SynchronizedExecutor();
         repository =
-                new SleepSessionRepository(mockPrefs, mockSleepSessionDao, synchronousExecutor);
+                new SleepSessionRepository(mockSleepSessionDao, synchronousExecutor);
     }
     
     @After
     public void teardown()
     {
-        mockPrefs = null;
         mockSleepSessionDao = null;
         repository = null;
+    }
+    
+    // REFACTOR [21-03-15 3:08PM] make this a stub test instead? - test the value of the
+    //  model returned.
+    @Test
+    public void getFirstSleepSessionStartingBefore_callsDatabase()
+    {
+        long millis = 12345L;
+        repository.getFirstSleepSessionStartingBefore(millis);
+        verify(mockSleepSessionDao, times(1)).getFirstSleepSessionStartingBefore(millis);
     }
     
     @Test

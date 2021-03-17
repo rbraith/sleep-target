@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 @RunWith(AndroidJUnit4.class)
@@ -43,5 +44,35 @@ public class LiveDataUtilsTests
         
         TestUtils.activateLocalLiveData(result);
         assertThat(result.getValue(), is(true));
+    }
+    
+    @Test
+    public void merge_tracksChangesToInputs()
+    {
+        final MutableLiveData<String> testA = new MutableLiveData<>("wassup");
+        final MutableLiveData<Integer> testB = new MutableLiveData<>(123);
+    
+        LiveData<String> result = LiveDataUtils.merge(
+                testA,
+                testB,
+                new LiveDataUtils.Merger<String,
+                        Integer, String>()
+                {
+                    @Override
+                    public String applyMerge(
+                            String testAVal,
+                            Integer testBVal)
+                    {
+                        return testAVal + testBVal;
+                    }
+                });
+    
+        TestUtils.activateLocalLiveData(result);
+        
+        testA.setValue("heyhey");
+        assertThat(result.getValue(), is(equalTo("heyhey123")));
+        
+        testB.setValue(321);
+        assertThat(result.getValue(), is(equalTo("heyhey321")));
     }
 }

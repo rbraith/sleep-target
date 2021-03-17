@@ -17,6 +17,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.Timeout;
 
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -61,6 +65,50 @@ public class SleepDurationGoalDaoTests
     public void teardown()
     {
         database.close();
+    }
+    
+    @Test
+    public void getSleepDurationGoalHistory_returnsEmptyListWhenThereIsNoHistory()
+    {
+        LiveData<List<SleepDurationGoalEntity>> goalHistory =
+                sleepDurationGoalDao.getSleepDurationGoalHistory();
+        TestUtils.activateInstrumentationLiveData(goalHistory);
+        assertThat(goalHistory.getValue().isEmpty(), is(true));
+    }
+    
+    @Test
+    public void getSleepDurationGoalHistory_returnsHistory()
+    {
+        // setup
+        GregorianCalendar cal = new GregorianCalendar(2021, 2, 14);
+        SleepDurationGoalEntity goal1 = new SleepDurationGoalEntity();
+        goal1.editTime = cal.getTime();
+        goal1.goalMinutes = 123;
+        
+        cal.add(Calendar.HOUR, 4);
+        SleepDurationGoalEntity goal2 = new SleepDurationGoalEntity();
+        goal2.editTime = cal.getTime();
+        goal2.goalMinutes = 123;
+        
+        List<SleepDurationGoalEntity> expected = Arrays.asList(goal1, goal2);
+        
+        sleepDurationGoalDao.updateSleepDurationGoal(goal1);
+        sleepDurationGoalDao.updateSleepDurationGoal(goal2);
+        
+        // SUT
+        LiveData<List<SleepDurationGoalEntity>> goalHistory =
+                sleepDurationGoalDao.getSleepDurationGoalHistory();
+        
+        // verify
+        TestUtils.activateInstrumentationLiveData(goalHistory);
+        assertThat(goalHistory.getValue().size(), is(expected.size()));
+        for (int i = 0; i < expected.size(); i++) {
+            SleepDurationGoalEntity entity = goalHistory.getValue().get(i);
+            SleepDurationGoalEntity expectedEntity = expected.get(i);
+            // shouldn't use equals(), because the ids would not be the same
+            assertThat(entity.editTime, is(equalTo(expectedEntity.editTime)));
+            assertThat(entity.goalMinutes, is(equalTo(expectedEntity.goalMinutes)));
+        }
     }
     
     @Test

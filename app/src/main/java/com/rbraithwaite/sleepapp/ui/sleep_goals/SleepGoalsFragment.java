@@ -6,11 +6,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 
 import com.rbraithwaite.sleepapp.R;
@@ -19,7 +21,13 @@ import com.rbraithwaite.sleepapp.ui.dialog.DialogUtils;
 import com.rbraithwaite.sleepapp.ui.dialog.DurationPickerFragment;
 import com.rbraithwaite.sleepapp.ui.dialog.TimePickerFragment;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.data.SleepDurationGoalUIData;
+import com.rbraithwaite.sleepapp.ui.sleep_goals.streak_calendar.StreakCalendar;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
+import com.rbraithwaite.sleepapp.utils.LiveDataUtils;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -58,6 +66,7 @@ public class SleepGoalsFragment
     {
         initWakeTimeGoal(view);
         initSleepDurationGoal(view);
+        initStreakCalendar(view);
     }
     
     @Override
@@ -70,6 +79,51 @@ public class SleepGoalsFragment
 // private methods
 //*********************************************************
 
+    private void initStreakCalendar(View fragmentRoot)
+    {
+        final StreakCalendar streakCalendar = new StreakCalendar(requireContext());
+        FrameLayout streakCalendarFrame =
+                fragmentRoot.findViewById(R.id.sleep_goals_streaks_calendar_frame);
+        streakCalendarFrame.addView(streakCalendar.getView());
+        
+        SleepGoalsFragmentViewModel viewModel = getViewModel();
+        LiveData<List<List<Date>>> succeededGoalDates = LiveDataUtils.merge(
+                viewModel.getSucceededWakeTimeGoalDates(),
+                viewModel.getSucceededSleepDurationGoalDates(),
+                new LiveDataUtils.Merger<List<Date>, List<Date>, List<List<Date>>>()
+                {
+                    @Override
+                    public List<List<Date>> applyMerge(
+                            List<Date> wakeTimeGoalDates,
+                            List<Date> sleepDurationGoalDates)
+                    {
+                        return Arrays.asList(wakeTimeGoalDates, sleepDurationGoalDates);
+                    }
+                });
+        
+        // OPTIMIZE [21-03-14 10:44PM] -- right now I am using all succeeded goal dates in history -
+        //  it would probably be better to only use those relevant to the currently displayed month
+        //  of the calendar
+        //  ---
+        //  I would need new interfaces in the view model for finding succeeded goal dates within a
+        //  range, and I would need a callback on the streak calendar, notifying when the user
+        //  changes to a new month.
+        succeededGoalDates.observe(
+                getViewLifecycleOwner(),
+                new Observer<List<List<Date>>>()
+                {
+                    @Override
+                    public void onChanged(List<List<Date>> bothGoalDates)
+                    {
+                        List<Date> wakeTimeGoalDates = bothGoalDates.get(0);
+                        List<Date> sleepDurationGoalDates = bothGoalDates.get(1);
+                        
+                        streakCalendar.setSucceededGoalDates(wakeTimeGoalDates,
+                                                             sleepDurationGoalDates);
+                    }
+                });
+    }
+    
     private void initWakeTimeGoal(View fragmentRoot)
     {
         final View wakeTimeLayout = fragmentRoot.findViewById(R.id.sleep_goals_waketime);

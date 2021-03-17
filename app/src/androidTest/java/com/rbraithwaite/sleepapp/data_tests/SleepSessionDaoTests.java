@@ -72,6 +72,46 @@ public class SleepSessionDaoTests
     }
     
     @Test
+    public void getFirstSleepSessionStartingBefore_returnsNullIfNoSleepSession()
+    {
+        SleepSessionEntity entity = TestUtils.ArbitraryData.getSleepSessionEntity();
+        sleepSessionDao.addSleepSession(entity);
+        
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTimeInMillis(entity.startTime.getTime() - 500);
+        
+        assertThat(sleepSessionDao.getFirstSleepSessionStartingBefore(cal.getTimeInMillis()),
+                   is(nullValue()));
+    }
+    
+    @Test
+    public void getFirstSleepSessionStartingBefore_returnsCorrectSleepSession()
+    {
+        // 2 entities starting before
+        SleepSessionEntity entity1 = TestUtils.ArbitraryData.getSleepSessionEntity();
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTime(entity1.startTime);
+        
+        cal.add(Calendar.HOUR, 12);
+        SleepSessionEntity expected = TestUtils.ArbitraryData.getSleepSessionEntity();
+        expected.startTime = cal.getTime();
+        
+        // 1 entity starting after
+        cal.add(Calendar.HOUR, 34);
+        SleepSessionEntity entity2 = TestUtils.ArbitraryData.getSleepSessionEntity();
+        entity2.startTime = cal.getTime();
+        
+        sleepSessionDao.addSleepSession(entity1);
+        sleepSessionDao.addSleepSession(expected);
+        sleepSessionDao.addSleepSession(entity2);
+        
+        SleepSessionEntity result = sleepSessionDao.getFirstSleepSessionStartingBefore(
+                expected.startTime.getTime() + 1234);
+        
+        assertThat(result.startTime, is(equalTo(expected.startTime)));
+    }
+    
+    @Test
     public void getSleepSessionsInRange_returnsCorrectSleepSessions()
     {
         int year = 2021;

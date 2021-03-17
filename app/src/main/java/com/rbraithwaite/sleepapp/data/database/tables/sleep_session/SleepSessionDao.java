@@ -45,4 +45,18 @@ public abstract class SleepSessionDao
     public abstract LiveData<List<SleepSessionEntity>> getSleepSessionsInRange(
             long start,
             long end);
+    
+    // REFACTOR [21-03-16 3:47PM] -- duplicates getSleepSessionsInRange() query.
+    @Query("SELECT * FROM " + SleepSessionContract.TABLE_NAME +
+           " WHERE " +
+           "(" + SleepSessionContract.Columns.START_TIME + " BETWEEN :start AND :end)" +
+           " OR " +
+           "(" + SleepSessionContract.Columns.END_TIME + " BETWEEN :start AND :end)")
+    public abstract List<SleepSessionEntity> getSleepSessionsInRangeSynced(long start, long end);
+    
+    @Query("SELECT * FROM " + SleepSessionContract.TABLE_NAME +
+           " WHERE " + SleepSessionContract.Columns.START_TIME + " <= :dateTimeMillis" +
+           " ORDER BY " + SleepSessionContract.Columns.START_TIME + " DESC" +
+           " LIMIT 1;")
+    public abstract SleepSessionEntity getFirstSleepSessionStartingBefore(long dateTimeMillis);
 }

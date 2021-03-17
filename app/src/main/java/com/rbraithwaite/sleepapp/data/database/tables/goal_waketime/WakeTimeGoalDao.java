@@ -5,6 +5,8 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
 
+import java.util.List;
+
 @Dao
 public abstract class WakeTimeGoalDao
 {
@@ -26,4 +28,7 @@ public abstract class WakeTimeGoalDao
            "FROM " + WakeTimeGoalContract.TABLE_NAME +
            ");")
     public abstract LiveData<WakeTimeGoalEntity> getCurrentWakeTimeGoal();
+    
+    @Query("SELECT * FROM " + WakeTimeGoalContract.TABLE_NAME + ";")
+    public abstract LiveData<List<WakeTimeGoalEntity>> getWakeTimeGoalHistory();
 }

@@ -5,11 +5,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
-import com.rbraithwaite.sleepapp.data.SleepAppDataPrefs;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionDao;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -24,7 +22,6 @@ public class SleepSessionRepository
 // private properties
 //*********************************************************
 
-    private SleepAppDataPrefs mDataPrefs;
     private SleepSessionDao mSleepSessionDao;
     private Executor mExecutor;
 
@@ -34,11 +31,9 @@ public class SleepSessionRepository
 
     @Inject
     public SleepSessionRepository(
-            SleepAppDataPrefs dataPrefs,
             SleepSessionDao sleepSessionDao,
             Executor executor)
     {
-        mDataPrefs = dataPrefs;
         mSleepSessionDao = sleepSessionDao;
         mExecutor = executor;
     }
@@ -130,17 +125,35 @@ public class SleepSessionRepository
                             @Override
                             public void run()
                             {
-                                // List.stream() requires api 24+ :/
-                                List<SleepSessionModel> result = new ArrayList<>();
-                                for (SleepSessionEntity entity : input) {
-                                    result.add(SleepSessionModelConverter.convertEntityToModel(
-                                            entity));
-                                }
+                                List<SleepSessionModel> result =
+                                        SleepSessionModelConverter.convertAllEntitiesToModels(input);
                                 liveData.postValue(result);
                             }
                         });
                         return liveData;
                     }
                 });
+    }
+    
+    /**
+     * Same as getSleepSessionsInRange(), but executed on the current thread.
+     */
+    public List<SleepSessionModel> getSleepSessionsInRangeSynced(Date start, Date end)
+    {
+        return SleepSessionModelConverter.convertAllEntitiesToModels(
+                mSleepSessionDao.getSleepSessionsInRangeSynced(start.getTime(), end.getTime()));
+    }
+    
+    /**
+     * Gets the first sleep session that starts before the provided time from epoch (in reverse
+     * order, that is, the sleep session with the latest start time while still being before
+     * dateTimeMillis.)
+     * <p>
+     * NOTE: This method is synchronous.
+     */
+    public SleepSessionModel getFirstSleepSessionStartingBefore(long dateTimeMillis)
+    {
+        return SleepSessionModelConverter.convertEntityToModel(
+                mSleepSessionDao.getFirstSleepSessionStartingBefore(dateTimeMillis));
     }
 }

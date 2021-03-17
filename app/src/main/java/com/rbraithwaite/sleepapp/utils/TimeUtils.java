@@ -1,8 +1,10 @@
 package com.rbraithwaite.sleepapp.utils;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -86,5 +88,13 @@ public class TimeUtils
     public double millisToHours(long millis)
     {
         return ((millis / 1000.0) / 60.0) / 60.0;
+    }
+    
+    /**
+     * Converts the date to an int yyyymmdd.
+     */
+    public int asAbsoluteDay(Date date)
+    {
+        return Integer.parseInt(new SimpleDateFormat("yyyyMMdd", Locale.CANADA).format(date));
     }
 }

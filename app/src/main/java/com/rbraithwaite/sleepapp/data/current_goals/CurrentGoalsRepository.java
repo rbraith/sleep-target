@@ -4,13 +4,14 @@ import androidx.arch.core.util.Function;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
 
-import com.rbraithwaite.sleepapp.data.SleepAppDataPrefs;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDurationGoalDao;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDurationGoalEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalDao;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalEntity;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import javax.inject.Inject;
@@ -23,7 +24,7 @@ public class CurrentGoalsRepository
 //*********************************************************
 // private properties
 //*********************************************************
-    
+
     private WakeTimeGoalDao mWakeTimeGoalDao;
     private SleepDurationGoalDao mSleepDurationGoalDao;
     private TimeUtils mTimeUtils;
@@ -133,5 +134,45 @@ public class CurrentGoalsRepository
                 mSleepDurationGoalDao.updateSleepDurationGoal(entity);
             }
         });
+    }
+    
+    /**
+     * Returns the full history of wake-time goal edits.
+     */
+    public LiveData<List<WakeTimeGoalModel>> getWakeTimeGoalHistory()
+    {
+        return Transformations.map(
+                mWakeTimeGoalDao.getWakeTimeGoalHistory(),
+                new Function<List<WakeTimeGoalEntity>, List<WakeTimeGoalModel>>()
+                {
+                    @Override
+                    public List<WakeTimeGoalModel> apply(List<WakeTimeGoalEntity> input)
+                    {
+                        List<WakeTimeGoalModel> result = new ArrayList<>();
+                        for (WakeTimeGoalEntity entity : input) {
+                            result.add(WakeTimeGoalModelConverter.convertEntityToModel(entity));
+                        }
+                        return result;
+                    }
+                });
+    }
+    
+    public LiveData<List<SleepDurationGoalModel>> getSleepDurationGoalHistory()
+    {
+        return Transformations.map(
+                mSleepDurationGoalDao.getSleepDurationGoalHistory(),
+                new Function<List<SleepDurationGoalEntity>, List<SleepDurationGoalModel>>()
+                {
+                    @Override
+                    public List<SleepDurationGoalModel> apply(List<SleepDurationGoalEntity> input)
+                    {
+                        // REFACTOR [21-03-15 8:54PM] -- duplicates getWakeTimeGoalHistory() logic.
+                        List<SleepDurationGoalModel> result = new ArrayList<>();
+                        for (SleepDurationGoalEntity entity : input) {
+                            result.add(SleepDurationGoalModelConverter.convertEntityToModel(entity));
+                        }
+                        return result;
+                    }
+                });
     }
 }
