@@ -6,8 +6,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
-import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionRepository;
+import com.rbraithwaite.sleepapp.core.models.SleepSession;
+import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.ui.stats.data.SleepIntervalsDataSet;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
@@ -167,7 +167,7 @@ public class StatsFragmentViewModelTests
         SleepIntervalsDataSet.Config config3 = viewModel.getIntervalsDataSetConfig();
         assertThat(config1, is(equalTo(config3)));
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -175,6 +175,6 @@ public class StatsFragmentViewModelTests
     private void avoidIntervalsDataSetNullPointer()
     {
         when(mockSleepSessionRepository.getSleepSessionsInRange(any(Date.class), any(Date.class)))
-                .thenReturn(new MutableLiveData<List<SleepSessionModel>>(null));
+                .thenReturn(new MutableLiveData<List<SleepSession>>(null));
     }
 }

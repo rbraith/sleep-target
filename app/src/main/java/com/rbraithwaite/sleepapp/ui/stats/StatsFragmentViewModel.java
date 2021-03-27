@@ -7,8 +7,8 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
-import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionRepository;
+import com.rbraithwaite.sleepapp.core.models.SleepSession;
+import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.ui.stats.data.DateRange;
 import com.rbraithwaite.sleepapp.ui.stats.data.SleepIntervalsDataSet;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
@@ -89,6 +89,7 @@ public class StatsFragmentViewModel
         mExecutor = executor;
         mTimeUtils = createTimeUtils();
     }
+
 
 
 //*********************************************************
@@ -294,7 +295,7 @@ public class StatsFragmentViewModel
             return -2;
         }
     }
-    
+
 //*********************************************************
 // protected api
 //*********************************************************
@@ -318,7 +319,7 @@ public class StatsFragmentViewModel
     
     // SMELL [21-03-2 5:23PM] -- I don't think this is a great solution - think harder about a
     //  better one.
-
+    
     private SleepIntervalsDataSet.Config getDefaultIntervalsDataSetConfig()
     {
         int offsetMillis = (int) mTimeUtils.hoursToMillis(DEFAULT_INTERVALS_OFFSET_HOURS);
@@ -346,11 +347,11 @@ public class StatsFragmentViewModel
                                 mSleepSessionRepository.getSleepSessionsInRange(
                                         config.dateRange.getStart(),
                                         config.dateRange.getEnd()),
-                                new Function<List<SleepSessionModel>,
+                                new Function<List<SleepSession>,
                                         LiveData<SleepIntervalsDataSet>>()
                                 {
                                     @Override
-                                    public LiveData<SleepIntervalsDataSet> apply(final List<SleepSessionModel> sleepSessions)
+                                    public LiveData<SleepIntervalsDataSet> apply(final List<SleepSession> sleepSessions)
                                     {
                                         final MutableLiveData<SleepIntervalsDataSet> liveData =
                                                 new MutableLiveData<>();

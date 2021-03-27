@@ -6,11 +6,11 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.rbraithwaite.sleepapp.data.current_goals.CurrentGoalsRepository;
-import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
-import com.rbraithwaite.sleepapp.data.current_goals.WakeTimeGoalModel;
-import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
-import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionRepository;
+import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
+import com.rbraithwaite.sleepapp.core.models.SleepSession;
+import com.rbraithwaite.sleepapp.core.models.WakeTimeGoal;
+import com.rbraithwaite.sleepapp.core.repositories.CurrentGoalsRepository;
+import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.data.SleepDurationGoalUIData;
@@ -82,7 +82,7 @@ public class SleepGoalsFragmentViewModelTests
     public void getSucceededSleepDurationGoalDates_returnsEmptyListWhenNoGoals()
     {
         when(mockCurrentGoalsRepository.getSleepDurationGoalHistory()).thenReturn(
-                new MutableLiveData<List<SleepDurationGoalModel>>(new ArrayList<SleepDurationGoalModel>()));
+                new MutableLiveData<List<SleepDurationGoal>>(new ArrayList<SleepDurationGoal>()));
         
         // SUT
         LiveData<List<Date>> succeededGoalDates = viewModel.getSucceededSleepDurationGoalDates();
@@ -104,18 +104,18 @@ public class SleepGoalsFragmentViewModelTests
         when(mockCurrentGoalsRepository.getSleepDurationGoalHistory()).thenReturn(
                 new MutableLiveData<>(Arrays.asList(
                         // 2 with a goal set
-                        new SleepDurationGoalModel(
+                        new SleepDurationGoal(
                                 new GregorianCalendar(year, month, baseDay).getTime(),
                                 50),
                         // a goal edited on the same day as the previous - this one is expected
-                        new SleepDurationGoalModel(
+                        new SleepDurationGoal(
                                 new GregorianCalendar(year, month, baseDay, 4, 56).getTime(),
                                 123),
                         // 4 with no goal set
-                        SleepDurationGoalModel.createWithNoGoal(
+                        SleepDurationGoal.createWithNoGoal(
                                 new GregorianCalendar(year, month, baseDay + 4).getTime()),
                         // 4 days of a different goal
-                        new SleepDurationGoalModel(
+                        new SleepDurationGoal(
                                 new GregorianCalendar(year, month, baseDay + 8).getTime(),
                                 321))));
         
@@ -133,20 +133,20 @@ public class SleepGoalsFragmentViewModelTests
                                                                       any(Date.class)))
                 // first day, a sleep session starting on that day and ending on the next -
                 // should meet the goal
-                .thenReturn(Arrays.asList(new SleepSessionModel(
+                .thenReturn(Arrays.asList(new SleepSession(
                         new GregorianCalendar(year, month, baseDay, 23, 45).getTime(),
                         123 * 60 * 1000))) // 123 minutes in millis
                 // second day, a sleep session starts & ends on the day after this day - should
                 // meet the goal
-                .thenReturn(Arrays.asList(new SleepSessionModel(
+                .thenReturn(Arrays.asList(new SleepSession(
                         new GregorianCalendar(year, month, baseDay + 2, 3, 45).getTime(),
                         123 * 60 * 1000)))
                 // ninth day, 2 sleep sessions - neither meet the goal (one too short, one too long)
                 .thenReturn(Arrays.asList(
-                        new SleepSessionModel(
+                        new SleepSession(
                                 new GregorianCalendar(year, month, baseDay + 9, 3, 45).getTime(),
                                 12 * 60 * 1000),
-                        new SleepSessionModel(
+                        new SleepSession(
                                 new GregorianCalendar(year, month, baseDay + 9, 5, 45).getTime(),
                                 500 * 60 * 1000)));
         
@@ -175,7 +175,7 @@ public class SleepGoalsFragmentViewModelTests
     public void getSucceededWakeTimeGoalDates_returnsEmptyListWhenNoWakeTimeGoals()
     {
         when(mockCurrentGoalsRepository.getWakeTimeGoalHistory()).thenReturn(
-                new MutableLiveData<List<WakeTimeGoalModel>>(new ArrayList<WakeTimeGoalModel>()));
+                new MutableLiveData<List<WakeTimeGoal>>(new ArrayList<WakeTimeGoal>()));
         
         // SUT
         LiveData<List<Date>> succeededGoalDates = viewModel.getSucceededWakeTimeGoalDates();
@@ -195,14 +195,14 @@ public class SleepGoalsFragmentViewModelTests
         when(mockCurrentGoalsRepository.getWakeTimeGoalHistory()).thenReturn(
                 new MutableLiveData<>(Arrays.asList(
                         // 2 days of a set goal
-                        new WakeTimeGoalModel(
+                        new WakeTimeGoal(
                                 new GregorianCalendar(year, month, 1, 20, 34).getTime(),
                                 (int) new TimeUtils().hoursToMillis(8)),
                         // 2 days with no goal set
-                        WakeTimeGoalModel.createWithNoGoal(
+                        WakeTimeGoal.createWithNoGoal(
                                 new GregorianCalendar(year, month, 3, 12, 34).getTime()),
                         // 2 days of a different goal
-                        new WakeTimeGoalModel(
+                        new WakeTimeGoal(
                                 new GregorianCalendar(year, month, 5, 20, 30).getTime(),
                                 (int) new TimeUtils().hoursToMillis(14)))));
         
@@ -223,23 +223,23 @@ public class SleepGoalsFragmentViewModelTests
         when(mockSleepSessionRepository.getFirstSleepSessionStartingBefore(any(long.class)))
                 // starting before 2021/3/1 0800
                 // ends too early before waketime goal, should not be included
-                .thenReturn(new SleepSessionModel(
+                .thenReturn(new SleepSession(
                         failedDate1.getTime(),
                         5000))
                 // starting before 2021/3/2 0800
                 // ends too late after waketime goal, should not be included
-                .thenReturn(new SleepSessionModel(
+                .thenReturn(new SleepSession(
                         failedDate2.getTime(),
                         new TimeUtils().hoursToMillis(10)))
                 // skip 2 no-goal days
                 // starting before 2021/3/5 1400
                 // ends before waketime goal, within leniency so is included
-                .thenReturn(new SleepSessionModel(
+                .thenReturn(new SleepSession(
                         succeededDate1.getTime(),
                         new TimeUtils().hoursToMillis(14) - 500))
                 // starting before 2021/3/6 1400
                 // ends after waketime goal, within leniency so is included
-                .thenReturn(new SleepSessionModel(
+                .thenReturn(new SleepSession(
                         succeededDate2.getTime(),
                         new TimeUtils().hoursToMillis(14) + 500));
         
@@ -266,8 +266,8 @@ public class SleepGoalsFragmentViewModelTests
     @Test
     public void hasSleepDurationGoal_updatesProperly()
     {
-        MutableLiveData<SleepDurationGoalModel> mockSleepDurationGoal = new MutableLiveData<>(
-                SleepDurationGoalModel.createWithNoGoal());
+        MutableLiveData<SleepDurationGoal> mockSleepDurationGoal = new MutableLiveData<>(
+                SleepDurationGoal.createWithNoGoal());
         when(mockCurrentGoalsRepository.getSleepDurationGoal()).thenReturn(mockSleepDurationGoal);
         
         // SUT
@@ -279,7 +279,7 @@ public class SleepGoalsFragmentViewModelTests
         assertThat(hasSleepDurationGoal.getValue(), is(false));
         
         // simulate setting a new goal
-        mockSleepDurationGoal.setValue(new SleepDurationGoalModel(123));
+        mockSleepDurationGoal.setValue(new SleepDurationGoal(123));
         assertThat(hasSleepDurationGoal.getValue(), is(true));
     }
     
@@ -287,7 +287,7 @@ public class SleepGoalsFragmentViewModelTests
     public void getSleepDurationGoalText_updatesFromRepository()
     {
         int testMinutes = 123;
-        SleepDurationGoalModel testSleepDurationGoal = new SleepDurationGoalModel(testMinutes);
+        SleepDurationGoal testSleepDurationGoal = new SleepDurationGoal(testMinutes);
         when(mockCurrentGoalsRepository.getSleepDurationGoal()).thenReturn(
                 new MutableLiveData<>(testSleepDurationGoal));
         
@@ -295,14 +295,14 @@ public class SleepGoalsFragmentViewModelTests
         TestUtils.activateLocalLiveData(sleepDurationGoalText);
         
         assertThat(sleepDurationGoalText.getValue(), is(equalTo(
-                SleepGoalsFormatting.formatSleepDurationGoal(new SleepDurationGoalModel(testMinutes)))));
+                SleepGoalsFormatting.formatSleepDurationGoal(new SleepDurationGoal(testMinutes)))));
     }
     
     @Test
     public void getSleepDurationGoal_callRepository()
     {
-        LiveData<SleepDurationGoalModel> expected =
-                new MutableLiveData<>(new SleepDurationGoalModel(123));
+        LiveData<SleepDurationGoal> expected =
+                new MutableLiveData<>(new SleepDurationGoal(123));
         when(mockCurrentGoalsRepository.getSleepDurationGoal()).thenReturn(expected);
         LiveData<SleepDurationGoalUIData> goal = viewModel.getSleepDurationGoal();
         TestUtils.activateLocalLiveData(goal);
@@ -327,7 +327,7 @@ public class SleepGoalsFragmentViewModelTests
     @Test
     public void hasWakeTime_updatesProperly()
     {
-        MutableLiveData<WakeTimeGoalModel> mockWakeTimeGoal = new MutableLiveData<>(null);
+        MutableLiveData<WakeTimeGoal> mockWakeTimeGoal = new MutableLiveData<>(null);
         when(mockCurrentGoalsRepository.getWakeTimeGoal()).thenReturn(mockWakeTimeGoal);
         
         LiveData<Boolean> hasWakeTime = viewModel.hasWakeTime();
@@ -350,11 +350,11 @@ public class SleepGoalsFragmentViewModelTests
         
         viewModel.setWakeTime(calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
         
-        ArgumentCaptor<WakeTimeGoalModel> arg = ArgumentCaptor.forClass(WakeTimeGoalModel.class);
+        ArgumentCaptor<WakeTimeGoal> arg = ArgumentCaptor.forClass(WakeTimeGoal.class);
         verify(mockCurrentGoalsRepository, times(1))
                 .setWakeTimeGoal(arg.capture());
         
-        WakeTimeGoalModel wakeTime = arg.getValue();
+        WakeTimeGoal wakeTime = arg.getValue();
         GregorianCalendar calendar2 = new GregorianCalendar();
         calendar2.setTime(wakeTime.asDate());
         assertThat(calendar.get(Calendar.HOUR_OF_DAY), is(calendar2.get(Calendar.HOUR_OF_DAY)));
@@ -364,7 +364,7 @@ public class SleepGoalsFragmentViewModelTests
     @Test
     public void getWakeTimeText_updatesFromRepository()
     {
-        WakeTimeGoalModel expectedWakeTime = TestUtils.ArbitraryData.getWakeTimeGoalModel();
+        WakeTimeGoal expectedWakeTime = TestUtils.ArbitraryData.getWakeTimeGoalModel();
         
         when(mockCurrentGoalsRepository.getWakeTimeGoal()).thenReturn(
                 new MutableLiveData<>(expectedWakeTime));
@@ -379,7 +379,7 @@ public class SleepGoalsFragmentViewModelTests
     @Test
     public void getWakeTimeGoalDateMillis_callsRepository()
     {
-        LiveData<WakeTimeGoalModel> expected =
+        LiveData<WakeTimeGoal> expected =
                 new MutableLiveData<>(TestUtils.ArbitraryData.getWakeTimeGoalModel());
         when(mockCurrentGoalsRepository.getWakeTimeGoal()).thenReturn(expected);
         
@@ -410,15 +410,15 @@ public class SleepGoalsFragmentViewModelTests
     @Test
     public void setSleepDurationGoal_callsRepository()
     {
-        SleepDurationGoalModel testGoal = new SleepDurationGoalModel(1234);
+        SleepDurationGoal testGoal = new SleepDurationGoal(1234);
         
-        ArgumentCaptor<SleepDurationGoalModel> repoArg =
-                ArgumentCaptor.forClass(SleepDurationGoalModel.class);
+        ArgumentCaptor<SleepDurationGoal> repoArg =
+                ArgumentCaptor.forClass(SleepDurationGoal.class);
         viewModel.setSleepDurationGoal(testGoal.getHours(), testGoal.getRemainingMinutes());
         verify(mockCurrentGoalsRepository, times(1))
                 .setSleepDurationGoal(repoArg.capture());
         
-        SleepDurationGoalModel sleepDurationGoal = repoArg.getValue();
+        SleepDurationGoal sleepDurationGoal = repoArg.getValue();
         assertThat(sleepDurationGoal.inMinutes(), is(equalTo(testGoal.inMinutes())));
     }
 }

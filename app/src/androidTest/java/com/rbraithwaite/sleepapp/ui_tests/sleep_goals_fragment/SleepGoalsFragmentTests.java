@@ -5,8 +5,8 @@ import androidx.test.espresso.contrib.PickerActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.R;
+import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
-import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestNavigate;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
@@ -69,7 +69,7 @@ public class SleepGoalsFragmentTests
         onView(withId(R.id.sleep_goals_duration)).check(matches(isDisplayed()));
         onView(withId(R.id.duration_value)).check(matches(withText(
                 SleepGoalsFormatting.formatSleepDurationGoal(
-                        new SleepDurationGoalModel(expectedHour, expectedMinute)))));
+                        new SleepDurationGoal(expectedHour, expectedMinute)))));
     }
     
     @Test
@@ -111,7 +111,7 @@ public class SleepGoalsFragmentTests
         
         onView(withId(R.id.duration_value)).check(matches(withText(
                 SleepGoalsFormatting.formatSleepDurationGoal(
-                        new SleepDurationGoalModel(expectedHours, expectedMinutes)))));
+                        new SleepDurationGoal(expectedHours, expectedMinutes)))));
     }
     
     @Test

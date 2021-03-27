@@ -7,9 +7,9 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
-import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionRepository;
-import com.rbraithwaite.sleepapp.ui.UIDependenciesModule;
+import com.rbraithwaite.sleepapp.core.models.SleepSession;
+import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
+import com.rbraithwaite.sleepapp.di.UIDependenciesModule;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_archive.data.SessionArchiveListItem;
@@ -42,6 +42,7 @@ public class SessionArchiveFragmentViewModel
     @ViewModelInject
     public SessionArchiveFragmentViewModel(
             SleepSessionRepository sleepSessionRepository,
+            // REFACTOR [21-03-24 1:47AM] this should be a SessionArchiveFormatter.
             @UIDependenciesModule.SessionArchiveDateTimeFormatter DateTimeFormatter dateTimeFormatter)
     {
         mSleepSessionRepository = sleepSessionRepository;
@@ -75,10 +76,10 @@ public class SessionArchiveFragmentViewModel
         // convert from db form to ui form
         return Transformations.map(
                 mSleepSessionRepository.getSleepSession(id),
-                new Function<SleepSessionModel, SessionArchiveListItem>()
+                new Function<SleepSession, SessionArchiveListItem>()
                 {
                     @Override
-                    public SessionArchiveListItem apply(SleepSessionModel input)
+                    public SessionArchiveListItem apply(SleepSession input)
                     {
                         return convertSleepSessionToListItem(input);
                     }
@@ -97,7 +98,7 @@ public class SessionArchiveFragmentViewModel
         // REFACTOR [21-03-10 8:29PM] -- Returning a LiveData here is legacy behaviour, due to
         //  the sleep sessions previously using wake-time & sleep duration goal data which needed
         //  to be retrieved asynchronously from a CurrentGoalsRepository.
-        return new MutableLiveData<>(new SleepSessionWrapper(new SleepSessionModel(
+        return new MutableLiveData<>(new SleepSessionWrapper(new SleepSession(
                 mTimeUtils.getNow(),
                 0)));
     }
@@ -106,10 +107,10 @@ public class SessionArchiveFragmentViewModel
     {
         return Transformations.map(
                 mSleepSessionRepository.getSleepSession(id),
-                new Function<SleepSessionModel, SleepSessionWrapper>()
+                new Function<SleepSession, SleepSessionWrapper>()
                 {
                     @Override
-                    public SleepSessionWrapper apply(SleepSessionModel input)
+                    public SleepSessionWrapper apply(SleepSession input)
                     {
                         return new SleepSessionWrapper(input);
                     }
@@ -133,7 +134,7 @@ public class SessionArchiveFragmentViewModel
 //*********************************************************
 
     // REFACTOR [20-11-15 3:54PM] -- consider extracting this method?
-    private SessionArchiveListItem convertSleepSessionToListItem(SleepSessionModel sleepSession)
+    private SessionArchiveListItem convertSleepSessionToListItem(SleepSession sleepSession)
     {
         if (sleepSession == null) {
             return null;
@@ -142,6 +143,6 @@ public class SessionArchiveFragmentViewModel
                 mDateTimeFormatter.formatFullDate(sleepSession.getStart()),
                 mDateTimeFormatter.formatFullDate(sleepSession.getEnd()),
                 // REFACTOR [21-01-13 2:06AM] -- inject this.
-                new DurationFormatter().formatDurationMillis(sleepSession.getDuration()));
+                new DurationFormatter().formatDurationMillis(sleepSession.getDurationMillis()));
     }
 }

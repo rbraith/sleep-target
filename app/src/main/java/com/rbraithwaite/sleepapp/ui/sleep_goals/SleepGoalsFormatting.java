@@ -1,6 +1,6 @@
 package com.rbraithwaite.sleepapp.ui.sleep_goals;
 
-import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
+import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
 import com.rbraithwaite.sleepapp.ui.format.CommonFormatting;
 
 public class SleepGoalsFormatting
@@ -15,7 +15,7 @@ public class SleepGoalsFormatting
 // api
 //*********************************************************
 
-    public static String formatSleepDurationGoal(SleepDurationGoalModel goalModel)
+    public static String formatSleepDurationGoal(SleepDurationGoal goalModel)
     {
         return CommonFormatting.formatSleepDurationGoal(goalModel);
     }

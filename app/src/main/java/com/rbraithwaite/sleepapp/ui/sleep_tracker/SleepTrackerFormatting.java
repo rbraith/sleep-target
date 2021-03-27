@@ -1,7 +1,7 @@
 package com.rbraithwaite.sleepapp.ui.sleep_tracker;
 
-import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
-import com.rbraithwaite.sleepapp.data.current_goals.WakeTimeGoalModel;
+import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
+import com.rbraithwaite.sleepapp.core.models.WakeTimeGoal;
 import com.rbraithwaite.sleepapp.ui.format.CommonFormatting;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 
@@ -18,12 +18,12 @@ public class SleepTrackerFormatting
 // api
 //*********************************************************
 
-    public static String formatSleepDurationGoal(SleepDurationGoalModel sleepDurationGoal)
+    public static String formatSleepDurationGoal(SleepDurationGoal sleepDurationGoal)
     {
         return CommonFormatting.formatSleepDurationGoal(sleepDurationGoal);
     }
     
-    public static String formatWakeTimeGoal(WakeTimeGoalModel wakeTimeGoal)
+    public static String formatWakeTimeGoal(WakeTimeGoal wakeTimeGoal)
     {
         return new DateTimeFormatter().formatTimeOfDay(wakeTimeGoal.asDate());
     }

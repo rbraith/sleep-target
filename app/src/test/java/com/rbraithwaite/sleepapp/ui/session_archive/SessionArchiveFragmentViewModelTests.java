@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
-import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionRepository;
+import com.rbraithwaite.sleepapp.core.models.SleepSession;
+import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
@@ -69,7 +69,7 @@ public class SessionArchiveFragmentViewModelTests
     {
         LiveData<SleepSessionWrapper> sleepSession = viewModel.getInitialAddSessionData();
         TestUtils.activateLocalLiveData(sleepSession);
-        SleepSessionModel sleepSessionModel = sleepSession.getValue().getModel();
+        SleepSession sleepSessionModel = sleepSession.getValue().getModel();
         assertThat(sleepSessionModel.getId(), is(0));
     }
     
@@ -77,10 +77,10 @@ public class SessionArchiveFragmentViewModelTests
     public void getSleepSessionEntity_positiveInput()
     {
         int testId = 5;
-        SleepSessionModel expected = TestUtils.ArbitraryData.getSleepSessionModel();
+        SleepSession expected = TestUtils.ArbitraryData.getSleepSession();
         expected.setId(testId);
         when(mockSleepSessionRepository.getSleepSession(testId)).thenReturn(
-                new MutableLiveData<SleepSessionModel>(expected));
+                new MutableLiveData<SleepSession>(expected));
         
         // SUT
         LiveData<SleepSessionWrapper> sleepSession = viewModel.getSleepSession(testId);
@@ -92,7 +92,7 @@ public class SessionArchiveFragmentViewModelTests
     @Test
     public void addSessionFromResult_addsSessionOnValidInput()
     {
-        SleepSessionModel sleepSession = TestUtils.ArbitraryData.getSleepSessionModel();
+        SleepSession sleepSession = TestUtils.ArbitraryData.getSleepSession();
         viewModel.addSleepSession(new SleepSessionWrapper(sleepSession));
         verify(mockSleepSessionRepository).addSleepSession(sleepSession);
     }
@@ -101,7 +101,7 @@ public class SessionArchiveFragmentViewModelTests
     public void updateSessionFromResult_updatesSessionOnValidInput()
     {
         // for this test, it doesn't matter that the id for this data is 0
-        SleepSessionModel expected = TestUtils.ArbitraryData.getSleepSessionModel();
+        SleepSession expected = TestUtils.ArbitraryData.getSleepSession();
         
         viewModel.updateSleepSession(new SleepSessionWrapper(expected));
         
@@ -111,7 +111,7 @@ public class SessionArchiveFragmentViewModelTests
     @Test
     public void deleteSession_deletesSession()
     {
-        SleepSessionModel toDelete = TestUtils.ArbitraryData.getSleepSessionModel();
+        SleepSession toDelete = TestUtils.ArbitraryData.getSleepSession();
         int sessionId = 5;
         toDelete.setId(sessionId);
         viewModel.deleteSession(new SleepSessionWrapper(toDelete));
@@ -121,7 +121,7 @@ public class SessionArchiveFragmentViewModelTests
     @Test
     public void deleteSession_returnsDeletedSessionId()
     {
-        SleepSessionModel toDelete = TestUtils.ArbitraryData.getSleepSessionModel();
+        SleepSession toDelete = TestUtils.ArbitraryData.getSleepSession();
         int sessionId = 5;
         toDelete.setId(sessionId);
         int deletedId = viewModel.deleteSession(new SleepSessionWrapper(toDelete));
@@ -135,7 +135,7 @@ public class SessionArchiveFragmentViewModelTests
         int badSessionID = 0;
         
         when(mockSleepSessionRepository.getSleepSession(badSessionID)).thenReturn(
-                new MutableLiveData<SleepSessionModel>(null));
+                new MutableLiveData<SleepSession>(null));
         
         LiveData<SessionArchiveListItem> retrievedUILiveData =
                 viewModel.getListItemData(badSessionID);
@@ -159,11 +159,11 @@ public class SessionArchiveFragmentViewModelTests
         String expectedFormattedStartTime = dateTimeFormatter.formatFullDate(start);
         String expectedFormattedEndTime = dateTimeFormatter.formatFullDate(end);
         
-        SleepSessionModel mockData = new SleepSessionModel(
+        SleepSession mockData = new SleepSession(
                 start,
                 duration);
         
-        LiveData<SleepSessionModel> mockLiveData = new MutableLiveData<>(mockData);
+        LiveData<SleepSession> mockLiveData = new MutableLiveData<>(mockData);
         when(mockSleepSessionRepository.getSleepSession(sessionID)).thenReturn(mockLiveData);
         
         // SUT

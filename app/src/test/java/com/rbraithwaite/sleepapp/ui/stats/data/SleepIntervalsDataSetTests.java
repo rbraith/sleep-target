@@ -1,6 +1,6 @@
 package com.rbraithwaite.sleepapp.ui.stats.data;
 
-import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
+import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
@@ -65,17 +65,17 @@ public class SleepIntervalsDataSetTests
         GregorianCalendar start3 = new GregorianCalendar(2021, 1, 21, 5, 0);
         long duration3 = timeUtils.hoursToMillis(1);
         
-        SleepSessionModel sleepSession1 = TestUtils.ArbitraryData.getSleepSessionModel();
+        SleepSession sleepSession1 = TestUtils.ArbitraryData.getSleepSession();
         sleepSession1.setStart(start1.getTime());
-        sleepSession1.setDuration(duration1);
+        sleepSession1.setDurationMillis(duration1);
         
-        SleepSessionModel sleepSession2 = TestUtils.ArbitraryData.getSleepSessionModel();
+        SleepSession sleepSession2 = TestUtils.ArbitraryData.getSleepSession();
         sleepSession2.setStart(start2.getTime());
-        sleepSession2.setDuration(duration2);
+        sleepSession2.setDurationMillis(duration2);
         
-        SleepSessionModel sleepSession3 = TestUtils.ArbitraryData.getSleepSessionModel();
+        SleepSession sleepSession3 = TestUtils.ArbitraryData.getSleepSession();
         sleepSession3.setStart(start3.getTime());
-        sleepSession3.setDuration(duration3);
+        sleepSession3.setDurationMillis(duration3);
         
         SleepIntervalsDataSet.Config config = new SleepIntervalsDataSet.Config(
                 new DateRange(
@@ -84,7 +84,7 @@ public class SleepIntervalsDataSetTests
                 1000,
                 false);
         
-        List<SleepSessionModel> sleepSessions = Arrays.asList(
+        List<SleepSession> sleepSessions = Arrays.asList(
                 sleepSession1,
                 sleepSession2,
                 sleepSession3);

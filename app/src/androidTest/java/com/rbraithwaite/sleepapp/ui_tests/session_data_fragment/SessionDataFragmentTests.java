@@ -6,7 +6,7 @@ import androidx.test.espresso.contrib.PickerActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.R;
-import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
+import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
@@ -94,7 +94,7 @@ public class SessionDataFragmentTests
         // GIVEN the user has the session edit fragment open
         GregorianCalendar calendar = new GregorianCalendar(2019, 8, 7, 6, 5);
         // REFACTOR [21-12-29 2:52AM] -- call this SleepSessionData.create().
-        SleepSessionModel sleepSession = TestUtils.ArbitraryData.getSleepSessionModel();
+        SleepSession sleepSession = TestUtils.ArbitraryData.getSleepSession();
         sleepSession.setStart(calendar.getTime());
         
         Bundle args = SessionDataFragment.createArguments(
@@ -201,7 +201,7 @@ public class SessionDataFragmentTests
     {
         // GIVEN the user has the session edit fragment open
         GregorianCalendar calendar = new GregorianCalendar(2019, 8, 7, 6, 5);
-        SleepSessionModel sleepSession = TestUtils.ArbitraryData.getSleepSessionModel();
+        SleepSession sleepSession = TestUtils.ArbitraryData.getSleepSession();
         sleepSession.setStart(calendar.getTime());
         
         Bundle args = SessionDataFragment.createArguments(
@@ -283,7 +283,7 @@ public class SessionDataFragmentTests
         // GIVEN the user has the session edit fragment open
         Bundle args = SessionDataFragment.createArguments(
                 new SessionDataFragment.ArgsBuilder(
-                        new SleepSessionWrapper(TestUtils.ArbitraryData.getSleepSessionModel()))
+                        new SleepSessionWrapper(TestUtils.ArbitraryData.getSleepSession()))
                         .build());
         HiltFragmentTestHelper<SessionDataFragment> testHelper
                 = HiltFragmentTestHelper.launchFragmentWithArgs(SessionDataFragment.class, args);
@@ -393,7 +393,7 @@ public class SessionDataFragmentTests
         // GIVEN the user has the session edit fragment open
         Bundle args = SessionDataFragment.createArguments(
                 new SessionDataFragment.ArgsBuilder(
-                        new SleepSessionWrapper(TestUtils.ArbitraryData.getSleepSessionModel()))
+                        new SleepSessionWrapper(TestUtils.ArbitraryData.getSleepSession()))
                         .build());
         HiltFragmentTestHelper<SessionDataFragment> testHelper
                 = HiltFragmentTestHelper.launchFragmentWithArgs(SessionDataFragment.class, args);
@@ -505,9 +505,9 @@ public class SessionDataFragmentTests
         calendar.add(GregorianCalendar.MINUTE, 25);
         Date testEndTime = calendar.getTime();
         
-        SleepSessionModel sleepSession = TestUtils.ArbitraryData.getSleepSessionModel();
+        SleepSession sleepSession = TestUtils.ArbitraryData.getSleepSession();
         sleepSession.setStart(testStartTime);
-        sleepSession.setDuration(testEndTime.getTime() - testStartTime.getTime());
+        sleepSession.setDurationMillis(testEndTime.getTime() - testStartTime.getTime());
         
         HiltFragmentTestHelper<SessionDataFragment> testHelper
                 = HiltFragmentTestHelper.launchFragmentWithArgs(

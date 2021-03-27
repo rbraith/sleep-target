@@ -1,6 +1,6 @@
 package com.rbraithwaite.sleepapp.ui.stats.data;
 
-import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
+import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import org.achartengine.model.RangeCategorySeries;
@@ -31,7 +31,7 @@ public class SleepIntervalsDataSet
 //*********************************************************
 // public helpers
 //*********************************************************
-    
+
     public static class Config
     {
         public DateRange dateRange;
@@ -73,23 +73,34 @@ public class SleepIntervalsDataSet
     //  maybe extract this.
     public static class Generator
     {
+        private static int INVALID_KEY = -1;
+        TimeUtils mTimeUtils;
+        
+        @Inject
+        public Generator()
+        {
+            mTimeUtils = createTimeUtils();
+        }
+
+        
         /**
          * Each series X-value of the returned data set represents a 24hr window into which sleep
-         * sessions are placed, with the first window beginning on config.dateRange.getStart(). Sleep
-         * sessions which span multiple 24hr windows are divided into separate data points at the window
-         * boundaries. Some Y-values are "filler" with min/max values of 0 - this happens when sleep
-         * sessions are not evenly distributed between the days of the range, and so these filler values
-         * are used to ensure sleep session data occurs at the right series index (the right day).
+         * sessions are placed, with the first window beginning on config.dateRange.getStart().
+         * Sleep sessions which span multiple 24hr windows are divided into separate data points at
+         * the window boundaries. Some Y-values are "filler" with min/max values of 0 - this happens
+         * when sleep sessions are not evenly distributed between the days of the range, and so
+         * these filler values are used to ensure sleep session data occurs at the right series
+         * index (the right day).
          *
          * @param sleepSessions The sleep sessions to convert
-         * @param config        The configuration for the data - e.g. the date range used to control how
-         *                      the sleep sessions are split up, and whether or not the data should be
-         *                      inverted
+         * @param config        The configuration for the data - e.g. the date range used to control
+         *                      how the sleep sessions are split up, and whether or not the data
+         *                      should be inverted
          *
          * @return a new {@link SleepIntervalsDataSet} instance
          */
         public SleepIntervalsDataSet generateFromConfig(
-                List<SleepSessionModel> sleepSessions,
+                List<SleepSession> sleepSessions,
                 Config config)
         {
             SleepIntervalsDataSet dataSet = new SleepIntervalsDataSet();
@@ -102,27 +113,21 @@ public class SleepIntervalsDataSet
             return dataSet;
         }
         
-        TimeUtils mTimeUtils;
-        
-        @Inject
-        public Generator()
-        {
-            mTimeUtils = createTimeUtils();
-        }
-        
         protected TimeUtils createTimeUtils()
         {
             return new TimeUtils();
         }
+
         
         /**
          * <p>
-         * Pre-populate a Map with empty "buckets" (ie lists of points) for a given range. Each bucket
-         * represents one day in the range, and that bucket's key is the 0th hour of that day in millis
-         * (absolute from the epoch). In other words each key is 24hr ahead of the previous key.
+         * Pre-populate a Map with empty "buckets" (ie lists of points) for a given range. Each
+         * bucket represents one day in the range, and that bucket's key is the 0th hour of that day
+         * in millis (absolute from the epoch). In other words each key is 24hr ahead of the
+         * previous key.
          * </p><p>
-         * Having pre-existing buckets of the right days is important so that sleep session data that
-         * skips days is not compressed down into a contiguous sequence of days.
+         * Having pre-existing buckets of the right days is important so that sleep session data
+         * that skips days is not compressed down into a contiguous sequence of days.
          * </p><p>
          * A tree map is returned to ensure that the keys remain sorted in ascending order.
          * </p>
@@ -148,11 +153,11 @@ public class SleepIntervalsDataSet
         }
         
         /**
-         * This method converts the provided sleep sessions into
-         * {@link SleepIntervalsDataSet.IntervalDataPoint
-         * IntervalDataPoints} and splits them up into 24hr-buckets, starting from {@link
-         * DateRange#getStart() range.getStart()}. If a sleep session does not fit entirely into one of
-         * the buckets, it is divided up until the pieces fit.
+         * This method converts the provided sleep sessions into {@link
+         * SleepIntervalsDataSet.IntervalDataPoint IntervalDataPoints} and splits them up into
+         * 24hr-buckets, starting from {@link DateRange#getStart() range.getStart()}. If a sleep
+         * session does not fit entirely into one of the buckets, it is divided up until the pieces
+         * fit.
          *
          * @param sleepSessions The sleep sessions to put into buckets
          * @param range         The range with which to define the buckets
@@ -162,33 +167,37 @@ public class SleepIntervalsDataSet
          * @return The sleep sessions converted to data points and placed into buckets
          */
         private Map<Long, List<IntervalDataPoint>> splitSleepSessionRangeToBuckets(
-                List<SleepSessionModel> sleepSessions,
+                List<SleepSession> sleepSessions,
                 DateRange range,
                 boolean invert)
         {
             // the keys are based on range.getStart()
             long relKeyTime = mTimeUtils.getTimeOfDay(range.getStart());
             
-            TreeMap<Long, List<IntervalDataPoint>> dataPointBuckets = createMapWithEmptyBuckets(range);
+            TreeMap<Long, List<IntervalDataPoint>> dataPointBuckets =
+                    createMapWithEmptyBuckets(range);
             
             // this is used to split up sleep sessions which extend past their 24hr buckets
             long relNextKeyTime =
                     relKeyTime + TimeUtils.MILLIS_24_HOURS; // (rel)ative to the 24hr clock
             
-            for (SleepSessionModel sleepSession : sleepSessions) {
+            for (SleepSession sleepSession : sleepSessions) {
                 long key = getKeyForSession(sleepSession.getStart().getTime(), dataPointBuckets);
                 long relStartTime = mTimeUtils.getTimeOfDay(sleepSession.getStart());
                 
-                // If the relative session start time is less than the relative key time, you need to
+                // If the relative session start time is less than the relative key time, you
+                // need to
                 // offset the data by 24hrs in order for it to display properly. This is because
-                // when the range does not start at midnight, one 24hr buckets will contain time from
-                // 2 different days, and you must select the right day to display the data relative to
+                // when the range does not start at midnight, one 24hr buckets will contain time
+                // from
+                // 2 different days, and you must select the right day to display the data
+                // relative to
                 // (eg 0400 or 2800).
                 long offset = relStartTime < relKeyTime ? TimeUtils.MILLIS_24_HOURS : 0;
                 
                 int sign = invert ? -1 : 1;
                 
-                long remainingDuration = sleepSession.getDuration();
+                long remainingDuration = sleepSession.getDurationMillis();
                 while (true) {
                     long relEndTime = relStartTime + remainingDuration;
                     if (relEndTime > relNextKeyTime) {
@@ -196,7 +205,8 @@ public class SleepIntervalsDataSet
                         // keep looping
                         remainingDuration = relEndTime - relNextKeyTime;
                         relEndTime = relNextKeyTime;
-                        // The first sleep session segment might occur before the range start, or the
+                        // The first sleep session segment might occur before the range start, or
+                        // the
                         // last sleep session segment might occur after range end, this check
                         // effectively prunes these segments
                         if (keyIsInRange(key, range)) {
@@ -222,12 +232,12 @@ public class SleepIntervalsDataSet
             return dataPointBuckets;
         }
         
-        private static int INVALID_KEY = -1;
-        
         /**
          * The key returned is the largest one in the map that is less than sessionStartTime.
          */
-        private long getKeyForSession(long sessionStartTime, TreeMap<Long, List<IntervalDataPoint>> buckets)
+        private long getKeyForSession(
+                long sessionStartTime,
+                TreeMap<Long, List<IntervalDataPoint>> buckets)
         {
             Long key = buckets.floorKey(sessionStartTime);
             return key == null ? INVALID_KEY : key;
@@ -272,7 +282,7 @@ public class SleepIntervalsDataSet
     public SleepIntervalsDataSet()
     {
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -304,3 +314,8 @@ public class SleepIntervalsDataSet
         }
     }
 }
+
+//*********************************************************
+// constructors
+//*********************************************************
+

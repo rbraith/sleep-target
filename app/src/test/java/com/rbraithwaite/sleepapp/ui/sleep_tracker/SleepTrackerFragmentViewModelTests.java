@@ -6,13 +6,14 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.rbraithwaite.sleepapp.data.current_goals.CurrentGoalsRepository;
-import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
-import com.rbraithwaite.sleepapp.data.current_goals.WakeTimeGoalModel;
-import com.rbraithwaite.sleepapp.data.current_session.CurrentSessionModel;
-import com.rbraithwaite.sleepapp.data.current_session.CurrentSessionRepository;
-import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
-import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionRepository;
+import com.rbraithwaite.sleepapp.core.models.CurrentSession;
+import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
+import com.rbraithwaite.sleepapp.core.models.SleepSession;
+import com.rbraithwaite.sleepapp.core.models.WakeTimeGoal;
+import com.rbraithwaite.sleepapp.core.repositories.CurrentGoalsRepository;
+import com.rbraithwaite.sleepapp.core.repositories.CurrentSessionRepository;
+import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
+import com.rbraithwaite.sleepapp.data.repositories.CurrentSessionRepositoryImpl;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.data.MockRepositoryUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
@@ -55,7 +56,6 @@ public class SleepTrackerFragmentViewModelTests
 //*********************************************************
 
     private SleepTrackerFragmentViewModel viewModel;
-    //    private SleepAppRepository mockRepository;
     private SleepSessionRepository mockSleepSessionRepository;
     private CurrentSessionRepository mockCurrentSessionRepository;
     private CurrentGoalsRepository mockCurrentGoalsRepository;
@@ -104,7 +104,7 @@ public class SleepTrackerFragmentViewModelTests
     @Test
     public void getSleepDurationGoalText_getsSleepDurationGoalText()
     {
-        SleepDurationGoalModel goal = new SleepDurationGoalModel(123);
+        SleepDurationGoal goal = new SleepDurationGoal(123);
         when(mockCurrentGoalsRepository.getSleepDurationGoal()).thenReturn(new MutableLiveData<>(
                 goal));
         
@@ -118,7 +118,7 @@ public class SleepTrackerFragmentViewModelTests
     @Test
     public void getWakeTimeText_getsWakeTimeText()
     {
-        WakeTimeGoalModel model = TestUtils.ArbitraryData.getWakeTimeGoalModel();
+        WakeTimeGoal model = TestUtils.ArbitraryData.getWakeTimeGoalModel();
         when(mockCurrentGoalsRepository.getWakeTimeGoal()).thenReturn(new MutableLiveData<>(model));
         
         LiveData<String> wakeTime = viewModel.getWakeTimeGoalText();
@@ -133,7 +133,7 @@ public class SleepTrackerFragmentViewModelTests
     {
         Date testDate = TestUtils.ArbitraryData.getDate();
         when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(
-                new MutableLiveData<>(new CurrentSessionModel(testDate)));
+                new MutableLiveData<>(new CurrentSession(testDate)));
         
         String expected = dateTimeFormatter.formatFullDate(testDate);
         
@@ -147,7 +147,7 @@ public class SleepTrackerFragmentViewModelTests
     public void getSessionStartTime_returnsNullWhenNoSession()
     {
         when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(
-                new MutableLiveData<>(new CurrentSessionModel(null)));
+                new MutableLiveData<>(new CurrentSession(null)));
         
         LiveData<String> testStartTime = viewModel.getSessionStartTime();
         
@@ -161,7 +161,7 @@ public class SleepTrackerFragmentViewModelTests
         String expected = new DurationFormatter().formatDurationMillis(0);
         
         when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(
-                new MutableLiveData<>(new CurrentSessionModel(null)));
+                new MutableLiveData<>(new CurrentSession(null)));
         
         LiveData<String> currentSessionDuration = viewModel.getCurrentSleepSessionDuration();
         TestUtils.activateLocalLiveData(currentSessionDuration);
@@ -173,8 +173,8 @@ public class SleepTrackerFragmentViewModelTests
     @Test
     public void getCurrentSessionDuration_updatesWhenInSession()
     {
-        final MutableLiveData<CurrentSessionModel> mockCurrentSessionStart =
-                new MutableLiveData<>(new CurrentSessionModel(null));
+        final MutableLiveData<CurrentSession> mockCurrentSessionStart =
+                new MutableLiveData<>(new CurrentSession(null));
         
         when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(mockCurrentSessionStart);
         
@@ -184,7 +184,7 @@ public class SleepTrackerFragmentViewModelTests
         
         // start sleep session
         mockCurrentSessionStart.setValue(
-                new CurrentSessionModel(TestUtils.ArbitraryData.getDate()));
+                new CurrentSession(TestUtils.ArbitraryData.getDate()));
         
         // REFACTOR [20-11-18 9:04PM] -- call this TestUtils.getShadowLooper(threadName).
         // It was necessary to manually manipulate the TickingLiveData's looper like this,
@@ -222,15 +222,15 @@ public class SleepTrackerFragmentViewModelTests
     public void inSleepSession_matchesSessionState()
     {
         // set up the repo behaviours
-        final MutableLiveData<CurrentSessionModel> mockStartTime =
-                new MutableLiveData<>(new CurrentSessionModel(null));
+        final MutableLiveData<CurrentSession> mockStartTime =
+                new MutableLiveData<>(new CurrentSession(null));
         MockRepositoryUtils.setupCurrentSessionRepositoryWithState(
                 mockCurrentSessionRepository,
                 mockStartTime);
         MockRepositoryUtils.setupCurrentGoalsRepositoryWithState(
                 mockCurrentGoalsRepository,
-                new MutableLiveData<WakeTimeGoalModel>(null),
-                new MutableLiveData<>(SleepDurationGoalModel.createWithNoGoal()));
+                new MutableLiveData<WakeTimeGoal>(null),
+                new MutableLiveData<>(SleepDurationGoal.createWithNoGoal()));
         
         // run the test
         LiveData<Boolean> inSleepSession = viewModel.inSleepSession();
@@ -256,7 +256,7 @@ public class SleepTrackerFragmentViewModelTests
     public void endSleepSession_doesNothingIfNoSession()
     {
         when(mockCurrentSessionRepository.getCurrentSession())
-                .thenReturn(new MutableLiveData<>(new CurrentSessionModel(null)));
+                .thenReturn(new MutableLiveData<>(new CurrentSession(null)));
         
         // SMELL [20-11-15 12:45AM] -- Right now, endSleepSession() fails if inSleepSession()
         //  is not being observed (ie is not activated). Consider other solutions besides
@@ -265,17 +265,17 @@ public class SleepTrackerFragmentViewModelTests
         
         viewModel.endSleepSession();
         verify(mockSleepSessionRepository, times(0))
-                .addSleepSession(any(SleepSessionModel.class));
+                .addSleepSession(any(SleepSession.class));
     }
     
     @Test
     public void endSleepSession_recordsNewSession() throws InterruptedException
     {
-        LiveData<CurrentSessionModel> startTime = new MutableLiveData<>(
-                new CurrentSessionModel(TestUtils.ArbitraryData.getDate()));
-        LiveData<WakeTimeGoalModel> wakeTimeGoal =
+        LiveData<CurrentSession> startTime = new MutableLiveData<>(
+                new CurrentSession(TestUtils.ArbitraryData.getDate()));
+        LiveData<WakeTimeGoal> wakeTimeGoal =
                 new MutableLiveData<>(TestUtils.ArbitraryData.getWakeTimeGoalModel());
-        LiveData<SleepDurationGoalModel> sleepDurationGoal =
+        LiveData<SleepDurationGoal> sleepDurationGoal =
                 new MutableLiveData<>(TestUtils.ArbitraryData.getSleepDurationGoalModel());
         when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(startTime);
         when(mockCurrentGoalsRepository.getWakeTimeGoal()).thenReturn(wakeTimeGoal);
@@ -287,12 +287,12 @@ public class SleepTrackerFragmentViewModelTests
         viewModel.startSleepSession();
         viewModel.endSleepSession();
         
-        ArgumentCaptor<SleepSessionModel> addSleepSessionArg =
-                ArgumentCaptor.forClass(SleepSessionModel.class);
+        ArgumentCaptor<SleepSession> addSleepSessionArg =
+                ArgumentCaptor.forClass(SleepSession.class);
         verify(mockSleepSessionRepository, times(1))
                 .addSleepSession(addSleepSessionArg.capture());
         
-        SleepSessionModel addSleepSession = addSleepSessionArg.getValue();
+        SleepSession addSleepSession = addSleepSessionArg.getValue();
         assertThat(addSleepSession.getStart(), is(equalTo(startTime.getValue().getStart())));
     }
 
@@ -301,8 +301,8 @@ public class SleepTrackerFragmentViewModelTests
 //*********************************************************
 
     private void setupMockCurrentSessionRepositoryWithState(
-            CurrentSessionRepository mockRepo,
-            final MutableLiveData<CurrentSessionModel> currentSession)
+            CurrentSessionRepositoryImpl mockRepo,
+            final MutableLiveData<CurrentSession> currentSession)
     {
         when(mockRepo.getCurrentSession()).thenReturn(currentSession);
         doAnswer(new Answer<Void>()
@@ -311,7 +311,7 @@ public class SleepTrackerFragmentViewModelTests
             public Void answer(InvocationOnMock invocation) throws Throwable
             {
                 Date newStart = invocation.getArgumentAt(0, Date.class);
-                currentSession.setValue(new CurrentSessionModel(newStart));
+                currentSession.setValue(new CurrentSession(newStart));
                 return null;
             }
         }).when(mockRepo).setCurrentSession(any(Date.class));
@@ -320,7 +320,7 @@ public class SleepTrackerFragmentViewModelTests
             @Override
             public Void answer(InvocationOnMock invocation) throws Throwable
             {
-                currentSession.setValue(new CurrentSessionModel(null));
+                currentSession.setValue(new CurrentSession(null));
                 return null;
             }
         }).when(mockRepo).clearCurrentSession();

@@ -2,11 +2,11 @@ package com.rbraithwaite.sleepapp.ui_tests.session_archive_fragment;
 
 import android.widget.TextView;
 
-import androidx.lifecycle.ViewModelProvider;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.R;
+import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestNavigate;
@@ -14,9 +14,7 @@ import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragment;
-import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragmentViewModel;
 import com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils;
-import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,7 +50,7 @@ public class SessionArchiveFragmentTests
         UITestNavigate.fromHome_toSessionArchive();
         // REFACTOR [20-12-17 7:24PM] -- this is just serving to initialize the archive, it
         //  would be better to have specific dev/debug tools for this purpose instead.
-        SessionArchiveFragmentTestUtils.addSession(TestUtils.ArbitraryData.getSleepSessionEntity());
+        SessionArchiveFragmentTestUtils.addSession(TestUtils.ArbitraryData.getSleepSession());
         
         onView(withId(R.id.session_archive_list_item_card)).perform(click());
         SessionDataFragmentTestUtils.pressNegative();
@@ -110,7 +108,7 @@ public class SessionArchiveFragmentTests
         ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
         UITestNavigate.fromHome_toSessionArchive();
         // add a session so that it can be edited
-        SessionArchiveFragmentTestUtils.addSession(TestUtils.ArbitraryData.getSleepSessionEntity());
+        SessionArchiveFragmentTestUtils.addSession(TestUtils.ArbitraryData.getSleepSession());
         
         onView(withId(R.id.session_archive_list_item_card)).perform(click());
         
@@ -172,40 +170,24 @@ public class SessionArchiveFragmentTests
         UITestNavigate.fromHome_toAddSession();
         
         // WHEN the user confirms a session
-        // SMELL [20-12-11 2:57PM] -- this doesn't seem like a great way to do this, maybe consider
-        //  getters in the session edit fragment instead? or something idk - maybe getting the
-        //  expected values from the displayed strings in the session edit screen? - i would need to
-        //  parse these separate date & time-of-day strings back into Date objs, or else somehow
-        //  combine the strings properly.
-        //  Or maybe consider redesigning this test.
-        // retrieve the start and end datetimes from the session edit screen
-        final TestUtils.DoubleRef<Long> startDateTime = new TestUtils.DoubleRef<>(null);
-        final TestUtils.DoubleRef<Long> endDateTime = new TestUtils.DoubleRef<>(null);
-        TestUtils.performSyncedActivityAction(
-                scenario,
-                new TestUtils.SyncedActivityAction<MainActivity>()
-                {
-                    @Override
-                    public void perform(MainActivity activity)
-                    {
-                        SessionDataFragmentViewModel viewModel =
-                                new ViewModelProvider(activity).get
-                                        (SessionDataFragmentViewModel.class);
-                        startDateTime.ref = viewModel.getStartDateTime().getValue();
-                        endDateTime.ref = viewModel.getEndDateTime().getValue();
-                    }
-                });
+        GregorianCalendar expectedStart = TestUtils.ArbitraryData.getCalendar();
+        GregorianCalendar expectedEnd = new GregorianCalendar(
+                expectedStart.get(Calendar.YEAR),
+                expectedStart.get(Calendar.MONTH),
+                expectedStart.get(Calendar.DAY_OF_MONTH),
+                expectedStart.get(Calendar.HOUR) + 1, 0);
+        
+        SessionDataFragmentTestUtils.setStartDateTime(expectedStart);
+        SessionDataFragmentTestUtils.setEndDateTime(expectedEnd);
         
         SessionDataFragmentTestUtils.pressPositive();
         
         // THEN a new session is added with the correct values in the archive
         // these checks work because there will be only one list item at this point
+        // REFACTOR [21-03-26 5:24PM] -- This should be SessionArchiveFormatting.
         DateTimeFormatter formatter = new DateTimeFormatter();
-        TimeUtils timeUtils = new TimeUtils();
-        String expectedStartDateTimeText =
-                formatter.formatFullDate(timeUtils.getDateFromMillis(startDateTime.ref));
-        String expectedEndDateTimeText =
-                formatter.formatFullDate(timeUtils.getDateFromMillis(endDateTime.ref));
+        String expectedStartDateTimeText = formatter.formatFullDate(expectedStart.getTime());
+        String expectedEndDateTimeText = formatter.formatFullDate(expectedEnd.getTime());
         onView(withId(R.id.session_archive_list_item_card)).check(matches(isDisplayed()));
         onView(withId(R.id.session_archive_list_item_start_VALUE)).check(matches(withText(
                 expectedStartDateTimeText)));
@@ -227,7 +209,7 @@ public class SessionArchiveFragmentTests
         // GIVEN the user is on the session archive with an existing session
         ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
         UITestNavigate.fromHome_toSessionArchive();
-        SessionArchiveFragmentTestUtils.addSession(TestUtils.ArbitraryData.getSleepSessionEntity());
+        SessionArchiveFragmentTestUtils.addSession(TestUtils.ArbitraryData.getSleepSession());
         
         // record current values
         final TestUtils.DoubleRef<String> originalStartDateText = new TestUtils.DoubleRef<>(null);

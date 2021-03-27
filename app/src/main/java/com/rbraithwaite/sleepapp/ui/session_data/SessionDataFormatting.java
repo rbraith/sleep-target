@@ -1,6 +1,6 @@
 package com.rbraithwaite.sleepapp.ui.session_data;
 
-import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
+import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
 import com.rbraithwaite.sleepapp.ui.format.CommonFormatting;
 
 public class SessionDataFormatting
@@ -10,12 +10,12 @@ public class SessionDataFormatting
 //*********************************************************
 
     private SessionDataFormatting() {/* No instantiation */}
-    
+
 //*********************************************************
 // api
 //*********************************************************
 
-    public static String formatSleepDurationGoal(SleepDurationGoalModel sleepDurationGoal)
+    public static String formatSleepDurationGoal(SleepDurationGoal sleepDurationGoal)
     {
         return CommonFormatting.formatSleepDurationGoal(sleepDurationGoal);
     }

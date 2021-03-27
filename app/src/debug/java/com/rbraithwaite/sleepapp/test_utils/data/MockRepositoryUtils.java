@@ -3,11 +3,11 @@ package com.rbraithwaite.sleepapp.test_utils.data;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.rbraithwaite.sleepapp.data.current_goals.CurrentGoalsRepository;
-import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
-import com.rbraithwaite.sleepapp.data.current_goals.WakeTimeGoalModel;
-import com.rbraithwaite.sleepapp.data.current_session.CurrentSessionModel;
-import com.rbraithwaite.sleepapp.data.current_session.CurrentSessionRepository;
+import com.rbraithwaite.sleepapp.core.models.CurrentSession;
+import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
+import com.rbraithwaite.sleepapp.core.models.WakeTimeGoal;
+import com.rbraithwaite.sleepapp.core.repositories.CurrentGoalsRepository;
+import com.rbraithwaite.sleepapp.core.repositories.CurrentSessionRepository;
 
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -32,8 +32,8 @@ public class MockRepositoryUtils
 
     public static void setupCurrentGoalsRepositoryWithState(
             CurrentGoalsRepository mockRepo,
-            LiveData<WakeTimeGoalModel> wakeTimeGoal,
-            LiveData<SleepDurationGoalModel> sleepDurationGoal)
+            LiveData<WakeTimeGoal> wakeTimeGoal,
+            LiveData<SleepDurationGoal> sleepDurationGoal)
     {
         when(mockRepo.getWakeTimeGoal()).thenReturn(wakeTimeGoal);
         when(mockRepo.getSleepDurationGoal()).thenReturn(sleepDurationGoal);
@@ -45,7 +45,7 @@ public class MockRepositoryUtils
      */
     public static void setupCurrentSessionRepositoryWithState(
             CurrentSessionRepository mockRepo,
-            final MutableLiveData<CurrentSessionModel> currentSession)
+            final MutableLiveData<CurrentSession> currentSession)
     {
         when(mockRepo.getCurrentSession()).thenReturn(currentSession);
         doAnswer(new Answer<Void>()
@@ -54,7 +54,7 @@ public class MockRepositoryUtils
             public Void answer(InvocationOnMock invocation) throws Throwable
             {
                 Date newStart = invocation.getArgumentAt(0, Date.class);
-                currentSession.setValue(new CurrentSessionModel(newStart));
+                currentSession.setValue(new CurrentSession(newStart));
                 return null;
             }
         }).when(mockRepo).setCurrentSession(any(Date.class));
@@ -63,7 +63,7 @@ public class MockRepositoryUtils
             @Override
             public Void answer(InvocationOnMock invocation) throws Throwable
             {
-                currentSession.setValue(new CurrentSessionModel(null));
+                currentSession.setValue(new CurrentSession(null));
                 return null;
             }
         }).when(mockRepo).clearCurrentSession();

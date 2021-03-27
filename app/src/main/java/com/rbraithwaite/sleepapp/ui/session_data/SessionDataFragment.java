@@ -24,6 +24,7 @@ import com.rbraithwaite.sleepapp.ui.dialog.DatePickerFragment;
 import com.rbraithwaite.sleepapp.ui.dialog.TimePickerFragment;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragmentDirections;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
+import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
 
 import java.io.Serializable;
 
@@ -157,7 +158,7 @@ public class SessionDataFragment
         mNegativeActionListener = args.negativeActionListener;
         
         // init view model
-        getViewModel().initSessionData(args.initialData);
+        getViewModel().setSessionData(args.initialData);
         
         // init views
         initStartDateTime(view.findViewById(R.id.session_data_start_time));
@@ -264,14 +265,18 @@ public class SessionDataFragment
     private void initSessionDuration(View fragmentRoot)
     {
         final TextView sessionDurationText = fragmentRoot.findViewById(R.id.session_data_duration);
-        getViewModel().getSessionDuration().observe(
+        getViewModel().getSessionDurationText().observe(
                 getViewLifecycleOwner(),
                 new Observer<String>()
                 {
                     @Override
                     public void onChanged(String newSessionDurationText)
                     {
-                        sessionDurationText.setText(newSessionDurationText);
+                        if (newSessionDurationText == null) {
+                            sessionDurationText.setText("");
+                        } else {
+                            sessionDurationText.setText(newSessionDurationText);
+                        }
                     }
                 });
     }
@@ -292,7 +297,7 @@ public class SessionDataFragment
     
     private void bindStartDateTimeViews(final TextView startDateText, final TextView startTimeText)
     {
-        getViewModel().getStartTime().observe(getViewLifecycleOwner(), new Observer<String>()
+        getViewModel().getStartTimeText().observe(getViewLifecycleOwner(), new Observer<String>()
         {
             @Override
             public void onChanged(String newStartTime)
@@ -300,7 +305,7 @@ public class SessionDataFragment
                 startTimeText.setText(newStartTime);
             }
         });
-        getViewModel().getStartDate().observe(getViewLifecycleOwner(), new Observer<String>()
+        getViewModel().getStartDateText().observe(getViewLifecycleOwner(), new Observer<String>()
         {
             @Override
             public void onChanged(String newStartDate)
@@ -318,24 +323,33 @@ public class SessionDataFragment
             @Override
             public void onClick(View v)
             {
-                DatePickerFragment datePicker = new DatePickerFragment();
-                datePicker.setArguments(DatePickerFragment.createArguments(
-                        viewModel.getStartDateTime().getValue()));
-                datePicker.setOnDateSetListener(new DatePickerFragment.OnDateSetListener()
-                {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth)
-                    {
-                        try {
-                            viewModel.setStartDate(year, month, dayOfMonth);
-                        } catch (SessionDataFragmentViewModel.InvalidDateTimeException e) {
-                            Snackbar.make(getView(),
-                                          R.string.error_session_edit_start_datetime,
-                                          Snackbar.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-                datePicker.show(getChildFragmentManager(), DIALOG_START_DATE_PICKER);
+                LiveDataFuture.getValue(
+                        viewModel.getStartDateTime(),
+                        getViewLifecycleOwner(),
+                        new LiveDataFuture.OnValueListener<Long>()
+                        {
+                            @Override
+                            public void onValue(Long value)
+                            {
+                                DatePickerFragment datePicker = new DatePickerFragment();
+                                datePicker.setArguments(DatePickerFragment.createArguments(value));
+                                datePicker.setOnDateSetListener(new DatePickerFragment.OnDateSetListener()
+                                {
+                                    @Override
+                                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth)
+                                    {
+                                        try {
+                                            viewModel.setStartDay(year, month, dayOfMonth);
+                                        } catch (SessionDataFragmentViewModel.InvalidDateTimeException e) {
+                                            Snackbar.make(getView(),
+                                                          R.string.error_session_edit_start_datetime,
+                                                          Snackbar.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                                datePicker.show(getChildFragmentManager(), DIALOG_START_DATE_PICKER);
+                            }
+                        });
             }
         });
         
@@ -344,36 +358,45 @@ public class SessionDataFragment
             @Override
             public void onClick(View v)
             {
-                TimePickerFragment timePicker = new TimePickerFragment();
-                // IDEA [20-12-5 8:36PM] -- consider creating a custom TimePickerDialog which has
-                //  max/min times (instead of allowing user to pick any time)
-                //  https://stackoverflow.com/a/16942630
-                //  I decided not to go with this idea for now since I would need to find a way
-                //  to grey-out un-selectable times in order to match the behaviour of
-                //  DatePicker.maxDate(), minDate()
-                //  --
-                //  Note: If I were to go with this behaviour, I would need to rework
-                //  DatePickerFragment
-                //  to use max/min date values (as it originally did - see DatePickerFragment &
-                //  SessionEditFragment.initStartTime() in commit [main c3d7e12])
-                timePicker.setArguments(TimePickerFragment.createArguments(
-                        viewModel.getStartDateTime().getValue()));
-                timePicker.setOnTimeSetListener(new TimePickerFragment.OnTimeSetListener()
-                {
-                    @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay, int minute)
-                    {
-                        try {
-                            viewModel.setStartTime(hourOfDay, minute);
-                        } catch (SessionDataFragmentViewModel.InvalidDateTimeException e) {
-                            Log.d(TAG, "onTimeSet: invalid start time");
-                            Snackbar.make(getView(),
-                                          R.string.error_session_edit_start_datetime,
-                                          Snackbar.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-                timePicker.show(getChildFragmentManager(), DIALOG_START_TIME_PICKER);
+                LiveDataFuture.getValue(
+                        viewModel.getStartDateTime(),
+                        getViewLifecycleOwner(),
+                        new LiveDataFuture.OnValueListener<Long>()
+                        {
+                            @Override
+                            public void onValue(Long value)
+                            {
+                                TimePickerFragment timePicker = new TimePickerFragment();
+                                // IDEA [20-12-5 8:36PM] -- consider creating a custom TimePickerDialog which has
+                                //  max/min times (instead of allowing user to pick any time)
+                                //  https://stackoverflow.com/a/16942630
+                                //  I decided not to go with this idea for now since I would need to find a way
+                                //  to grey-out un-selectable times in order to match the behaviour of
+                                //  DatePicker.maxDate(), minDate()
+                                //  --
+                                //  Note: If I were to go with this behaviour, I would need to rework
+                                //  DatePickerFragment
+                                //  to use max/min date values (as it originally did - see DatePickerFragment &
+                                //  SessionEditFragment.initStartTime() in commit [main c3d7e12])
+                                timePicker.setArguments(TimePickerFragment.createArguments(value));
+                                timePicker.setOnTimeSetListener(new TimePickerFragment.OnTimeSetListener()
+                                {
+                                    @Override
+                                    public void onTimeSet(TimePicker view, int hourOfDay, int minute)
+                                    {
+                                        try {
+                                            viewModel.setStartTime(hourOfDay, minute);
+                                        } catch (SessionDataFragmentViewModel.InvalidDateTimeException e) {
+                                            Log.d(TAG, "onTimeSet: invalid start time");
+                                            Snackbar.make(getView(),
+                                                          R.string.error_session_edit_start_datetime,
+                                                          Snackbar.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                                timePicker.show(getChildFragmentManager(), DIALOG_START_TIME_PICKER);
+                            }
+                        });
             }
         });
     }
@@ -400,24 +423,33 @@ public class SessionDataFragment
             @Override
             public void onClick(View v)
             {
-                DatePickerFragment datePicker = new DatePickerFragment();
-                datePicker.setArguments(DatePickerFragment.createArguments(
-                        viewModel.getEndDateTime().getValue()));
-                datePicker.setOnDateSetListener(new DatePickerFragment.OnDateSetListener()
-                {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth)
-                    {
-                        try {
-                            viewModel.setEndDate(year, month, dayOfMonth);
-                        } catch (SessionDataFragmentViewModel.InvalidDateTimeException e) {
-                            Snackbar.make(getView(),
-                                          R.string.error_session_edit_end_datetime,
-                                          Snackbar.LENGTH_SHORT).show();
+                LiveDataFuture.getValue(
+                        viewModel.getEndDateTime(),
+                        getViewLifecycleOwner(),
+                        new LiveDataFuture.OnValueListener<Long>() {
+                            @Override
+                            public void onValue(Long value)
+                            {
+                                DatePickerFragment datePicker = new DatePickerFragment();
+                                datePicker.setArguments(DatePickerFragment.createArguments(value));
+                                datePicker.setOnDateSetListener(new DatePickerFragment.OnDateSetListener()
+                                {
+                                    @Override
+                                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth)
+                                    {
+                                        try {
+                                            viewModel.setEndDay(year, month, dayOfMonth);
+                                        } catch (SessionDataFragmentViewModel.InvalidDateTimeException e) {
+                                            Snackbar.make(getView(),
+                                                          R.string.error_session_edit_end_datetime,
+                                                          Snackbar.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                                datePicker.show(getChildFragmentManager(), DIALOG_END_DATE_PICKER);
+                            }
                         }
-                    }
-                });
-                datePicker.show(getChildFragmentManager(), DIALOG_END_DATE_PICKER);
+                );
             }
         });
         endTimeText.setOnClickListener(new View.OnClickListener()
@@ -425,32 +457,41 @@ public class SessionDataFragment
             @Override
             public void onClick(View v)
             {
-                TimePickerFragment timePicker = new TimePickerFragment();
-                timePicker.setArguments(TimePickerFragment.createArguments(
-                        viewModel.getEndDateTime().getValue()));
-                timePicker.setOnTimeSetListener(new TimePickerFragment.OnTimeSetListener()
-                {
-                    @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay, int minute)
-                    {
-                        try {
-                            viewModel.setEndTime(hourOfDay, minute);
-                        } catch (SessionDataFragmentViewModel.InvalidDateTimeException e) {
-                            Log.d(TAG, "onTimeSet: invalid end time");
-                            Snackbar.make(getView(),
-                                          R.string.error_session_edit_end_datetime,
-                                          Snackbar.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-                timePicker.show(getChildFragmentManager(), DIALOG_END_TIME_PICKER);
+                LiveDataFuture.getValue(
+                        viewModel.getEndDateTime(),
+                        getViewLifecycleOwner(),
+                        new LiveDataFuture.OnValueListener<Long>() {
+                            @Override
+                            public void onValue(Long value)
+                            {
+                                TimePickerFragment timePicker = new TimePickerFragment();
+                                timePicker.setArguments(TimePickerFragment.createArguments(value));
+                                timePicker.setOnTimeSetListener(new TimePickerFragment.OnTimeSetListener()
+                                {
+                                    @Override
+                                    public void onTimeSet(TimePicker view, int hourOfDay, int minute)
+                                    {
+                                        try {
+                                            viewModel.setEndTime(hourOfDay, minute);
+                                        } catch (SessionDataFragmentViewModel.InvalidDateTimeException e) {
+                                            Log.d(TAG, "onTimeSet: invalid end time");
+                                            Snackbar.make(getView(),
+                                                          R.string.error_session_edit_end_datetime,
+                                                          Snackbar.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                                timePicker.show(getChildFragmentManager(), DIALOG_END_TIME_PICKER);
+                            }
+                        });
+
             }
         });
     }
     
     private void bindEndDateTimeViews(final TextView endDateText, final TextView endTimeText)
     {
-        getViewModel().getEndTime().observe(getViewLifecycleOwner(), new Observer<String>()
+        getViewModel().getEndTimeText().observe(getViewLifecycleOwner(), new Observer<String>()
         {
             @Override
             public void onChanged(String newEndTime)
@@ -458,7 +499,7 @@ public class SessionDataFragment
                 endTimeText.setText(newEndTime);
             }
         });
-        getViewModel().getEndDate().observe(getViewLifecycleOwner(), new Observer<String>()
+        getViewModel().getEndDateText().observe(getViewLifecycleOwner(), new Observer<String>()
         {
             @Override
             public void onChanged(String newEndDate)

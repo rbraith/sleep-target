@@ -4,7 +4,7 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.R;
-import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
+import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestNavigate;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
@@ -60,7 +60,7 @@ public class SleepTrackerFragmentTests
         onView(withId(R.id.sleep_tracker_duration_goal_value)).check(matches(allOf(
                 isDisplayed(),
                 withText(SleepTrackerFormatting.formatSleepDurationGoal(
-                        new SleepDurationGoalModel(testHours, testMinutes))))));
+                        new SleepDurationGoal(testHours, testMinutes))))));
     }
     
     @Test

@@ -6,8 +6,8 @@ import androidx.test.espresso.ViewInteraction;
 import androidx.test.espresso.contrib.PickerActions;
 
 import com.rbraithwaite.sleepapp.R;
+import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
-import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
@@ -77,7 +77,7 @@ public class SessionDataFragmentTestUtils
     }
     
     public static HiltFragmentTestHelper<SessionDataFragment> launchWithSleepSession(
-            SleepSessionModel sleepSession)
+            SleepSession sleepSession)
     {
         return HiltFragmentTestHelper.launchFragmentWithArgs(
                 SessionDataFragment.class,
@@ -93,7 +93,7 @@ public class SessionDataFragmentTestUtils
     {
         Bundle args = SessionDataFragment.createArguments(
                 new SessionDataFragment.ArgsBuilder(
-                        new SleepSessionWrapper(TestUtils.ArbitraryData.getSleepSessionModel()))
+                        new SleepSessionWrapper(TestUtils.ArbitraryData.getSleepSession()))
                         .build());
         return HiltFragmentTestHelper.launchFragmentWithArgs(SessionDataFragment.class, args);
     }
@@ -104,8 +104,8 @@ public class SessionDataFragmentTestUtils
      */
     public static HiltFragmentTestHelper<SessionDataFragment> launchWithZeroDuration()
     {
-        SleepSessionModel sleepSession = TestUtils.ArbitraryData.getSleepSessionModel();
-        sleepSession.setDuration(0);
+        SleepSession sleepSession = TestUtils.ArbitraryData.getSleepSession();
+        sleepSession.setDurationMillis(0);
         return HiltFragmentTestHelper.launchFragmentWithArgs(
                 SessionDataFragment.class,
                 SessionDataFragment.createArguments(

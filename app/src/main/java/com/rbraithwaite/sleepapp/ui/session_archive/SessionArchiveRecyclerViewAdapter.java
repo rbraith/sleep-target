@@ -105,6 +105,8 @@ public class SessionArchiveRecyclerViewAdapter
         mFragmentProvider = fragmentProvider;
         mOnListItemClickListener = onListItemClickListener;
         
+        // SMELL [21-03-24 10:39PM] consider a different solution for displayed the sessions
+        //  - do some research on conventional patterns.
         mSleepSessionDataIds = mViewModel.getAllSleepSessionIds();
         mSleepSessionDataIds.observe(
                 getLifecycleOwner(),

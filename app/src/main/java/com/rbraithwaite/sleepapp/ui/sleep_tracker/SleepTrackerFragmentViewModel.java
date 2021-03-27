@@ -7,14 +7,13 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import com.rbraithwaite.sleepapp.data.current_goals.CurrentGoalsRepository;
-import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
-import com.rbraithwaite.sleepapp.data.current_goals.WakeTimeGoalModel;
-import com.rbraithwaite.sleepapp.data.current_session.CurrentSessionModel;
-import com.rbraithwaite.sleepapp.data.current_session.CurrentSessionRepository;
-import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
-import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionRepository;
-import com.rbraithwaite.sleepapp.ui.UIDependenciesModule;
+import com.rbraithwaite.sleepapp.core.models.CurrentSession;
+import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
+import com.rbraithwaite.sleepapp.core.models.WakeTimeGoal;
+import com.rbraithwaite.sleepapp.core.repositories.CurrentGoalsRepository;
+import com.rbraithwaite.sleepapp.core.repositories.CurrentSessionRepository;
+import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
+import com.rbraithwaite.sleepapp.di.UIDependenciesModule;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
@@ -54,6 +53,7 @@ public class SleepTrackerFragmentViewModel
             SleepSessionRepository sleepSessionRepository,
             CurrentSessionRepository currentSessionRepository,
             CurrentGoalsRepository currentGoalsRepository,
+            // REFACTOR [21-03-24 11:56PM] -- This should be SleepTrackerFormatting.
             @UIDependenciesModule.SleepTrackerDateTimeFormatter DateTimeFormatter dateTimeFormatter)
     {
         mSleepSessionRepository = sleepSessionRepository;
@@ -72,10 +72,10 @@ public class SleepTrackerFragmentViewModel
         if (mInSleepSession == null) {
             mInSleepSession = Transformations.map(
                     mCurrentSessionRepository.getCurrentSession(),
-                    new Function<CurrentSessionModel, Boolean>()
+                    new Function<CurrentSession, Boolean>()
                     {
                         @Override
-                        public Boolean apply(CurrentSessionModel input)
+                        public Boolean apply(CurrentSession input)
                         {
                             return (input.isSet());
                         }
@@ -100,10 +100,10 @@ public class SleepTrackerFragmentViewModel
         LiveDataFuture.getValue(
                 mCurrentSessionRepository.getCurrentSession(),
                 null,
-                new LiveDataFuture.OnValueListener<CurrentSessionModel>()
+                new LiveDataFuture.OnValueListener<CurrentSession>()
                 {
                     @Override
-                    public void onValue(CurrentSessionModel currentSession)
+                    public void onValue(CurrentSession currentSession)
                     {
                         if (currentSession.isSet()) {
                             addCurrentSessionThenClear(currentSession);
@@ -124,12 +124,12 @@ public class SleepTrackerFragmentViewModel
         // https://developer.android.com/reference/androidx/lifecycle/MediatorLiveData
         mCurrentSleepSessionDuration = Transformations.switchMap(
                 mCurrentSessionRepository.getCurrentSession(),
-                new Function<CurrentSessionModel, androidx.lifecycle.LiveData<String>>()
+                new Function<CurrentSession, androidx.lifecycle.LiveData<String>>()
                 {
                     @Override
-                    public androidx.lifecycle.LiveData<String> apply(final CurrentSessionModel currentSession)
+                    public androidx.lifecycle.LiveData<String> apply(final CurrentSession currentSession)
                     {
-                        // REFACTOR [21-01-11 10:31PM] -- this should be injected.
+                        // REFACTOR [21-03-24 11:57PM] -- This should be SleepTrackerFormatting.
                         final DurationFormatter durationFormatter = new DurationFormatter();
                         
                         if (!currentSession.isSet()) {
@@ -156,10 +156,10 @@ public class SleepTrackerFragmentViewModel
     {
         return Transformations.map(
                 mCurrentSessionRepository.getCurrentSession(),
-                new Function<CurrentSessionModel, String>()
+                new Function<CurrentSession, String>()
                 {
                     @Override
-                    public String apply(CurrentSessionModel input)
+                    public String apply(CurrentSession input)
                     {
                         return input.isSet() ?
                                 // REFACTOR [21-02-3 3:18PM] -- move this logic to
@@ -174,10 +174,10 @@ public class SleepTrackerFragmentViewModel
     {
         return Transformations.map(
                 mCurrentGoalsRepository.getWakeTimeGoal(),
-                new Function<WakeTimeGoalModel, String>()
+                new Function<WakeTimeGoal, String>()
                 {
                     @Override
-                    public String apply(WakeTimeGoalModel wakeTimeGoal)
+                    public String apply(WakeTimeGoal wakeTimeGoal)
                     {
                         if (wakeTimeGoal == null || !wakeTimeGoal.isSet()) {
                             return null;
@@ -191,10 +191,10 @@ public class SleepTrackerFragmentViewModel
     {
         return Transformations.map(
                 mCurrentGoalsRepository.getSleepDurationGoal(),
-                new Function<SleepDurationGoalModel, String>()
+                new Function<SleepDurationGoal, String>()
                 {
                     @Override
-                    public String apply(SleepDurationGoalModel input)
+                    public String apply(SleepDurationGoal input)
                     {
                         if (input == null || !input.isSet()) {
                             return null;
@@ -217,13 +217,9 @@ public class SleepTrackerFragmentViewModel
 // private methods
 //*********************************************************
 
-    private void addCurrentSessionThenClear(final CurrentSessionModel currentSession)
+    private void addCurrentSessionThenClear(final CurrentSession currentSession)
     {
-        SleepSessionModel session = new SleepSessionModel(
-                currentSession.getStart(),
-                currentSession.getOngoingDurationMillis());
-        
-        mSleepSessionRepository.addSleepSession(session);
+        mSleepSessionRepository.addSleepSession(currentSession.toSleepSession());
         mCurrentSessionRepository.clearCurrentSession();
     }
 }

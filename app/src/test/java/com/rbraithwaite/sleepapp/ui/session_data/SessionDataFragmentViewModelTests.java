@@ -3,7 +3,7 @@ package com.rbraithwaite.sleepapp.ui.session_data;
 import androidx.lifecycle.LiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
+import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
@@ -55,8 +55,8 @@ public class SessionDataFragmentViewModelTests
     @Test
     public void initSessionData_initializesDataOnValidInput()
     {
-        SleepSessionModel initialData = TestUtils.ArbitraryData.getSleepSessionModel();
-        viewModel.initSessionData(new SleepSessionWrapper(initialData));
+        SleepSession initialData = TestUtils.ArbitraryData.getSleepSession();
+        viewModel.setSessionData(new SleepSessionWrapper(initialData));
         
         LiveData<Long> startDateTime = viewModel.getStartDateTime();
         LiveData<Long> endDateTime = viewModel.getEndDateTime();
@@ -70,8 +70,8 @@ public class SessionDataFragmentViewModelTests
     @Test
     public void clearSessionData_clearsData()
     {
-        viewModel.initSessionData(
-                new SleepSessionWrapper(TestUtils.ArbitraryData.getSleepSessionModel()));
+        viewModel.setSessionData(
+                new SleepSessionWrapper(TestUtils.ArbitraryData.getSleepSession()));
         
         viewModel.clearSessionData();
         
@@ -84,21 +84,6 @@ public class SessionDataFragmentViewModelTests
     }
     
     @Test
-    public void sessionDataIsInitialized_exercise()
-    {
-        assertThat(viewModel.sessionDataIsInitialized(), is(false));
-        
-        viewModel.initSessionData(
-                new SleepSessionWrapper(TestUtils.ArbitraryData.getSleepSessionModel()));
-        
-        assertThat(viewModel.sessionDataIsInitialized(), is(true));
-        
-        viewModel.clearSessionData();
-        
-        assertThat(viewModel.sessionDataIsInitialized(), is(false));
-    }
-    
-    @Test
     public void getResult_matchesViewModelState()
     {
         // set viewmodel state
@@ -108,18 +93,18 @@ public class SessionDataFragmentViewModelTests
         calendar.add(Calendar.MONTH, 1);
         long duration = calendar.getTimeInMillis() - startDateTime.getTime();
         
-        SleepSessionModel expected = new SleepSessionModel(
+        SleepSession expected = new SleepSession(
                 5,
                 startDateTime,
                 duration);
-        viewModel.initSessionData(new SleepSessionWrapper(expected));
+        viewModel.setSessionData(new SleepSessionWrapper(expected));
         
         // check result values
-        SleepSessionModel result = viewModel.getResult().getModel();
+        SleepSession result = viewModel.getResult().getModel();
         // REFACTOR [21-12-30 3:05PM] -- implement SleepSessionModel.equals().
         assertThat(result.getId(), is(equalTo(expected.getId())));
         assertThat(result.getStart(), is(equalTo(expected.getStart())));
-        assertThat(result.getDuration(), is(equalTo(expected.getDuration())));
+        assertThat(result.getDurationMillis(), is(equalTo(expected.getDurationMillis())));
     }
     
     @Test(expected = SessionDataFragmentViewModel.InvalidDateTimeException.class)
@@ -127,8 +112,8 @@ public class SessionDataFragmentViewModelTests
     {
         GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
         
-        viewModel.setStartDateTime(calendar.getTimeInMillis());
-        viewModel.setEndDateTime(calendar.getTimeInMillis());
+        viewModel.setSessionData(new SleepSessionWrapper(
+                new SleepSession(calendar.getTime(), 0)));
         
         // set end before start
         calendar.add(Calendar.HOUR_OF_DAY, -5);
@@ -142,10 +127,11 @@ public class SessionDataFragmentViewModelTests
     {
         // set end datetime
         GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
-        viewModel.setEndDateTime(calendar.getTimeInMillis());
+        viewModel.setSessionData(new SleepSessionWrapper(
+                new SleepSession(calendar.getTime(), 0)));
         
         // begin watching end date
-        LiveData<String> endDate = viewModel.getEndDate();
+        LiveData<String> endDate = viewModel.getEndDateText();
         TestUtils.LocalLiveDataSynchronizer<String> synchronizer =
                 new TestUtils.LocalLiveDataSynchronizer<>(endDate);
         
@@ -166,7 +152,8 @@ public class SessionDataFragmentViewModelTests
     {
         // set end datetime
         GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
-        viewModel.setEndDateTime(calendar.getTimeInMillis());
+        viewModel.setSessionData(new SleepSessionWrapper(
+                new SleepSession(calendar.getTime(), 0)));
         
         // watch end datetime
         LiveData<Long> endDateTime = viewModel.getEndDateTime();
@@ -187,10 +174,11 @@ public class SessionDataFragmentViewModelTests
     {
         // set end datetime
         GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
-        viewModel.setEndDateTime(calendar.getTimeInMillis());
+        viewModel.setSessionData(new SleepSessionWrapper(
+                new SleepSession(calendar.getTime(), 0)));
         
         // watch end time
-        LiveData<String> endTime = viewModel.getEndTime();
+        LiveData<String> endTime = viewModel.getEndTimeText();
         TestUtils.LocalLiveDataSynchronizer<String> synchronizer =
                 new TestUtils.LocalLiveDataSynchronizer<>(endTime);
         
@@ -208,8 +196,9 @@ public class SessionDataFragmentViewModelTests
     public void setEndDate_updatesEndDateTime()
     {
         GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
+        viewModel.setSessionData(new SleepSessionWrapper(
+                new SleepSession(calendar.getTime(), 0)));
         
-        viewModel.setEndDateTime(calendar.getTimeInMillis());
         LiveData<Long> endDateTime = viewModel.getEndDateTime();
         TestUtils.LocalLiveDataSynchronizer<Long> synchronizer =
                 new TestUtils.LocalLiveDataSynchronizer<>(endDateTime);
@@ -217,7 +206,7 @@ public class SessionDataFragmentViewModelTests
         assertThat(endDateTime.getValue(), is(equalTo(calendar.getTimeInMillis())));
         
         calendar.add(Calendar.DAY_OF_MONTH, 3);
-        viewModel.setEndDate(
+        viewModel.setEndDay(
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH));
@@ -230,10 +219,10 @@ public class SessionDataFragmentViewModelTests
     public void setEndDate_leavesTimeOfDayUnchanged()
     {
         GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
+        viewModel.setSessionData(new SleepSessionWrapper(
+                new SleepSession(calendar.getTime(), 0)));
         
-        viewModel.setEndDateTime(calendar.getTimeInMillis());
-        
-        LiveData<String> endTime = viewModel.getEndTime();
+        LiveData<String> endTime = viewModel.getEndTimeText();
         TestUtils.LocalLiveDataSynchronizer<String> synchronizer =
                 new TestUtils.LocalLiveDataSynchronizer<>(endTime);
         
@@ -241,7 +230,7 @@ public class SessionDataFragmentViewModelTests
         
         // update the end date
         calendar.add(Calendar.DAY_OF_MONTH, 3);
-        viewModel.setEndDate(
+        viewModel.setEndDay(
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH));
@@ -255,13 +244,12 @@ public class SessionDataFragmentViewModelTests
     public void setEndDate_throwsIfEndIsBeforeStart()
     {
         GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
-        
-        viewModel.setStartDateTime(calendar.getTimeInMillis());
-        viewModel.setEndDateTime(calendar.getTimeInMillis());
+        viewModel.setSessionData(new SleepSessionWrapper(
+                new SleepSession(calendar.getTime(), 0)));
         
         // set end before start
         calendar.add(Calendar.MONTH, -1);
-        viewModel.setEndDate(
+        viewModel.setEndDay(
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH));
@@ -271,9 +259,10 @@ public class SessionDataFragmentViewModelTests
     public void setEndDate_updatesEndDate()
     {
         GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
+        viewModel.setSessionData(new SleepSessionWrapper(
+                new SleepSession(calendar.getTime(), 0)));
         
-        viewModel.setEndDateTime(calendar.getTimeInMillis());
-        LiveData<String> endDate = viewModel.getEndDate();
+        LiveData<String> endDate = viewModel.getEndDateText();
         TestUtils.LocalLiveDataSynchronizer<String> synchronizer =
                 new TestUtils.LocalLiveDataSynchronizer<>(endDate);
         
@@ -281,7 +270,7 @@ public class SessionDataFragmentViewModelTests
                    is(equalTo(dateTimeFormatter.formatDate(calendar.getTime()))));
         
         calendar.add(Calendar.DAY_OF_MONTH, 3);
-        viewModel.setEndDate(
+        viewModel.setEndDay(
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH));
@@ -305,48 +294,23 @@ public class SessionDataFragmentViewModelTests
     }
     
     @Test
-    public void setStartDateTime_updates_getStartDateTime()
-    {
-        Date testDate = TestUtils.ArbitraryData.getDate();
-        
-        viewModel.setStartDateTime(testDate.getTime());
-        
-        LiveData<Long> startDateTime = viewModel.getStartDateTime();
-        TestUtils.activateLocalLiveData(startDateTime);
-        
-        assertThat(startDateTime.getValue(), is(equalTo(testDate.getTime())));
-    }
-    
-    @Test
-    public void setEndDateTime_updates_getEndDateTime()
-    {
-        Date testDate = TestUtils.ArbitraryData.getDate();
-        
-        viewModel.setEndDateTime(testDate.getTime());
-        
-        LiveData<Long> endDateTime = viewModel.getEndDateTime();
-        TestUtils.activateLocalLiveData(endDateTime);
-        
-        assertThat(endDateTime.getValue(), is(equalTo(testDate.getTime())));
-    }
-    
-    @Test
     public void setStartDate_leavesTimeOfDayUnchanged()
     {
         GregorianCalendar calendar = new GregorianCalendar();
         calendar.setTime(TestUtils.ArbitraryData.getDate());
         
-        viewModel.setStartDateTime(calendar.getTimeInMillis());
+        viewModel.setSessionData(new SleepSessionWrapper(
+                new SleepSession(calendar.getTime(), 0)));
         
-        LiveData<String> startTime = viewModel.getStartTime();
+        LiveData<String> startTimeText = viewModel.getStartTimeText();
         TestUtils.LocalLiveDataSynchronizer<String> synchronizer =
-                new TestUtils.LocalLiveDataSynchronizer<>(startTime);
+                new TestUtils.LocalLiveDataSynchronizer<>(startTimeText);
         
-        String originalStartTime = startTime.getValue();
+        String originalStartTimeText = startTimeText.getValue();
         
         // update the start date
-        calendar.add(Calendar.DAY_OF_MONTH, 3);
-        viewModel.setStartDate(
+        calendar.add(Calendar.DAY_OF_MONTH, -3);
+        viewModel.setStartDay(
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH));
@@ -359,7 +323,7 @@ public class SessionDataFragmentViewModelTests
         //  This would end up needing to be a pretty big refactor now that I think about it
         //      It would require keeping the Date & TimeOfDay values separate internally.
         synchronizer.sync();
-        assertThat(startTime.getValue(), is(equalTo(originalStartTime)));
+        assertThat(startTimeText.getValue(), is(equalTo(originalStartTimeText)));
     }
     
     @Test
@@ -367,17 +331,18 @@ public class SessionDataFragmentViewModelTests
     {
         GregorianCalendar calendar = new GregorianCalendar();
         calendar.setTime(TestUtils.ArbitraryData.getDate());
+        viewModel.setSessionData(new SleepSessionWrapper(
+                new SleepSession(calendar.getTime(), 0)));
         
-        viewModel.setStartDateTime(calendar.getTimeInMillis());
-        LiveData<String> startDate = viewModel.getStartDate();
+        LiveData<String> startDate = viewModel.getStartDateText();
         TestUtils.LocalLiveDataSynchronizer<String> synchronizer =
                 new TestUtils.LocalLiveDataSynchronizer<>(startDate);
         
         assertThat(startDate.getValue(),
                    is(equalTo(dateTimeFormatter.formatDate(calendar.getTime()))));
         
-        calendar.add(Calendar.DAY_OF_MONTH, 3);
-        viewModel.setStartDate(
+        calendar.add(Calendar.DAY_OF_MONTH, -3);
+        viewModel.setStartDay(
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH));
@@ -393,12 +358,12 @@ public class SessionDataFragmentViewModelTests
         GregorianCalendar calendar = new GregorianCalendar();
         calendar.setTime(TestUtils.ArbitraryData.getDate());
         
-        viewModel.setStartDateTime(calendar.getTimeInMillis());
-        viewModel.setEndDateTime(calendar.getTimeInMillis());
+        viewModel.setSessionData(new SleepSessionWrapper(
+                new SleepSession(calendar.getTime(), 0)));
         
         // set start after end
         calendar.add(Calendar.MONTH, 1);
-        viewModel.setStartDate(
+        viewModel.setStartDay(
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH));
@@ -414,17 +379,18 @@ public class SessionDataFragmentViewModelTests
     {
         // set startDateTime
         GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
-        viewModel.setStartDateTime(calendar.getTimeInMillis());
+        viewModel.setSessionData(new SleepSessionWrapper(
+                new SleepSession(calendar.getTime(), 0)));
         
         // begin watching getStartDate
-        LiveData<String> startDate = viewModel.getStartDate();
+        LiveData<String> startDate = viewModel.getStartDateText();
         TestUtils.LocalLiveDataSynchronizer<String> synchronizer =
                 new TestUtils.LocalLiveDataSynchronizer<>(startDate);
         
         String originalStartDate = startDate.getValue();
         
         // update setStartTime
-        calendar.add(Calendar.MINUTE, 15);
+        calendar.add(Calendar.MINUTE, -15);
         viewModel.setStartTime(calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
         
         // assert getStartDate is the same
@@ -440,15 +406,16 @@ public class SessionDataFragmentViewModelTests
         GregorianCalendar calendar = new GregorianCalendar();
         calendar.setTime(TestUtils.ArbitraryData.getDate());
         
-        viewModel.setStartDateTime(calendar.getTimeInMillis());
+        viewModel.setSessionData(new SleepSessionWrapper(
+                new SleepSession(calendar.getTime(), 0)));
         
         // watch start time
-        LiveData<String> startTime = viewModel.getStartTime();
+        LiveData<String> startTime = viewModel.getStartTimeText();
         TestUtils.LocalLiveDataSynchronizer<String> synchronizer =
                 new TestUtils.LocalLiveDataSynchronizer<>(startTime);
         
         // set start time
-        calendar.add(Calendar.MINUTE, 15);
+        calendar.add(Calendar.MINUTE, -15);
         viewModel.setStartTime(calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
         
         // start time changes
@@ -464,7 +431,8 @@ public class SessionDataFragmentViewModelTests
         GregorianCalendar calendar = new GregorianCalendar();
         calendar.setTime(TestUtils.ArbitraryData.getDate());
         
-        viewModel.setStartDateTime(calendar.getTimeInMillis());
+        viewModel.setSessionData(new SleepSessionWrapper(
+                new SleepSession(calendar.getTime(), 0)));
         
         // watch startdatetime
         LiveData<Long> startDateTime = viewModel.getStartDateTime();
@@ -472,7 +440,7 @@ public class SessionDataFragmentViewModelTests
                 new TestUtils.LocalLiveDataSynchronizer<>(startDateTime);
         
         // set start time
-        calendar.add(Calendar.MINUTE, 15);
+        calendar.add(Calendar.MINUTE, -15);
         viewModel.setStartTime(calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
         
         // start time changes
@@ -486,8 +454,8 @@ public class SessionDataFragmentViewModelTests
         GregorianCalendar calendar = new GregorianCalendar();
         calendar.setTime(TestUtils.ArbitraryData.getDate());
         
-        viewModel.setStartDateTime(calendar.getTimeInMillis());
-        viewModel.setEndDateTime(calendar.getTimeInMillis());
+        viewModel.setSessionData(new SleepSessionWrapper(
+                new SleepSession(calendar.getTime(), 0)));
         
         // set start after end
         calendar.add(Calendar.HOUR_OF_DAY, 1);
@@ -499,81 +467,39 @@ public class SessionDataFragmentViewModelTests
     @Test
     public void sessionDuration_updatesWhenStartAndEndChange()
     {
-        GregorianCalendar calendar = new GregorianCalendar();
-        calendar.setTime(TestUtils.ArbitraryData.getDate());
+        GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
         Date start = calendar.getTime(); // saving this here, as the calendar is moved to the end
         
         DurationFormatter formatter = new DurationFormatter();
         
-        viewModel.setStartDateTime(calendar.getTimeInMillis());
-        viewModel.setEndDateTime(calendar.getTimeInMillis());
+        viewModel.setSessionData(new SleepSessionWrapper(
+                new SleepSession(calendar.getTime(), 0)));
         
-        LiveData<String> sessionDuration = viewModel.getSessionDuration();
+        LiveData<String> sessionDurationText = viewModel.getSessionDurationText();
         TestUtils.LocalLiveDataSynchronizer<String> synchronizer =
-                new TestUtils.LocalLiveDataSynchronizer<>(sessionDuration);
+                new TestUtils.LocalLiveDataSynchronizer<>(sessionDurationText);
         
-        assertThat(sessionDuration.getValue(), is(equalTo(formatter.formatDurationMillis(0))));
+        assertThat(sessionDurationText.getValue(), is(equalTo(formatter.formatDurationMillis(0))));
         
         // change end, check for duration update
-        int endOffsetMillis = 10000;
-        calendar.add(GregorianCalendar.MILLISECOND, endOffsetMillis);
-        viewModel.setEndDateTime(calendar.getTimeInMillis());
+        int endOffsetSeconds = 120; // 2 min
+        calendar.add(GregorianCalendar.SECOND, endOffsetSeconds);
+        viewModel.setEndTime(calendar.get(Calendar.HOUR), calendar.get(Calendar.MINUTE));
         
         synchronizer.sync();
-        assertThat(sessionDuration.getValue(),
-                   is(equalTo(formatter.formatDurationMillis(endOffsetMillis))));
+        assertThat(sessionDurationText.getValue(),
+                   is(equalTo(formatter.formatDurationMillis(endOffsetSeconds * 1000))));
         
         // change start, check for duration update
         calendar.setTime(start);
-        int startOffsetMillis = 5000;
-        calendar.add(GregorianCalendar.MILLISECOND, startOffsetMillis);
-        viewModel.setStartDateTime(calendar.getTimeInMillis());
+        int startOffsetSeconds = 60; // 1 min
+        calendar.add(GregorianCalendar.SECOND, startOffsetSeconds);
+        viewModel.setStartTime(calendar.get(Calendar.HOUR), calendar.get(Calendar.MINUTE));
         
         synchronizer.sync();
-        assertThat(sessionDuration.getValue(),
+        assertThat(sessionDurationText.getValue(),
                    is(equalTo(formatter.formatDurationMillis(
-                           endOffsetMillis - startOffsetMillis))));
-    }
-    
-    // REFACTOR [20-11-26 10:06PM] -- convert the below getSessionDuration tests to
-    //  a parameterized one? would I be able to have individually parameterized tests
-    //  with robolectric? initial research is bleak, look at ParameterizedRobolectricTestRunner
-    //  https://medium.com/@harmittaa/parametrized-tests-with-robolectric-3666c4794f6b
-    //  https://blog.jayway.com/2015/03/19/parameterized-testing-with-robolectric/
-    @Test
-    public void sessionDurationIsZero_whenStartIsNull()
-    {
-        Date endDate = TestUtils.ArbitraryData.getDate();
-        viewModel.setEndDateTime(endDate.getTime());
-        
-        LiveData<String> sessionDuration = viewModel.getSessionDuration();
-        TestUtils.activateLocalLiveData(sessionDuration);
-        
-        String expected = new DurationFormatter().formatDurationMillis(0);
-        assertThat(sessionDuration.getValue(), is(equalTo(expected)));
-    }
-    
-    @Test
-    public void sessionDurationIsZero_whenEndIsNull()
-    {
-        Date startDate = TestUtils.ArbitraryData.getDate();
-        viewModel.setStartDateTime(startDate.getTime());
-        
-        LiveData<String> sessionDuration = viewModel.getSessionDuration();
-        TestUtils.activateLocalLiveData(sessionDuration);
-        
-        String expected = new DurationFormatter().formatDurationMillis(0);
-        assertThat(sessionDuration.getValue(), is(equalTo(expected)));
-    }
-    
-    @Test
-    public void sessionDurationIsZero_whenStartAndEndAreNull()
-    {
-        LiveData<String> sessionDuration = viewModel.getSessionDuration();
-        TestUtils.activateLocalLiveData(sessionDuration);
-        
-        String expected = new DurationFormatter().formatDurationMillis(0);
-        assertThat(sessionDuration.getValue(), is(equalTo(expected)));
+                           (endOffsetSeconds - startOffsetSeconds) * 1000))));
     }
     
     @Test
@@ -584,17 +510,10 @@ public class SessionDataFragmentViewModelTests
         
         int testDurationMillis = 300000; // 5 min
         
-        GregorianCalendar calendar = new GregorianCalendar();
-        calendar.setTime(startDateTime);
-        calendar.add(GregorianCalendar.MILLISECOND, testDurationMillis);
+        viewModel.setSessionData(new SleepSessionWrapper(
+                new SleepSession(startDateTime, testDurationMillis)));
         
-        Date endDateTime = calendar.getTime();
-        
-        // ________________________________________ update the viewmodel and assert
-        viewModel.setStartDateTime(startDateTime.getTime());
-        viewModel.setEndDateTime(endDateTime.getTime());
-        
-        LiveData<String> sessionDuration = viewModel.getSessionDuration();
+        LiveData<String> sessionDuration = viewModel.getSessionDurationText();
         TestUtils.activateLocalLiveData(sessionDuration);
         
         String expected = new DurationFormatter().formatDurationMillis(testDurationMillis);
@@ -602,10 +521,10 @@ public class SessionDataFragmentViewModelTests
     }
     
     @Test
-    public void startTimeAndStartDate_startNull()
+    public void startTimeAndStartDate_nullIfNoSessionData()
     {
-        LiveData<String> startTime = viewModel.getStartTime();
-        LiveData<String> startDate = viewModel.getStartDate();
+        LiveData<String> startTime = viewModel.getStartTimeText();
+        LiveData<String> startDate = viewModel.getStartDateText();
         
         TestUtils.activateLocalLiveData(startTime);
         TestUtils.activateLocalLiveData(startDate);
@@ -615,49 +534,15 @@ public class SessionDataFragmentViewModelTests
     }
     
     @Test
-    public void setStartDateTime_updatesStartTimeAndStartDate()
+    public void endTimeAndEndDate_nullIfNoSessionData()
     {
-        Date testDate = TestUtils.ArbitraryData.getDate();
-        
-        LiveData<String> startTime = viewModel.getStartTime();
-        LiveData<String> startDate = viewModel.getStartDate();
-        
-        viewModel.setStartDateTime(testDate.getTime());
-        
-        TestUtils.activateLocalLiveData(startTime);
-        TestUtils.activateLocalLiveData(startDate);
-        
-        assertThat(startTime.getValue(), is(equalTo(dateTimeFormatter.formatTimeOfDay(testDate))));
-        assertThat(startDate.getValue(), is(equalTo(dateTimeFormatter.formatDate(testDate))));
-    }
-    
-    @Test
-    public void endTimeAndEndDate_startNull()
-    {
-        LiveData<String> endTime = viewModel.getEndTime();
-        LiveData<String> endDate = viewModel.getEndDate();
+        LiveData<String> endTime = viewModel.getEndTimeText();
+        LiveData<String> endDate = viewModel.getEndDateText();
         
         TestUtils.activateLocalLiveData(endTime);
         TestUtils.activateLocalLiveData(endDate);
         
         assertThat(endTime.getValue(), is(nullValue()));
         assertThat(endDate.getValue(), is(nullValue()));
-    }
-    
-    @Test
-    public void setEndDateTime_updatesEndTimeAndEndDate()
-    {
-        Date testDate = TestUtils.ArbitraryData.getDate();
-        
-        LiveData<String> endTime = viewModel.getEndTime();
-        LiveData<String> endDate = viewModel.getEndDate();
-        
-        viewModel.setEndDateTime(testDate.getTime());
-        
-        TestUtils.activateLocalLiveData(endTime);
-        TestUtils.activateLocalLiveData(endDate);
-        
-        assertThat(endTime.getValue(), is(equalTo(dateTimeFormatter.formatTimeOfDay(testDate))));
-        assertThat(endDate.getValue(), is(equalTo(dateTimeFormatter.formatDate(testDate))));
     }
 }

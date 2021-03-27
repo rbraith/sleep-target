@@ -1,6 +1,6 @@
 package com.rbraithwaite.sleepapp.ui.format;
 
-import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
+import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
 
 import java.util.Locale;
 
@@ -16,7 +16,7 @@ public class CommonFormatting
 // api
 //*********************************************************
 
-    public static String formatSleepDurationGoal(SleepDurationGoalModel goalModel)
+    public static String formatSleepDurationGoal(SleepDurationGoal goalModel)
     {
         if (goalModel == null || !goalModel.isSet()) {
             return "";

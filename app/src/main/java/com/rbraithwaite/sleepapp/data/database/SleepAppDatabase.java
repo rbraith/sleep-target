@@ -4,7 +4,7 @@ import androidx.room.Database;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
-import com.rbraithwaite.sleepapp.data.database.convert.DateConverter;
+import com.rbraithwaite.sleepapp.data.database.convert.ConvertDate;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDurationGoalDao;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDurationGoalEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalDao;
@@ -19,7 +19,7 @@ import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSession
                 WakeTimeGoalEntity.class,
                 SleepDurationGoalEntity.class
         })
-@TypeConverters({DateConverter.class})
+@TypeConverters({ConvertDate.class})
 public abstract class SleepAppDatabase
         extends RoomDatabase
 {

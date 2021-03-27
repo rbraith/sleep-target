@@ -1,6 +1,6 @@
 package com.rbraithwaite.sleepapp.ui.sleep_tracker;
 
-import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
+import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
 
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -48,7 +48,7 @@ public class SleepTrackerFormattingTests
         public void runTest()
         {
             assertThat(
-                    SleepTrackerFormatting.formatSleepDurationGoal(new SleepDurationGoalModel(
+                    SleepTrackerFormatting.formatSleepDurationGoal(new SleepDurationGoal(
                             minutes)),
                     is(equalTo(expected)));
         }

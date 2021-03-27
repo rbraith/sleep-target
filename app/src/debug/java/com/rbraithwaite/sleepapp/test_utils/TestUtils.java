@@ -11,14 +11,14 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
+import com.rbraithwaite.sleepapp.core.models.SleepSession;
+import com.rbraithwaite.sleepapp.core.models.WakeTimeGoal;
 import com.rbraithwaite.sleepapp.data.SleepAppDataPrefs;
-import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
-import com.rbraithwaite.sleepapp.data.current_goals.WakeTimeGoalModel;
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDurationGoalEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
-import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
 import com.rbraithwaite.sleepapp.ui.stats.data.DateRange;
 
 import java.util.Arrays;
@@ -139,9 +139,9 @@ public class TestUtils
             return sleepSessionEntity;
         }
         
-        public static SleepSessionModel getSleepSessionModel()
+        public static SleepSession getSleepSession()
         {
-            return new SleepSessionModel(
+            return new SleepSession(
                     getDate(),
                     getDurationMillis());
         }
@@ -156,9 +156,9 @@ public class TestUtils
         
         public static long getDurationMillis() {return 5000L;}
         
-        public static SleepDurationGoalModel getSleepDurationGoalModel()
+        public static SleepDurationGoal getSleepDurationGoalModel()
         {
-            return new SleepDurationGoalModel(1234);
+            return new SleepDurationGoal(1234);
         }
         
         public static DateRange getDateRange()
@@ -174,9 +174,9 @@ public class TestUtils
             return entity;
         }
         
-        public static WakeTimeGoalModel getWakeTimeGoalModel()
+        public static WakeTimeGoal getWakeTimeGoalModel()
         {
-            return new WakeTimeGoalModel(TestUtils.ArbitraryData.getDate(), 12345);
+            return new WakeTimeGoal(TestUtils.ArbitraryData.getDate(), 12345);
         }
         
         public static SleepDurationGoalEntity getSleepDurationGoalEntity()

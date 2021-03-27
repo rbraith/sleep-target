@@ -9,19 +9,14 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
-import com.rbraithwaite.sleepapp.data.database.convert.DateConverter;
-import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionModel;
-import com.rbraithwaite.sleepapp.ui.UIDependenciesModule;
+import com.rbraithwaite.sleepapp.core.models.SleepSession;
+import com.rbraithwaite.sleepapp.di.UIDependenciesModule;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
-import com.rbraithwaite.sleepapp.ui.session_data.data.SessionDataSleepDurationGoal;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
-import com.rbraithwaite.sleepapp.utils.LiveDataUtils;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 
 // REFACTOR [21-01-5 2:30AM] -- passing around Dates and longs for times-of-day or dates is too
@@ -35,21 +30,11 @@ public class SessionDataFragmentViewModel
 // private properties
 //*********************************************************
 
-    private int mSessionId = 0;
-    
-    private boolean mIsInitialized;
-    
-    private LiveData<String> mStartTime;
-    private LiveData<String> mStartDate;
-    private LiveData<String> mEndTime;
-    private LiveData<String> mEndDate;
-    private LiveData<String> mSessionDuration;
-    private MutableLiveData<Long> mStartDateTime;
-    private MutableLiveData<Long> mEndDateTime;
+    private LiveData<String> mSessionDurationText;
     
     private DateTimeFormatter mDateTimeFormatter;
     
-    private TimeUtils mTimeUtils;
+    private MutableLiveData<SleepSession> mSleepSession = new MutableLiveData<>();
 
 //*********************************************************
 // public helpers
@@ -70,232 +55,241 @@ public class SessionDataFragmentViewModel
 
     @ViewModelInject
     public SessionDataFragmentViewModel(
+            // REFACTOR [21-03-24 11:06PM] -- This should be SessionDataFormatting.
             @UIDependenciesModule.SessionDataDateTimeFormatter DateTimeFormatter dateTimeFormatter)
     {
         mDateTimeFormatter = dateTimeFormatter;
-        mTimeUtils = createTimeUtils();
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
 
     public SleepSessionWrapper getResult()
     {
-        // REFACTOR [21-12-30 3:06PM] -- like mentioned in initSessionData, there should just be
-        //  an internal SleepSessionModel member, instead of needing to recompose one here.
-        return new SleepSessionWrapper(new SleepSessionModel(
-                mSessionId,
-                mTimeUtils.getDateFromMillis(getStartDateTime().getValue()),
-                getEndDateTime().getValue() - getStartDateTime().getValue()));
+        return new SleepSessionWrapper(mSleepSession.getValue());
     }
     
-    public LiveData<String> getSessionDuration()
+    public LiveData<String> getSessionDurationText()
     {
-        // REFACTOR [21-01-11 3:18AM] -- inject this.
+        // REFACTOR [21-03-25 12:11AM] -- This should be SessionDataFormatting.
         final DurationFormatter formatter = new DurationFormatter();
         
-        if (mSessionDuration == null) {
+        if (mSessionDurationText == null) {
             final MediatorLiveData<String> mediatorLiveData = new MediatorLiveData<>();
-            // update on start changed
-            mediatorLiveData.addSource(getStartDateTimeMutable(), new Observer<Long>()
+            mediatorLiveData.addSource(getSleepSession(), new Observer<SleepSession>()
             {
                 @Override
-                public void onChanged(Long newStartTime)
+                public void onChanged(SleepSession sleepSession)
                 {
-                    mediatorLiveData.setValue(formatter.formatDurationMillis(
-                            computeDurationMillis(newStartTime,
-                                                  getEndDateTimeMutable().getValue())));
+                    if (sleepSession == null) {
+                        mediatorLiveData.setValue(null);
+                    } else {
+                        mediatorLiveData.setValue(
+                                formatter.formatDurationMillis(sleepSession.getDurationMillis()));
+                    }
                 }
             });
-            // update on end changed
-            mediatorLiveData.addSource(getEndDateTimeMutable(), new Observer<Long>()
-            {
-                @Override
-                public void onChanged(Long newEndTime)
-                {
-                    mediatorLiveData.setValue(formatter.formatDurationMillis(
-                            computeDurationMillis(getStartDateTimeMutable().getValue(),
-                                                  newEndTime)));
-                }
-            });
-            mSessionDuration = mediatorLiveData;
+            mSessionDurationText = mediatorLiveData;
         }
         
-        return mSessionDuration;
+        return mSessionDurationText;
     }
     
-    public LiveData<String> getStartTime()
+    public LiveData<String> getStartTimeText()
     {
-        mStartTime = lazyInitLiveDateTime(mStartTime,
-                                          getStartDateTimeMutable(),
-                                          DateTimeFormatType.TIME_OF_DAY);
-        return mStartTime;
+        return Transformations.map(
+                getSleepSession(),
+                new Function<SleepSession, String>()
+                {
+                    @Override
+                    public String apply(SleepSession input)
+                    {
+                        if (input == null) {
+                            return null;
+                        }
+                        return mDateTimeFormatter.formatTimeOfDay(input.getStart());
+                    }
+                });
     }
     
-    public LiveData<String> getEndTime()
+    public LiveData<String> getEndTimeText()
     {
-        mEndTime = lazyInitLiveDateTime(mEndTime,
-                                    getEndDateTimeMutable(),
-                                    DateTimeFormatType.TIME_OF_DAY);
-        return mEndTime;
+        return Transformations.map(
+                getSleepSession(),
+                new Function<SleepSession, String>()
+                {
+                    @Override
+                    public String apply(SleepSession input)
+                    {
+                        if (input == null) {
+                            return null;
+                        }
+                        return mDateTimeFormatter.formatTimeOfDay(input.getEnd());
+                    }
+                });
     }
     
-    public LiveData<String> getEndDate()
+    public LiveData<String> getEndDateText()
     {
-        mEndDate = lazyInitLiveDateTime(mEndDate, getEndDateTimeMutable(), DateTimeFormatType.DATE);
-        return mEndDate;
+        return Transformations.map(
+                getSleepSession(),
+                new Function<SleepSession, String>()
+                {
+                    @Override
+                    public String apply(SleepSession input)
+                    {
+                        if (input == null) {
+                            return null;
+                        }
+                        return mDateTimeFormatter.formatDate(input.getEnd());
+                    }
+                });
     }
     
-    public LiveData<String> getStartDate()
+    public LiveData<String> getStartDateText()
     {
-        mStartDate = lazyInitLiveDateTime(mStartDate, getStartDateTimeMutable(), DateTimeFormatType.DATE);
-        return mStartDate;
+        return Transformations.map(
+                getSleepSession(),
+                new Function<SleepSession, String>()
+                {
+                    @Override
+                    public String apply(SleepSession input)
+                    {
+                        if (input == null) {
+                            return null;
+                        }
+                        return mDateTimeFormatter.formatDate(input.getStart());
+                    }
+                });
     }
     
-    public void setStartDate(int year, int month, int dayOfMonth)
+    public void setStartDay(int year, int month, int dayOfMonth)
     {
-        // update the start date
+        // OPTIMIZE [20-11-30 11:19PM] -- consider doing nothing if the new date
+        //  matches the old.
+        
         GregorianCalendar calendar = new GregorianCalendar();
-        // REFACTOR [20-12-6 8:37PM] -- this doesn't need to be mutable - use getStartDateTime.
-        calendar.setTimeInMillis(getStartDateTimeMutable().getValue());
+        calendar.setTime(mSleepSession.getValue().getStart());
         calendar.set(Calendar.YEAR, year);
         calendar.set(Calendar.MONTH, month);
         calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
         
-        if (isInvalidStartDateTime(calendar.getTimeInMillis())) {
-            throw new InvalidDateTimeException(String.format(
-                    "Invalid start date: %s (start) > %s (end)",
-                    mDateTimeFormatter.formatDate(calendar.getTime()),
-                    getEndDate().getValue()));
+        try {
+            mSleepSession.getValue().setStartFixed(calendar);
+            notifySessionChanged();
+        } catch (SleepSession.InvalidDateError e) {
+            // REFACTOR [21-03-25 12:55AM] -- Is this exception conversion necessary, or is it
+            //  alright to have the view handle a domain exception?
+            throw new InvalidDateTimeException((e.getMessage()));
         }
-        
+    }
+    
+    public void setEndDay(int year, int month, int dayOfMonth)
+    {
         // OPTIMIZE [20-11-30 11:19PM] -- consider doing nothing if the new date
         //  matches the old.
         
-        // set the new date
-        setStartDateTime(calendar.getTimeInMillis());
-    }
-    
-    public void setEndDate(int year, int month, int dayOfMonth)
-    {
-        // update the end date
         GregorianCalendar calendar = new GregorianCalendar();
-        calendar.setTimeInMillis(getEndDateTime().getValue());
+        calendar.setTime(mSleepSession.getValue().getEnd());
         calendar.set(Calendar.YEAR, year);
         calendar.set(Calendar.MONTH, month);
         calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
         
-        if (isInvalidEndDateTime(calendar.getTimeInMillis())) {
-            throw new InvalidDateTimeException(String.format(
-                    "Invalid end date: %s (end) < %s (start)",
-                    mDateTimeFormatter.formatDate(calendar.getTime()),
-                    getStartDate().getValue()));
+        try {
+            mSleepSession.getValue().setEndFixed(calendar);
+            notifySessionChanged();
+        } catch (SleepSession.InvalidDateError e) {
+            // REFACTOR [21-03-25 12:55AM] -- Is this exception conversion necessary, or is it
+            //  alright to have the view handle a domain exception?
+            throw new InvalidDateTimeException((e.getMessage()));
         }
-        
-        // OPTIMIZE [20-11-30 11:19PM] -- consider doing nothing if the new date
-        //  matches the old.
-        
-        // set the new date
-        setEndDateTime(calendar.getTimeInMillis());
     }
     
     public void setStartTime(int hourOfDay, int minute)
     {
-        // REFACTOR [20-12-6 8:35PM] -- this essentially duplicates the logic of
-        //  setStartDate - consider possibilities for reducing that repetition.
-        
         // OPTIMIZE [20-12-6 8:36PM] -- consider doing nothing if the new time matches the old.
         
         GregorianCalendar calendar = new GregorianCalendar();
-        calendar.setTimeInMillis(getStartDateTime().getValue());
+        calendar.setTime(mSleepSession.getValue().getStart());
         calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
         calendar.set(Calendar.MINUTE, minute);
         
-        if (isInvalidStartDateTime(calendar.getTimeInMillis())) {
-            throw new InvalidDateTimeException(String.format(
-                    "Invalid start time: %s (start) > %s (end)",
-                    mDateTimeFormatter.formatTimeOfDay(calendar.getTime()),
-                    getEndTime().getValue()));
+        try {
+            mSleepSession.getValue().setStartFixed(calendar);
+            notifySessionChanged();
+        } catch (SleepSession.InvalidDateError e) {
+            // REFACTOR [21-03-25 12:55AM] -- Is this exception conversion necessary, or is it
+            //  alright to have the view handle a domain exception?
+            throw new InvalidDateTimeException((e.getMessage()));
         }
-        
-        setStartDateTime(calendar.getTimeInMillis());
     }
     
     public void setEndTime(int hourOfDay, int minute)
     {
-        // REFACTOR [20-12-6 8:35PM] -- this essentially duplicates the logic of
-        //  setStartDate - consider possibilities for reducing that repetition.
-        
         // OPTIMIZE [20-12-6 8:36PM] -- consider doing nothing if the new time matches the old.
         
         GregorianCalendar calendar = new GregorianCalendar();
-        calendar.setTimeInMillis(getEndDateTime().getValue());
+        calendar.setTime(mSleepSession.getValue().getEnd());
         calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
         calendar.set(Calendar.MINUTE, minute);
         
-        if (isInvalidEndDateTime(calendar.getTimeInMillis())) {
-            throw new InvalidDateTimeException(String.format(
-                    "Invalid end time: %s (end) < %s (start)",
-                    mDateTimeFormatter.formatTimeOfDay(calendar.getTime()),
-                    getStartTime().getValue()));
+        try {
+            mSleepSession.getValue().setEndFixed(calendar);
+            notifySessionChanged();
+        } catch (SleepSession.InvalidDateError e) {
+            // REFACTOR [21-03-25 12:55AM] -- Is this exception conversion necessary, or is it
+            //  alright to have the view handle a domain exception?
+            throw new InvalidDateTimeException((e.getMessage()));
         }
-        
-        setEndDateTime(calendar.getTimeInMillis());
     }
     
     public LiveData<Long> getEndDateTime()
     {
-        return getEndDateTimeMutable();
-    }
-    
-    public void setEndDateTime(long endTime)
-    {
-        getEndDateTimeMutable().setValue(endTime);
+        return Transformations.map(
+                getSleepSession(),
+                new Function<SleepSession, Long>()
+                {
+                    @Override
+                    public Long apply(SleepSession input)
+                    {
+                        if (input == null) {
+                            return null;
+                        }
+                        // REFACTOR [21-03-25 1:07AM] -- This should be getEndMillis? (demeter)
+                        return input.getEnd().getTime();
+                    }
+                });
     }
     
     public LiveData<Long> getStartDateTime()
     {
-        return getStartDateTimeMutable();
-    }
-    
-    public void setStartDateTime(long startTime)
-    {
-        getStartDateTimeMutable().setValue(startTime);
+        return Transformations.map(
+                getSleepSession(),
+                new Function<SleepSession, Long>()
+                {
+                    @Override
+                    public Long apply(SleepSession input)
+                    {
+                        if (input == null) {
+                            return null;
+                        }
+                        // REFACTOR [21-03-25 1:07AM] -- This should be getStartMillis? (demeter)
+                        return input.getStart().getTime();
+                    }
+                });
     }
     
     public void clearSessionData()
     {
-        getStartDateTimeMutable().setValue(null);
-        getEndDateTimeMutable().setValue(null);
-        
-        mIsInitialized = false;
+        mSleepSession.setValue(null);
     }
     
-    /**
-     * Session data is only initialized once. Subsequent calls to initSessionData do nothing, unless
-     * clearSessionData is called.
-     */
-    public void initSessionData(SleepSessionWrapper initialData)
+    public void setSessionData(SleepSessionWrapper sessionData)
     {
-        if (!sessionDataIsInitialized()) {
-            SleepSessionModel sleepSession = initialData.getModel();
-            
-            // REFACTOR [21-12-29 3:08AM] -- I should just store the SleepSessionModel instead of
-            //  breaking it down like this (this breaking-down behaviour is legacy).
-            mSessionId = sleepSession.getId();
-            getStartDateTimeMutable().setValue(sleepSession.getStart().getTime());
-            getEndDateTimeMutable().setValue(sleepSession.getEnd().getTime());
-            
-            mIsInitialized = true;
-        }
+        mSleepSession.setValue(sessionData.getModel());
     }
     
-    public boolean sessionDataIsInitialized()
-    {
-        return mIsInitialized;
-    }
-
 //*********************************************************
 // protected api
 //*********************************************************
@@ -305,109 +299,18 @@ public class SessionDataFragmentViewModel
     {
         return new TimeUtils();
     }
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
 
-    private boolean isInvalidStartDateTime(long startDateTime)
+    private LiveData<SleepSession> getSleepSession()
     {
-        // REFACTOR [20-12-8 12:57AM] -- this doesn't need the mutable version.
-        Long endDateTime = getEndDateTimeMutable().getValue();
-        // REFACTOR [20-11-30 11:59PM] -- consider making a higher order isInvalidStartEnd(start,
-        //  end).
-        if (endDateTime == null) {
-            // if there is no end datetime then it doesn't matter what the start datetime is
-            return false;
-        }
-        return (startDateTime > endDateTime);
-    }
-    
-    private boolean isInvalidEndDateTime(long endDateTime)
-    {
-        Long startDateTime = getStartDateTime().getValue();
-        if (startDateTime == null) {
-            // if there is no start datetime then it doesn't matter what the end datetime is
-            return false;
-        }
-        return (startDateTime > endDateTime);
-    }
-    
-    // REFACTOR [20-11-27 12:14AM] -- extract this for reuse
-    //  consider though: the "returning 0 on null values" is kind of a
-    //  special behaviour for SessionEditFragmentViewModel (for setting the session duration
-    //  text properly)
-    //  in the general case, would it be better to throw an exception?
-    private long computeDurationMillis(Long startMillis, Long endMillis)
-    {
-        if (startMillis == null || endMillis == null) {
-            return 0;
-        }
-        return endMillis - startMillis;
-    }
-    
-    /**
-     * Transforms the target string (eg startTime, endDate) with the source date (eg startDateTime,
-     * endDateTime), on the given format.
-     * <p>
-     * This means that when the source changes, the target is updated using that format.
-     */
-    private LiveData<String> lazyInitLiveDateTime(
-            LiveData<String> target,
-            LiveData<Long> source,
-            final DateTimeFormatType formatType)
-    {
-        if (target == null) {
-            target = Transformations.map(source, new Function<Long, String>()
-            {
-                @Override
-                public String apply(Long dateMillis)
-                {
-                    if (dateMillis == null) {
-                        return null;
-                    } else {
-                        return formatDateTimeMillisFromType(dateMillis, formatType);
-                    }
-                }
-            });
-        }
-        return target;
-    }
-    
-    private String formatDateTimeMillisFromType(long dateMillis, DateTimeFormatType formatType)
-    {
-        Date date = mTimeUtils.getDateFromMillis(dateMillis);
-        switch (formatType) {
-        case DATE:
-            return mDateTimeFormatter.formatDate(date);
-        case TIME_OF_DAY:
-            return mDateTimeFormatter.formatTimeOfDay(date);
-        default:
-            throw new IllegalArgumentException("Invalid format type.");
-        }
-    }
-    
-    private MutableLiveData<Long> getStartDateTimeMutable()
-    {
-        mStartDateTime = LiveDataUtils.lazyInitMutable(mStartDateTime, null);
-        return mStartDateTime;
-    }
-    
-    private MutableLiveData<Long> getEndDateTimeMutable()
-    {
-        mEndDateTime = LiveDataUtils.lazyInitMutable(mEndDateTime, null);
-        return mEndDateTime;
+        return mSleepSession;
     }
 
-//*********************************************************
-// private helpers
-//*********************************************************
-
-    // REFACTOR [20-11-27 1:37AM] -- consider moving this behaviour into DateTimeFormatter
-    //  - would this be generally useful?
-    private enum DateTimeFormatType
+    private void notifySessionChanged()
     {
-        DATE,
-        TIME_OF_DAY,
+        mSleepSession.setValue(mSleepSession.getValue());
     }
 }

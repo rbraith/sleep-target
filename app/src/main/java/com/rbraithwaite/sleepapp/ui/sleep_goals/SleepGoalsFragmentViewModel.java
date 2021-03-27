@@ -7,15 +7,15 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import com.rbraithwaite.sleepapp.data.current_goals.CurrentGoalsRepository;
-import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
-import com.rbraithwaite.sleepapp.data.current_goals.WakeTimeGoalModel;
-import com.rbraithwaite.sleepapp.data.sleep_session.SleepSessionRepository;
-import com.rbraithwaite.sleepapp.ui.UIDependenciesModule;
+import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
+import com.rbraithwaite.sleepapp.core.models.SleepDurationGoalSuccess;
+import com.rbraithwaite.sleepapp.core.models.WakeTimeGoal;
+import com.rbraithwaite.sleepapp.core.models.WakeTimeGoalSuccess;
+import com.rbraithwaite.sleepapp.core.repositories.CurrentGoalsRepository;
+import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
+import com.rbraithwaite.sleepapp.di.UIDependenciesModule;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.data.SleepDurationGoalUIData;
-import com.rbraithwaite.sleepapp.ui.sleep_goals.goal_success.SleepDurationGoalSuccess;
-import com.rbraithwaite.sleepapp.ui.sleep_goals.goal_success.WakeTimeGoalSuccess;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import java.util.Calendar;
@@ -32,11 +32,11 @@ public class SleepGoalsFragmentViewModel
 //*********************************************************
 
     private CurrentGoalsRepository mCurrentGoalsRepository;
-    private LiveData<WakeTimeGoalModel> mWakeTimeGoalModel;
+    private LiveData<WakeTimeGoal> mWakeTimeGoalModel;
     
     private DateTimeFormatter mDateTimeFormatter;
     
-    private LiveData<SleepDurationGoalModel> mSleepDurationGoalModel;
+    private LiveData<SleepDurationGoal> mSleepDurationGoalModel;
     
     private TimeUtils mTimeUtils;
     
@@ -56,7 +56,7 @@ public class SleepGoalsFragmentViewModel
     
     public static final int DEFAULT_SLEEP_DURATION_HOUR = 8;
     public static final int DEFAULT_SLEEP_DURATION_MINUTE = 0;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -74,7 +74,7 @@ public class SleepGoalsFragmentViewModel
         mExecutor = executor;
         mTimeUtils = createTimeUtils();
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -91,10 +91,10 @@ public class SleepGoalsFragmentViewModel
     {
         return Transformations.map(
                 getWakeTimeGoalModel(),
-                new Function<WakeTimeGoalModel, String>()
+                new Function<WakeTimeGoal, String>()
                 {
                     @Override
-                    public String apply(WakeTimeGoalModel wakeTimeGoal)
+                    public String apply(WakeTimeGoal wakeTimeGoal)
                     {
                         // REFACTOR [21-02-2 9:08PM] -- put all this logic into
                         //  SleepGoalsFormatting?
@@ -108,7 +108,7 @@ public class SleepGoalsFragmentViewModel
     
     public void setWakeTime(int hourOfDay, int minute)
     {
-        mCurrentGoalsRepository.setWakeTimeGoal(new WakeTimeGoalModel(
+        mCurrentGoalsRepository.setWakeTimeGoal(new WakeTimeGoal(
                 mTimeUtils.getNow(),
                 (int) mTimeUtils.timeToMillis(hourOfDay, minute, 0, 0)
         ));
@@ -118,10 +118,10 @@ public class SleepGoalsFragmentViewModel
     {
         return Transformations.map(
                 getWakeTimeGoalModel(),
-                new Function<WakeTimeGoalModel, Boolean>()
+                new Function<WakeTimeGoal, Boolean>()
                 {
                     @Override
-                    public Boolean apply(WakeTimeGoalModel wakeTimeGoal)
+                    public Boolean apply(WakeTimeGoal wakeTimeGoal)
                     {
                         return (wakeTimeGoal != null && wakeTimeGoal.isSet());
                     }
@@ -132,10 +132,10 @@ public class SleepGoalsFragmentViewModel
     {
         return Transformations.map(
                 getWakeTimeGoalModel(),
-                new Function<WakeTimeGoalModel, Long>()
+                new Function<WakeTimeGoal, Long>()
                 {
                     @Override
-                    public Long apply(WakeTimeGoalModel input)
+                    public Long apply(WakeTimeGoal input)
                     {
                         return input.asDate().getTime();
                     }
@@ -151,10 +151,10 @@ public class SleepGoalsFragmentViewModel
     {
         return Transformations.map(
                 getSleepDurationGoalModel(),
-                new Function<SleepDurationGoalModel, Boolean>()
+                new Function<SleepDurationGoal, Boolean>()
                 {
                     @Override
-                    public Boolean apply(SleepDurationGoalModel sleepDurationGoal)
+                    public Boolean apply(SleepDurationGoal sleepDurationGoal)
                     {
                         return (sleepDurationGoal != null && sleepDurationGoal.isSet());
                     }
@@ -169,17 +169,17 @@ public class SleepGoalsFragmentViewModel
     
     public void setSleepDurationGoal(int hours, int minutes)
     {
-        mCurrentGoalsRepository.setSleepDurationGoal(new SleepDurationGoalModel(hours, minutes));
+        mCurrentGoalsRepository.setSleepDurationGoal(new SleepDurationGoal(hours, minutes));
     }
     
     public LiveData<String> getSleepDurationGoalText()
     {
         return Transformations.map(
                 getSleepDurationGoalModel(),
-                new Function<SleepDurationGoalModel, String>()
+                new Function<SleepDurationGoal, String>()
                 {
                     @Override
-                    public String apply(SleepDurationGoalModel sleepDurationGoal)
+                    public String apply(SleepDurationGoal sleepDurationGoal)
                     {
                         // REFACTOR [21-02-2 7:01PM] -- should this instead be an injected object?
                         //  eg SleepGoalsFormatter, a more OOP approach allowing for multiple
@@ -198,10 +198,10 @@ public class SleepGoalsFragmentViewModel
     {
         return Transformations.map(
                 getSleepDurationGoalModel(),
-                new Function<SleepDurationGoalModel, SleepDurationGoalUIData>()
+                new Function<SleepDurationGoal, SleepDurationGoalUIData>()
                 {
                     @Override
-                    public SleepDurationGoalUIData apply(SleepDurationGoalModel input)
+                    public SleepDurationGoalUIData apply(SleepDurationGoal input)
                     {
                         // REFACTOR [21-02-3 6:15PM] -- extract this conversion logic.
                         return new SleepDurationGoalUIData(
@@ -222,11 +222,14 @@ public class SleepGoalsFragmentViewModel
         if (mSucceededSleepDurationGoalDates == null) {
             mSucceededSleepDurationGoalDates = Transformations.switchMap(
                     mCurrentGoalsRepository.getSleepDurationGoalHistory(),
-                    new Function<List<SleepDurationGoalModel>, LiveData<List<Date>>>()
+                    new Function<List<SleepDurationGoal>, LiveData<List<Date>>>()
                     {
                         @Override
-                        public LiveData<List<Date>> apply(final List<SleepDurationGoalModel> sleepDurationGoalHistory)
+                        public LiveData<List<Date>> apply(final List<SleepDurationGoal> sleepDurationGoalHistory)
                         {
+                            // REFACTOR [21-03-25 12:01AM] -- I forget if I did this already, but
+                            //  this async initialization logic should be extracted as a general
+                            //  utility.
                             final MutableLiveData<List<Date>> liveData = new MutableLiveData<>();
                             mExecutor.execute(new Runnable()
                             {
@@ -264,10 +267,10 @@ public class SleepGoalsFragmentViewModel
         if (mSucceededWakeTimeGoalDates == null) {
             mSucceededWakeTimeGoalDates = Transformations.switchMap(
                     mCurrentGoalsRepository.getWakeTimeGoalHistory(),
-                    new Function<List<WakeTimeGoalModel>, LiveData<List<Date>>>()
+                    new Function<List<WakeTimeGoal>, LiveData<List<Date>>>()
                     {
                         @Override
-                        public LiveData<List<Date>> apply(final List<WakeTimeGoalModel> wakeTimeGoalHistory)
+                        public LiveData<List<Date>> apply(final List<WakeTimeGoal> wakeTimeGoalHistory)
                         {
                             final MutableLiveData<List<Date>> liveData = new MutableLiveData<>();
                             mExecutor.execute(new Runnable()
@@ -275,6 +278,12 @@ public class SleepGoalsFragmentViewModel
                                 @Override
                                 public void run()
                                 {
+                                    // SMELL [21-03-26 1:31AM] -- Is it weird for
+                                    //  WakeTimeGoalSuccess
+                                    //  and SleepDurationGoalSuccess (domain models) to be
+                                    //  depending on TimeUtils? Should there be some kind of
+                                    //  time utility or service in the domain instead? Research
+                                    //  conventional solutions to time.
                                     WakeTimeGoalSuccess success = new WakeTimeGoalSuccess(
                                             wakeTimeGoalHistory,
                                             mSleepSessionRepository,
@@ -307,7 +316,7 @@ public class SleepGoalsFragmentViewModel
 // private methods
 //*********************************************************
 
-    private LiveData<WakeTimeGoalModel> getWakeTimeGoalModel()
+    private LiveData<WakeTimeGoal> getWakeTimeGoalModel()
     {
         if (mWakeTimeGoalModel == null) {
             mWakeTimeGoalModel = mCurrentGoalsRepository.getWakeTimeGoal();
@@ -317,7 +326,7 @@ public class SleepGoalsFragmentViewModel
     
     // Retain a private reference to the current sleep duration goal, so that a new instance doesn't
     // need to be retrieved from the repo every time the fragment restarts.
-    private LiveData<SleepDurationGoalModel> getSleepDurationGoalModel()
+    private LiveData<SleepDurationGoal> getSleepDurationGoalModel()
     {
         if (mSleepDurationGoalModel == null) {
             mSleepDurationGoalModel = mCurrentGoalsRepository.getSleepDurationGoal();

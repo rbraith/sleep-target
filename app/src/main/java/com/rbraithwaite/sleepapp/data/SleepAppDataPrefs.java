@@ -9,7 +9,7 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
-import com.rbraithwaite.sleepapp.data.database.convert.DateConverter;
+import com.rbraithwaite.sleepapp.data.database.convert.ConvertDate;
 
 import java.util.Date;
 import java.util.concurrent.Executor;
@@ -157,7 +157,7 @@ public class SleepAppDataPrefs
                     mCurrentSession.postValue(
                             currentSessionStartDate == NULL_LONG_VAL ?
                                     null :
-                                    DateConverter.convertDateFromMillis(currentSessionStartDate));
+                                    ConvertDate.fromMillis(currentSessionStartDate));
                 }
             });
         }

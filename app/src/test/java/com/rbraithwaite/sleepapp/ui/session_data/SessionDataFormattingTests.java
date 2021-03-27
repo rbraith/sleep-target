@@ -1,6 +1,6 @@
 package com.rbraithwaite.sleepapp.ui.session_data;
 
-import com.rbraithwaite.sleepapp.data.current_goals.SleepDurationGoalModel;
+import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFormatting;
 
 import org.junit.Test;
@@ -49,7 +49,7 @@ public class SessionDataFormattingTests
         public void runTest()
         {
             assertThat(
-                    SessionDataFormatting.formatSleepDurationGoal(new SleepDurationGoalModel(minutes)),
+                    SessionDataFormatting.formatSleepDurationGoal(new SleepDurationGoal(minutes)),
                     is(equalTo(expected)));
         }
     }
@@ -62,7 +62,7 @@ public class SessionDataFormattingTests
     public void formatSleepDurationGoal_unsetArg()
     {
         assertThat(
-                SleepGoalsFormatting.formatSleepDurationGoal(SleepDurationGoalModel.createWithNoGoal()),
+                SleepGoalsFormatting.formatSleepDurationGoal(SleepDurationGoal.createWithNoGoal()),
                 is(""));
     }
 }
