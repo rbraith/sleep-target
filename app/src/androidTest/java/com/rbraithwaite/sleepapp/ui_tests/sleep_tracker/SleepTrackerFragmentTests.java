@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui_tests;
+package com.rbraithwaite.sleepapp.ui_tests.sleep_tracker;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -21,6 +21,8 @@ import java.util.concurrent.ExecutionException;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
+import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.assertThat;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -39,6 +41,59 @@ public class SleepTrackerFragmentTests
 // api
 //*********************************************************
 
+    @Test
+    public void additionalCommentsText_resetsWhenSessionEnds()
+    {
+        // GIVEN the user has input some additional comments
+        ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
+        
+        String expectedText = "You want your belt to buckle, not your chair.";
+        onView(withId(R.id.additional_comments)).perform(typeText(expectedText))
+                .perform(closeSoftKeyboard());
+        
+        // WHEN the user ends the current session
+        onView(withId(R.id.sleep_tracker_button)).perform(click());
+        onView(withId(R.id.sleep_tracker_button)).perform(click());
+        
+        // THEN the additional comments text resets
+        onView(withId(R.id.additional_comments)).check(matches(withText("")));
+    }
+    
+    @Test
+    public void additionalCommentsText_isRetainedFromDifferentScreen()
+    {
+        // GIVEN the user has input some additional comments
+        ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
+        
+        String expectedText = "It's one banana, Michael. What could it cost, $10?";
+        onView(withId(R.id.additional_comments)).perform(typeText(expectedText))
+                .perform(closeSoftKeyboard());
+        
+        // WHEN the user returns to the sleep tracker screen from another screen
+        UITestNavigate.fromHome_toGoals();
+        UITestNavigate.up();
+        
+        // THEN the additional comment text is retained
+        onView(withId(R.id.additional_comments)).check(matches(withText(expectedText)));
+    }
+    
+    @Test
+    public void additionalCommentsText_isRetainedOnAppRestart()
+    {
+        // GIVEN the user has input some additional comments
+        ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
+        
+        String expectedText = "I don't care for GOB.";
+        onView(withId(R.id.additional_comments)).perform(typeText(expectedText))
+                .perform(closeSoftKeyboard());
+        
+        // WHEN the app is restarted
+        scenario = UITestUtils.restartApp(scenario, MainActivity.class);
+        
+        // THEN the additional comment text is retained
+        onView(withId(R.id.additional_comments)).check(matches(withText(expectedText)));
+    }
+    
     @Test
     public void sleepDurationGoal_displaysProperly()
     {

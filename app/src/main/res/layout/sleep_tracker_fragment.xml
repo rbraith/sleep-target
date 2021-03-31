@@ -12,10 +12,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
+        android:layout_marginTop="160dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
         android:text="@string/sleep_tracker_button_start"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -87,4 +87,14 @@
         app:layout_constraintBaseline_toBaselineOf="@+id/sleep_tracker_waketime_goal_title"
         app:layout_constraintStart_toEndOf="@+id/sleep_tracker_waketime_goal_title"
         tools:text="8:30 a.m." />
+
+    <include
+        android:id="@+id/sleep_tracker_more_context"
+        layout="@layout/sleep_tracker_more_context"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sleep_tracker_duration_goal_title" />
 </androidx.constraintlayout.widget.ConstraintLayout>

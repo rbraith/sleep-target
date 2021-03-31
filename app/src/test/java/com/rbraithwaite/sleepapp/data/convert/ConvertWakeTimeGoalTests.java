@@ -1,8 +1,7 @@
-package com.rbraithwaite.sleepapp.data.current_goals;
+package com.rbraithwaite.sleepapp.data.convert;
 
 import com.rbraithwaite.sleepapp.core.models.WakeTimeGoal;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalEntity;
-import com.rbraithwaite.sleepapp.data.repositories.convert.ConvertWakeTimeGoal;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 
 import org.junit.Test;
@@ -12,7 +11,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
-public class WakeTimeGoalConverterTests
+public class ConvertWakeTimeGoalTests
 {
 //*********************************************************
 // api

@@ -37,7 +37,9 @@ public class SleepTrackerFragmentViewModel
     private DateTimeFormatter mDateTimeFormatter;
     
     private TimeUtils mTimeUtils;
-
+    
+    private LiveData<CurrentSession> mCurrentSession;
+    
 //*********************************************************
 // private constants
 //*********************************************************
@@ -62,7 +64,7 @@ public class SleepTrackerFragmentViewModel
         mDateTimeFormatter = dateTimeFormatter;
         mTimeUtils = createTimeUtils();
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -71,13 +73,13 @@ public class SleepTrackerFragmentViewModel
     {
         if (mInSleepSession == null) {
             mInSleepSession = Transformations.map(
-                    mCurrentSessionRepository.getCurrentSession(),
+                    getCurrentSession(),
                     new Function<CurrentSession, Boolean>()
                     {
                         @Override
                         public Boolean apply(CurrentSession input)
                         {
-                            return (input.isSet());
+                            return (input.isStarted());
                         }
                     }
             );
@@ -92,25 +94,42 @@ public class SleepTrackerFragmentViewModel
      */
     public void startSleepSession()
     {
-        mCurrentSessionRepository.setCurrentSession(mTimeUtils.getNow());
-    }
-    
-    public void endSleepSession()
-    {
         LiveDataFuture.getValue(
-                mCurrentSessionRepository.getCurrentSession(),
+                getCurrentSession(),
                 null,
                 new LiveDataFuture.OnValueListener<CurrentSession>()
                 {
                     @Override
                     public void onValue(CurrentSession currentSession)
                     {
-                        if (currentSession.isSet()) {
-                            addCurrentSessionThenClear(currentSession);
+                        mCurrentSessionRepository.setCurrentSession(new CurrentSession(
+                                mTimeUtils.getNow(),
+                                currentSession.getAdditionalComments()));
+                    }
+                });
+    }
+    
+    public void endSleepSession()
+    {
+        LiveDataFuture.getValue(
+                getCurrentSession(),
+                null,
+                new LiveDataFuture.OnValueListener<CurrentSession>()
+                {
+                    @Override
+                    public void onValue(CurrentSession currentSession)
+                    {
+                        if (currentSession.isStarted()) {
+                            mSleepSessionRepository.addSleepSession(currentSession.toSleepSession());
+                            mCurrentSessionRepository.clearCurrentSession();
                         }
                     }
-                }
-        );
+                });
+    }
+    
+    public void setTimeUtils(TimeUtils timeUtils)
+    {
+        mTimeUtils = timeUtils;
     }
     
     public LiveData<String> getCurrentSleepSessionDuration()
@@ -123,7 +142,7 @@ public class SleepTrackerFragmentViewModel
         // active/inactive states down to source LiveData objects."
         // https://developer.android.com/reference/androidx/lifecycle/MediatorLiveData
         mCurrentSleepSessionDuration = Transformations.switchMap(
-                mCurrentSessionRepository.getCurrentSession(),
+                getCurrentSession(),
                 new Function<CurrentSession, androidx.lifecycle.LiveData<String>>()
                 {
                     @Override
@@ -132,7 +151,7 @@ public class SleepTrackerFragmentViewModel
                         // REFACTOR [21-03-24 11:57PM] -- This should be SleepTrackerFormatting.
                         final DurationFormatter durationFormatter = new DurationFormatter();
                         
-                        if (!currentSession.isSet()) {
+                        if (!currentSession.isStarted()) {
                             return new MutableLiveData<>(durationFormatter.formatDurationMillis(
                                     0));
                         } else {
@@ -155,13 +174,13 @@ public class SleepTrackerFragmentViewModel
     public LiveData<String> getSessionStartTime()
     {
         return Transformations.map(
-                mCurrentSessionRepository.getCurrentSession(),
+                getCurrentSession(),
                 new Function<CurrentSession, String>()
                 {
                     @Override
                     public String apply(CurrentSession input)
                     {
-                        return input.isSet() ?
+                        return input.isStarted() ?
                                 // REFACTOR [21-02-3 3:18PM] -- move this logic to
                                 //  SleepTrackerFormatting.
                                 mDateTimeFormatter.formatFullDate(input.getStart()) :
@@ -203,7 +222,46 @@ public class SleepTrackerFragmentViewModel
                     }
                 });
     }
-
+    
+    /**
+     * Stores the current user additional comments text persistently.
+     *
+     * @param additionalComments The additional comment text to store
+     */
+    public void storeAdditionalComments(final String additionalComments)
+    {
+        LiveDataFuture.getValue(
+                getCurrentSession(),
+                null,
+                new LiveDataFuture.OnValueListener<CurrentSession>()
+                {
+                    @Override
+                    public void onValue(CurrentSession currentSession)
+                    {
+                        mCurrentSessionRepository.setCurrentSession(new CurrentSession(
+                                currentSession.getStart(),
+                                additionalComments));
+                    }
+                });
+    }
+    
+    /**
+     * The user-provided additional comments for the current sleep session. (might be null)
+     */
+    public LiveData<String> getAdditionalComments()
+    {
+        return Transformations.map(
+                getCurrentSession(),
+                new Function<CurrentSession, String>()
+                {
+                    @Override
+                    public String apply(CurrentSession input)
+                    {
+                        return input.getAdditionalComments();
+                    }
+                });
+    }
+    
 //*********************************************************
 // protected api
 //*********************************************************
@@ -217,9 +275,11 @@ public class SleepTrackerFragmentViewModel
 // private methods
 //*********************************************************
 
-    private void addCurrentSessionThenClear(final CurrentSession currentSession)
+    private LiveData<CurrentSession> getCurrentSession()
     {
-        mSleepSessionRepository.addSleepSession(currentSession.toSleepSession());
-        mCurrentSessionRepository.clearCurrentSession();
+        if (mCurrentSession == null) {
+            mCurrentSession = mCurrentSessionRepository.getCurrentSession();
+        }
+        return mCurrentSession;
     }
 }

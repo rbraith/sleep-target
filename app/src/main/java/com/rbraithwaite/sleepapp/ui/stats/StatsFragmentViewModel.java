@@ -39,14 +39,10 @@ public class StatsFragmentViewModel
     private Resolution mIntervalsResolution = Resolution.WEEK;
 
 //*********************************************************
-// private constants
-//*********************************************************
-
-    private static final boolean DEFAULT_INTERVALS_INVERT = true;
-
-//*********************************************************
 // public constants
 //*********************************************************
+
+    public static final boolean DEFAULT_INTERVALS_INVERT = true;
 
     // offsetting to the sunday of last week, so that the range start time of day is 4pm but
     // it includes the start of the monday (ie the first 24hrs of the range goes
@@ -265,6 +261,12 @@ public class StatsFragmentViewModel
     public SleepIntervalsDataSet.Config getIntervalsDataSetConfig()
     {
         return getIntervalsConfigMutable().getValue();
+    }
+    
+    // HACK [21-03-30 4:11PM] -- This is only meant to be used in tests - find a better way.
+    public void setIntervalsDataSetConfig(SleepIntervalsDataSet.Config intervalsDataSetConfig)
+    {
+        getIntervalsConfigMutable().setValue(intervalsDataSetConfig);
     }
     
     /**

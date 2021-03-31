@@ -12,8 +12,6 @@ import com.rbraithwaite.sleepapp.core.repositories.CurrentSessionRepository;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import java.util.Date;
-
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
@@ -53,17 +51,18 @@ public class MockRepositoryUtils
             @Override
             public Void answer(InvocationOnMock invocation) throws Throwable
             {
-                Date newStart = invocation.getArgumentAt(0, Date.class);
-                currentSession.setValue(new CurrentSession(newStart));
+                CurrentSession newCurrentSession =
+                        invocation.getArgumentAt(0, CurrentSession.class);
+                currentSession.setValue(newCurrentSession);
                 return null;
             }
-        }).when(mockRepo).setCurrentSession(any(Date.class));
+        }).when(mockRepo).setCurrentSession(any(CurrentSession.class));
         doAnswer(new Answer<Void>()
         {
             @Override
             public Void answer(InvocationOnMock invocation) throws Throwable
             {
-                currentSession.setValue(new CurrentSession(null));
+                currentSession.setValue(new CurrentSession());
                 return null;
             }
         }).when(mockRepo).clearCurrentSession();

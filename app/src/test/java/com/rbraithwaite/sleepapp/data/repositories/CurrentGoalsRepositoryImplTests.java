@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.data.current_goals;
+package com.rbraithwaite.sleepapp.data.repositories;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -6,12 +6,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
 import com.rbraithwaite.sleepapp.core.models.WakeTimeGoal;
-import com.rbraithwaite.sleepapp.data.SleepAppDataPrefs;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDurationGoalDao;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDurationGoalEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalDao;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalEntity;
-import com.rbraithwaite.sleepapp.data.repositories.CurrentGoalsRepositoryImpl;
+import com.rbraithwaite.sleepapp.data.prefs.SleepAppDataPrefs;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 

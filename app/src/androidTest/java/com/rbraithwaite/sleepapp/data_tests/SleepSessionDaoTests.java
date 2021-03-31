@@ -8,10 +8,10 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
+import com.rbraithwaite.sleepapp.data.convert.ConvertSleepSession;
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionDao;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
-import com.rbraithwaite.sleepapp.data.repositories.convert.ConvertSleepSession;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 
 import org.junit.After;
@@ -22,7 +22,6 @@ import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -213,17 +212,16 @@ public class SleepSessionDaoTests
         int testSleepSessionId = (int) sleepSessionDao.addSleepSession(testSleepSession);
         
         // update the sleep session
+        SleepSessionEntity updatedSleepSession = new SleepSessionEntity();
+        
         GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
         calendar.add(Calendar.MONTH, 5);
-        Date newStartDate = calendar.getTime();
-        long newDuration = TestUtils.ArbitraryData.getDurationMillis() + 2500L;
-        calendar.add(Calendar.MINUTE, 10);
-        Date newWakeTimeGoal = calendar.getTime();
-        
-        SleepSessionEntity updatedSleepSession = new SleepSessionEntity();
-        updatedSleepSession.startTime = newStartDate;
-        updatedSleepSession.duration = newDuration;
+        updatedSleepSession.startTime = calendar.getTime();
+        updatedSleepSession.duration = TestUtils.ArbitraryData.getDurationMillis() + 2500L;
+        calendar.add(Calendar.MILLISECOND, (int) updatedSleepSession.duration);
+        updatedSleepSession.endTime = calendar.getTime();
         updatedSleepSession.id = testSleepSessionId;
+        updatedSleepSession.additionalComments = "updated!";
         
         sleepSessionDao.updateSleepSession(updatedSleepSession);
         
@@ -231,9 +229,7 @@ public class SleepSessionDaoTests
         LiveData<SleepSessionEntity> sleepSession =
                 database.getSleepSessionDao().getSleepSession(testSleepSessionId);
         TestUtils.activateInstrumentationLiveData(sleepSession);
-        assertThat(sleepSession.getValue().id, is(testSleepSessionId));
-        assertThat(sleepSession.getValue().startTime, is(equalTo(newStartDate)));
-        assertThat(sleepSession.getValue().duration, is(newDuration));
+        assertThat(sleepSession.getValue(), is(equalTo(updatedSleepSession)));
     }
     
     // TODO [20-12-16 12:37AM] -- define updateSleepSession() behaviour on null or invalid args.
@@ -243,15 +239,13 @@ public class SleepSessionDaoTests
     {
         SleepSessionEntity testSleepSession = TestUtils.ArbitraryData.getSleepSessionEntity();
         
-        int testSleepSessionId = (int) sleepSessionDao.addSleepSession(testSleepSession);
+        testSleepSession.id = (int) sleepSessionDao.addSleepSession(testSleepSession);
         
         LiveData<SleepSessionEntity> sleepSession =
-                database.getSleepSessionDao().getSleepSession(testSleepSessionId);
+                sleepSessionDao.getSleepSession(testSleepSession.id);
         
         TestUtils.activateInstrumentationLiveData(sleepSession);
-        assertThat(sleepSession.getValue(), is(notNullValue()));
-        assertThat(sleepSession.getValue().duration, is(equalTo(testSleepSession.duration)));
-        assertThat(sleepSession.getValue().startTime, is(equalTo(testSleepSession.startTime)));
+        assertThat(sleepSession.getValue(), is(equalTo(testSleepSession)));
     }
     
     @Test
@@ -300,18 +294,16 @@ public class SleepSessionDaoTests
     @Test
     public void getSleepSession_positiveInput()
     {
-        SleepSessionEntity expectedData = TestUtils.ArbitraryData.getSleepSessionEntity();
-        int id = (int) sleepSessionDao.addSleepSession(expectedData);
+        SleepSessionEntity expected = TestUtils.ArbitraryData.getSleepSessionEntity();
+        expected.id = (int) sleepSessionDao.addSleepSession(expected);
         
         LiveData<SleepSessionEntity> sleepSessionLiveData =
-                sleepSessionDao.getSleepSession(id);
+                sleepSessionDao.getSleepSession(expected.id);
         
         TestUtils.activateInstrumentationLiveData(sleepSessionLiveData);
         
         SleepSessionEntity sleepSession = sleepSessionLiveData.getValue();
-        assertThat(sleepSession.id, is(equalTo(id)));
-        assertThat(sleepSession.startTime, is(equalTo(expectedData.startTime)));
-        assertThat(sleepSession.duration, is(equalTo(expectedData.duration)));
+        assertThat(sleepSession, is(equalTo(expected)));
     }
     
     @Test

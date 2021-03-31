@@ -12,7 +12,9 @@ public class CurrentSession
 
     private Date mStart;
     private TimeUtils mTimeUtils;
-
+    
+    private String mAdditionalComments;
+    
 //*********************************************************
 // constructors
 //*********************************************************
@@ -24,10 +26,16 @@ public class CurrentSession
     
     public CurrentSession(Date start)
     {
-        mStart = start;
-        mTimeUtils = createTimeUtils();
+        this(start, null);
     }
 
+    public CurrentSession(Date start, String additionalComments)
+    {
+        mStart = start;
+        mAdditionalComments = additionalComments;
+        mTimeUtils = createTimeUtils();
+    }
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -42,7 +50,7 @@ public class CurrentSession
         mStart = start;
     }
     
-    public boolean isSet()
+    public boolean isStarted()
     {
         return mStart != null;
     }
@@ -61,7 +69,20 @@ public class CurrentSession
      */
     public SleepSession toSleepSession()
     {
-        return new SleepSession(getStart(), getOngoingDurationMillis());
+        return new SleepSession(
+                getStart(),
+                getOngoingDurationMillis(),
+                getAdditionalComments());
+    }
+    
+    public String getAdditionalComments()
+    {
+        return mAdditionalComments;
+    }
+    
+    public void setAdditionalComments(String additionalComments)
+    {
+        mAdditionalComments = additionalComments;
     }
 
 //*********************************************************

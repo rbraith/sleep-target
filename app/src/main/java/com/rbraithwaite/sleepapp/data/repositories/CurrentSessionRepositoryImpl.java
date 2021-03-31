@@ -1,14 +1,15 @@
 package com.rbraithwaite.sleepapp.data.repositories;
 
+import androidx.annotation.NonNull;
 import androidx.arch.core.util.Function;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
 
 import com.rbraithwaite.sleepapp.core.models.CurrentSession;
 import com.rbraithwaite.sleepapp.core.repositories.CurrentSessionRepository;
-import com.rbraithwaite.sleepapp.data.SleepAppDataPrefs;
-
-import java.util.Date;
+import com.rbraithwaite.sleepapp.data.convert.ConvertCurrentSession;
+import com.rbraithwaite.sleepapp.data.prefs.CurrentSessionPrefsData;
+import com.rbraithwaite.sleepapp.data.prefs.SleepAppDataPrefs;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -40,7 +41,7 @@ public class CurrentSessionRepositoryImpl
     @Override
     public void clearCurrentSession()
     {
-        setCurrentSession(null);
+        setCurrentSession(new CurrentSession());
     }
     
     @Override
@@ -48,19 +49,21 @@ public class CurrentSessionRepositoryImpl
     {
         return Transformations.map(
                 mDataPrefs.getCurrentSession(),
-                new Function<Date, CurrentSession>()
+                new Function<CurrentSessionPrefsData, CurrentSession>()
                 {
                     @Override
-                    public CurrentSession apply(Date currentSessionStart)
+                    public CurrentSession apply(CurrentSessionPrefsData input)
                     {
-                        return new CurrentSession(currentSessionStart);
+                        return ConvertCurrentSession.fromPrefsData(input);
                     }
                 });
     }
     
     @Override
-    public void setCurrentSession(Date start)
+    public void setCurrentSession(@NonNull CurrentSession currentSession)
     {
-        mDataPrefs.setCurrentSession(start);
+        // REFACTOR [21-03-29 11:15PM] -- should the asynchronicity be here instead of down in the
+        //  prefs? Or even higher in the view model?
+        mDataPrefs.setCurrentSession(ConvertCurrentSession.toPrefsData(currentSession));
     }
 }

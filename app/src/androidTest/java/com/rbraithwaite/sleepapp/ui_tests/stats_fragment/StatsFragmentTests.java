@@ -9,6 +9,7 @@ import com.rbraithwaite.sleepapp.ui.stats.StatsFormatting;
 import com.rbraithwaite.sleepapp.ui.stats.StatsFragment;
 import com.rbraithwaite.sleepapp.ui.stats.StatsFragmentViewModel;
 import com.rbraithwaite.sleepapp.ui.stats.data.DateRange;
+import com.rbraithwaite.sleepapp.ui.stats.data.SleepIntervalsDataSet;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import org.junit.Test;
@@ -39,6 +40,8 @@ public class StatsFragmentTests
     {
         // GIVEN the user is on the stats screen
         // AND the resolution of the sleep intervals data viz. is set to "week"
+        // REFACTOR [21-03-30 4:14PM] -- Creating the fragment generates an intervals config before
+        //  I have the chance to inject the stubbed TimeUtils - find a solution to this.
         HiltFragmentTestHelper<StatsFragment> helper =
                 HiltFragmentTestHelper.launchFragment(StatsFragment.class);
         
@@ -52,12 +55,18 @@ public class StatsFragmentTests
             }
         };
         
+        final SleepIntervalsDataSet.Config config = new SleepIntervalsDataSet.Config(
+                DateRange.asWeekOf(date.getTime()),
+                (int) stubTimeUtils.hoursToMillis(StatsFragmentViewModel.DEFAULT_INTERVALS_OFFSET_HOURS),
+                StatsFragmentViewModel.DEFAULT_INTERVALS_INVERT);
+        
         helper.performSyncedFragmentAction(new HiltFragmentTestHelper.SyncedFragmentAction<StatsFragment>()
         {
             @Override
             public void perform(StatsFragment fragment)
             {
                 fragment.getViewModel().setTimeUtils(stubTimeUtils);
+                fragment.getViewModel().setIntervalsDataSetConfig(config);
             }
         });
         

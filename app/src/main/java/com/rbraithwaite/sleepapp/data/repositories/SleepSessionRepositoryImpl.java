@@ -7,9 +7,9 @@ import androidx.lifecycle.Transformations;
 
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
+import com.rbraithwaite.sleepapp.data.convert.ConvertSleepSession;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionDao;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
-import com.rbraithwaite.sleepapp.data.repositories.convert.ConvertSleepSession;
 
 import java.util.Date;
 import java.util.List;

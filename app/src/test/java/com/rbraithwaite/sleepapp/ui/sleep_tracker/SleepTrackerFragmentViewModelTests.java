@@ -20,6 +20,7 @@ import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFormatting;
 import com.rbraithwaite.sleepapp.utils.TickingLiveData;
+import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import org.junit.After;
 import org.junit.Before;
@@ -33,6 +34,7 @@ import org.robolectric.shadows.ShadowLooper;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -43,6 +45,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.stub;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -247,9 +250,32 @@ public class SleepTrackerFragmentViewModelTests
     @Test
     public void startSleepSession_startsSession()
     {
+        // setup
+        String expectedComments = "test!";
+        when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(new MutableLiveData<>(
+                new CurrentSession(
+                        new GregorianCalendar(2021, 2, 30).getTime(),
+                        expectedComments)));
+        TimeUtils stubTimeUtils = new TimeUtils() {
+            @Override
+            public Date getNow()
+            {
+                return TestUtils.ArbitraryData.getDate();
+            }
+        };
+        viewModel.setTimeUtils(stubTimeUtils);
+        
+        // SUT
         viewModel.startSleepSession();
+        
+        // verify
+        ArgumentCaptor<CurrentSession> arg = ArgumentCaptor.forClass(CurrentSession.class);
         verify(mockCurrentSessionRepository, times(1))
-                .setCurrentSession(any(Date.class));
+                .setCurrentSession(arg.capture());
+        
+        CurrentSession currentSession = arg.getValue();
+        assertThat(currentSession.getStart(), is(equalTo(stubTimeUtils.getNow())));
+        assertThat(currentSession.getAdditionalComments(), is(equalTo(expectedComments)));
     }
     
     @Test
@@ -294,35 +320,5 @@ public class SleepTrackerFragmentViewModelTests
         
         SleepSession addSleepSession = addSleepSessionArg.getValue();
         assertThat(addSleepSession.getStart(), is(equalTo(startTime.getValue().getStart())));
-    }
-
-//*********************************************************
-// private methods
-//*********************************************************
-
-    private void setupMockCurrentSessionRepositoryWithState(
-            CurrentSessionRepositoryImpl mockRepo,
-            final MutableLiveData<CurrentSession> currentSession)
-    {
-        when(mockRepo.getCurrentSession()).thenReturn(currentSession);
-        doAnswer(new Answer<Void>()
-        {
-            @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable
-            {
-                Date newStart = invocation.getArgumentAt(0, Date.class);
-                currentSession.setValue(new CurrentSession(newStart));
-                return null;
-            }
-        }).when(mockRepo).setCurrentSession(any(Date.class));
-        doAnswer(new Answer<Void>()
-        {
-            @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable
-            {
-                currentSession.setValue(new CurrentSession(null));
-                return null;
-            }
-        }).when(mockRepo).clearCurrentSession();
     }
 }

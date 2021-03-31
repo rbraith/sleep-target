@@ -146,12 +146,6 @@ public class SleepSessionTests
         assertThat(sleepSession.getEnd(), is(equalTo(expectedEnd)));
     }
     
-    @Test(expected = NullPointerException.class)
-    public void start_cannotBeNull()
-    {
-        SleepSession sleepSession = new SleepSession(null, 1234);
-    }
-    
     @Test(expected = SleepSession.InvalidDurationError.class)
     public void duration_cannotBeNegative()
     {

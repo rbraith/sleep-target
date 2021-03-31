@@ -1,8 +1,7 @@
-package com.rbraithwaite.sleepapp.data.sleep_session;
+package com.rbraithwaite.sleepapp.data.convert;
 
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
-import com.rbraithwaite.sleepapp.data.repositories.convert.ConvertSleepSession;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 
 import org.junit.Test;
@@ -12,7 +11,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
-public class SleepSessionConverterTests
+public class ConvertSleepSessionTests
 {
 //*********************************************************
 // api
@@ -33,6 +32,7 @@ public class SleepSessionConverterTests
         assertThat(model.getId(), is(equalTo(entity.id)));
         assertThat(model.getStart(), is(equalTo(entity.startTime)));
         assertThat(model.getDurationMillis(), is(equalTo(entity.duration)));
+        assertThat(model.getAdditionalComments(), is(equalTo(entity.additionalComments)));
     }
     
     @Test
@@ -50,5 +50,6 @@ public class SleepSessionConverterTests
         assertThat(model.getId(), is(equalTo(entity.id)));
         assertThat(model.getStart(), is(equalTo(entity.startTime)));
         assertThat(model.getDurationMillis(), is(equalTo(entity.duration)));
+        assertThat(model.getAdditionalComments(), is(equalTo(entity.additionalComments)));
     }
 }

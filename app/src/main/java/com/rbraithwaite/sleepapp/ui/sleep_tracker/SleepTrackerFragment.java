@@ -1,7 +1,5 @@
 package com.rbraithwaite.sleepapp.ui.sleep_tracker;
 
-import android.app.PendingIntent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -10,14 +8,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
-import androidx.navigation.NavController;
 import androidx.navigation.NavDirections;
-import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
 import com.rbraithwaite.sleepapp.BuildConfig;
@@ -35,6 +32,9 @@ public class SleepTrackerFragment
 //*********************************************************
 
     private SleepTrackerFragmentViewModel mViewModel;
+    
+    private EditText mAdditionalComments;
+
 
 //*********************************************************
 // constructors
@@ -44,8 +44,7 @@ public class SleepTrackerFragment
     {
         setHasOptionsMenu(true);
     }
-
-
+    
 //*********************************************************
 // overrides
 //*********************************************************
@@ -57,7 +56,7 @@ public class SleepTrackerFragment
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState)
     {
-        return inflater.inflate(R.layout.sleep_fragment, container, false);
+        return inflater.inflate(R.layout.sleep_tracker_fragment, container, false);
     }
     
     @Override
@@ -67,6 +66,15 @@ public class SleepTrackerFragment
         initSessionTimeDisplay(view);
         initSessionStartTime(view);
         initGoalsDisplay(view);
+        initAdditionalCommentsText(view);
+    }
+    
+    @Override
+    public void onPause()
+    {
+        super.onPause();
+        
+        getViewModel().storeAdditionalComments(mAdditionalComments.getText().toString());
     }
     
     @Override
@@ -76,11 +84,13 @@ public class SleepTrackerFragment
         
         if (BuildConfig.DEBUG) {
             MenuItem devToolsOption = menu.add("Dev Tools");
-            devToolsOption.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            devToolsOption.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener()
+            {
                 @Override
                 public boolean onMenuItemClick(MenuItem item)
                 {
-                    NavDirections toDevTools = SleepTrackerFragmentDirections.actionNavSleeptrackerToDebugNavgraph();
+                    NavDirections toDevTools =
+                            SleepTrackerFragmentDirections.actionNavSleeptrackerToDebugNavgraph();
                     getNavController().navigate(toDevTools);
                     return true;
                 }
@@ -102,10 +112,29 @@ public class SleepTrackerFragment
     
     @Override
     protected Class<SleepTrackerFragmentViewModel> getViewModelClass() { return SleepTrackerFragmentViewModel.class; }
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
+
+    private void initAdditionalCommentsText(View fragmentRoot)
+    {
+        mAdditionalComments = fragmentRoot.findViewById(R.id.additional_comments);
+        getViewModel().getAdditionalComments().observe(
+                getViewLifecycleOwner(),
+                new Observer<String>()
+                {
+                    @Override
+                    public void onChanged(String s)
+                    {
+                        mAdditionalComments.getText().clear();
+                        if (s != null) {
+                            mAdditionalComments.getText().append(s);
+                        }
+                    }
+                }
+        );
+    }
 
     private void initGoalsDisplay(View fragmentRoot)
     {

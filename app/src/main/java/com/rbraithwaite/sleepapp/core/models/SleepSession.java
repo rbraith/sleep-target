@@ -1,6 +1,7 @@
 package com.rbraithwaite.sleepapp.core.models;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
@@ -19,7 +20,9 @@ public class SleepSession
     private Date mStart;
     private long mDurationMillis;
     private TimeUtils mTimeUtils;
-
+    
+    private String mAdditionalComments;
+    
 //*********************************************************
 // public constants
 //*********************************************************
@@ -38,7 +41,7 @@ public class SleepSession
             super(message);
         }
     }
-    
+
     public static class InvalidDurationError
             extends RuntimeException
     {
@@ -47,7 +50,7 @@ public class SleepSession
             super(message);
         }
     }
-
+    
 //*********************************************************
 // constructors
 //*********************************************************
@@ -57,12 +60,33 @@ public class SleepSession
             @NonNull Date start,
             long durationMillis)
     {
+        this(id, start, durationMillis, null);
+    }
+    
+    public SleepSession(
+            Date start,
+            long durationMillis)
+    {
+        this(start, durationMillis, null);
+    }
+    
+    public SleepSession(
+            @NonNull Date start,
+            long durationMillis,
+            @Nullable String additionalComments)
+    {
+        this(0, start, durationMillis, additionalComments);
+    }
+    
+    public SleepSession(
+            int id,
+            @NonNull Date start,
+            long durationMillis,
+            @Nullable String additionalComments)
+    {
         // OPTIMIZE [21-03-26 2:03AM] -- It's not ideal to always & blindly be validating the inputs
         //  inside here - there are many cases where I can be confident that the input data is
         //  already valid. I need to develop a general & flexible strategy for input validation.
-        if (start == null) {
-            throw new NullPointerException("start cannot be null.");
-        }
         if (durationMillis < 0) {
             throw new InvalidDurationError("durationMillis cannot be < 0.");
         }
@@ -70,21 +94,17 @@ public class SleepSession
         mId = id;
         mStart = start;
         mDurationMillis = durationMillis;
+        mAdditionalComments = additionalComments;
         
         mTimeUtils = createTimeUtils();
-    }
-    
-    public SleepSession(
-            Date start,
-            long durationMillis)
-    {
-        this(0, start, durationMillis);
     }
 
 //*********************************************************
 // api
 //*********************************************************
 
+    // SMELL [21-03-29 9:50PM] the id is a storage implementation detail - it is not
+    //  relevant to the domain model.
     public int getId()
     {
         return mId;
@@ -167,6 +187,11 @@ public class SleepSession
         mDurationMillis = end.getTimeInMillis() - getStart().getTime();
     }
     
+    public String getAdditionalComments()
+    {
+        return mAdditionalComments;
+    }
+
 //*********************************************************
 // protected api
 //*********************************************************

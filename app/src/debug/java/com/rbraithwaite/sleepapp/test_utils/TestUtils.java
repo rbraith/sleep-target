@@ -14,11 +14,11 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.core.models.WakeTimeGoal;
-import com.rbraithwaite.sleepapp.data.SleepAppDataPrefs;
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDurationGoalEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
+import com.rbraithwaite.sleepapp.data.prefs.SleepAppDataPrefs;
 import com.rbraithwaite.sleepapp.ui.stats.data.DateRange;
 
 import java.util.Arrays;
@@ -134,8 +134,16 @@ public class TestUtils
         public static SleepSessionEntity getSleepSessionEntity()
         {
             SleepSessionEntity sleepSessionEntity = new SleepSessionEntity();
-            sleepSessionEntity.startTime = getDate();
+            
+            GregorianCalendar cal = getCalendar();
+            sleepSessionEntity.startTime = cal.getTime();
             sleepSessionEntity.duration = getDurationMillis();
+            
+            cal.add(Calendar.MILLISECOND, (int) sleepSessionEntity.duration);
+            sleepSessionEntity.endTime = cal.getTime();
+            
+            sleepSessionEntity.additionalComments = "lol!";
+            
             return sleepSessionEntity;
         }
         
@@ -143,7 +151,8 @@ public class TestUtils
         {
             return new SleepSession(
                     getDate(),
-                    getDurationMillis());
+                    getDurationMillis(),
+                    "test!");
         }
         
         public static Date getWakeTimeGoal()

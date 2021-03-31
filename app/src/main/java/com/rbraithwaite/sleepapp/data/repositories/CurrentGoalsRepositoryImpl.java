@@ -7,12 +7,12 @@ import androidx.lifecycle.Transformations;
 import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
 import com.rbraithwaite.sleepapp.core.models.WakeTimeGoal;
 import com.rbraithwaite.sleepapp.core.repositories.CurrentGoalsRepository;
+import com.rbraithwaite.sleepapp.data.convert.ConvertSleepDurationGoal;
+import com.rbraithwaite.sleepapp.data.convert.ConvertWakeTimeGoal;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDurationGoalDao;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDurationGoalEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalDao;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalEntity;
-import com.rbraithwaite.sleepapp.data.repositories.convert.ConvertSleepDurationGoal;
-import com.rbraithwaite.sleepapp.data.repositories.convert.ConvertWakeTimeGoal;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import java.util.ArrayList;

@@ -19,10 +19,10 @@ public class CurrentSessionTests
     public void isSet_returnsCorrectValue()
     {
         CurrentSession currentSession = new CurrentSession();
-        assertThat(currentSession.isSet(), is(false));
+        assertThat(currentSession.isStarted(), is(false));
         
         currentSession.setStart(TestUtils.ArbitraryData.getDate());
-        assertThat(currentSession.isSet(), is(true));
+        assertThat(currentSession.isStarted(), is(true));
     }
     
     @Test
@@ -30,10 +30,10 @@ public class CurrentSessionTests
     {
         CurrentSession currentSession = new CurrentSession(
                 TestUtils.ArbitraryData.getDate());
-        assertThat(currentSession.isSet(), is(true));
+        assertThat(currentSession.isStarted(), is(true));
         
         currentSession.setStart(null);
-        assertThat(currentSession.isSet(), is(false));
+        assertThat(currentSession.isStarted(), is(false));
     }
     
     @Test

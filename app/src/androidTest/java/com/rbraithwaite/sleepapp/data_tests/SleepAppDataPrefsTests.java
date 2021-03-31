@@ -6,7 +6,8 @@ import androidx.lifecycle.LiveData;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.rbraithwaite.sleepapp.data.SleepAppDataPrefs;
+import com.rbraithwaite.sleepapp.data.prefs.CurrentSessionPrefsData;
+import com.rbraithwaite.sleepapp.data.prefs.SleepAppDataPrefs;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 
 import org.junit.After;
@@ -16,7 +17,6 @@ import org.junit.Test;
 import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -67,77 +67,26 @@ public class SleepAppDataPrefsTests
     @Test
     public void getCurrentSession_nullWhenNew()
     {
-        LiveData<Date> currentSession = prefs.getCurrentSession();
+        LiveData<CurrentSessionPrefsData> currentSession = prefs.getCurrentSession();
         
         TestUtils.activateInstrumentationLiveData(currentSession);
-        assertThat(currentSession.getValue(), is(nullValue()));
+        assertThat(currentSession.getValue().start, is(nullValue()));
+        assertThat(currentSession.getValue().additionalComments, is(nullValue()));
     }
     
     @Test
     public void getCurrentSession_reflects_setCurrentSession()
     {
-        // initial is null
-        LiveData<Date> currentSession = prefs.getCurrentSession();
-        TestUtils.InstrumentationLiveDataSynchronizer<Date> synchronizer =
-                new TestUtils.InstrumentationLiveDataSynchronizer<>(currentSession);
-        assertThat(currentSession.getValue(), is(nullValue()));
-        
-        // setting to date
-        Date testDate = TestUtils.ArbitraryData.getDate();
-        prefs.setCurrentSession(testDate);
-        synchronizer.sync();
-        assertThat(currentSession.getValue(), is(equalTo(testDate)));
-        
-        //setting to null
-        prefs.setCurrentSession(null);
-        synchronizer.sync();
-        assertThat(currentSession.getValue(), is(nullValue()));
-    }
-    
-    @Test
-    public void getCurrentSession_reflects_setCurrentSession_afterSecondCall()
-    {
-        LiveData<Date> currentSession = prefs.getCurrentSession();
-        TestUtils.InstrumentationLiveDataSynchronizer<Date> synchronizer =
+        LiveData<CurrentSessionPrefsData> currentSession = prefs.getCurrentSession();
+        TestUtils.InstrumentationLiveDataSynchronizer<CurrentSessionPrefsData> synchronizer =
                 new TestUtils.InstrumentationLiveDataSynchronizer<>(currentSession);
         
-        // a second call to getCurrentSession
-        // currentSession should still be getting updates after this call
-        LiveData<Date> currentSession2 = prefs.getCurrentSession();
-        
-        Date expectedCurrentSession = TestUtils.ArbitraryData.getDate();
-        prefs.setCurrentSession(expectedCurrentSession);
+        CurrentSessionPrefsData expected = new CurrentSessionPrefsData(
+                TestUtils.ArbitraryData.getDate(),
+                "test");
+        prefs.setCurrentSession(expected);
         
         synchronizer.sync();
-        assertThat(currentSession.getValue(), is(expectedCurrentSession));
-    }
-    
-    @Test
-    public void DataPrefs_managesLiveDataUpdates()
-    {
-        LiveData<Date> currentSession = prefs.getCurrentSession();
-        
-        TestUtils.InstrumentationLiveDataSynchronizer<Date> synchronizer =
-                new TestUtils.InstrumentationLiveDataSynchronizer<>(currentSession);
-        
-        assertThat(currentSession.getValue(), is(nullValue()));
-        
-        Date testDate = TestUtils.ArbitraryData.getDate();
-        prefs.setCurrentSession(testDate);
-        
-        synchronizer.sync();
-        assertThat(currentSession.getValue(), is(equalTo(testDate)));
-    }
-    
-    @Test
-    public void setCurrentSession_setNull()
-    {
-        prefs.setCurrentSession(TestUtils.ArbitraryData.getDate());
-        prefs.setCurrentSession(null);
-        
-        LiveData<Date> currentSession = prefs.getCurrentSession();
-        TestUtils.activateInstrumentationLiveData(currentSession);
-        
-        assertThat(currentSession.getValue(), is(nullValue()));
+        assertThat(currentSession.getValue(), is(equalTo(expected)));
     }
 }

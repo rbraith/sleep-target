@@ -1,9 +1,10 @@
-package com.rbraithwaite.sleepapp.data;
+package com.rbraithwaite.sleepapp.data.prefs;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -29,7 +30,11 @@ public class SleepAppDataPrefs
     private Executor mExecutor;
     private Context mContext;
     
-    private MutableLiveData<Date> mCurrentSession;
+    private MutableLiveData<CurrentSessionPrefsData> mCurrentSession;
+
+//    private MutableLiveData<CurrentSession> mCurrentSession;
+    
+    private SharedPreferences mSharedPrefs;
 
 //*********************************************************
 // private constants
@@ -38,8 +43,12 @@ public class SleepAppDataPrefs
     private static final long NULL_LONG_VAL = -1L;
     private static final int NULL_INT_VAL = -1;
     
-    private static final String CURRENT_SESSION_KEY = "current sleep session";
-
+    private static final String SESSION_START_KEY = "SessionStart";
+    
+    
+    private static final String ADDITIONAL_COMMENTS_KEY = "Comments";
+    
+    
 //*********************************************************
 // public constants
 //*********************************************************
@@ -47,8 +56,7 @@ public class SleepAppDataPrefs
     // HACK [20-11-14 8:06PM] -- made this public to allow tests to reset the shared prefs
     //  not ideal, find a better solution.
     public static final String PREFS_FILE_KEY = "com.rbraithwaite.sleepapp.PREFS_FILE_KEY";
-
-
+    
 //*********************************************************
 // constructors
 //*********************************************************
@@ -62,8 +70,6 @@ public class SleepAppDataPrefs
         mExecutor = executor;
     }
 
-
-
 //*********************************************************
 // api
 //*********************************************************
@@ -72,7 +78,7 @@ public class SleepAppDataPrefs
     /**
      * Returns a null LiveData immediately, then updates asynchronously (replicates Room behaviour)
      */
-    public LiveData<Date> getCurrentSession()
+    public LiveData<CurrentSessionPrefsData> getCurrentSession()
     {
         // REFACTOR [21-01-29 3:24PM] -- should I just use Transformations.map() here? I think
         //  it does essentially the same thing as createTrackingMediator, but I don't need to
@@ -80,34 +86,49 @@ public class SleepAppDataPrefs
         return createTrackingMediator(getCurrentSessionMutable());
     }
     
-    /**
-     * Executes asynchronously
-     */
-    public void setCurrentSession(final Date startTime)
+    public void setCurrentSession(@NonNull final CurrentSessionPrefsData currentSession)
     {
         mExecutor.execute(new Runnable()
         {
             @Override
             public void run()
             {
-                // REFACTOR [21-01-11 9:59PM]
-                //  It's not ideal to be persisting to the prefs every time setCurrentSession()
-                //  is called, although this would require a significant design change - would I
-                //  need
-                //  something like commitCurrentSession()?
-                commitLong(CURRENT_SESSION_KEY,
-                           (startTime == null) ? NULL_LONG_VAL : startTime.getTime());
-                if (mCurrentSession != null) {
-                    mCurrentSession.postValue(startTime);
+                synchronized (SleepAppDataPrefs.this) {
+                    commitCurrentSession(currentSession);
+                    
+                    // not using getCurrentSession() here so that the async postValue() call in
+                    // that method is not called after this one.
+                    if (mCurrentSession != null) {
+                        mCurrentSession.postValue(currentSession);
+                    }
                 }
             }
         });
     }
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
 
+    private void commitCurrentSession(CurrentSessionPrefsData currentSession)
+    {
+        commitLong(SESSION_START_KEY,
+                   (currentSession.start == null) ? NULL_LONG_VAL : currentSession.start.getTime());
+        
+        commitString(ADDITIONAL_COMMENTS_KEY, currentSession.additionalComments);
+    }
+
+    private Date retrieveStart()
+    {
+        long startMillis = getSharedPrefs().getLong(SESSION_START_KEY, NULL_LONG_VAL);
+        return startMillis == NULL_LONG_VAL ? null : ConvertDate.fromMillis(startMillis);
+    }
+    
+    private String retrieveAdditionalComments()
+    {
+        return getSharedPrefs().getString(ADDITIONAL_COMMENTS_KEY, null);
+    }
+    
     @SuppressLint("ApplySharedPref") // suppress commit() warning
     private void commitInt(String key, int value)
     {
@@ -118,6 +139,12 @@ public class SleepAppDataPrefs
     private void commitLong(String key, long value)
     {
         getSharedPrefs().edit().putLong(key, value).commit();
+    }
+    
+    @SuppressLint("ApplySharedPref") // suppress commit() warning
+    private void commitString(String key, String value)
+    {
+        getSharedPrefs().edit().putString(key, value).commit();
     }
     
     // REFACTOR [21-01-6 12:59AM] -- This does not fully mirror Room behaviour - to do better, I
@@ -140,7 +167,7 @@ public class SleepAppDataPrefs
         return mediator;
     }
     
-    private MutableLiveData<Date> getCurrentSessionMutable()
+    private MutableLiveData<CurrentSessionPrefsData> getCurrentSessionMutable()
     {
         if (mCurrentSession == null) {
             mCurrentSession = new MutableLiveData<>();
@@ -149,15 +176,11 @@ public class SleepAppDataPrefs
                 @Override
                 public void run()
                 {
-                    // SMELL [20-11-14 4:58PM] -- race condition between here and setCurrentSession?
-                    //  consider making some or all of the methods in this class 'synchronized'.
-                    long currentSessionStartDate =
-                            getSharedPrefs().getLong(CURRENT_SESSION_KEY, NULL_LONG_VAL);
-                    
-                    mCurrentSession.postValue(
-                            currentSessionStartDate == NULL_LONG_VAL ?
-                                    null :
-                                    ConvertDate.fromMillis(currentSessionStartDate));
+                    synchronized (SleepAppDataPrefs.this) {
+                        mCurrentSession.postValue(new CurrentSessionPrefsData(
+                                retrieveStart(),
+                                retrieveAdditionalComments()));
+                    }
                 }
             });
         }
@@ -166,6 +189,9 @@ public class SleepAppDataPrefs
     
     private SharedPreferences getSharedPrefs()
     {
-        return mContext.getSharedPreferences(PREFS_FILE_KEY, Context.MODE_PRIVATE);
+        if (mSharedPrefs == null) {
+            mSharedPrefs = mContext.getSharedPreferences(PREFS_FILE_KEY, Context.MODE_PRIVATE);
+        }
+        return mSharedPrefs;
     }
 }

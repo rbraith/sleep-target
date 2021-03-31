@@ -20,6 +20,7 @@ public class SleepSessionContract
         public static final String START_TIME = "start_time";
         public static final String END_TIME = "end_time";
         public static final String DURATION = "duration";
+        public static final String COMMENTS = "comments";
     }
 
 //*********************************************************

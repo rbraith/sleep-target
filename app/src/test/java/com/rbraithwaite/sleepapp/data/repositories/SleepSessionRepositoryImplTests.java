@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.data.sleep_session;
+package com.rbraithwaite.sleepapp.data.repositories;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -7,7 +7,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionDao;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
-import com.rbraithwaite.sleepapp.data.repositories.SleepSessionRepositoryImpl;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 
 import org.junit.After;

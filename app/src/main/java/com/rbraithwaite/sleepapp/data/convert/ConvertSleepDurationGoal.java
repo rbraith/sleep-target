@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.data.repositories.convert;
+package com.rbraithwaite.sleepapp.data.convert;
 
 import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDurationGoalEntity;

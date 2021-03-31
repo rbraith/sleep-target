@@ -6,7 +6,6 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.R;
-import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestNavigate;
@@ -171,11 +170,9 @@ public class SessionArchiveFragmentTests
         
         // WHEN the user confirms a session
         GregorianCalendar expectedStart = TestUtils.ArbitraryData.getCalendar();
-        GregorianCalendar expectedEnd = new GregorianCalendar(
-                expectedStart.get(Calendar.YEAR),
-                expectedStart.get(Calendar.MONTH),
-                expectedStart.get(Calendar.DAY_OF_MONTH),
-                expectedStart.get(Calendar.HOUR) + 1, 0);
+        GregorianCalendar expectedEnd = new GregorianCalendar();
+        expectedEnd.setTime(expectedStart.getTime());
+        expectedEnd.add(Calendar.HOUR, 1);
         
         SessionDataFragmentTestUtils.setStartDateTime(expectedStart);
         SessionDataFragmentTestUtils.setEndDateTime(expectedEnd);

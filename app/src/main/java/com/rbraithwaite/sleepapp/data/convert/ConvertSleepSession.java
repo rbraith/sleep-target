@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.data.repositories.convert;
+package com.rbraithwaite.sleepapp.data.convert;
 
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
@@ -8,6 +8,12 @@ import java.util.List;
 
 public class ConvertSleepSession
 {
+//*********************************************************
+// constructors
+//*********************************************************
+
+    private ConvertSleepSession() {/* No instantiation */}
+
 //*********************************************************
 // api
 //*********************************************************
@@ -22,6 +28,7 @@ public class ConvertSleepSession
         entity.startTime = model.getStart();
         entity.endTime = model.getEnd();
         entity.duration = model.getDurationMillis();
+        entity.additionalComments = model.getAdditionalComments();
         return entity;
     }
     
@@ -30,11 +37,11 @@ public class ConvertSleepSession
         if (entity == null) {
             return null;
         }
-        
         return new SleepSession(
                 entity.id,
                 entity.startTime,
-                entity.duration);
+                entity.duration,
+                entity.additionalComments);
     }
     
     // REFACTOR [21-03-24 11:01PM] -- This doesn't quite fit with the singular class name, find
