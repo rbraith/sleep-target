@@ -17,6 +17,8 @@ import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragment;
 import java.util.concurrent.ExecutionException;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
+import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
@@ -29,15 +31,7 @@ import static org.hamcrest.Matchers.not;
 
 public class UITestUtils
 {
-//*********************************************************
-// constructors
-//*********************************************************
-
     private UITestUtils() {/* No instantiation */}
-
-//*********************************************************
-// api
-//*********************************************************
 
     public static <T extends Activity> ActivityScenario<T> restartApp(
             ActivityScenario<T> scenario,
@@ -72,6 +66,15 @@ public class UITestUtils
     public static ViewInteraction onTimePicker()
     {
         return onView(withClassName(equalTo(TimePicker.class.getName())));
+    }
+    
+//*********************************************************
+// api
+//*********************************************************
+
+    public static void typeOnMultilineEditText(String text, ViewInteraction editText)
+    {
+        editText.perform(typeText(text)).perform(closeSoftKeyboard());
     }
     
     /**

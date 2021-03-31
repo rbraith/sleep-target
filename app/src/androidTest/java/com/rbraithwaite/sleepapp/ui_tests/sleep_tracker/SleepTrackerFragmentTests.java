@@ -21,8 +21,6 @@ import java.util.concurrent.ExecutionException;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
-import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.assertThat;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -48,8 +46,7 @@ public class SleepTrackerFragmentTests
         ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
         
         String expectedText = "You want your belt to buckle, not your chair.";
-        onView(withId(R.id.additional_comments)).perform(typeText(expectedText))
-                .perform(closeSoftKeyboard());
+        UITestUtils.typeOnMultilineEditText(expectedText, onView(withId(R.id.additional_comments)));
         
         // WHEN the user ends the current session
         onView(withId(R.id.sleep_tracker_button)).perform(click());
@@ -66,8 +63,7 @@ public class SleepTrackerFragmentTests
         ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
         
         String expectedText = "It's one banana, Michael. What could it cost, $10?";
-        onView(withId(R.id.additional_comments)).perform(typeText(expectedText))
-                .perform(closeSoftKeyboard());
+        UITestUtils.typeOnMultilineEditText(expectedText, onView(withId(R.id.additional_comments)));
         
         // WHEN the user returns to the sleep tracker screen from another screen
         UITestNavigate.fromHome_toGoals();
@@ -84,8 +80,7 @@ public class SleepTrackerFragmentTests
         ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
         
         String expectedText = "I don't care for GOB.";
-        onView(withId(R.id.additional_comments)).perform(typeText(expectedText))
-                .perform(closeSoftKeyboard());
+        UITestUtils.typeOnMultilineEditText(expectedText, onView(withId(R.id.additional_comments)));
         
         // WHEN the app is restarted
         scenario = UITestUtils.restartApp(scenario, MainActivity.class);

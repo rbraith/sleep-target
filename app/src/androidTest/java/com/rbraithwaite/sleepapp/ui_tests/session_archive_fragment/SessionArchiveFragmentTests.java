@@ -6,9 +6,11 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.R;
+import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestNavigate;
+import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
@@ -30,6 +32,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 
 @RunWith(AndroidJUnit4.class)
@@ -39,6 +42,29 @@ public class SessionArchiveFragmentTests
 // api
 //*********************************************************
 
+    @Test
+    public void additionalCommentsIcon_displaysProperly()
+    {
+        ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
+        UITestNavigate.fromHome_toSessionArchive();
+        
+        // add a new session with no comments to the archive
+        SessionArchiveFragmentTestUtils.addSession(new SleepSession(
+                TestUtils.ArbitraryData.getDate(),
+                TestUtils.ArbitraryData.getDurationMillis()));
+        
+        // verify that the list item icon is not displayed
+        onView(withId(R.id.session_archive_list_item_comment_icon)).check(matches(not(isDisplayed())));
+        
+        // edit that session and add a comment
+        onView(withId(R.id.session_archive_list_item_card)).perform(click());
+        UITestUtils.typeOnMultilineEditText("test!", onView(withId(R.id.session_data_comments)));
+        SessionDataFragmentTestUtils.pressPositive();
+        
+        // verify that the list item icon is displayed
+        onView(withId(R.id.session_archive_list_item_comment_icon)).check(matches(isDisplayed()));
+    }
+    
     @Test
     public void deleteSession_deletesSessionOnDialogConfirm()
     {
@@ -172,6 +198,7 @@ public class SessionArchiveFragmentTests
         GregorianCalendar expectedStart = TestUtils.ArbitraryData.getCalendar();
         GregorianCalendar expectedEnd = new GregorianCalendar();
         expectedEnd.setTime(expectedStart.getTime());
+        expectedEnd.add(Calendar.DAY_OF_WEEK, 1);
         expectedEnd.add(Calendar.HOUR, 1);
         
         SessionDataFragmentTestUtils.setStartDateTime(expectedStart);

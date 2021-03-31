@@ -1,6 +1,7 @@
 package com.rbraithwaite.sleepapp.ui.format;
 
 import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
+import com.rbraithwaite.sleepapp.ui.Constants;
 
 import java.util.Locale;
 
@@ -28,5 +29,26 @@ public class CommonFormatting
                 "%dh %02dm",
                 goalModel.getHours(),
                 goalModel.getRemainingMinutes());
+    }
+    
+    public static String formatDurationMillis(long durationMillis)
+    {
+        if (durationMillis < 0) {
+            throw new IllegalArgumentException(String.format("duration must be >= 0 (%d)",
+                                                             durationMillis));
+        }
+        
+        long durationAsSeconds = durationMillis / 1000L;
+        
+        long durationAsMinutes = durationAsSeconds / 60;
+        long seconds = durationAsSeconds % 60;
+        long minutes = durationAsMinutes % 60;
+        long hours = durationAsMinutes / 60;
+        
+        return String.format(Constants.STANDARD_LOCALE,
+                             Constants.STANDARD_FORMAT_DURATION,
+                             hours,
+                             minutes,
+                             seconds);
     }
 }

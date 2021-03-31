@@ -105,6 +105,26 @@ public class SleepTrackerFragmentViewModelTests
     }
     
     @Test
+    public void persist_persistsCorrectData()
+    {
+        Date expectedStart = TestUtils.ArbitraryData.getDate();
+        when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(
+                new MutableLiveData<>(new CurrentSession(expectedStart)));
+        
+        String expectedComments = "test";
+        
+        viewModel.setAdditionalComments(expectedComments);
+        viewModel.persist();
+        
+        ArgumentCaptor<CurrentSession> arg = ArgumentCaptor.forClass(CurrentSession.class);
+        verify(mockCurrentSessionRepository, times(1)).setCurrentSession(arg.capture());
+        
+        CurrentSession currentSession = arg.getValue();
+        assertThat(currentSession.getStart(), is(equalTo(expectedStart)));
+        assertThat(currentSession.getAdditionalComments(), is(equalTo(expectedComments)));
+    }
+    
+    @Test
     public void getSleepDurationGoalText_getsSleepDurationGoalText()
     {
         SleepDurationGoal goal = new SleepDurationGoal(123);

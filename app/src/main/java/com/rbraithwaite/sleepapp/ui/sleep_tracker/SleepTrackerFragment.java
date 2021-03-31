@@ -1,6 +1,8 @@
 package com.rbraithwaite.sleepapp.ui.sleep_tracker;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -44,7 +46,7 @@ public class SleepTrackerFragment
     {
         setHasOptionsMenu(true);
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -74,7 +76,7 @@ public class SleepTrackerFragment
     {
         super.onPause();
         
-        getViewModel().storeAdditionalComments(mAdditionalComments.getText().toString());
+        getViewModel().persist();
     }
     
     @Override
@@ -112,7 +114,7 @@ public class SleepTrackerFragment
     
     @Override
     protected Class<SleepTrackerFragmentViewModel> getViewModelClass() { return SleepTrackerFragmentViewModel.class; }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -132,10 +134,24 @@ public class SleepTrackerFragment
                             mAdditionalComments.getText().append(s);
                         }
                     }
-                }
-        );
+                });
+        
+        mAdditionalComments.addTextChangedListener(new TextWatcher()
+        {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            
+            @Override
+            public void afterTextChanged(Editable s)
+            {
+                getViewModel().setAdditionalComments(s.toString());
+            }
+        });
     }
-
+    
     private void initGoalsDisplay(View fragmentRoot)
     {
         // wake-time goal

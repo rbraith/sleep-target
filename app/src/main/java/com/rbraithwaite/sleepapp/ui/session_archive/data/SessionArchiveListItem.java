@@ -10,6 +10,7 @@ public class SessionArchiveListItem
     public String startTime;
     public String endTime;
     public String sessionDuration;
+    public boolean hasAdditionalComments;
 
 //*********************************************************
 // api
@@ -18,12 +19,14 @@ public class SessionArchiveListItem
     public static SessionArchiveListItem create(
             String startTime,
             String endTime,
-            String sessionDuration)
+            String sessionDuration,
+            boolean hasAdditionalComments)
     {
         SessionArchiveListItem listItem = new SessionArchiveListItem();
         listItem.startTime = startTime;
         listItem.endTime = endTime;
         listItem.sessionDuration = sessionDuration;
+        listItem.hasAdditionalComments = hasAdditionalComments;
         return listItem;
     }
 }

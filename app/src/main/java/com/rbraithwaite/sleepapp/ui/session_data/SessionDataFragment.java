@@ -1,6 +1,8 @@
 package com.rbraithwaite.sleepapp.ui.session_data;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -9,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -161,9 +164,12 @@ public class SessionDataFragment
         getViewModel().setSessionData(args.initialData);
         
         // init views
+        // REFACTOR [21-03-31 2:13AM] -- make initStartDateTime and initEndDateTime take the
+        //  view only, to make things consistent.
         initStartDateTime(view.findViewById(R.id.session_data_start_time));
         initEndDateTime(view.findViewById(R.id.session_data_end_time));
         initSessionDuration(view);
+        initAdditionalComments(view);
         
         // init back press behaviour
         requireActivity().getOnBackPressedDispatcher().addCallback(
@@ -177,6 +183,8 @@ public class SessionDataFragment
                     }
                 });
     }
+    
+    EditText mAdditionalComments;
     
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater)
@@ -260,6 +268,36 @@ public class SessionDataFragment
     {
         getViewModel().clearSessionData();
         getNavController().navigateUp();
+    }
+    
+    private void initAdditionalComments(View fragmentRoot)
+    {
+        mAdditionalComments = fragmentRoot.findViewById(R.id.session_data_comments);
+        getViewModel().getAdditionalComments().observe(
+                getViewLifecycleOwner(),
+                new Observer<String>() {
+                    @Override
+                    public void onChanged(String s)
+                    {
+                        mAdditionalComments.getText().clear();
+                        if (s != null) {
+                            mAdditionalComments.getText().append(s);
+                        }
+                    }
+                });
+        mAdditionalComments.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        
+            @Override
+            public void afterTextChanged(Editable s)
+            {
+                getViewModel().setAdditionalComments(s.toString());
+            }
+        });
     }
     
     private void initSessionDuration(View fragmentRoot)

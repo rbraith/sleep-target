@@ -60,7 +60,7 @@ public class SessionDataFragmentViewModel
     {
         mDateTimeFormatter = dateTimeFormatter;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -290,6 +290,44 @@ public class SessionDataFragmentViewModel
         mSleepSession.setValue(sessionData.getModel());
     }
     
+    public LiveData<String> getAdditionalComments()
+    {
+        return Transformations.map(
+                getSleepSession(),
+                new Function<SleepSession, String>()
+                {
+                    @Override
+                    public String apply(SleepSession input)
+                    {
+                        if (input == null) {
+                            return null;
+                        }
+                        return input.getAdditionalComments();
+                    }
+                });
+    }
+    
+    /**
+     * Set the additional comments. Note that this does not automatically update the LiveData
+     * provided by getAdditionalComments.
+     */
+    public void setAdditionalComments(String additionalComments)
+    {
+        if (additionalComments != null && additionalComments.equals("")) {
+            additionalComments = null;
+        }
+        // note: this change is not broadcast with notifySessionChanged(), as there is no reason to
+        // update the UI when the EditText will retain the text value while the fragment is
+        // displayed. When the fragment restarts it will then use this value to initialize itself,
+        // from getAdditionalComments().
+        SleepSession sleepSession = mSleepSession.getValue();
+        // the sleep session might be null if clearSleepSession() was called (or if it was set
+        // to null manually)
+        if (sleepSession != null) {
+            sleepSession.setAdditionalComments(additionalComments);
+        }
+    }
+
 //*********************************************************
 // protected api
 //*********************************************************
@@ -299,7 +337,7 @@ public class SessionDataFragmentViewModel
     {
         return new TimeUtils();
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -308,7 +346,7 @@ public class SessionDataFragmentViewModel
     {
         return mSleepSession;
     }
-
+    
     private void notifySessionChanged()
     {
         mSleepSession.setValue(mSleepSession.getValue());

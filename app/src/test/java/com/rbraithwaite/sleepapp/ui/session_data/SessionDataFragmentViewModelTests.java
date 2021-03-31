@@ -98,6 +98,8 @@ public class SessionDataFragmentViewModelTests
                 startDateTime,
                 duration);
         viewModel.setSessionData(new SleepSessionWrapper(expected));
+        String expectedComments = "test";
+        viewModel.setAdditionalComments(expectedComments);
         
         // check result values
         SleepSession result = viewModel.getResult().getModel();
@@ -105,6 +107,7 @@ public class SessionDataFragmentViewModelTests
         assertThat(result.getId(), is(equalTo(expected.getId())));
         assertThat(result.getStart(), is(equalTo(expected.getStart())));
         assertThat(result.getDurationMillis(), is(equalTo(expected.getDurationMillis())));
+        assertThat(result.getAdditionalComments(), is(equalTo(expectedComments)));
     }
     
     @Test(expected = SessionDataFragmentViewModel.InvalidDateTimeException.class)

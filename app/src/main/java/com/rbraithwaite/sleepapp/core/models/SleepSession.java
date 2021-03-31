@@ -22,13 +22,13 @@ public class SleepSession
     private TimeUtils mTimeUtils;
     
     private String mAdditionalComments;
-    
+
 //*********************************************************
 // public constants
 //*********************************************************
 
     public static final long serialVersionUID = 20210112L;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -41,7 +41,7 @@ public class SleepSession
             super(message);
         }
     }
-
+    
     public static class InvalidDurationError
             extends RuntimeException
     {
@@ -50,7 +50,7 @@ public class SleepSession
             super(message);
         }
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -191,7 +191,12 @@ public class SleepSession
     {
         return mAdditionalComments;
     }
-
+    
+    public void setAdditionalComments(String additionalComments)
+    {
+        mAdditionalComments = additionalComments;
+    }
+    
 //*********************************************************
 // protected api
 //*********************************************************

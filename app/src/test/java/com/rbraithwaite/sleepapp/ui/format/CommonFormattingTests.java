@@ -3,9 +3,6 @@ package com.rbraithwaite.sleepapp.ui.format;
 import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
 
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -14,49 +11,50 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
-@RunWith(Enclosed.class)
 public class CommonFormattingTests
 {
 //*********************************************************
-// public helpers
+// api
 //*********************************************************
 
-    @RunWith(Parameterized.class)
-    public static class FormatSleepDurationGoal_PositiveArgs
+    @Test
+    public void formatSleepDurationGoal_positiveInput()
     {
-        private int minutes;
-        private String expected;
+        Collection<Object[]> data = Arrays.asList(new Object[][] {
+                // minutes, expected
+                {15, "0h 15m"},
+                {120, "2h 00m"},
+                {605, "10h 05m"}
+        });
         
-        public FormatSleepDurationGoal_PositiveArgs(int minutes, String expected)
-        {
-            this.minutes = minutes;
-            this.expected = expected;
-        }
-        
-        @Parameterized.Parameters
-        public static Collection<Object[]> data()
-        {
-            return Arrays.asList(new Object[][] {
-                    // minutes, expected
-                    {15, "0h 15m"},
-                    {120, "2h 00m"},
-                    {605, "10h 05m"}
-            });
-        }
-        
-        @Test
-        public void runTest()
-        {
+        for (Object[] d : data) {
+            int minutes = (int) d[0];
+            String expected = (String) d[1];
+            
             assertThat(
                     CommonFormatting.formatSleepDurationGoal(new SleepDurationGoal(minutes)),
                     is(equalTo(expected)));
         }
     }
-
-//*********************************************************
-// api
-//*********************************************************
-
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void formatDurationMillis_throwsIfNegative()
+    {
+        CommonFormatting.formatDurationMillis(-1);
+    }
+    
+    @Test
+    public void formatDuration_positiveInput()
+    {
+        long duration = (2 * 60 * 60 * 1000) +  // 2  hr
+                        (34 * 60 * 1000) +      // 34 min
+                        (56 * 1000);            // 56 sec
+        
+        String formattedDuration = CommonFormatting.formatDurationMillis(duration);
+        
+        assertThat(formattedDuration, is(equalTo("2h 34m 56s")));
+    }
+    
     @Test
     public void formatSleepDurationGoal_unsetArg()
     {

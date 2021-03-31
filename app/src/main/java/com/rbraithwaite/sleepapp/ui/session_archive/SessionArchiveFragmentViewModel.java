@@ -11,7 +11,7 @@ import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.di.UIDependenciesModule;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
-import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
+import com.rbraithwaite.sleepapp.ui.session_archive.convert.ConvertSessionArchiveListItem;
 import com.rbraithwaite.sleepapp.ui.session_archive.data.SessionArchiveListItem;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
@@ -81,7 +81,7 @@ public class SessionArchiveFragmentViewModel
                     @Override
                     public SessionArchiveListItem apply(SleepSession input)
                     {
-                        return convertSleepSessionToListItem(input);
+                        return ConvertSessionArchiveListItem.fromSleepSession(input);
                     }
                 });
     }
@@ -126,23 +126,5 @@ public class SessionArchiveFragmentViewModel
     protected TimeUtils createTimeUtils()
     {
         return new TimeUtils();
-    }
-
-
-//*********************************************************
-// private methods
-//*********************************************************
-
-    // REFACTOR [20-11-15 3:54PM] -- consider extracting this method?
-    private SessionArchiveListItem convertSleepSessionToListItem(SleepSession sleepSession)
-    {
-        if (sleepSession == null) {
-            return null;
-        }
-        return SessionArchiveListItem.create(
-                mDateTimeFormatter.formatFullDate(sleepSession.getStart()),
-                mDateTimeFormatter.formatFullDate(sleepSession.getEnd()),
-                // REFACTOR [21-01-13 2:06AM] -- inject this.
-                new DurationFormatter().formatDurationMillis(sleepSession.getDurationMillis()));
     }
 }
