@@ -36,7 +36,10 @@ public class DatePickerFragmentTests
         
         DialogTestHelper<DatePickerFragment> dialogHelper = DialogTestHelper.launchDialogWithArgs(
                 DatePickerFragment.class,
-                DatePickerFragment.createArguments(calendar.getTimeInMillis()));
+                DatePickerFragment.createArguments(
+                        calendar.get(Calendar.YEAR),
+                        calendar.get(Calendar.MONTH),
+                        calendar.get(Calendar.DAY_OF_MONTH)));
         
         onDatePicker().check(matches(datePickerWithDate(
                 calendar.get(Calendar.YEAR),
@@ -56,7 +59,10 @@ public class DatePickerFragmentTests
         final int testDayOfMonth = 20;
         
         DatePickerFragment dialog = new DatePickerFragment();
-        dialog.setArguments(DatePickerFragment.createArguments(calendar.getTimeInMillis()));
+        dialog.setArguments(DatePickerFragment.createArguments(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)));
         
         final TestUtils.ThreadBlocker blocker = new TestUtils.ThreadBlocker();
         dialog.setOnDateSetListener(new DatePickerFragment.OnDateSetListener()

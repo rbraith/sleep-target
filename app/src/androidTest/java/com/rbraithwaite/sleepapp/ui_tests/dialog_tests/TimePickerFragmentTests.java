@@ -34,7 +34,9 @@ public class TimePickerFragmentTests
         DialogTestHelper<TimePickerFragment> dialogTestHelper =
                 DialogTestHelper.launchDialogWithArgs(
                         TimePickerFragment.class,
-                        TimePickerFragment.createArguments(calendar.getTimeInMillis()));
+                        TimePickerFragment.createArguments(
+                                calendar.get(Calendar.HOUR_OF_DAY),
+                                calendar.get(Calendar.MINUTE)));
         
         onTimePicker().check(matches(timePickerWithTime(
                 calendar.get(Calendar.HOUR_OF_DAY),
@@ -51,7 +53,9 @@ public class TimePickerFragmentTests
         final int testMinute = 15;
         
         TimePickerFragment dialog = new TimePickerFragment();
-        dialog.setArguments(TimePickerFragment.createArguments(calendar.getTimeInMillis()));
+        dialog.setArguments(TimePickerFragment.createArguments(
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE)));
         
         final TestUtils.ThreadBlocker blocker = new TestUtils.ThreadBlocker();
         dialog.setOnTimeSetListener(new TimePickerFragment.OnTimeSetListener()

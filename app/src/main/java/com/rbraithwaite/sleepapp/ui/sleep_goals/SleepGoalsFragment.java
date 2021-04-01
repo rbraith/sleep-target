@@ -26,7 +26,9 @@ import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
 import com.rbraithwaite.sleepapp.utils.LiveDataUtils;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -350,16 +352,16 @@ public class SleepGoalsFragment
                 .show(getChildFragmentManager(), DIALOG_DELETE_WAKETIME);
     }
     
+    // REFACTOR [21-03-31 6:24PM] -- taking an absolute millis time is legacy behaviour - this
+    //  should take hourOfDay & minute instead.
     private void displayWakeTimePickerDialog(long defaultValueDateMillis)
     {
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTimeInMillis(defaultValueDateMillis);
+        
         TimePickerFragment timePicker = new TimePickerFragment();
-        // SMELL [20-12-21 10:39PM] -- since the time picker is relative, it doesn't make
-        //  much sense passing an absolute datetime (even though this was convenient in
-        //  SessionEditFragment, ie using the same datetime for the date picker & time
-        //  picker)
-        //  ---
-        //  consider passing direct hour & minute values instead.
-        timePicker.setArguments(TimePickerFragment.createArguments(defaultValueDateMillis));
+        timePicker.setArguments(TimePickerFragment.createArguments(cal.get(Calendar.HOUR_OF_DAY),
+                                                                   cal.get(Calendar.MINUTE)));
         timePicker.setOnTimeSetListener(new TimePickerFragment.OnTimeSetListener()
         {
             @Override

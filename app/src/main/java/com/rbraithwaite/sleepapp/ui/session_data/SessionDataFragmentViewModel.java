@@ -96,75 +96,7 @@ public class SessionDataFragmentViewModel
         return mSessionDurationText;
     }
     
-    public LiveData<String> getStartTimeText()
-    {
-        return Transformations.map(
-                getSleepSession(),
-                new Function<SleepSession, String>()
-                {
-                    @Override
-                    public String apply(SleepSession input)
-                    {
-                        if (input == null) {
-                            return null;
-                        }
-                        return mDateTimeFormatter.formatTimeOfDay(input.getStart());
-                    }
-                });
-    }
-    
-    public LiveData<String> getEndTimeText()
-    {
-        return Transformations.map(
-                getSleepSession(),
-                new Function<SleepSession, String>()
-                {
-                    @Override
-                    public String apply(SleepSession input)
-                    {
-                        if (input == null) {
-                            return null;
-                        }
-                        return mDateTimeFormatter.formatTimeOfDay(input.getEnd());
-                    }
-                });
-    }
-    
-    public LiveData<String> getEndDateText()
-    {
-        return Transformations.map(
-                getSleepSession(),
-                new Function<SleepSession, String>()
-                {
-                    @Override
-                    public String apply(SleepSession input)
-                    {
-                        if (input == null) {
-                            return null;
-                        }
-                        return mDateTimeFormatter.formatDate(input.getEnd());
-                    }
-                });
-    }
-    
-    public LiveData<String> getStartDateText()
-    {
-        return Transformations.map(
-                getSleepSession(),
-                new Function<SleepSession, String>()
-                {
-                    @Override
-                    public String apply(SleepSession input)
-                    {
-                        if (input == null) {
-                            return null;
-                        }
-                        return mDateTimeFormatter.formatDate(input.getStart());
-                    }
-                });
-    }
-    
-    public void setStartDay(int year, int month, int dayOfMonth)
+    public void setStartDate(int year, int month, int dayOfMonth)
     {
         // OPTIMIZE [20-11-30 11:19PM] -- consider doing nothing if the new date
         //  matches the old.
@@ -185,7 +117,7 @@ public class SessionDataFragmentViewModel
         }
     }
     
-    public void setEndDay(int year, int month, int dayOfMonth)
+    public void setEndDate(int year, int month, int dayOfMonth)
     {
         // OPTIMIZE [20-11-30 11:19PM] -- consider doing nothing if the new date
         //  matches the old.
@@ -206,7 +138,7 @@ public class SessionDataFragmentViewModel
         }
     }
     
-    public void setStartTime(int hourOfDay, int minute)
+    public void setStartTimeOfDay(int hourOfDay, int minute)
     {
         // OPTIMIZE [20-12-6 8:36PM] -- consider doing nothing if the new time matches the old.
         
@@ -225,7 +157,7 @@ public class SessionDataFragmentViewModel
         }
     }
     
-    public void setEndTime(int hourOfDay, int minute)
+    public void setEndTimeOfDay(int hourOfDay, int minute)
     {
         // OPTIMIZE [20-12-6 8:36PM] -- consider doing nothing if the new time matches the old.
         
@@ -242,42 +174,6 @@ public class SessionDataFragmentViewModel
             //  alright to have the view handle a domain exception?
             throw new InvalidDateTimeException((e.getMessage()));
         }
-    }
-    
-    public LiveData<Long> getEndDateTime()
-    {
-        return Transformations.map(
-                getSleepSession(),
-                new Function<SleepSession, Long>()
-                {
-                    @Override
-                    public Long apply(SleepSession input)
-                    {
-                        if (input == null) {
-                            return null;
-                        }
-                        // REFACTOR [21-03-25 1:07AM] -- This should be getEndMillis? (demeter)
-                        return input.getEnd().getTime();
-                    }
-                });
-    }
-    
-    public LiveData<Long> getStartDateTime()
-    {
-        return Transformations.map(
-                getSleepSession(),
-                new Function<SleepSession, Long>()
-                {
-                    @Override
-                    public Long apply(SleepSession input)
-                    {
-                        if (input == null) {
-                            return null;
-                        }
-                        // REFACTOR [21-03-25 1:07AM] -- This should be getStartMillis? (demeter)
-                        return input.getStart().getTime();
-                    }
-                });
     }
     
     public void clearSessionData()
@@ -288,6 +184,45 @@ public class SessionDataFragmentViewModel
     public void setSessionData(SleepSessionWrapper sessionData)
     {
         mSleepSession.setValue(sessionData.getModel());
+    }
+    
+    public LiveData<GregorianCalendar> getStartCalendar()
+    {
+        return Transformations.map(
+                getSleepSession(),
+                new Function<SleepSession, GregorianCalendar>()
+                {
+                    @Override
+                    public GregorianCalendar apply(SleepSession input)
+                    {
+                        if (input == null) {
+                            return null;
+                        }
+                        // REFACTOR [21-03-31 4:13PM] -- call this ConvertCalendar.fromDate().
+                        GregorianCalendar result = new GregorianCalendar();
+                        result.setTime(input.getStart());
+                        return result;
+                    }
+                });
+    }
+    
+    public LiveData<GregorianCalendar> getEndCalendar()
+    {
+        return Transformations.map(
+                getSleepSession(),
+                new Function<SleepSession, GregorianCalendar>()
+                {
+                    @Override
+                    public GregorianCalendar apply(SleepSession input)
+                    {
+                        if (input == null) {
+                            return null;
+                        }
+                        GregorianCalendar result = new GregorianCalendar();
+                        result.setTime(input.getEnd());
+                        return result;
+                    }
+                });
     }
     
     public LiveData<String> getAdditionalComments()

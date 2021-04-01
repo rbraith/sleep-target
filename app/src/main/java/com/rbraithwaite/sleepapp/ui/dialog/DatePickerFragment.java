@@ -9,9 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-
 public class DatePickerFragment
         extends DialogFragment
         implements DatePickerDialog.OnDateSetListener
@@ -27,7 +24,9 @@ public class DatePickerFragment
 // private constants
 //*********************************************************
 
-    private static final String ARG_DATE = "date";
+    private static final String ARG_YEAR = "year";
+    private static final String ARG_MONTH = "month";
+    private static final String ARG_DAY = "day";
 
 //*********************************************************
 // public helpers
@@ -46,16 +45,14 @@ public class DatePickerFragment
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState)
     {
-        GregorianCalendar calendar = new GregorianCalendar();
         Bundle args = getArguments();
-        calendar.setTimeInMillis(args.getLong(ARG_DATE));
         
         return new DatePickerDialog(
                 requireActivity(),
                 this,
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH));
+                args.getInt(ARG_YEAR),
+                args.getInt(ARG_MONTH),
+                args.getInt(ARG_DAY));
     }
     
     @Override
@@ -70,10 +67,12 @@ public class DatePickerFragment
 // api
 //*********************************************************
 
-    public static Bundle createArguments(Long dateMillis)
+    public static Bundle createArguments(int year, int month, int dayOfMonth)
     {
         Bundle args = new Bundle();
-        args.putLong(ARG_DATE, dateMillis);
+        args.putInt(ARG_YEAR, year);
+        args.putInt(ARG_MONTH, month);
+        args.putInt(ARG_DAY, dayOfMonth);
         return args;
     }
     
