@@ -44,11 +44,10 @@ public class SleepAppDataPrefs
     private static final int NULL_INT_VAL = -1;
     
     private static final String SESSION_START_KEY = "SessionStart";
-    
-    
     private static final String ADDITIONAL_COMMENTS_KEY = "Comments";
-    
-    
+    private static final String MOOD_KEY = "Mood";
+
+
 //*********************************************************
 // public constants
 //*********************************************************
@@ -56,7 +55,7 @@ public class SleepAppDataPrefs
     // HACK [20-11-14 8:06PM] -- made this public to allow tests to reset the shared prefs
     //  not ideal, find a better solution.
     public static final String PREFS_FILE_KEY = "com.rbraithwaite.sleepapp.PREFS_FILE_KEY";
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -69,6 +68,7 @@ public class SleepAppDataPrefs
         mContext = context;
         mExecutor = executor;
     }
+
 
 //*********************************************************
 // api
@@ -105,19 +105,25 @@ public class SleepAppDataPrefs
             }
         });
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
 
     private void commitCurrentSession(CurrentSessionPrefsData currentSession)
     {
+        // REFACTOR [21-04-2 10:24PM] -- prefs data should take the millis directly - move getTime()
+        //  out of this class.
         commitLong(SESSION_START_KEY,
                    (currentSession.start == null) ? NULL_LONG_VAL : currentSession.start.getTime());
         
         commitString(ADDITIONAL_COMMENTS_KEY, currentSession.additionalComments);
+        
+        commitInt(MOOD_KEY,
+                  currentSession.moodIndex == CurrentSessionPrefsData.NO_MOOD ? NULL_INT_VAL :
+                          currentSession.moodIndex);
     }
-
+    
     private Date retrieveStart()
     {
         long startMillis = getSharedPrefs().getLong(SESSION_START_KEY, NULL_LONG_VAL);
@@ -127,6 +133,12 @@ public class SleepAppDataPrefs
     private String retrieveAdditionalComments()
     {
         return getSharedPrefs().getString(ADDITIONAL_COMMENTS_KEY, null);
+    }
+    
+    private int retrieveMoodIndex()
+    {
+        int moodIndex = getSharedPrefs().getInt(MOOD_KEY, NULL_INT_VAL);
+        return moodIndex == NULL_INT_VAL ? CurrentSessionPrefsData.NO_MOOD : moodIndex;
     }
     
     @SuppressLint("ApplySharedPref") // suppress commit() warning
@@ -179,7 +191,8 @@ public class SleepAppDataPrefs
                     synchronized (SleepAppDataPrefs.this) {
                         mCurrentSession.postValue(new CurrentSessionPrefsData(
                                 retrieveStart(),
-                                retrieveAdditionalComments()));
+                                retrieveAdditionalComments(),
+                                retrieveMoodIndex()));
                     }
                 }
             });

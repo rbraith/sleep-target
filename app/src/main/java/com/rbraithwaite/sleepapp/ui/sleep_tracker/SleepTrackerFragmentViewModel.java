@@ -8,12 +8,15 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.core.models.CurrentSession;
+import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
 import com.rbraithwaite.sleepapp.core.models.WakeTimeGoal;
 import com.rbraithwaite.sleepapp.core.repositories.CurrentGoalsRepository;
 import com.rbraithwaite.sleepapp.core.repositories.CurrentSessionRepository;
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.di.UIDependenciesModule;
+import com.rbraithwaite.sleepapp.ui.common.mood.ConvertMood;
+import com.rbraithwaite.sleepapp.ui.common.mood.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
@@ -45,9 +48,9 @@ public class SleepTrackerFragmentViewModel
      * these values to storage every time they change. These new local values take precedence over
      * older values from storage.
      */
-    private String mLocalAdditionalComments;
+    private LocalValue<String> mLocalAdditionalComments = new LocalValue<>();
     
-    private boolean mAreLocalAdditionalCommentsValid = false;
+    private LocalValue<Mood> mLocalMood = new LocalValue<>();
     
 //*********************************************************
 // private constants
@@ -113,7 +116,8 @@ public class SleepTrackerFragmentViewModel
                     {
                         mCurrentSessionRepository.setCurrentSession(new CurrentSession(
                                 mTimeUtils.getNow(),
-                                chooseAdditionalComments(currentSession)));
+                                mLocalAdditionalComments.consumeIfValid(currentSession.getAdditionalComments()),
+                                mLocalMood.consumeIfValid(currentSession.getMood())));
                     }
                 });
     }
@@ -129,9 +133,8 @@ public class SleepTrackerFragmentViewModel
                     public void onValue(CurrentSession currentSession)
                     {
                         if (currentSession.isStarted()) {
-                            if (mAreLocalAdditionalCommentsValid) {
-                                currentSession.setAdditionalComments(consumeLocalAdditionalComments());
-                            }
+                            currentSession.setAdditionalComments(
+                                    mLocalAdditionalComments.consumeIfValid(currentSession.getAdditionalComments()));
                             mSleepSessionRepository.addSleepSession(currentSession.toSleepSession());
                             mCurrentSessionRepository.clearCurrentSession();
                         }
@@ -183,6 +186,8 @@ public class SleepTrackerFragmentViewModel
         return mCurrentSleepSessionDuration;
     }
     
+    // REFACTOR [21-03-31 1:05AM] -- extract everything relating to the local additional comments.
+    
     public LiveData<String> getSessionStartTime()
     {
         return Transformations.map(
@@ -218,8 +223,6 @@ public class SleepTrackerFragmentViewModel
                 });
     }
     
-    // REFACTOR [21-03-31 1:05AM] -- extract everything relating to the local additional comments.
-    
     public LiveData<String> getSleepDurationGoalText()
     {
         return Transformations.map(
@@ -240,7 +243,7 @@ public class SleepTrackerFragmentViewModel
     /**
      * The user-provided additional comments for the current sleep session. (might be null)
      */
-    public LiveData<String> getAdditionalComments()
+    public LiveData<String> getPersistedAdditionalComments()
     {
         return Transformations.map(
                 getCurrentSession(),
@@ -254,19 +257,18 @@ public class SleepTrackerFragmentViewModel
                 });
     }
     
-    public void setAdditionalComments(String additionalComments)
+    public void setLocalAdditionalComments(String additionalComments)
     {
         if (additionalComments != null && additionalComments.equals("")) {
             additionalComments = null;
         }
-        mLocalAdditionalComments = additionalComments;
-        mAreLocalAdditionalCommentsValid = true;
+        mLocalAdditionalComments.set(additionalComments);
     }
     
     /**
      * Persist the current state of the UI.
      */
-    public void persist()
+    public void persistCurrentSession()
     {
         LiveDataFuture.getValue(
                 getCurrentSession(),
@@ -278,9 +280,40 @@ public class SleepTrackerFragmentViewModel
                     {
                         mCurrentSessionRepository.setCurrentSession(new CurrentSession(
                                 currentSession.getStart(),
-                                chooseAdditionalComments(currentSession)));
+                                mLocalAdditionalComments.consumeIfValid(currentSession.getAdditionalComments()),
+                                mLocalMood.consumeIfValid(currentSession.getMood())));
                     }
                 });
+    }
+    
+    public LiveData<MoodUiData> getPersistedMood()
+    {
+        return Transformations.map(
+                getCurrentSession(),
+                new Function<CurrentSession, MoodUiData>()
+                {
+                    @Override
+                    public MoodUiData apply(CurrentSession input)
+                    {
+                        return ConvertMood.toUiData(input.getMood());
+                    }
+                });
+    }
+
+    /**
+     * This does not update getPersistedMood() until persist() is called.
+     */
+    public void setLocalMood(MoodUiData mood)
+    {
+        mLocalMood.set(ConvertMood.fromUiData(mood));
+    }
+
+    /**
+     * This does not update getPersistedMood() until persist() is called.
+     */
+    public void clearLocalMood()
+    {
+        setLocalMood(null);
     }
     
 //*********************************************************
@@ -291,28 +324,10 @@ public class SleepTrackerFragmentViewModel
     {
         return new TimeUtils();
     }
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
-
-    
-    /**
-     * Prioritizes the local additional comments if they have been set.
-     */
-    private String chooseAdditionalComments(CurrentSession currentSession)
-    {
-        if (mAreLocalAdditionalCommentsValid) {
-            return consumeLocalAdditionalComments();
-        }
-        return currentSession.getAdditionalComments();
-    }
-
-    private String consumeLocalAdditionalComments()
-    {
-        mAreLocalAdditionalCommentsValid = false;
-        return mLocalAdditionalComments;
-    }
 
     private LiveData<CurrentSession> getCurrentSession()
     {
@@ -320,5 +335,31 @@ public class SleepTrackerFragmentViewModel
             mCurrentSession = mCurrentSessionRepository.getCurrentSession();
         }
         return mCurrentSession;
+    }
+    
+//*********************************************************
+// private helpers
+//*********************************************************
+
+    // REFACTOR [21-04-3 3:09AM] -- consider extracting this.
+    private static class LocalValue<T>
+    {
+        private T mValue;
+        private boolean mIsValid = false;
+        
+        public void set(T value)
+        {
+            mValue = value;
+            mIsValid = true;
+        }
+        
+        public T consumeIfValid(T invalidDefault)
+        {
+            if (mIsValid) {
+                mIsValid = false;
+                return mValue;
+            }
+            return invalidDefault;
+        }
     }
 }

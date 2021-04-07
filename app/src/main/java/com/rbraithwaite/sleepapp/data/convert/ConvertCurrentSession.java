@@ -1,6 +1,7 @@
 package com.rbraithwaite.sleepapp.data.convert;
 
 import com.rbraithwaite.sleepapp.core.models.CurrentSession;
+import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.data.prefs.CurrentSessionPrefsData;
 
 public class ConvertCurrentSession
@@ -10,7 +11,7 @@ public class ConvertCurrentSession
 //*********************************************************
 
     private ConvertCurrentSession() {/* No instantiation */}
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -22,7 +23,10 @@ public class ConvertCurrentSession
         }
         return new CurrentSessionPrefsData(
                 currentSession.getStart(),
-                currentSession.getAdditionalComments());
+                currentSession.getAdditionalComments(),
+                currentSession.getMood() == null ?
+                        CurrentSessionPrefsData.NO_MOOD :
+                        currentSession.getMood().toIndex());
     }
     
     public static CurrentSession fromPrefsData(CurrentSessionPrefsData prefsData)
@@ -30,8 +34,12 @@ public class ConvertCurrentSession
         if (prefsData == null) {
             return null;
         }
-        CurrentSession currentSession = new CurrentSession(prefsData.start);
-        currentSession.setAdditionalComments(prefsData.additionalComments);
+        CurrentSession currentSession = new CurrentSession(
+                prefsData.start,
+                prefsData.additionalComments,
+                prefsData.moodIndex == CurrentSessionPrefsData.NO_MOOD ?
+                        null :
+                        Mood.fromIndex(prefsData.moodIndex));
         return currentSession;
     }
 }

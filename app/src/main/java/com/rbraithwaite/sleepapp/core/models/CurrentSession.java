@@ -1,5 +1,7 @@
 package com.rbraithwaite.sleepapp.core.models;
 
+import androidx.annotation.Nullable;
+
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import java.util.Date;
@@ -14,7 +16,8 @@ public class CurrentSession
     private TimeUtils mTimeUtils;
     
     private String mAdditionalComments;
-    
+    private Mood mMood;
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -24,22 +27,37 @@ public class CurrentSession
         this(null);
     }
     
-    public CurrentSession(Date start)
+    public CurrentSession(@Nullable Date start)
     {
         this(start, null);
     }
-
-    public CurrentSession(Date start, String additionalComments)
+    
+    public CurrentSession(@Nullable Date start, @Nullable String additionalComments)
+    {
+        this(start, additionalComments, null);
+    }
+    
+    public CurrentSession(
+            @Nullable Date start,
+            @Nullable String additionalComments,
+            @Nullable Mood mood)
     {
         mStart = start;
         mAdditionalComments = additionalComments;
         mTimeUtils = createTimeUtils();
+        mMood = mood;
     }
+
     
 //*********************************************************
 // api
 //*********************************************************
 
+    public Mood getMood()
+    {
+        return mMood;
+    }
+    
     public Date getStart()
     {
         return mStart;
@@ -72,7 +90,8 @@ public class CurrentSession
         return new SleepSession(
                 getStart(),
                 getOngoingDurationMillis(),
-                getAdditionalComments());
+                getAdditionalComments(),
+                getMood());
     }
     
     public String getAdditionalComments()

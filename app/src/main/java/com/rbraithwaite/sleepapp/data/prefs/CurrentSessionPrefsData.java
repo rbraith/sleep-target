@@ -8,19 +8,23 @@ public class CurrentSessionPrefsData
 // public constants
 //*********************************************************
 
+    public static final int NO_MOOD = -1;
+    
     public final Date start;
     public final String additionalComments;
-    
+    public final int moodIndex;
+
 //*********************************************************
 // constructors
 //*********************************************************
 
-    public CurrentSessionPrefsData(Date start, String additionalComments)
+    public CurrentSessionPrefsData(Date start, String additionalComments, int moodIndex)
     {
         this.start = start;
         this.additionalComments = additionalComments;
+        this.moodIndex = moodIndex;
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -32,6 +36,7 @@ public class CurrentSessionPrefsData
         int prime = 13;
         hash = prime * hash + (start == null ? 0 : start.hashCode());
         hash = prime * hash + (additionalComments == null ? 0 : additionalComments.hashCode());
+        hash = prime * hash + moodIndex;
         return hash;
     }
     
@@ -43,6 +48,7 @@ public class CurrentSessionPrefsData
         CurrentSessionPrefsData that = (CurrentSessionPrefsData) o;
         return ((start == null && that.start == null) || start.equals(that.start)) &&
                ((additionalComments == null && that.additionalComments == null) ||
-                additionalComments.equals(that.additionalComments));
+                additionalComments.equals(that.additionalComments)) &&
+               moodIndex == that.moodIndex;
     }
 }

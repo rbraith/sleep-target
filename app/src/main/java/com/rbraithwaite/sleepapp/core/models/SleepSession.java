@@ -22,6 +22,7 @@ public class SleepSession
     private TimeUtils mTimeUtils;
     
     private String mAdditionalComments;
+    private Mood mMood;
 
 //*********************************************************
 // public constants
@@ -75,7 +76,7 @@ public class SleepSession
             long durationMillis,
             @Nullable String additionalComments)
     {
-        this(0, start, durationMillis, additionalComments);
+        this(0, start, durationMillis, additionalComments, null);
     }
     
     public SleepSession(
@@ -83,6 +84,25 @@ public class SleepSession
             @NonNull Date start,
             long durationMillis,
             @Nullable String additionalComments)
+    {
+        this(id, start, durationMillis, additionalComments, null);
+    }
+    
+    public SleepSession(
+            @NonNull Date start,
+            long durationMillis,
+            @Nullable String additionalComments,
+            @Nullable Mood mood)
+    {
+        this(0, start, durationMillis, additionalComments, mood);
+    }
+    
+    public SleepSession(
+            int id,
+            @NonNull Date start,
+            long durationMillis,
+            @Nullable String additionalComments,
+            @Nullable Mood mood)
     {
         // OPTIMIZE [21-03-26 2:03AM] -- It's not ideal to always & blindly be validating the inputs
         //  inside here - there are many cases where I can be confident that the input data is
@@ -95,6 +115,7 @@ public class SleepSession
         mStart = start;
         mDurationMillis = durationMillis;
         mAdditionalComments = additionalComments;
+        mMood = mood;
         
         mTimeUtils = createTimeUtils();
     }
@@ -197,6 +218,11 @@ public class SleepSession
         mAdditionalComments = additionalComments;
     }
     
+    public Mood getMood()
+    {
+        return mMood;
+    }
+
 //*********************************************************
 // protected api
 //*********************************************************

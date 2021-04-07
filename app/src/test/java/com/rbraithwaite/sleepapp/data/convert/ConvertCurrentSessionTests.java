@@ -1,6 +1,7 @@
 package com.rbraithwaite.sleepapp.data.convert;
 
 import com.rbraithwaite.sleepapp.core.models.CurrentSession;
+import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.data.prefs.CurrentSessionPrefsData;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 
@@ -28,12 +29,14 @@ public class ConvertCurrentSessionTests
     {
         CurrentSession currentSession = new CurrentSession(
                 TestUtils.ArbitraryData.getDate(),
-                "test");
+                "test",
+                Mood.fromIndex(2));
         
         CurrentSessionPrefsData result = ConvertCurrentSession.toPrefsData(currentSession);
         
         assertThat(result.start, is(equalTo(currentSession.getStart())));
         assertThat(result.additionalComments, is(equalTo(currentSession.getAdditionalComments())));
+        assertThat(result.moodIndex, is(currentSession.getMood().toIndex()));
     }
     
     @Test
@@ -47,11 +50,13 @@ public class ConvertCurrentSessionTests
     {
         CurrentSessionPrefsData data = new CurrentSessionPrefsData(
                 TestUtils.ArbitraryData.getDate(),
-                "test");
+                "test",
+                2);
         
         CurrentSession currentSession = ConvertCurrentSession.fromPrefsData(data);
         
         assertThat(currentSession.getAdditionalComments(), is(equalTo(data.additionalComments)));
         assertThat(currentSession.getStart(), is(equalTo(data.start)));
+        assertThat(currentSession.getMood().toIndex(), is(data.moodIndex));
     }
 }

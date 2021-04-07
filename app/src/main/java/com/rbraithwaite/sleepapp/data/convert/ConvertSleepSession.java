@@ -1,5 +1,6 @@
 package com.rbraithwaite.sleepapp.data.convert;
 
+import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 
@@ -29,6 +30,7 @@ public class ConvertSleepSession
         entity.endTime = model.getEnd();
         entity.duration = model.getDurationMillis();
         entity.additionalComments = model.getAdditionalComments();
+        entity.moodIndex = model.getMood() == null ? null : model.getMood().toIndex();
         return entity;
     }
     
@@ -41,7 +43,8 @@ public class ConvertSleepSession
                 entity.id,
                 entity.startTime,
                 entity.duration,
-                entity.additionalComments);
+                entity.additionalComments,
+                Mood.fromIndex(entity.moodIndex));
     }
     
     // REFACTOR [21-03-24 11:01PM] -- This doesn't quite fit with the singular class name, find

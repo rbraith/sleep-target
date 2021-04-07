@@ -22,6 +22,9 @@ import androidx.navigation.ui.NavigationUI;
 import com.rbraithwaite.sleepapp.BuildConfig;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
+import com.rbraithwaite.sleepapp.ui.common.mood.MoodSelectorController;
+import com.rbraithwaite.sleepapp.ui.common.mood.MoodSelectorViewModel;
+import com.rbraithwaite.sleepapp.ui.common.mood.MoodUiData;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -33,11 +36,17 @@ public class SleepTrackerFragment
 // private properties
 //*********************************************************
 
-    private SleepTrackerFragmentViewModel mViewModel;
-    
     private EditText mAdditionalComments;
+    
+    
+//*********************************************************
+// package properties
+//*********************************************************
 
-
+    MoodSelectorController mMoodSelectorController;
+    
+    MoodSelectorViewModel mMoodSelectorViewModel;
+    
 //*********************************************************
 // constructors
 //*********************************************************
@@ -46,7 +55,7 @@ public class SleepTrackerFragment
     {
         setHasOptionsMenu(true);
     }
-
+    
 //*********************************************************
 // overrides
 //*********************************************************
@@ -69,6 +78,7 @@ public class SleepTrackerFragment
         initSessionStartTime(view);
         initGoalsDisplay(view);
         initAdditionalCommentsText(view);
+        initMoodSelector(view);
     }
     
     @Override
@@ -76,7 +86,7 @@ public class SleepTrackerFragment
     {
         super.onPause();
         
-        getViewModel().persist();
+        getViewModel().persistCurrentSession();
     }
     
     @Override
@@ -119,10 +129,46 @@ public class SleepTrackerFragment
 // private methods
 //*********************************************************
 
+    private void initMoodSelector(View fragmentRoot)
+    {
+        mMoodSelectorViewModel = new MoodSelectorViewModel();
+        mMoodSelectorController = new MoodSelectorController(
+                fragmentRoot.findViewById(R.id.more_context_mood),
+                mMoodSelectorViewModel,
+                requireContext(),
+                getViewLifecycleOwner(),
+                getChildFragmentManager());
+        mMoodSelectorController.setCallbacks(new MoodSelectorController.Callbacks()
+        {
+            @Override
+            public void onMoodChanged(MoodUiData newMood)
+            {
+                getViewModel().setLocalMood(newMood);
+            }
+            
+            @Override
+            public void onMoodDeleted()
+            {
+                getViewModel().clearLocalMood();
+            }
+        });
+        
+        getViewModel().getPersistedMood().observe(
+                getViewLifecycleOwner(),
+                new Observer<MoodUiData>()
+                {
+                    @Override
+                    public void onChanged(MoodUiData moodUiData)
+                    {
+                        mMoodSelectorViewModel.setMood(moodUiData);
+                    }
+                });
+    }
+    
     private void initAdditionalCommentsText(View fragmentRoot)
     {
         mAdditionalComments = fragmentRoot.findViewById(R.id.additional_comments);
-        getViewModel().getAdditionalComments().observe(
+        getViewModel().getPersistedAdditionalComments().observe(
                 getViewLifecycleOwner(),
                 new Observer<String>()
                 {
@@ -147,7 +193,7 @@ public class SleepTrackerFragment
             @Override
             public void afterTextChanged(Editable s)
             {
-                getViewModel().setAdditionalComments(s.toString());
+                getViewModel().setLocalAdditionalComments(s.toString());
             }
         });
     }

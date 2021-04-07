@@ -7,6 +7,7 @@ import android.widget.TimePicker;
 
 import androidx.test.espresso.matcher.BoundedMatcher;
 
+import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 
@@ -23,6 +24,34 @@ public class EspressoMatchers
 // api
 //*********************************************************
 
+    
+    /**
+     * Matches a view with a particular tag value.
+     *
+     * @param value The value of the view's tag to be matched against.
+     *
+     * @return a Matcher (usually to be used with withTag())
+     */
+    public static Matcher<Object> tagValue(final Object value)
+    {
+        return new BaseMatcher<Object>()
+        {
+            @Override
+            public boolean matches(Object item)
+            {
+                if (item == null) {
+                    return false;
+                }
+                return item.equals(value);
+            }
+            
+            @Override
+            public void describeTo(Description description)
+            {
+                description.appendText("View tag of value: " + value.toString());
+            }
+        };
+    }
     
     /**
      * eg onView({@literal <date-picker>}).check(matches(datePickerWithDate(1, 2, 3)));

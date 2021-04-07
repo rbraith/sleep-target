@@ -35,18 +35,21 @@ import static org.hamcrest.Matchers.not;
 @RunWith(AndroidJUnit4.class)
 public class SleepTrackerFragmentTests
 {
+    // TODO [21-04-3 2:35AM] -- UI test for mood selection highlighting?
+    
 //*********************************************************
 // api
 //*********************************************************
 
     @Test
-    public void additionalCommentsText_resetsWhenSessionEnds()
+    public void moreContext_resetsWhenSessionEnds()
     {
         // GIVEN the user has input some additional comments
         ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
         
         String expectedText = "You want your belt to buckle, not your chair.";
         UITestUtils.typeOnMultilineEditText(expectedText, onView(withId(R.id.additional_comments)));
+        SleepTrackerFragmentTestUtils.addMood(1);
         
         // WHEN the user ends the current session
         onView(withId(R.id.sleep_tracker_button)).perform(click());
@@ -54,16 +57,18 @@ public class SleepTrackerFragmentTests
         
         // THEN the additional comments text resets
         onView(withId(R.id.additional_comments)).check(matches(withText("")));
+        onView(withId(R.id.mood_selector_add_btn)).check(matches(isDisplayed()));
     }
     
     @Test
-    public void additionalCommentsText_isRetainedFromDifferentScreen()
+    public void moreContext_isRetainedFromDifferentScreen()
     {
         // GIVEN the user has input some additional comments
         ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
         
         String expectedText = "It's one banana, Michael. What could it cost, $10?";
         UITestUtils.typeOnMultilineEditText(expectedText, onView(withId(R.id.additional_comments)));
+        SleepTrackerFragmentTestUtils.addMood(1);
         
         // WHEN the user returns to the sleep tracker screen from another screen
         UITestNavigate.fromHome_toGoals();
@@ -71,22 +76,25 @@ public class SleepTrackerFragmentTests
         
         // THEN the additional comment text is retained
         onView(withId(R.id.additional_comments)).check(matches(withText(expectedText)));
+        onView(withId(R.id.mood_selector_mood_value)).check(matches(isDisplayed()));
     }
     
     @Test
-    public void additionalCommentsText_isRetainedOnAppRestart()
+    public void moreContext_isRetainedOnAppRestart()
     {
         // GIVEN the user has input some additional comments
         ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
         
         String expectedText = "I don't care for GOB.";
         UITestUtils.typeOnMultilineEditText(expectedText, onView(withId(R.id.additional_comments)));
+        SleepTrackerFragmentTestUtils.addMood(1);
         
         // WHEN the app is restarted
         scenario = UITestUtils.restartApp(scenario, MainActivity.class);
         
         // THEN the additional comment text is retained
         onView(withId(R.id.additional_comments)).check(matches(withText(expectedText)));
+        onView(withId(R.id.mood_selector_mood_value)).check(matches(isDisplayed()));
     }
     
     @Test

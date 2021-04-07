@@ -27,7 +27,9 @@ public class SleepSessionEntity
     public long duration;
     @ColumnInfo(name = SleepSessionContract.Columns.COMMENTS)
     public String additionalComments;
-    
+    @ColumnInfo(name = SleepSessionContract.Columns.MOOD)
+    public Integer moodIndex;
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -42,6 +44,7 @@ public class SleepSessionEntity
         hash = prime * hash + endTime.hashCode();
         hash = prime * hash + (int) duration;
         hash = prime * hash + (additionalComments == null ? 0 : additionalComments.hashCode());
+        hash = prime * hash + moodIndex;
         return hash;
     }
     
@@ -55,6 +58,7 @@ public class SleepSessionEntity
                duration == entity.duration &&
                startTime.equals(entity.startTime) &&
                endTime.equals(entity.endTime) &&
-               additionalComments.equals(entity.additionalComments);
+               additionalComments.equals(entity.additionalComments) &&
+               moodIndex == entity.moodIndex;
     }
 }

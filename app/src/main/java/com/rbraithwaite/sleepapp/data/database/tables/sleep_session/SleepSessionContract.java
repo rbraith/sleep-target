@@ -21,6 +21,7 @@ public class SleepSessionContract
         public static final String END_TIME = "end_time";
         public static final String DURATION = "duration";
         public static final String COMMENTS = "comments";
+        public static final String MOOD = "mood";
     }
 
 //*********************************************************

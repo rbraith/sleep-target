@@ -83,7 +83,8 @@ public class SleepAppDataPrefsTests
         
         CurrentSessionPrefsData expected = new CurrentSessionPrefsData(
                 TestUtils.ArbitraryData.getDate(),
-                "test");
+                "test",
+                2);
         prefs.setCurrentSession(expected);
         
         synchronizer.sync();
