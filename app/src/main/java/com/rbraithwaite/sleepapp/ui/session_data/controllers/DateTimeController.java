@@ -10,12 +10,13 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 
 import com.rbraithwaite.sleepapp.R;
-import com.rbraithwaite.sleepapp.ui.dialog.DatePickerFragment;
-import com.rbraithwaite.sleepapp.ui.dialog.TimePickerFragment;
+import com.rbraithwaite.sleepapp.ui.common.dialog.DatePickerFragment;
+import com.rbraithwaite.sleepapp.ui.common.dialog.TimePickerFragment;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+
 
 
 /**
@@ -38,14 +39,14 @@ public class DateTimeController
     
     private DateTimeViewModel mViewModel;
     private Callbacks mCallbacks;
-    
+
 //*********************************************************
 // public constants
 //*********************************************************
 
     public static final String DIALOG_DATE_PICKER = "DateTimeController_DateDialog";
     public static final String DIALOG_TIME_PICKER = "DateTimeController_TimeDialog";
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -68,7 +69,7 @@ public class DateTimeController
         String formatTimeOfDay(int hourOfDay, int minute);
         String formatDate(int year, int month, int dayOfMonth);
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -106,7 +107,7 @@ public class DateTimeController
         
         setupListeners();
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -133,7 +134,7 @@ public class DateTimeController
             }
         });
     }
-    
+
 //*********************************************************
 // protected api
 //*********************************************************
@@ -142,7 +143,7 @@ public class DateTimeController
     {
         return new DateTimeViewModel();
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

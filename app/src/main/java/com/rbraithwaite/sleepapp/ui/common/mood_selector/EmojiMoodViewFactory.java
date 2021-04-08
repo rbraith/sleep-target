@@ -1,8 +1,9 @@
-package com.rbraithwaite.sleepapp.ui.common.mood;
+package com.rbraithwaite.sleepapp.ui.common.mood_selector;
 
 import android.content.Context;
 import android.view.View;
 import android.widget.TextView;
+
 
 
 /**
@@ -25,7 +26,7 @@ public class EmojiMoodViewFactory
         moodView.setTextSize(scale);
         return moodView;
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

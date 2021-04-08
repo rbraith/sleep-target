@@ -9,6 +9,7 @@ import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
+import com.rbraithwaite.sleepapp.test_utils.ui.MoodSelectorTestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestNavigate;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
@@ -42,6 +43,31 @@ public class SessionArchiveFragmentTests
 // api
 //*********************************************************
 
+    @Test
+    public void moodIcon_displaysProperly()
+    {
+        ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
+        UITestNavigate.fromHome_toSessionArchive();
+        
+        // add a new session with no mood to the archive
+        SessionArchiveFragmentTestUtils.addSession(new SleepSession(
+                TestUtils.ArbitraryData.getDate(),
+                TestUtils.ArbitraryData.getDurationMillis(),
+                "arbitrary comment",
+                null));
+        
+        // verify that the list item mood is not displayed
+        onView(withId(R.id.session_archive_list_item_mood_frame)).check(matches(not(isDisplayed())));
+        
+        // edit that session and add a mood
+        onView(withId(R.id.session_archive_list_item_card)).perform(click());
+        MoodSelectorTestUtils.addMood(withId(R.id.session_data_mood), 1);
+        SessionDataFragmentTestUtils.pressPositive();
+        
+        // verify that the list item mood is displayed
+        onView(withId(R.id.session_archive_list_item_mood_frame)).check(matches(isDisplayed()));
+    }
+    
     @Test
     public void additionalCommentsIcon_displaysProperly()
     {

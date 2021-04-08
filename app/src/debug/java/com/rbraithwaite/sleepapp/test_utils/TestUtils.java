@@ -11,6 +11,7 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.core.models.WakeTimeGoal;
@@ -152,7 +153,13 @@ public class TestUtils
             return new SleepSession(
                     getDate(),
                     getDurationMillis(),
-                    "test!");
+                    "test!",
+                    getMood());
+        }
+        
+        public static Mood getMood()
+        {
+            return Mood.fromIndex(1);
         }
         
         public static Date getWakeTimeGoal()

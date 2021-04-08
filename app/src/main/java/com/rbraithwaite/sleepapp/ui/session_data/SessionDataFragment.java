@@ -3,7 +3,6 @@ package com.rbraithwaite.sleepapp.ui.session_data;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,6 +20,9 @@ import androidx.lifecycle.Observer;
 import com.google.android.material.snackbar.Snackbar;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
+import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodSelectorController;
+import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodSelectorViewModel;
+import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragmentDirections;
 import com.rbraithwaite.sleepapp.ui.session_data.controllers.DateTimeController;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
@@ -49,6 +51,8 @@ public class SessionDataFragment
     private DateTimeController mEndDateTimeController;
     
     private EditText mAdditionalComments;
+    
+    private MoodSelectorController mMoodSelectorController;
     
 //*********************************************************
 // private constants
@@ -126,7 +130,7 @@ public class SessionDataFragment
          */
         public abstract void onAction(SessionDataFragment fragment, SleepSessionWrapper result);
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -168,6 +172,7 @@ public class SessionDataFragment
         initEndDateTime(view.findViewById(R.id.session_data_end_time));
         initSessionDuration(view);
         initAdditionalComments(view);
+        initMoodSelector(view);
         
         // init back press behaviour
         requireActivity().getOnBackPressedDispatcher().addCallback(
@@ -225,13 +230,13 @@ public class SessionDataFragment
             return super.onOptionsItemSelected(item);
         }
     }
-
+    
     @Override
     protected boolean getBottomNavVisibility() { return false; }
     
     @Override
     protected Class<SessionDataFragmentViewModel> getViewModelClass() { return SessionDataFragmentViewModel.class; }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -249,7 +254,7 @@ public class SessionDataFragment
                 .actionSessionArchiveToSessionData(args)
                 .getArguments();
     }
-    
+
     // TODO [21-12-31 1:54AM] -- I should think more about possible ways of unit testing this.
     public void completed()
     {
@@ -259,6 +264,34 @@ public class SessionDataFragment
 //*********************************************************
 // private methods
 //*********************************************************
+
+    private void initMoodSelector(View fragmentRoot)
+    {
+        mMoodSelectorController = new MoodSelectorController(
+                fragmentRoot.findViewById(R.id.session_data_mood),
+                // Set the mood selector to the initial mood of the displayed session.
+                // There isn't a need to observe this value, as the mood selector will
+                // handle its own UI updates.
+                new MoodSelectorViewModel(getViewModel().getMood()),
+                requireContext(),
+                getViewLifecycleOwner(),
+                getChildFragmentManager());
+        
+        mMoodSelectorController.setCallbacks(new MoodSelectorController.Callbacks()
+        {
+            @Override
+            public void onMoodChanged(MoodUiData newMood)
+            {
+                getViewModel().setMood(newMood);
+            }
+            
+            @Override
+            public void onMoodDeleted()
+            {
+                getViewModel().clearMood();
+            }
+        });
+    }
 
     private void clearSessionDataThenNavigateUp()
     {
@@ -421,7 +454,10 @@ public class SessionDataFragment
                 });
     }
     
-    private DateTimeController createDateTimeController(int titleId, GregorianCalendar initialData, View root)
+    private DateTimeController createDateTimeController(
+            int titleId,
+            GregorianCalendar initialData,
+            View root)
     {
         return new DateTimeController(
                 getString(titleId),

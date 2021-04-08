@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui.common.mood;
+package com.rbraithwaite.sleepapp.ui.common.mood_selector;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -43,7 +43,7 @@ public class MoodDialogFragment
 //*********************************************************
 
     public static final int NO_MOOD_SELECTED = -1;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -114,7 +114,7 @@ public class MoodDialogFragment
             this.index = index;
         }
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -150,7 +150,7 @@ public class MoodDialogFragment
         
         return builder.create();
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -159,6 +159,7 @@ public class MoodDialogFragment
     {
         return MOOD_VIEW_TAG_PREFIX + moodIndex;
     }
+
 
 //*********************************************************
 // private methods
@@ -221,7 +222,7 @@ public class MoodDialogFragment
     {
         mSelected = selected;
     }
-    
+
 //*********************************************************
 // private helpers
 //*********************************************************

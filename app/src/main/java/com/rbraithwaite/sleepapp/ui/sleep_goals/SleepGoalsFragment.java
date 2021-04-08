@@ -17,9 +17,9 @@ import androidx.lifecycle.Observer;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
-import com.rbraithwaite.sleepapp.ui.dialog.DialogUtils;
-import com.rbraithwaite.sleepapp.ui.dialog.DurationPickerFragment;
-import com.rbraithwaite.sleepapp.ui.dialog.TimePickerFragment;
+import com.rbraithwaite.sleepapp.ui.common.dialog.DialogUtils;
+import com.rbraithwaite.sleepapp.ui.common.dialog.DurationPickerFragment;
+import com.rbraithwaite.sleepapp.ui.common.dialog.TimePickerFragment;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.data.SleepDurationGoalUIData;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.streak_calendar.StreakCalendar;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;

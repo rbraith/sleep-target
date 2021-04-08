@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui.common.mood;
+package com.rbraithwaite.sleepapp.ui.common.mood_selector;
 
 public class MoodUiData
 {
@@ -7,7 +7,7 @@ public class MoodUiData
 //*********************************************************
 
     public Type type;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -27,7 +27,7 @@ public class MoodUiData
         MOOD_11,
         MOOD_12
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -36,7 +36,7 @@ public class MoodUiData
     {
         this.type = type;
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************

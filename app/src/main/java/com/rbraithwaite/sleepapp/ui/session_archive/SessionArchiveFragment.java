@@ -1,5 +1,6 @@
 package com.rbraithwaite.sleepapp.ui.session_archive;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -16,11 +17,12 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
-import com.rbraithwaite.sleepapp.ui.dialog.AlertDialogFragment;
-import com.rbraithwaite.sleepapp.ui.dialog.DialogUtils;
+import com.rbraithwaite.sleepapp.ui.common.dialog.AlertDialogFragment;
+import com.rbraithwaite.sleepapp.ui.common.dialog.DialogUtils;
 import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragment;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
+import com.rbraithwaite.sleepapp.utils.interfaces.ProviderOf;
 
 import java.util.List;
 
@@ -81,12 +83,20 @@ public class SessionArchiveFragment
         if (mRecyclerViewAdapter == null) {
             mRecyclerViewAdapter = new SessionArchiveRecyclerViewAdapter(
                     getViewModel(),
-                    new SessionArchiveRecyclerViewAdapter.FragmentProvider()
+                    new ProviderOf<Fragment>()
                     {
                         @Override
-                        public Fragment getFragment()
+                        public Fragment provide()
                         {
                             return SessionArchiveFragment.this;
+                        }
+                    },
+                    new ProviderOf<Context>()
+                    {
+                        @Override
+                        public Context provide()
+                        {
+                            return requireContext();
                         }
                     },
                     new SessionArchiveRecyclerViewAdapter.OnListItemClickListener()

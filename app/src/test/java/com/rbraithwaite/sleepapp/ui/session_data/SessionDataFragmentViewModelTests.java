@@ -3,8 +3,11 @@ package com.rbraithwaite.sleepapp.ui.session_data;
 import androidx.lifecycle.LiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
+import com.rbraithwaite.sleepapp.ui.common.mood_selector.ConvertMood;
+import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
@@ -32,7 +35,6 @@ public class SessionDataFragmentViewModelTests
 //*********************************************************
 
     SessionDataFragmentViewModel viewModel;
-    DateTimeFormatter dateTimeFormatter;
 
 //*********************************************************
 // api
@@ -41,15 +43,40 @@ public class SessionDataFragmentViewModelTests
     @Before
     public void setup()
     {
-        dateTimeFormatter = new DateTimeFormatter();
-        viewModel = new SessionDataFragmentViewModel(dateTimeFormatter);
+        viewModel = new SessionDataFragmentViewModel();
     }
     
     @After
     public void teardown()
     {
         viewModel = null;
-        dateTimeFormatter = null;
+    }
+    
+    @Test
+    public void clearMood_setsMoodToNull()
+    {
+        SleepSession initialData = TestUtils.ArbitraryData.getSleepSession();
+        initialData.setMood(Mood.fromIndex(1));
+        viewModel.setSessionData(new SleepSessionWrapper(initialData));
+        
+        viewModel.clearMood();
+        
+        assertThat(viewModel.getMood(), is(nullValue()));
+    }
+    
+    @Test
+    public void getMood_reflects_setMood()
+    {
+        SleepSession initialData = TestUtils.ArbitraryData.getSleepSession();
+        initialData.setMood(Mood.fromIndex(1));
+        viewModel.setSessionData(new SleepSessionWrapper(initialData));
+        
+        assertThat(viewModel.getMood(), is(equalTo(ConvertMood.toUiData(initialData.getMood()))));
+        
+        MoodUiData expected = new MoodUiData(MoodUiData.Type.MOOD_4);
+        viewModel.setMood(expected);
+        
+        assertThat(viewModel.getMood(), is(equalTo(expected)));
     }
     
     @Test
@@ -424,7 +451,7 @@ public class SessionDataFragmentViewModelTests
         String expected = new DurationFormatter().formatDurationMillis(testDurationMillis);
         assertThat(sessionDuration.getValue(), is(equalTo(expected)));
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

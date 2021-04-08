@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui.dialog;
+package com.rbraithwaite.sleepapp.ui.common.dialog;
 
 import android.app.Dialog;
 import android.app.TimePickerDialog;

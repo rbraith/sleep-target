@@ -15,8 +15,8 @@ import com.rbraithwaite.sleepapp.core.repositories.CurrentGoalsRepository;
 import com.rbraithwaite.sleepapp.core.repositories.CurrentSessionRepository;
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.di.UIDependenciesModule;
-import com.rbraithwaite.sleepapp.ui.common.mood.ConvertMood;
-import com.rbraithwaite.sleepapp.ui.common.mood.MoodUiData;
+import com.rbraithwaite.sleepapp.ui.common.mood_selector.ConvertMood;
+import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
@@ -42,7 +42,7 @@ public class SleepTrackerFragmentViewModel
     private TimeUtils mTimeUtils;
     
     private LiveData<CurrentSession> mCurrentSession;
-
+    
     /**
      * This is used to hold comment values that the user has entered without needing to persist
      * these values to storage every time they change. These new local values take precedence over
@@ -51,13 +51,13 @@ public class SleepTrackerFragmentViewModel
     private LocalValue<String> mLocalAdditionalComments = new LocalValue<>();
     
     private LocalValue<Mood> mLocalMood = new LocalValue<>();
-    
+
 //*********************************************************
 // private constants
 //*********************************************************
 
     private static final String TAG = "SleepTrackerFragmentVie";
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -76,7 +76,7 @@ public class SleepTrackerFragmentViewModel
         mDateTimeFormatter = dateTimeFormatter;
         mTimeUtils = createTimeUtils();
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -135,6 +135,8 @@ public class SleepTrackerFragmentViewModel
                         if (currentSession.isStarted()) {
                             currentSession.setAdditionalComments(
                                     mLocalAdditionalComments.consumeIfValid(currentSession.getAdditionalComments()));
+                            currentSession.setMood(
+                                    mLocalMood.consumeIfValid(currentSession.getMood()));
                             mSleepSessionRepository.addSleepSession(currentSession.toSleepSession());
                             mCurrentSessionRepository.clearCurrentSession();
                         }
@@ -299,7 +301,7 @@ public class SleepTrackerFragmentViewModel
                     }
                 });
     }
-
+    
     /**
      * This does not update getPersistedMood() until persist() is called.
      */
@@ -307,7 +309,7 @@ public class SleepTrackerFragmentViewModel
     {
         mLocalMood.set(ConvertMood.fromUiData(mood));
     }
-
+    
     /**
      * This does not update getPersistedMood() until persist() is called.
      */
@@ -315,7 +317,7 @@ public class SleepTrackerFragmentViewModel
     {
         setLocalMood(null);
     }
-    
+
 //*********************************************************
 // protected api
 //*********************************************************
@@ -324,7 +326,7 @@ public class SleepTrackerFragmentViewModel
     {
         return new TimeUtils();
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -336,7 +338,7 @@ public class SleepTrackerFragmentViewModel
         }
         return mCurrentSession;
     }
-    
+
 //*********************************************************
 // private helpers
 //*********************************************************

@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui.common.mood;
+package com.rbraithwaite.sleepapp.ui.common.mood_selector;
 
 import android.content.Context;
 import android.view.View;
@@ -36,7 +36,7 @@ public class MoodSelectorController
 //*********************************************************
 
     private static final String DIALOG_TAG = "MoodSelectorController_dialog";
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -46,7 +46,7 @@ public class MoodSelectorController
         void onMoodChanged(MoodUiData newMood);
         void onMoodDeleted();
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -91,7 +91,7 @@ public class MoodSelectorController
             }
         });
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -100,7 +100,7 @@ public class MoodSelectorController
     {
         mCallbacks = callbacks;
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

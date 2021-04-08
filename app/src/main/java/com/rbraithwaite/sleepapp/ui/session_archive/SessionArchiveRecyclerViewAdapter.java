@@ -1,9 +1,11 @@
 package com.rbraithwaite.sleepapp.ui.session_archive;
 
+import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -15,7 +17,10 @@ import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.rbraithwaite.sleepapp.R;
+import com.rbraithwaite.sleepapp.ui.common.mood_selector.EmojiMoodViewFactory;
+import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodViewFactory;
 import com.rbraithwaite.sleepapp.ui.session_archive.data.SessionArchiveListItem;
+import com.rbraithwaite.sleepapp.utils.interfaces.ProviderOf;
 
 import java.util.List;
 
@@ -29,11 +34,14 @@ public class SessionArchiveRecyclerViewAdapter
 // private properties
 //*********************************************************
 
-    private FragmentProvider mFragmentProvider;
+    private ProviderOf<Fragment> mFragmentProvider;
+    private ProviderOf<Context> mContextProvider;
     private SessionArchiveFragmentViewModel mViewModel;
     private LiveData<List<Integer>> mSleepSessionDataIds;
     
     private OnListItemClickListener mOnListItemClickListener;
+    
+    private MoodViewFactory mMoodViewFactory;
 
 
 //*********************************************************
@@ -46,14 +54,9 @@ public class SessionArchiveRecyclerViewAdapter
 // public helpers
 //*********************************************************
 
-    public interface FragmentProvider
-    {
-        public Fragment getFragment();
-    }
-    
     public interface OnListItemClickListener
     {
-        public void onClick(View v, int position);
+        void onClick(View v, int position);
     }
 
 //*********************************************************
@@ -67,6 +70,7 @@ public class SessionArchiveRecyclerViewAdapter
         TextView stopTime;
         TextView duration;
         ImageView additionalCommentsIcon;
+        FrameLayout moodFrame;
         
         public ViewHolder(
                 @NonNull View itemView,
@@ -81,6 +85,7 @@ public class SessionArchiveRecyclerViewAdapter
             this.duration = itemView.findViewById(R.id.session_archive_list_item_duration_VALUE);
             this.additionalCommentsIcon =
                     itemView.findViewById(R.id.session_archive_list_item_comment_icon);
+            this.moodFrame = itemView.findViewById(R.id.session_archive_list_item_mood_frame);
             
             itemView.setOnClickListener(new View.OnClickListener()
             {
@@ -101,13 +106,17 @@ public class SessionArchiveRecyclerViewAdapter
 
     public SessionArchiveRecyclerViewAdapter(
             SessionArchiveFragmentViewModel viewModel,
-            FragmentProvider fragmentProvider,
+            ProviderOf<Fragment> fragmentProvider,
+            ProviderOf<Context> contextProvider,
             OnListItemClickListener onListItemClickListener)
     {
         Log.d(TAG, "ctor called");
         mViewModel = viewModel;
         mFragmentProvider = fragmentProvider;
+        mContextProvider = contextProvider;
         mOnListItemClickListener = onListItemClickListener;
+        
+        mMoodViewFactory = createMoodViewFactory();
         
         // SMELL [21-03-24 10:39PM] consider a different solution for displayed the sessions
         //  - do some research on conventional patterns.
@@ -124,7 +133,7 @@ public class SessionArchiveRecyclerViewAdapter
                     }
                 });
     }
-
+    
 //*********************************************************
 // overrides
 //*********************************************************
@@ -136,10 +145,10 @@ public class SessionArchiveRecyclerViewAdapter
         Log.d(TAG, "onCreateViewHolder: called");
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.session_archive_list_item, parent, false);
-        mFragmentProvider.getFragment().registerForContextMenu(view);
+        mFragmentProvider.provide().registerForContextMenu(view);
         return new ViewHolder(view, mOnListItemClickListener);
     }
-    
+
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position)
     {
@@ -161,6 +170,15 @@ public class SessionArchiveRecyclerViewAdapter
         
         return itemCount;
     }
+    
+//*********************************************************
+// protected api
+//*********************************************************
+
+    protected MoodViewFactory createMoodViewFactory()
+    {
+        return new EmojiMoodViewFactory();
+    }
 
 //*********************************************************
 // private methods
@@ -168,7 +186,7 @@ public class SessionArchiveRecyclerViewAdapter
 
     private LifecycleOwner getLifecycleOwner()
     {
-        return mFragmentProvider.getFragment();
+        return mFragmentProvider.provide();
     }
     
     private void bindToViewModel(final ViewHolder viewHolder, final int position)
@@ -194,6 +212,15 @@ public class SessionArchiveRecyclerViewAdapter
                             viewHolder.additionalCommentsIcon.setVisibility(
                                     sessionArchiveListItem.hasAdditionalComments ?
                                             View.VISIBLE : View.GONE);
+                            
+                            if (sessionArchiveListItem.mood != null) {
+                                viewHolder.moodFrame.setVisibility(View.VISIBLE);
+                                viewHolder.moodFrame.removeAllViews();
+                                viewHolder.moodFrame.addView(mMoodViewFactory.createView(
+                                        sessionArchiveListItem.mood,
+                                        mContextProvider.provide(),
+                                        20f));
+                            }
                         }
                     }
                 });

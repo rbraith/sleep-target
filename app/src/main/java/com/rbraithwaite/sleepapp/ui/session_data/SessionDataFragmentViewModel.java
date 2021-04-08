@@ -10,8 +10,8 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
-import com.rbraithwaite.sleepapp.di.UIDependenciesModule;
-import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
+import com.rbraithwaite.sleepapp.ui.common.mood_selector.ConvertMood;
+import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
@@ -31,8 +31,6 @@ public class SessionDataFragmentViewModel
 //*********************************************************
 
     private LiveData<String> mSessionDurationText;
-    
-    private DateTimeFormatter mDateTimeFormatter;
     
     private MutableLiveData<SleepSession> mSleepSession = new MutableLiveData<>();
 
@@ -54,11 +52,8 @@ public class SessionDataFragmentViewModel
 //*********************************************************
 
     @ViewModelInject
-    public SessionDataFragmentViewModel(
-            // REFACTOR [21-03-24 11:06PM] -- This should be SessionDataFormatting.
-            @UIDependenciesModule.SessionDataDateTimeFormatter DateTimeFormatter dateTimeFormatter)
+    public SessionDataFragmentViewModel()
     {
-        mDateTimeFormatter = dateTimeFormatter;
     }
 
 //*********************************************************
@@ -260,6 +255,36 @@ public class SessionDataFragmentViewModel
         // to null manually)
         if (sleepSession != null) {
             sleepSession.setAdditionalComments(additionalComments);
+        }
+    }
+    
+    public MoodUiData getMood()
+    {
+        // REFACTOR [21-04-7 9:04PM] -- consider returning LiveData instead.
+        SleepSession sleepSession = getSleepSession().getValue();
+        if (sleepSession == null) {
+            return null;
+        }
+        return ConvertMood.toUiData(sleepSession.getMood());
+    }
+    
+    public void setMood(MoodUiData mood)
+    {
+        // note: this change is not broadcast with notifySessionChanged(), as the mood selector will
+        // handle its own UI updates
+        SleepSession sleepSession = getSleepSession().getValue();
+        if (sleepSession != null) {
+            sleepSession.setMood(ConvertMood.fromUiData(mood));
+        }
+    }
+    
+    public void clearMood()
+    {
+        // note: this change is not broadcast with notifySessionChanged(), as the mood selector will
+        // handle its own UI updates
+        SleepSession sleepSession = getSleepSession().getValue();
+        if (sleepSession != null) {
+            sleepSession.setMood(null);
         }
     }
 

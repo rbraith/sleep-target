@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui.common.mood;
+package com.rbraithwaite.sleepapp.ui.common.mood_selector;
 
 import androidx.lifecycle.LiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;

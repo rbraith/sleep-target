@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui.dialog;
+package com.rbraithwaite.sleepapp.ui.common.dialog;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -13,8 +13,8 @@ public class DialogUtils
 //*********************************************************
 
     private DialogUtils() {/* No instantiation */}
-    
-    
+
+
 //*********************************************************
 // api
 //*********************************************************

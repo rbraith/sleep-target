@@ -22,9 +22,9 @@ import androidx.navigation.ui.NavigationUI;
 import com.rbraithwaite.sleepapp.BuildConfig;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
-import com.rbraithwaite.sleepapp.ui.common.mood.MoodSelectorController;
-import com.rbraithwaite.sleepapp.ui.common.mood.MoodSelectorViewModel;
-import com.rbraithwaite.sleepapp.ui.common.mood.MoodUiData;
+import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodSelectorController;
+import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodSelectorViewModel;
+import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodUiData;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -37,8 +37,8 @@ public class SleepTrackerFragment
 //*********************************************************
 
     private EditText mAdditionalComments;
-    
-    
+
+
 //*********************************************************
 // package properties
 //*********************************************************
@@ -46,7 +46,7 @@ public class SleepTrackerFragment
     MoodSelectorController mMoodSelectorController;
     
     MoodSelectorViewModel mMoodSelectorViewModel;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -55,7 +55,7 @@ public class SleepTrackerFragment
     {
         setHasOptionsMenu(true);
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************

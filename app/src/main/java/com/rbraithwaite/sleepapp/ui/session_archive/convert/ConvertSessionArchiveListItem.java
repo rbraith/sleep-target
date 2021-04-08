@@ -1,6 +1,7 @@
 package com.rbraithwaite.sleepapp.ui.session_archive.convert;
 
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
+import com.rbraithwaite.sleepapp.ui.common.mood_selector.ConvertMood;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFormatting;
 import com.rbraithwaite.sleepapp.ui.session_archive.data.SessionArchiveListItem;
@@ -24,6 +25,7 @@ public class ConvertSessionArchiveListItem
                 SessionArchiveFormatting.formatFullDate(sleepSession.getStart()),
                 SessionArchiveFormatting.formatFullDate(sleepSession.getEnd()),
                 SessionArchiveFormatting.formatDuration(sleepSession.getDurationMillis()),
-                (sleepSession.getAdditionalComments() != null));
+                (sleepSession.getAdditionalComments() != null),
+                ConvertMood.toUiData(sleepSession.getMood()));
     }
 }

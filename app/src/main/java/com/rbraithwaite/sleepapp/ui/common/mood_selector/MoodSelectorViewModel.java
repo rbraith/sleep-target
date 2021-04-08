@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui.common.mood;
+package com.rbraithwaite.sleepapp.ui.common.mood_selector;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -20,7 +20,7 @@ public class MoodSelectorViewModel
 //*********************************************************
 
     public static final int NO_MOOD = -1;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -34,7 +34,7 @@ public class MoodSelectorViewModel
     {
         this(null);
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************

@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui.dialog;
+package com.rbraithwaite.sleepapp.ui.common.dialog;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -23,7 +23,7 @@ public class DurationPickerFragment
     private OnDurationSetListener mListener;
     private int mHour;
     private int mMinute;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -32,7 +32,7 @@ public class DurationPickerFragment
     {
         void onDurationSet(DialogInterface dialog, int which, int hour, int minute);
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -84,7 +84,7 @@ public class DurationPickerFragment
                 });
         return builder.create();
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -110,7 +110,7 @@ public class DurationPickerFragment
     
     // TODO [21-01-29 7:19PM] -- consider a createInstance(OnDurationSetListener) overload, where
     //  the hour and minute are set to some default value.
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

@@ -48,7 +48,7 @@ public class CurrentSession
         mMood = mood;
     }
 
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -56,6 +56,11 @@ public class CurrentSession
     public Mood getMood()
     {
         return mMood;
+    }
+    
+    public void setMood(Mood mood)
+    {
+        mMood = mood;
     }
     
     public Date getStart()
@@ -103,7 +108,7 @@ public class CurrentSession
     {
         mAdditionalComments = additionalComments;
     }
-
+    
 //*********************************************************
 // protected api
 //*********************************************************

@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui.dialog;
+package com.rbraithwaite.sleepapp.ui.common.dialog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -16,7 +16,7 @@ public class AlertDialogFragment
 //*********************************************************
 
     private AlertDialogFactory mAlertDialogFactory;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -29,7 +29,7 @@ public class AlertDialogFragment
     {
         AlertDialog create();
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -45,6 +45,7 @@ public class AlertDialogFragment
         }
         return mAlertDialogFactory.create();
     }
+
 
 //*********************************************************
 // api

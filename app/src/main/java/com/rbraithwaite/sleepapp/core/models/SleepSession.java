@@ -222,7 +222,12 @@ public class SleepSession
     {
         return mMood;
     }
-
+    
+    public void setMood(Mood mood)
+    {
+        mMood = mood;
+    }
+    
 //*********************************************************
 // protected api
 //*********************************************************

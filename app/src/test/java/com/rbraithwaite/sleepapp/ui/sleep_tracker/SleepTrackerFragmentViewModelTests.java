@@ -16,7 +16,7 @@ import com.rbraithwaite.sleepapp.core.repositories.CurrentSessionRepository;
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.data.MockRepositoryUtils;
-import com.rbraithwaite.sleepapp.ui.common.mood.MoodUiData;
+import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFormatting;
@@ -134,7 +134,6 @@ public class SleepTrackerFragmentViewModelTests
         
         TestUtils.activateLocalLiveData(moodUiData);
         assertThat(moodUiData.getValue().type, is(equalTo(MoodUiData.Type.MOOD_1)));
-        
     }
     
     @Test
@@ -312,7 +311,8 @@ public class SleepTrackerFragmentViewModelTests
                 new CurrentSession(
                         new GregorianCalendar(2021, 2, 30).getTime(),
                         expectedComments)));
-        TimeUtils stubTimeUtils = new TimeUtils() {
+        TimeUtils stubTimeUtils = new TimeUtils()
+        {
             @Override
             public Date getNow()
             {
@@ -320,15 +320,15 @@ public class SleepTrackerFragmentViewModelTests
             }
         };
         viewModel.setTimeUtils(stubTimeUtils);
-
+        
         // SUT
         viewModel.startSleepSession();
-
+        
         // verify
         ArgumentCaptor<CurrentSession> arg = ArgumentCaptor.forClass(CurrentSession.class);
         verify(mockCurrentSessionRepository, times(1))
                 .setCurrentSession(arg.capture());
-
+        
         CurrentSession currentSession = arg.getValue();
         assertThat(currentSession.getStart(), is(equalTo(stubTimeUtils.getNow())));
         assertThat(currentSession.getAdditionalComments(), is(equalTo(expectedComments)));

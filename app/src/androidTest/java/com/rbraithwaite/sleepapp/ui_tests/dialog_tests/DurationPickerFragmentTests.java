@@ -1,16 +1,12 @@
 package com.rbraithwaite.sleepapp.ui_tests.dialog_tests;
 
-import android.content.DialogInterface;
 import android.widget.NumberPicker;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.R;
-import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestHelper;
-import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
-import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DurationPickerTestUtils;
-import com.rbraithwaite.sleepapp.ui.dialog.DurationPickerFragment;
+import com.rbraithwaite.sleepapp.ui.common.dialog.DurationPickerFragment;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
