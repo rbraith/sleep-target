@@ -106,14 +106,7 @@ public class SleepTrackerFragmentViewModel
         if (mInSleepSession == null) {
             mInSleepSession = Transformations.map(
                     getCurrentSession(),
-                    new Function<CurrentSession, Boolean>()
-                    {
-                        @Override
-                        public Boolean apply(CurrentSession input)
-                        {
-                            return (input.isStarted());
-                        }
-                    }
+                    CurrentSession::isStarted
             );
         }
         return mInSleepSession;
@@ -129,18 +122,11 @@ public class SleepTrackerFragmentViewModel
         LiveDataFuture.getValue(
                 getCurrentSession(),
                 null,
-                new LiveDataFuture.OnValueListener<CurrentSession>()
-                {
-                    @Override
-                    public void onValue(CurrentSession currentSession)
-                    {
-                        mCurrentSessionRepository.setCurrentSession(new CurrentSession(
-                                mTimeUtils.getNow(),
-                                mLocalAdditionalComments.consumeIfValid(currentSession.getAdditionalComments()),
-                                mLocalMood.consumeIfValid(currentSession.getMood()),
-                                consumeLocalSelectedTagIds(currentSession.getSelectedTagIds())));
-                    }
-                });
+                currentSession -> mCurrentSessionRepository.setCurrentSession(new CurrentSession(
+                        mTimeUtils.getNow(),
+                        mLocalAdditionalComments.consumeIfValid(currentSession.getAdditionalComments()),
+                        mLocalMood.consumeIfValid(currentSession.getMood()),
+                        consumeLocalSelectedTagIds(currentSession.getSelectedTagIds()))));
     }
     
     public void endSleepSession()
@@ -148,26 +134,21 @@ public class SleepTrackerFragmentViewModel
         LiveDataFuture.getValue(
                 getCurrentSession(),
                 null,
-                new LiveDataFuture.OnValueListener<CurrentSession>()
-                {
-                    @Override
-                    public void onValue(CurrentSession currentSession)
-                    {
-                        if (currentSession.isStarted()) {
-                            currentSession.setAdditionalComments(
-                                    mLocalAdditionalComments.consumeIfValid(currentSession.getAdditionalComments()));
-                            currentSession.setMood(
-                                    mLocalMood.consumeIfValid(currentSession.getMood()));
-                            // HACK [21-04-19 10:23PM] -- I could have converted the local TagUiData
-                            //  selected tags to Tag models and set them in the SleepSession, but
-                            //  that felt really wasteful, since I really only need the tag ids
-                            //  anyway for a new session. This solution also feels bad though - I
-                            //  need something much better here.
-                            mSleepSessionRepository.addSleepSessionWithTags(
-                                    currentSession.toSleepSession(),
-                                    consumeLocalSelectedTagIds(currentSession.getSelectedTagIds()));
-                            mCurrentSessionRepository.clearCurrentSession();
-                        }
+                currentSession -> {
+                    if (currentSession.isStarted()) {
+                        currentSession.setAdditionalComments(
+                                mLocalAdditionalComments.consumeIfValid(currentSession.getAdditionalComments()));
+                        currentSession.setMood(
+                                mLocalMood.consumeIfValid(currentSession.getMood()));
+                        // HACK [21-04-19 10:23PM] -- I could have converted the local TagUiData
+                        //  selected tags to Tag models and set them in the SleepSession, but
+                        //  that felt really wasteful, since I really only need the tag ids
+                        //  anyway for a new session. This solution also feels bad though - I
+                        //  need something much better here.
+                        mSleepSessionRepository.addSleepSessionWithTags(
+                                currentSession.toSleepSession(),
+                                consumeLocalSelectedTagIds(currentSession.getSelectedTagIds()));
+                        mCurrentSessionRepository.clearCurrentSession();
                     }
                 });
     }
@@ -190,28 +171,23 @@ public class SleepTrackerFragmentViewModel
         // https://developer.android.com/reference/androidx/lifecycle/MediatorLiveData
         mCurrentSleepSessionDuration = Transformations.switchMap(
                 getCurrentSession(),
-                new Function<CurrentSession, androidx.lifecycle.LiveData<String>>()
-                {
-                    @Override
-                    public androidx.lifecycle.LiveData<String> apply(final CurrentSession currentSession)
-                    {
-                        // REFACTOR [21-03-24 11:57PM] -- This should be SleepTrackerFormatting.
-                        final DurationFormatter durationFormatter = new DurationFormatter();
-                        
-                        if (!currentSession.isStarted()) {
-                            return new MutableLiveData<>(durationFormatter.formatDurationMillis(
-                                    0));
-                        } else {
-                            return new TickingLiveData<String>()
+                currentSession -> {
+                    // REFACTOR [21-03-24 11:57PM] -- This should be SleepTrackerFormatting.
+                    final DurationFormatter durationFormatter = new DurationFormatter();
+                    
+                    if (!currentSession.isStarted()) {
+                        return new MutableLiveData<>(durationFormatter.formatDurationMillis(
+                                0));
+                    } else {
+                        return new TickingLiveData<String>()
+                        {
+                            @Override
+                            public String onTick()
                             {
-                                @Override
-                                public String onTick()
-                                {
-                                    return durationFormatter.formatDurationMillis(
-                                            currentSession.getOngoingDurationMillis());
-                                }
-                            };
-                        }
+                                return durationFormatter.formatDurationMillis(
+                                        currentSession.getOngoingDurationMillis());
+                            }
+                        };
                     }
                 });
         
@@ -222,34 +198,22 @@ public class SleepTrackerFragmentViewModel
     {
         return Transformations.map(
                 getCurrentSession(),
-                new Function<CurrentSession, String>()
-                {
-                    @Override
-                    public String apply(CurrentSession input)
-                    {
-                        return input.isStarted() ?
-                                // REFACTOR [21-02-3 3:18PM] -- move this logic to
-                                //  SleepTrackerFormatting.
-                                mDateTimeFormatter.formatFullDate(input.getStart()) :
-                                null;
-                    }
-                });
+                currentSession -> currentSession.isStarted() ?
+                        // REFACTOR [21-02-3 3:18PM] -- move this logic to
+                        //  SleepTrackerFormatting.
+                        mDateTimeFormatter.formatFullDate(currentSession.getStart()) :
+                        null);
     }
     
     public LiveData<String> getWakeTimeGoalText()
     {
         return Transformations.map(
                 mCurrentGoalsRepository.getWakeTimeGoal(),
-                new Function<WakeTimeGoal, String>()
-                {
-                    @Override
-                    public String apply(WakeTimeGoal wakeTimeGoal)
-                    {
-                        if (wakeTimeGoal == null || !wakeTimeGoal.isSet()) {
-                            return null;
-                        }
-                        return SleepTrackerFormatting.formatWakeTimeGoal(wakeTimeGoal);
+                wakeTimeGoal -> {
+                    if (wakeTimeGoal == null || !wakeTimeGoal.isSet()) {
+                        return null;
                     }
+                    return SleepTrackerFormatting.formatWakeTimeGoal(wakeTimeGoal);
                 });
     }
     
@@ -257,16 +221,11 @@ public class SleepTrackerFragmentViewModel
     {
         return Transformations.map(
                 mCurrentGoalsRepository.getSleepDurationGoal(),
-                new Function<SleepDurationGoal, String>()
-                {
-                    @Override
-                    public String apply(SleepDurationGoal input)
-                    {
-                        if (input == null || !input.isSet()) {
-                            return null;
-                        }
-                        return SleepTrackerFormatting.formatSleepDurationGoal(input);
+                sleepDurationGoal -> {
+                    if (sleepDurationGoal == null || !sleepDurationGoal.isSet()) {
+                        return null;
                     }
+                    return SleepTrackerFormatting.formatSleepDurationGoal(sleepDurationGoal);
                 });
     }
     
@@ -277,14 +236,7 @@ public class SleepTrackerFragmentViewModel
     {
         return Transformations.map(
                 getCurrentSession(),
-                new Function<CurrentSession, String>()
-                {
-                    @Override
-                    public String apply(CurrentSession input)
-                    {
-                        return input.getAdditionalComments();
-                    }
-                });
+                CurrentSession::getAdditionalComments);
     }
     
     public void setLocalAdditionalComments(String additionalComments)
@@ -303,32 +255,18 @@ public class SleepTrackerFragmentViewModel
         LiveDataFuture.getValue(
                 getCurrentSession(),
                 null,
-                new LiveDataFuture.OnValueListener<CurrentSession>()
-                {
-                    @Override
-                    public void onValue(CurrentSession currentSession)
-                    {
-                        mCurrentSessionRepository.setCurrentSession(new CurrentSession(
-                                currentSession.getStart(),
-                                mLocalAdditionalComments.consumeIfValid(currentSession.getAdditionalComments()),
-                                mLocalMood.consumeIfValid(currentSession.getMood()),
-                                consumeLocalSelectedTagIds(currentSession.getSelectedTagIds())));
-                    }
-                });
+                currentSession -> mCurrentSessionRepository.setCurrentSession(new CurrentSession(
+                        currentSession.getStart(),
+                        mLocalAdditionalComments.consumeIfValid(currentSession.getAdditionalComments()),
+                        mLocalMood.consumeIfValid(currentSession.getMood()),
+                        consumeLocalSelectedTagIds(currentSession.getSelectedTagIds()))));
     }
     
     public LiveData<MoodUiData> getPersistedMood()
     {
         return Transformations.map(
                 getCurrentSession(),
-                new Function<CurrentSession, MoodUiData>()
-                {
-                    @Override
-                    public MoodUiData apply(CurrentSession input)
-                    {
-                        return ConvertMood.toUiData(input.getMood());
-                    }
-                });
+                currentSession -> ConvertMood.toUiData(currentSession.getMood()));
     }
     
     /**

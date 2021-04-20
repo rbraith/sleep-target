@@ -69,14 +69,9 @@ public class DevToolsFragmentViewModel
     public void clearData(final AsyncTaskListener listener)
     {
         runAsyncTask(
-                new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        mDatabase.clearAllTables();
-                        mBaseDay.setTimeInMillis(defaultBaseDay.getTimeInMillis());
-                    }
+                () -> {
+                    mDatabase.clearAllTables();
+                    mBaseDay.setTimeInMillis(defaultBaseDay.getTimeInMillis());
                 },
                 listener);
     }
@@ -84,23 +79,18 @@ public class DevToolsFragmentViewModel
     public void addArbitrarySleepSessions(final int sessionAmount, final AsyncTaskListener listener)
     {
         runAsyncTask(
-                new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        Random rand = new Random();
-                        rand.setSeed(RANDOM_SEED); // keep the random data deterministic
-                        for (int i = 0; i < sessionAmount; i++) {
-                            mDatabase.getSleepSessionDao()
-                                    .addSleepSession(generateRandomSleepSessionEntity(mBaseDay,
-                                                                                      rand));
-                            // one session per day
-                            // having the base day as a stored property ensures subsequent
-                            // additions of
-                            // sleep sessions are added to the right days
-                            mBaseDay.add(Calendar.DAY_OF_MONTH, 1);
-                        }
+                () -> {
+                    Random rand = new Random();
+                    rand.setSeed(RANDOM_SEED); // keep the random data deterministic
+                    for (int i = 0; i < sessionAmount; i++) {
+                        mDatabase.getSleepSessionDao()
+                                .addSleepSession(generateRandomSleepSessionEntity(mBaseDay,
+                                                                                  rand));
+                        // one session per day
+                        // having the base day as a stored property ensures subsequent
+                        // additions of
+                        // sleep sessions are added to the right days
+                        mBaseDay.add(Calendar.DAY_OF_MONTH, 1);
                     }
                 },
                 listener);
@@ -112,22 +102,10 @@ public class DevToolsFragmentViewModel
 
     private void runAsyncTask(final Runnable task, final AsyncTaskListener listener)
     {
-        mExecutor.execute(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                task.run();
-                Handler UIThreadHandler = new Handler(Looper.getMainLooper());
-                UIThreadHandler.post(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        listener.onComplete();
-                    }
-                });
-            }
+        mExecutor.execute(() -> {
+            task.run();
+            Handler UIThreadHandler = new Handler(Looper.getMainLooper());
+            UIThreadHandler.post(listener::onComplete);
         });
     }
     

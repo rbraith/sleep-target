@@ -62,23 +62,9 @@ public class LiveDataUtils
         // idea from https://stackoverflow.com/a/57819928
         return Transformations.switchMap(
                 a,
-                new Function<A, LiveData<C>>()
-                {
-                    @Override
-                    public LiveData<C> apply(final A inputA)
-                    {
-                        return Transformations.map(
-                                b,
-                                new Function<B, C>()
-                                {
-                                    @Override
-                                    public C apply(B inputB)
-                                    {
-                                        return merger.applyMerge(inputA, inputB);
-                                    }
-                                });
-                    }
-                });
+                inputA -> Transformations.map(
+                        b,
+                        inputB -> merger.applyMerge(inputA, inputB)));
     }
     
     // IDEA [21-02-7 1:32AM] -- mergeMany(LiveData<?>...)

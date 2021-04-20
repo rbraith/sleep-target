@@ -99,16 +99,11 @@ public class SleepTrackerFragment
         
         if (BuildConfig.DEBUG) {
             MenuItem devToolsOption = menu.add("Dev Tools");
-            devToolsOption.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener()
-            {
-                @Override
-                public boolean onMenuItemClick(MenuItem item)
-                {
-                    NavDirections toDevTools =
-                            SleepTrackerFragmentDirections.actionNavSleeptrackerToDebugNavgraph();
-                    getNavController().navigate(toDevTools);
-                    return true;
-                }
+            devToolsOption.setOnMenuItemClickListener(item -> {
+                NavDirections toDevTools =
+                        SleepTrackerFragmentDirections.actionNavSleeptrackerToDebugNavgraph();
+                getNavController().navigate(toDevTools);
+                return true;
             });
         }
     }
@@ -138,14 +133,7 @@ public class SleepTrackerFragment
         
         mTagSelectorViewModel.getSelectedTags().observe(
                 getViewLifecycleOwner(),
-                new Observer<List<TagUiData>>()
-                {
-                    @Override
-                    public void onChanged(List<TagUiData> selectedTags)
-                    {
-                        getViewModel().setLocalSelectedTags(selectedTags);
-                    }
-                });
+                selectedTags -> getViewModel().setLocalSelectedTags(selectedTags));
         
         mTagSelectorController = new TagSelectorController(
                 fragmentRoot.findViewById(R.id.more_context_tags),
@@ -188,14 +176,7 @@ public class SleepTrackerFragment
         
         getViewModel().getPersistedMood().observe(
                 getViewLifecycleOwner(),
-                new Observer<MoodUiData>()
-                {
-                    @Override
-                    public void onChanged(MoodUiData moodUiData)
-                    {
-                        mMoodSelectorViewModel.setMood(moodUiData);
-                    }
-                });
+                moodUiData -> mMoodSelectorViewModel.setMood(moodUiData));
     }
     
     private void initAdditionalCommentsText(View fragmentRoot)
@@ -203,15 +184,10 @@ public class SleepTrackerFragment
         mAdditionalComments = fragmentRoot.findViewById(R.id.additional_comments);
         getViewModel().getPersistedAdditionalComments().observe(
                 getViewLifecycleOwner(),
-                new Observer<String>()
-                {
-                    @Override
-                    public void onChanged(String s)
-                    {
-                        mAdditionalComments.getText().clear();
-                        if (s != null) {
-                            mAdditionalComments.getText().append(s);
-                        }
+                s -> {
+                    mAdditionalComments.getText().clear();
+                    if (s != null) {
+                        mAdditionalComments.getText().append(s);
                     }
                 });
         
@@ -240,19 +216,14 @@ public class SleepTrackerFragment
                 fragmentRoot.findViewById(R.id.sleep_tracker_waketime_goal_value);
         getViewModel().getWakeTimeGoalText().observe(
                 getViewLifecycleOwner(),
-                new Observer<String>()
-                {
-                    @Override
-                    public void onChanged(String wakeTimeGoalText)
-                    {
-                        if (wakeTimeGoalText == null) {
-                            wakeTimeGoalTitle.setVisibility(View.GONE);
-                            wakeTimeGoalValue.setVisibility(View.GONE);
-                        } else {
-                            wakeTimeGoalTitle.setVisibility(View.VISIBLE);
-                            wakeTimeGoalValue.setVisibility(View.VISIBLE);
-                            wakeTimeGoalValue.setText(wakeTimeGoalText);
-                        }
+                wakeTimeGoalText -> {
+                    if (wakeTimeGoalText == null) {
+                        wakeTimeGoalTitle.setVisibility(View.GONE);
+                        wakeTimeGoalValue.setVisibility(View.GONE);
+                    } else {
+                        wakeTimeGoalTitle.setVisibility(View.VISIBLE);
+                        wakeTimeGoalValue.setVisibility(View.VISIBLE);
+                        wakeTimeGoalValue.setText(wakeTimeGoalText);
                     }
                 });
         
@@ -263,19 +234,14 @@ public class SleepTrackerFragment
                 fragmentRoot.findViewById(R.id.sleep_tracker_duration_goal_value);
         getViewModel().getSleepDurationGoalText().observe(
                 getViewLifecycleOwner(),
-                new Observer<String>()
-                {
-                    @Override
-                    public void onChanged(String sleepDurationGoalText)
-                    {
-                        if (sleepDurationGoalText == null) {
-                            sleepDurationGoalTitle.setVisibility(View.GONE);
-                            sleepDurationGoalValue.setVisibility(View.GONE);
-                        } else {
-                            sleepDurationGoalTitle.setVisibility(View.VISIBLE);
-                            sleepDurationGoalValue.setVisibility(View.VISIBLE);
-                            sleepDurationGoalValue.setText(sleepDurationGoalText);
-                        }
+                sleepDurationGoalText -> {
+                    if (sleepDurationGoalText == null) {
+                        sleepDurationGoalTitle.setVisibility(View.GONE);
+                        sleepDurationGoalValue.setVisibility(View.GONE);
+                    } else {
+                        sleepDurationGoalTitle.setVisibility(View.VISIBLE);
+                        sleepDurationGoalValue.setVisibility(View.VISIBLE);
+                        sleepDurationGoalValue.setText(sleepDurationGoalText);
                     }
                 });
     }
@@ -292,31 +258,19 @@ public class SleepTrackerFragment
         final SleepTrackerFragmentViewModel viewModel = getViewModel();
         viewModel.inSleepSession().observe(
                 getViewLifecycleOwner(),
-                new Observer<Boolean>()
-                {
-                    @Override
-                    public void onChanged(Boolean inSleepSession)
-                    {
-                        if (inSleepSession) {
-                            startedText.setVisibility(View.VISIBLE);
-                            sessionStartTime.setVisibility(View.VISIBLE);
-                        } else {
-                            startedText.setVisibility(View.GONE);
-                            sessionStartTime.setVisibility(View.GONE);
-                        }
+                inSleepSession -> {
+                    if (inSleepSession) {
+                        startedText.setVisibility(View.VISIBLE);
+                        sessionStartTime.setVisibility(View.VISIBLE);
+                    } else {
+                        startedText.setVisibility(View.GONE);
+                        sessionStartTime.setVisibility(View.GONE);
                     }
                 }
         );
         viewModel.getSessionStartTime().observe(
                 getViewLifecycleOwner(),
-                new Observer<String>()
-                {
-                    @Override
-                    public void onChanged(String sessionStartTimeString)
-                    {
-                        sessionStartTime.setText(sessionStartTimeString);
-                    }
-                }
+                sessionStartTime::setText
         );
     }
     
@@ -326,14 +280,7 @@ public class SleepTrackerFragment
                 fragmentRoot.findViewById(R.id.sleep_tracker_session_time);
         getViewModel().getCurrentSleepSessionDuration().observe(
                 getViewLifecycleOwner(),
-                new Observer<String>()
-                {
-                    @Override
-                    public void onChanged(String durationText)
-                    {
-                        currentSessionTime.setText(durationText);
-                    }
-                });
+                currentSessionTime::setText);
     }
     
     private void initSleepTrackerButton(View fragmentRoot)
@@ -341,33 +288,23 @@ public class SleepTrackerFragment
         final Button sleepTrackerButton = fragmentRoot.findViewById(R.id.sleep_tracker_button);
         
         getViewModel().inSleepSession()
-                .observe(getViewLifecycleOwner(), new Observer<Boolean>()
-                {
-                    @Override
-                    public void onChanged(Boolean inSleepSession)
-                    {
-                        if (inSleepSession) {
-                            sleepTrackerButton.setText(R.string.sleep_tracker_button_stop);
-                        } else {
-                            sleepTrackerButton.setText(R.string.sleep_tracker_button_start);
-                        }
+                .observe(getViewLifecycleOwner(), inSleepSession -> {
+                    if (inSleepSession) {
+                        sleepTrackerButton.setText(R.string.sleep_tracker_button_stop);
+                    } else {
+                        sleepTrackerButton.setText(R.string.sleep_tracker_button_start);
                     }
                 });
         
-        sleepTrackerButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                SleepTrackerFragmentViewModel viewModel = getViewModel();
-                // REFACTOR [21-01-14 12:15AM] -- use LiveDataFuture here to remove the getValue
-                //  call.
-                Boolean inSleepSession = viewModel.inSleepSession().getValue();
-                if (inSleepSession) {
-                    viewModel.endSleepSession();
-                } else {
-                    viewModel.startSleepSession();
-                }
+        sleepTrackerButton.setOnClickListener(v -> {
+            SleepTrackerFragmentViewModel viewModel = getViewModel();
+            // REFACTOR [21-01-14 12:15AM] -- use LiveDataFuture here to remove the getValue
+            //  call.
+            Boolean inSleepSession = viewModel.inSleepSession().getValue();
+            if (inSleepSession) {
+                viewModel.endSleepSession();
+            } else {
+                viewModel.startSleepSession();
             }
         });
     }

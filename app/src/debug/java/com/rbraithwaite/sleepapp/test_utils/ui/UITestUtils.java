@@ -87,21 +87,16 @@ public class UITestUtils
         final SimpleCompletableFuture<Integer> sessionArchiveCount =
                 new SimpleCompletableFuture<>();
         // assumes session archive fragment is open
-        scenario.onActivity(new ActivityScenario.ActivityAction<MainActivity>()
-        {
-            @Override
-            public void perform(MainActivity activity)
-            {
-                // https://stackoverflow.com/a/59279744
-                Fragment navHostFragment =
-                        activity.getSupportFragmentManager().findFragmentById(R.id.main_navhost);
-                SessionArchiveFragment fragment =
-                        (SessionArchiveFragment) navHostFragment.getChildFragmentManager()
-                                .getFragments()
-                                .get(0);
-                
-                sessionArchiveCount.complete(fragment.getRecyclerViewAdapter().getItemCount());
-            }
+        scenario.onActivity(activity -> {
+            // https://stackoverflow.com/a/59279744
+            Fragment navHostFragment =
+                    activity.getSupportFragmentManager().findFragmentById(R.id.main_navhost);
+            SessionArchiveFragment fragment =
+                    (SessionArchiveFragment) navHostFragment.getChildFragmentManager()
+                            .getFragments()
+                            .get(0);
+            
+            sessionArchiveCount.complete(fragment.getRecyclerViewAdapter().getItemCount());
         });
         return sessionArchiveCount.get();
     }

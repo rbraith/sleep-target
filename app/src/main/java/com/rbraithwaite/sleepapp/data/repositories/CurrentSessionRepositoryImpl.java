@@ -49,14 +49,7 @@ public class CurrentSessionRepositoryImpl
     {
         return Transformations.map(
                 mDataPrefs.getCurrentSession(),
-                new Function<CurrentSessionPrefsData, CurrentSession>()
-                {
-                    @Override
-                    public CurrentSession apply(CurrentSessionPrefsData input)
-                    {
-                        return ConvertCurrentSession.fromPrefsData(input);
-                    }
-                });
+                ConvertCurrentSession::fromPrefsData);
     }
     
     @Override

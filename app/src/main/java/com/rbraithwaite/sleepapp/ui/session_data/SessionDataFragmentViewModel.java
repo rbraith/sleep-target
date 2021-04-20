@@ -72,17 +72,12 @@ public class SessionDataFragmentViewModel
         
         if (mSessionDurationText == null) {
             final MediatorLiveData<String> mediatorLiveData = new MediatorLiveData<>();
-            mediatorLiveData.addSource(getSleepSession(), new Observer<SleepSession>()
-            {
-                @Override
-                public void onChanged(SleepSession sleepSession)
-                {
-                    if (sleepSession == null) {
-                        mediatorLiveData.setValue(null);
-                    } else {
-                        mediatorLiveData.setValue(
-                                formatter.formatDurationMillis(sleepSession.getDurationMillis()));
-                    }
+            mediatorLiveData.addSource(getSleepSession(), sleepSession -> {
+                if (sleepSession == null) {
+                    mediatorLiveData.setValue(null);
+                } else {
+                    mediatorLiveData.setValue(
+                            formatter.formatDurationMillis(sleepSession.getDurationMillis()));
                 }
             });
             mSessionDurationText = mediatorLiveData;
@@ -185,19 +180,14 @@ public class SessionDataFragmentViewModel
     {
         return Transformations.map(
                 getSleepSession(),
-                new Function<SleepSession, GregorianCalendar>()
-                {
-                    @Override
-                    public GregorianCalendar apply(SleepSession input)
-                    {
-                        if (input == null) {
-                            return null;
-                        }
-                        // REFACTOR [21-03-31 4:13PM] -- call this ConvertCalendar.fromDate().
-                        GregorianCalendar result = new GregorianCalendar();
-                        result.setTime(input.getStart());
-                        return result;
+                sleepSession -> {
+                    if (sleepSession == null) {
+                        return null;
                     }
+                    // REFACTOR [21-03-31 4:13PM] -- call this ConvertCalendar.fromDate().
+                    GregorianCalendar result = new GregorianCalendar();
+                    result.setTime(sleepSession.getStart());
+                    return result;
                 });
     }
     
@@ -205,18 +195,13 @@ public class SessionDataFragmentViewModel
     {
         return Transformations.map(
                 getSleepSession(),
-                new Function<SleepSession, GregorianCalendar>()
-                {
-                    @Override
-                    public GregorianCalendar apply(SleepSession input)
-                    {
-                        if (input == null) {
-                            return null;
-                        }
-                        GregorianCalendar result = new GregorianCalendar();
-                        result.setTime(input.getEnd());
-                        return result;
+                sleepSession -> {
+                    if (sleepSession == null) {
+                        return null;
                     }
+                    GregorianCalendar result = new GregorianCalendar();
+                    result.setTime(sleepSession.getEnd());
+                    return result;
                 });
     }
     
@@ -224,16 +209,11 @@ public class SessionDataFragmentViewModel
     {
         return Transformations.map(
                 getSleepSession(),
-                new Function<SleepSession, String>()
-                {
-                    @Override
-                    public String apply(SleepSession input)
-                    {
-                        if (input == null) {
-                            return null;
-                        }
-                        return input.getAdditionalComments();
+                sleepSession -> {
+                    if (sleepSession == null) {
+                        return null;
                     }
+                    return sleepSession.getAdditionalComments();
                 });
     }
     

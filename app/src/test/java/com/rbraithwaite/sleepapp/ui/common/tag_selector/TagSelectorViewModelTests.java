@@ -331,26 +331,22 @@ public class TagSelectorViewModelTests
     
     private void setup_updateTag_onMockRepoWith(MutableLiveData<ListTrackingData<Tag>> tags)
     {
-        doAnswer(new Answer()
-        {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable
-            {
-                List<Tag> tagList = tags.getValue().list;
-                
-                Tag tag = (Tag) invocation.getArguments()[0];
-                int index = tagList.indexOf(tag);
-                
-                tagList.set(index, tag);
-                
-                tags.setValue(new ListTrackingData<>(
-                        tagList,
-                        new ListTrackingData.ListChange<>(tag,
-                                                          index,
-                                                          ListTrackingData.ChangeType.MODIFIED)));
-                
-                return null;
-            }
+        doAnswer(invocation -> {
+            List<Tag> tagList = tags.getValue().list;
+            
+            Tag tag = (Tag) invocation.getArguments()[0];
+            int index = tagList.indexOf(tag);
+            
+            tagList.set(index, tag);
+            
+            tags.setValue(new ListTrackingData<>(
+                    tagList,
+                    new ListTrackingData.ListChange<>(
+                            tag,
+                            index,
+                            ListTrackingData.ChangeType.MODIFIED)));
+            
+            return null;
         }).when(mockTagRepository).updateTag(any(Tag.class));
     }
     

@@ -60,16 +60,9 @@ public class SleepTrackerFragmentRotationTests
         //  (tell don't ask)
         TestUtils.performSyncedActivityAction(
                 testHelper.getScenario(),
-                new TestUtils.SyncedActivityAction<HiltFragmentActivity>()
-                {
-                    @Override
-                    public void perform(HiltFragmentActivity activity)
-                    {
-                        expectedStartTimeText.ref =
-                                ((TextView) activity.findViewById(R.id.sleep_tracker_start_time))
-                                        .getText().toString();
-                    }
-                });
+                activity -> expectedStartTimeText.ref =
+                        ((TextView) activity.findViewById(R.id.sleep_tracker_start_time))
+                                .getText().toString());
         
         // WHEN the device is rotated
         // REFACTOR [20-11-22 9:46PM] -- consider making this HiltFragmentTestHelper

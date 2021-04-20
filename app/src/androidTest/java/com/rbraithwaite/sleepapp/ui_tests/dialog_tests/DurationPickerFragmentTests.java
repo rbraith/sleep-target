@@ -36,19 +36,14 @@ public class DurationPickerFragmentTests
         DialogTestHelper<DurationPickerFragment> helper =
                 DialogTestHelper.launchProvidedInstance(fragment);
         
-        helper.performSyncedDialogAction(new DialogTestHelper.SyncedDialogAction<DurationPickerFragment>()
-        {
-            @Override
-            public void perform(DurationPickerFragment dialogFragment)
-            {
-                NumberPicker hourPicker =
-                        dialogFragment.requireDialog().findViewById(R.id.hour_picker);
-                NumberPicker minutePicker =
-                        dialogFragment.requireDialog().findViewById(R.id.minute_picker);
-                
-                assertThat(hourPicker.getValue(), is(expectedHour));
-                assertThat(minutePicker.getValue(), is(expectedMinute));
-            }
+        helper.performSyncedDialogAction(dialogFragment -> {
+            NumberPicker hourPicker =
+                    dialogFragment.requireDialog().findViewById(R.id.hour_picker);
+            NumberPicker minutePicker =
+                    dialogFragment.requireDialog().findViewById(R.id.minute_picker);
+            
+            assertThat(hourPicker.getValue(), is(expectedHour));
+            assertThat(minutePicker.getValue(), is(expectedMinute));
         });
     }
     

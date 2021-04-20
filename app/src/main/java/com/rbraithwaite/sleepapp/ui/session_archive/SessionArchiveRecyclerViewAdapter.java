@@ -87,14 +87,9 @@ public class SessionArchiveRecyclerViewAdapter
                     itemView.findViewById(R.id.session_archive_list_item_comment_icon);
             this.moodFrame = itemView.findViewById(R.id.session_archive_list_item_mood_frame);
             
-            itemView.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View v)
-                {
-                    if (onListItemClickListener != null) {
-                        onListItemClickListener.onClick(v, getAdapterPosition());
-                    }
+            itemView.setOnClickListener(v -> {
+                if (onListItemClickListener != null) {
+                    onListItemClickListener.onClick(v, getAdapterPosition());
                 }
             });
         }
@@ -123,14 +118,9 @@ public class SessionArchiveRecyclerViewAdapter
         mSleepSessionDataIds = mViewModel.getAllSleepSessionIds();
         mSleepSessionDataIds.observe(
                 getLifecycleOwner(),
-                new Observer<List<Integer>>()
-                {
-                    @Override
-                    public void onChanged(List<Integer> integers)
-                    {
-                        Log.d(TAG, "onChanged: session data id list changed, notifying...");
-                        notifyDataSetChanged();
-                    }
+                integers -> {
+                    Log.d(TAG, "onChanged: session data id list changed, notifying...");
+                    notifyDataSetChanged();
                 });
     }
     
@@ -202,28 +192,23 @@ public class SessionArchiveRecyclerViewAdapter
         // getSleepSession data provides a new livedata instance so I should be ok?
         listItem.observe(
                 getLifecycleOwner(),
-                new Observer<SessionArchiveListItem>()
-                {
-                    @Override
-                    public void onChanged(SessionArchiveListItem sessionArchiveListItem)
-                    {
-                        Log.d(TAG, "onChanged: item data changed! updating...");
-                        if (sessionArchiveListItem != null) {
-                            viewHolder.startTime.setText(sessionArchiveListItem.startTime);
-                            viewHolder.stopTime.setText(sessionArchiveListItem.endTime);
-                            viewHolder.duration.setText(sessionArchiveListItem.sessionDuration);
-                            viewHolder.additionalCommentsIcon.setVisibility(
-                                    sessionArchiveListItem.hasAdditionalComments ?
-                                            View.VISIBLE : View.GONE);
-                            
-                            if (sessionArchiveListItem.mood != null) {
-                                viewHolder.moodFrame.setVisibility(View.VISIBLE);
-                                viewHolder.moodFrame.removeAllViews();
-                                viewHolder.moodFrame.addView(mMoodViewFactory.createView(
-                                        sessionArchiveListItem.mood,
-                                        mContextProvider.provide(),
-                                        20f));
-                            }
+                sessionArchiveListItem -> {
+                    Log.d(TAG, "onChanged: item data changed! updating...");
+                    if (sessionArchiveListItem != null) {
+                        viewHolder.startTime.setText(sessionArchiveListItem.startTime);
+                        viewHolder.stopTime.setText(sessionArchiveListItem.endTime);
+                        viewHolder.duration.setText(sessionArchiveListItem.sessionDuration);
+                        viewHolder.additionalCommentsIcon.setVisibility(
+                                sessionArchiveListItem.hasAdditionalComments ?
+                                        View.VISIBLE : View.GONE);
+                        
+                        if (sessionArchiveListItem.mood != null) {
+                            viewHolder.moodFrame.setVisibility(View.VISIBLE);
+                            viewHolder.moodFrame.removeAllViews();
+                            viewHolder.moodFrame.addView(mMoodViewFactory.createView(
+                                    sessionArchiveListItem.mood,
+                                    mContextProvider.provide(),
+                                    20f));
                         }
                     }
                 });

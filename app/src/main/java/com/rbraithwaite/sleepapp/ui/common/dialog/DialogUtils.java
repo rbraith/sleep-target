@@ -47,11 +47,6 @@ public class DialogUtils
             builder.setMessage(messageId);
         }
         
-        return AlertDialogFragment.createInstance(
-                new AlertDialogFragment.AlertDialogFactory()
-                {
-                    @Override
-                    public AlertDialog create() { return builder.create(); }
-                });
+        return AlertDialogFragment.createInstance(builder::create);
     }
 }

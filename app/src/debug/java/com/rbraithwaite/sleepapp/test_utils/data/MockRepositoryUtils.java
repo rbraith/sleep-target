@@ -46,25 +46,15 @@ public class MockRepositoryUtils
             final MutableLiveData<CurrentSession> currentSession)
     {
         when(mockRepo.getCurrentSession()).thenReturn(currentSession);
-        doAnswer(new Answer<Void>()
-        {
-            @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable
-            {
-                CurrentSession newCurrentSession =
-                        invocation.getArgumentAt(0, CurrentSession.class);
-                currentSession.setValue(newCurrentSession);
-                return null;
-            }
+        doAnswer((Answer<Void>) invocation -> {
+            CurrentSession newCurrentSession =
+                    invocation.getArgumentAt(0, CurrentSession.class);
+            currentSession.setValue(newCurrentSession);
+            return null;
         }).when(mockRepo).setCurrentSession(any(CurrentSession.class));
-        doAnswer(new Answer<Void>()
-        {
-            @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable
-            {
-                currentSession.setValue(new CurrentSession());
-                return null;
-            }
+        doAnswer((Answer<Void>) invocation -> {
+            currentSession.setValue(new CurrentSession());
+            return null;
         }).when(mockRepo).clearCurrentSession();
     }
 }

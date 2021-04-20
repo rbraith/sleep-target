@@ -304,15 +304,10 @@ public class SessionDataFragment
         mAdditionalComments = fragmentRoot.findViewById(R.id.session_data_comments);
         getViewModel().getAdditionalComments().observe(
                 getViewLifecycleOwner(),
-                new Observer<String>()
-                {
-                    @Override
-                    public void onChanged(String s)
-                    {
-                        mAdditionalComments.getText().clear();
-                        if (s != null) {
-                            mAdditionalComments.getText().append(s);
-                        }
+                s -> {
+                    mAdditionalComments.getText().clear();
+                    if (s != null) {
+                        mAdditionalComments.getText().append(s);
                     }
                 });
         mAdditionalComments.addTextChangedListener(new TextWatcher()
@@ -336,16 +331,11 @@ public class SessionDataFragment
         final TextView sessionDurationText = fragmentRoot.findViewById(R.id.session_data_duration);
         getViewModel().getSessionDurationText().observe(
                 getViewLifecycleOwner(),
-                new Observer<String>()
-                {
-                    @Override
-                    public void onChanged(String newSessionDurationText)
-                    {
-                        if (newSessionDurationText == null) {
-                            sessionDurationText.setText("");
-                        } else {
-                            sessionDurationText.setText(newSessionDurationText);
-                        }
+                newSessionDurationText -> {
+                    if (newSessionDurationText == null) {
+                        sessionDurationText.setText("");
+                    } else {
+                        sessionDurationText.setText(newSessionDurationText);
                     }
                 });
     }
@@ -373,41 +363,36 @@ public class SessionDataFragment
         LiveDataFuture.getValue(
                 getViewModel().getStartCalendar(),
                 getViewLifecycleOwner(),
-                new LiveDataFuture.OnValueListener<GregorianCalendar>()
-                {
-                    @Override
-                    public void onValue(GregorianCalendar value)
+                calendar -> {
+                    mStartDateTimeController = createDateTimeController(
+                            R.string.session_data_start_time_name, calendar, startTimeLayout);
+                    
+                    mStartDateTimeController.setCallbacks(new DateTimeController.Callbacks()
                     {
-                        mStartDateTimeController = createDateTimeController(
-                                R.string.session_data_start_time_name, value, startTimeLayout);
-                        
-                        mStartDateTimeController.setCallbacks(new DateTimeController.Callbacks()
+                        @Override
+                        public boolean beforeSetDate(int year, int month, int dayOfMonth)
                         {
-                            @Override
-                            public boolean beforeSetDate(int year, int month, int dayOfMonth)
-                            {
-                                try {
-                                    getViewModel().setStartDate(year, month, dayOfMonth);
-                                    return true;
-                                } catch (SessionDataFragmentViewModel.InvalidDateTimeException e) {
-                                    displayErrorSnackbar(R.string.error_session_edit_start_datetime);
-                                    return false;
-                                }
+                            try {
+                                getViewModel().setStartDate(year, month, dayOfMonth);
+                                return true;
+                            } catch (SessionDataFragmentViewModel.InvalidDateTimeException e) {
+                                displayErrorSnackbar(R.string.error_session_edit_start_datetime);
+                                return false;
                             }
-                            
-                            @Override
-                            public boolean beforeSetTimeOfDay(int hourOfDay, int minute)
-                            {
-                                try {
-                                    getViewModel().setStartTimeOfDay(hourOfDay, minute);
-                                    return true;
-                                } catch (SessionDataFragmentViewModel.InvalidDateTimeException e) {
-                                    displayErrorSnackbar(R.string.error_session_edit_start_datetime);
-                                    return false;
-                                }
+                        }
+                        
+                        @Override
+                        public boolean beforeSetTimeOfDay(int hourOfDay, int minute)
+                        {
+                            try {
+                                getViewModel().setStartTimeOfDay(hourOfDay, minute);
+                                return true;
+                            } catch (SessionDataFragmentViewModel.InvalidDateTimeException e) {
+                                displayErrorSnackbar(R.string.error_session_edit_start_datetime);
+                                return false;
                             }
-                        });
-                    }
+                        }
+                    });
                 });
     }
     
@@ -416,41 +401,36 @@ public class SessionDataFragment
         LiveDataFuture.getValue(
                 getViewModel().getEndCalendar(),
                 getViewLifecycleOwner(),
-                new LiveDataFuture.OnValueListener<GregorianCalendar>()
-                {
-                    @Override
-                    public void onValue(GregorianCalendar value)
+                calendar -> {
+                    mEndDateTimeController = createDateTimeController(
+                            R.string.session_data_end_time_name, calendar, endTimeLayout);
+                    
+                    mEndDateTimeController.setCallbacks(new DateTimeController.Callbacks()
                     {
-                        mEndDateTimeController = createDateTimeController(
-                                R.string.session_data_end_time_name, value, endTimeLayout);
-                        
-                        mEndDateTimeController.setCallbacks(new DateTimeController.Callbacks()
+                        @Override
+                        public boolean beforeSetDate(int year, int month, int dayOfMonth)
                         {
-                            @Override
-                            public boolean beforeSetDate(int year, int month, int dayOfMonth)
-                            {
-                                try {
-                                    getViewModel().setEndDate(year, month, dayOfMonth);
-                                    return true;
-                                } catch (SessionDataFragmentViewModel.InvalidDateTimeException e) {
-                                    displayErrorSnackbar(R.string.error_session_edit_end_datetime);
-                                    return false;
-                                }
+                            try {
+                                getViewModel().setEndDate(year, month, dayOfMonth);
+                                return true;
+                            } catch (SessionDataFragmentViewModel.InvalidDateTimeException e) {
+                                displayErrorSnackbar(R.string.error_session_edit_end_datetime);
+                                return false;
                             }
-                            
-                            @Override
-                            public boolean beforeSetTimeOfDay(int hourOfDay, int minute)
-                            {
-                                try {
-                                    getViewModel().setEndTimeOfDay(hourOfDay, minute);
-                                    return true;
-                                } catch (SessionDataFragmentViewModel.InvalidDateTimeException e) {
-                                    displayErrorSnackbar(R.string.error_session_edit_end_datetime);
-                                    return false;
-                                }
+                        }
+                        
+                        @Override
+                        public boolean beforeSetTimeOfDay(int hourOfDay, int minute)
+                        {
+                            try {
+                                getViewModel().setEndTimeOfDay(hourOfDay, minute);
+                                return true;
+                            } catch (SessionDataFragmentViewModel.InvalidDateTimeException e) {
+                                displayErrorSnackbar(R.string.error_session_edit_end_datetime);
+                                return false;
                             }
-                        });
-                    }
+                        }
+                    });
                 });
     }
     

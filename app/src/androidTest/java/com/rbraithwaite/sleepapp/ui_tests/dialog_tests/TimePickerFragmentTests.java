@@ -58,15 +58,10 @@ public class TimePickerFragmentTests
                 calendar.get(Calendar.MINUTE)));
         
         final TestUtils.ThreadBlocker blocker = new TestUtils.ThreadBlocker();
-        dialog.setOnTimeSetListener(new TimePickerFragment.OnTimeSetListener()
-        {
-            @Override
-            public void onTimeSet(TimePicker view, int hourOfDay, int minute)
-            {
-                assertThat(hourOfDay, is(equalTo(testHourOfDay)));
-                assertThat(minute, is(equalTo(testMinute)));
-                blocker.unblockThread();
-            }
+        dialog.setOnTimeSetListener((view, hourOfDay, minute) -> {
+            assertThat(hourOfDay, is(equalTo(testHourOfDay)));
+            assertThat(minute, is(equalTo(testMinute)));
+            blocker.unblockThread();
         });
         DialogTestHelper<TimePickerFragment> helper =
                 DialogTestHelper.launchProvidedInstance(dialog);

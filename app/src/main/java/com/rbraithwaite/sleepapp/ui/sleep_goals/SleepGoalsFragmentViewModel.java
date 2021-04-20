@@ -91,18 +91,13 @@ public class SleepGoalsFragmentViewModel
     {
         return Transformations.map(
                 getWakeTimeGoalModel(),
-                new Function<WakeTimeGoal, String>()
-                {
-                    @Override
-                    public String apply(WakeTimeGoal wakeTimeGoal)
-                    {
-                        // REFACTOR [21-02-2 9:08PM] -- put all this logic into
-                        //  SleepGoalsFormatting?
-                        if (wakeTimeGoal == null || !wakeTimeGoal.isSet()) {
-                            return null;
-                        }
-                        return mDateTimeFormatter.formatTimeOfDay(wakeTimeGoal.asDate());
+                wakeTimeGoal -> {
+                    // REFACTOR [21-02-2 9:08PM] -- put all this logic into
+                    //  SleepGoalsFormatting?
+                    if (wakeTimeGoal == null || !wakeTimeGoal.isSet()) {
+                        return null;
                     }
+                    return mDateTimeFormatter.formatTimeOfDay(wakeTimeGoal.asDate());
                 });
     }
     
@@ -118,28 +113,14 @@ public class SleepGoalsFragmentViewModel
     {
         return Transformations.map(
                 getWakeTimeGoalModel(),
-                new Function<WakeTimeGoal, Boolean>()
-                {
-                    @Override
-                    public Boolean apply(WakeTimeGoal wakeTimeGoal)
-                    {
-                        return (wakeTimeGoal != null && wakeTimeGoal.isSet());
-                    }
-                });
+                wakeTimeGoal -> (wakeTimeGoal != null && wakeTimeGoal.isSet()));
     }
     
     public LiveData<Long> getWakeTimeGoalDateMillis()
     {
         return Transformations.map(
                 getWakeTimeGoalModel(),
-                new Function<WakeTimeGoal, Long>()
-                {
-                    @Override
-                    public Long apply(WakeTimeGoal input)
-                    {
-                        return input.asDate().getTime();
-                    }
-                });
+                wakeTimeGoal -> wakeTimeGoal.asDate().getTime());
     }
     
     public void clearWakeTime()
@@ -151,14 +132,7 @@ public class SleepGoalsFragmentViewModel
     {
         return Transformations.map(
                 getSleepDurationGoalModel(),
-                new Function<SleepDurationGoal, Boolean>()
-                {
-                    @Override
-                    public Boolean apply(SleepDurationGoal sleepDurationGoal)
-                    {
-                        return (sleepDurationGoal != null && sleepDurationGoal.isSet());
-                    }
-                });
+                sleepDurationGoal -> (sleepDurationGoal != null && sleepDurationGoal.isSet()));
     }
     
     public SleepDurationGoalUIData getDefaultSleepDurationGoal()
@@ -176,39 +150,26 @@ public class SleepGoalsFragmentViewModel
     {
         return Transformations.map(
                 getSleepDurationGoalModel(),
-                new Function<SleepDurationGoal, String>()
-                {
-                    @Override
-                    public String apply(SleepDurationGoal sleepDurationGoal)
-                    {
-                        // REFACTOR [21-02-2 7:01PM] -- should this instead be an injected object?
-                        //  eg SleepGoalsFormatter, a more OOP approach allowing for multiple
-                        //  formats
-                        //  --
-                        //  or maybe as a DurationFormatter implementation - the reason I didn't
-                        //  choose this path is because I wouldn't need
-                        //  DurationFormatter.formatDurationMillis() here (i would need to implement
-                        //  that or leave it stubbed, and neither option seemed great).
-                        return SleepGoalsFormatting.formatSleepDurationGoal(sleepDurationGoal);
-                    }
-                });
+                // REFACTOR [21-02-2 7:01PM] -- should this instead be an injected object?
+                //  eg SleepGoalsFormatter, a more OOP approach allowing for multiple
+                //  formats
+                //  --
+                //  or maybe as a DurationFormatter implementation - the reason I didn't
+                //  choose this path is because I wouldn't need
+                //  DurationFormatter.formatDurationMillis() here (i would need to implement
+                //  that or leave it stubbed, and neither option seemed great).
+                SleepGoalsFormatting::formatSleepDurationGoal);
     }
     
     public LiveData<SleepDurationGoalUIData> getSleepDurationGoal()
     {
         return Transformations.map(
                 getSleepDurationGoalModel(),
-                new Function<SleepDurationGoal, SleepDurationGoalUIData>()
-                {
-                    @Override
-                    public SleepDurationGoalUIData apply(SleepDurationGoal input)
-                    {
-                        // REFACTOR [21-02-3 6:15PM] -- extract this conversion logic.
-                        return new SleepDurationGoalUIData(
-                                input.getHours(),
-                                input.getRemainingMinutes()
-                        );
-                    }
+                input -> {
+                    // REFACTOR [21-02-3 6:15PM] -- extract this conversion logic.
+                    return new SleepDurationGoalUIData(
+                            input.getHours(),
+                            input.getRemainingMinutes());
                 });
     }
     
@@ -222,29 +183,19 @@ public class SleepGoalsFragmentViewModel
         if (mSucceededSleepDurationGoalDates == null) {
             mSucceededSleepDurationGoalDates = Transformations.switchMap(
                     mCurrentGoalsRepository.getSleepDurationGoalHistory(),
-                    new Function<List<SleepDurationGoal>, LiveData<List<Date>>>()
-                    {
-                        @Override
-                        public LiveData<List<Date>> apply(final List<SleepDurationGoal> sleepDurationGoalHistory)
-                        {
-                            // REFACTOR [21-03-25 12:01AM] -- I forget if I did this already, but
-                            //  this async initialization logic should be extracted as a general
-                            //  utility.
-                            final MutableLiveData<List<Date>> liveData = new MutableLiveData<>();
-                            mExecutor.execute(new Runnable()
-                            {
-                                @Override
-                                public void run()
-                                {
-                                    SleepDurationGoalSuccess success = new SleepDurationGoalSuccess(
-                                            sleepDurationGoalHistory,
-                                            mTimeUtils,
-                                            mSleepSessionRepository);
-                                    liveData.postValue(success.getSucceededDates());
-                                }
-                            });
-                            return liveData;
-                        }
+                    sleepDurationGoalHistory -> {
+                        // REFACTOR [21-03-25 12:01AM] -- I forget if I did this already, but
+                        //  this async initialization logic should be extracted as a general
+                        //  utility.
+                        final MutableLiveData<List<Date>> liveData = new MutableLiveData<>();
+                        mExecutor.execute(() -> {
+                            SleepDurationGoalSuccess success = new SleepDurationGoalSuccess(
+                                    sleepDurationGoalHistory,
+                                    mTimeUtils,
+                                    mSleepSessionRepository);
+                            liveData.postValue(success.getSucceededDates());
+                        });
+                        return liveData;
                     });
         }
         return mSucceededSleepDurationGoalDates;
@@ -267,32 +218,22 @@ public class SleepGoalsFragmentViewModel
         if (mSucceededWakeTimeGoalDates == null) {
             mSucceededWakeTimeGoalDates = Transformations.switchMap(
                     mCurrentGoalsRepository.getWakeTimeGoalHistory(),
-                    new Function<List<WakeTimeGoal>, LiveData<List<Date>>>()
-                    {
-                        @Override
-                        public LiveData<List<Date>> apply(final List<WakeTimeGoal> wakeTimeGoalHistory)
-                        {
-                            final MutableLiveData<List<Date>> liveData = new MutableLiveData<>();
-                            mExecutor.execute(new Runnable()
-                            {
-                                @Override
-                                public void run()
-                                {
-                                    // SMELL [21-03-26 1:31AM] -- Is it weird for
-                                    //  WakeTimeGoalSuccess
-                                    //  and SleepDurationGoalSuccess (domain models) to be
-                                    //  depending on TimeUtils? Should there be some kind of
-                                    //  time utility or service in the domain instead? Research
-                                    //  conventional solutions to time.
-                                    WakeTimeGoalSuccess success = new WakeTimeGoalSuccess(
-                                            wakeTimeGoalHistory,
-                                            mSleepSessionRepository,
-                                            mTimeUtils);
-                                    liveData.postValue(success.getSucceededDates());
-                                }
-                            });
-                            return liveData;
-                        }
+                    wakeTimeGoalHistory -> {
+                        final MutableLiveData<List<Date>> liveData = new MutableLiveData<>();
+                        mExecutor.execute(() -> {
+                            // SMELL [21-03-26 1:31AM] -- Is it weird for
+                            //  WakeTimeGoalSuccess
+                            //  and SleepDurationGoalSuccess (domain models) to be
+                            //  depending on TimeUtils? Should there be some kind of
+                            //  time utility or service in the domain instead? Research
+                            //  conventional solutions to time.
+                            WakeTimeGoalSuccess success = new WakeTimeGoalSuccess(
+                                    wakeTimeGoalHistory,
+                                    mSleepSessionRepository,
+                                    mTimeUtils);
+                            liveData.postValue(success.getSucceededDates());
+                        });
+                        return liveData;
                     });
         }
         return mSucceededWakeTimeGoalDates;

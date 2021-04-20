@@ -73,23 +73,9 @@ public class MoodSelectorController
         mLastSelectedIndex = mViewModel.getMoodIndex();
         bindViewModel();
         
-        mAddButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                displayMoodDialog(R.string.cancel, createOnCancelListener());
-            }
-        });
+        mAddButton.setOnClickListener(v -> displayMoodDialog(R.string.cancel, createOnCancelListener()));
         
-        mMoodValue.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                displayMoodDialog(R.string.delete, createOnDeleteListener());
-            }
-        });
+        mMoodValue.setOnClickListener(v -> displayMoodDialog(R.string.delete, createOnDeleteListener()));
     }
 
 //*********************************************************
@@ -128,65 +114,43 @@ public class MoodSelectorController
     
     private MoodDialogFragment.OnClickListener createOnCancelListener()
     {
-        return new MoodDialogFragment.OnClickListener()
-        {
-            @Override
-            public void onClick(MoodDialogFragment.SelectionData selection)
-            {
-                /* do nothing */
-            }
-        };
+        return selection -> {/* do nothing */};
     }
     
     private MoodDialogFragment.OnClickListener createOnDeleteListener()
     {
-        return new MoodDialogFragment.OnClickListener()
-        {
-            @Override
-            public void onClick(MoodDialogFragment.SelectionData selection)
-            {
-                mLastSelectedIndex = MoodDialogFragment.NO_MOOD_SELECTED;
-                mViewModel.clearMood();
-                if (mCallbacks != null) {
-                    mCallbacks.onMoodDeleted();
-                }
+        return selection -> {
+            mLastSelectedIndex = MoodDialogFragment.NO_MOOD_SELECTED;
+            mViewModel.clearMood();
+            if (mCallbacks != null) {
+                mCallbacks.onMoodDeleted();
             }
         };
     }
     
     private MoodDialogFragment.OnClickListener createOnConfirmListener()
     {
-        return new MoodDialogFragment.OnClickListener()
-        {
-            @Override
-            public void onClick(MoodDialogFragment.SelectionData selection)
-            {
-                mLastSelectedIndex = selection.index;
-                mViewModel.setMood(selection.mood);
-                if (mCallbacks != null) {
-                    mCallbacks.onMoodChanged(selection.mood);
-                }
+        return selection -> {
+            mLastSelectedIndex = selection.index;
+            mViewModel.setMood(selection.mood);
+            if (mCallbacks != null) {
+                mCallbacks.onMoodChanged(selection.mood);
             }
         };
     }
     
     private void bindViewModel()
     {
-        mViewModel.getMood().observe(mLifecycleOwner, new Observer<MoodUiData>()
-        {
-            @Override
-            public void onChanged(MoodUiData mood)
-            {
-                if (mood == null) {
-                    mAddButton.setVisibility(View.VISIBLE);
-                    mMoodValue.setVisibility(View.GONE);
-                } else {
-                    mAddButton.setVisibility(View.INVISIBLE);
-                    mMoodValue.setVisibility(View.VISIBLE);
-                    
-                    mMoodValue.removeAllViews();
-                    mMoodValue.addView(mMoodViewFactory.createView(mood, mContext, 50f));
-                }
+        mViewModel.getMood().observe(mLifecycleOwner, mood -> {
+            if (mood == null) {
+                mAddButton.setVisibility(View.VISIBLE);
+                mMoodValue.setVisibility(View.GONE);
+            } else {
+                mAddButton.setVisibility(View.INVISIBLE);
+                mMoodValue.setVisibility(View.VISIBLE);
+                
+                mMoodValue.removeAllViews();
+                mMoodValue.addView(mMoodViewFactory.createView(mood, mContext, 50f));
             }
         });
     }

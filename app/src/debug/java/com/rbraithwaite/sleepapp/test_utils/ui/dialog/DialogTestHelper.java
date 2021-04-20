@@ -47,14 +47,7 @@ public class DialogTestHelper<DialogType extends DialogFragment>
     {
         mScenario = ActivityScenario.launch(DialogTestHelper.Activity.class);
         TestUtils.performSyncedActivityAction(
-                mScenario, new TestUtils.SyncedActivityAction<DialogTestHelper.Activity>()
-                {
-                    @Override
-                    public void perform(DialogTestHelper.Activity activity)
-                    {
-                        setupActivityWithDialog(activity, dialogType, args);
-                    }
-                });
+                mScenario, activity -> setupActivityWithDialog(activity, dialogType, args));
     }
     
     private DialogTestHelper(final DialogType dialogInstance)
@@ -62,14 +55,7 @@ public class DialogTestHelper<DialogType extends DialogFragment>
         mScenario = ActivityScenario.launch(DialogTestHelper.Activity.class);
         TestUtils.performSyncedActivityAction(
                 mScenario,
-                new TestUtils.SyncedActivityAction<Activity>()
-                {
-                    @Override
-                    public void perform(Activity activity)
-                    {
-                        dialogInstance.show(activity.getSupportFragmentManager(), DIALOG_TAG);
-                    }
-                }
+                activity -> dialogInstance.show(activity.getSupportFragmentManager(), DIALOG_TAG)
         );
     }
 
@@ -106,15 +92,10 @@ public class DialogTestHelper<DialogType extends DialogFragment>
     {
         TestUtils.performSyncedActivityAction(
                 mScenario,
-                new TestUtils.SyncedActivityAction<DialogTestHelper.Activity>()
-                {
-                    @Override
-                    public void perform(DialogTestHelper.Activity activity)
-                    {
-                        DialogType dialog = (DialogType) activity.getSupportFragmentManager()
-                                .findFragmentByTag(DIALOG_TAG);
-                        syncedDialogAction.perform(dialog);
-                    }
+                activity -> {
+                    DialogType dialog = (DialogType) activity.getSupportFragmentManager()
+                            .findFragmentByTag(DIALOG_TAG);
+                    syncedDialogAction.perform(dialog);
                 }
         );
     }

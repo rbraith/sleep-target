@@ -87,46 +87,36 @@ public class StatsFragment
         // bind chart to data
         viewModel.getIntervalsDataSet().observe(
                 getViewLifecycleOwner(),
-                new Observer<SleepIntervalsDataSet>()
-                {
-                    @Override
-                    public void onChanged(SleepIntervalsDataSet dataSet)
-                    {
-                        LiveData<View> chartLiveData = null;
-                        switch (viewModel.getIntervalsResolution()) {
-                        case WEEK:
-                            chartLiveData = mSleepIntervalsChartFactory.createRangeChartAsync(
-                                    requireContext(),
-                                    dataSet);
-                            break;
-                        case MONTH:
-                            chartLiveData = mSleepIntervalsChartFactory.createMonthChartAsync(
-                                    requireContext(),
-                                    dataSet,
-                                    viewModel.getIntervalsResolutionValue());
-                            break;
-                        case YEAR:
-                            chartLiveData = mSleepIntervalsChartFactory.createYearChartAsync(
-                                    requireContext(),
-                                    dataSet,
-                                    viewModel.getIntervalsResolutionValue());
-                            break;
-                        }
-                        LiveDataFuture.getValue(
-                                chartLiveData,
-                                getViewLifecycleOwner(),
-                                new LiveDataFuture.OnValueListener<View>()
-                                {
-                                    @Override
-                                    public void onValue(View chart)
-                                    {
-                                        FrameLayout intervalsLayout =
-                                                fragmentRoot.findViewById(R.id.stats_intervals_layout);
-                                        intervalsLayout.removeAllViews();
-                                        intervalsLayout.addView(chart);
-                                    }
-                                });
+                dataSet -> {
+                    LiveData<View> chartLiveData = null;
+                    switch (viewModel.getIntervalsResolution()) {
+                    case WEEK:
+                        chartLiveData = mSleepIntervalsChartFactory.createRangeChartAsync(
+                                requireContext(),
+                                dataSet);
+                        break;
+                    case MONTH:
+                        chartLiveData = mSleepIntervalsChartFactory.createMonthChartAsync(
+                                requireContext(),
+                                dataSet,
+                                viewModel.getIntervalsResolutionValue());
+                        break;
+                    case YEAR:
+                        chartLiveData = mSleepIntervalsChartFactory.createYearChartAsync(
+                                requireContext(),
+                                dataSet,
+                                viewModel.getIntervalsResolutionValue());
+                        break;
                     }
+                    LiveDataFuture.getValue(
+                            chartLiveData,
+                            getViewLifecycleOwner(),
+                            chart -> {
+                                FrameLayout intervalsLayout =
+                                        fragmentRoot.findViewById(R.id.stats_intervals_layout);
+                                intervalsLayout.removeAllViews();
+                                intervalsLayout.addView(chart);
+                            });
                 });
         
         View intervalsTimePeriodSelector =
@@ -135,86 +125,57 @@ public class StatsFragment
         // time period back
         ImageButton intervalsBack =
                 intervalsTimePeriodSelector.findViewById(R.id.stats_time_period_back);
-        intervalsBack.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                getViewModel().stepIntervalsRange(StatsFragmentViewModel.Step.BACKWARD);
-            }
-        });
+        intervalsBack.setOnClickListener(v -> getViewModel().stepIntervalsRange(StatsFragmentViewModel.Step.BACKWARD));
         
         // time period forward
         ImageButton intervalsForward =
                 intervalsTimePeriodSelector.findViewById(R.id.stats_time_period_forward);
-        intervalsForward.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                getViewModel().stepIntervalsRange(StatsFragmentViewModel.Step.FORWARD);
-            }
-        });
+        intervalsForward.setOnClickListener(v -> getViewModel().stepIntervalsRange(StatsFragmentViewModel.Step.FORWARD));
         
         // time period value text
         final TextView intervalsValueText =
                 intervalsTimePeriodSelector.findViewById(R.id.stats_time_period_value);
         viewModel.getIntervalsValueText().observe(
                 getViewLifecycleOwner(),
-                new Observer<String>()
-                {
-                    @Override
-                    public void onChanged(String s)
-                    {
-                        if (s != null) {
-                            intervalsValueText.setText(s);
-                        }
+                s -> {
+                    if (s != null) {
+                        intervalsValueText.setText(s);
                     }
                 });
         
         // intervals more options
         ImageButton moreButton =
                 intervalsTimePeriodSelector.findViewById(R.id.stats_time_period_more);
-        moreButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                // REFACTOR [21-03-3 12:54AM] -- extract as a generic popup menu utility.
-                PopupMenu popup = new PopupMenu(requireContext(), v);
-                popup.inflate(R.menu.stats_intervals_popup_menu);
-                
-                MenuItem previouslyChecked = popup.getMenu().findItem(
-                        getIntervalsResolutionMenuItemId(
-                                getViewModel().getIntervalsResolution()));
-                previouslyChecked.setChecked(true);
-                
-                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener()
-                {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item)
-                    {
-                        switch (item.getItemId()) {
-                        case R.id.stats_intervals_resolution_week:
-                            item.setChecked(true);
-                            getViewModel().setIntervalsResolution(StatsFragmentViewModel.Resolution.WEEK);
-                            return true;
-                        case R.id.stats_intervals_resolution_month:
-                            item.setChecked(true);
-                            getViewModel().setIntervalsResolution(StatsFragmentViewModel.Resolution.MONTH);
-                            return true;
-                        case R.id.stats_intervals_resolution_year:
-                            item.setChecked(true);
-                            getViewModel().setIntervalsResolution(StatsFragmentViewModel.Resolution.YEAR);
-                            return true;
-                        default:
-                            return false;
-                        }
-                    }
-                });
-                
-                popup.show();
-            }
+        moreButton.setOnClickListener(v -> {
+            // REFACTOR [21-03-3 12:54AM] -- extract as a generic popup menu utility.
+            PopupMenu popup = new PopupMenu(requireContext(), v);
+            popup.inflate(R.menu.stats_intervals_popup_menu);
+            
+            MenuItem previouslyChecked = popup.getMenu().findItem(
+                    getIntervalsResolutionMenuItemId(
+                            getViewModel().getIntervalsResolution()));
+            previouslyChecked.setChecked(true);
+            
+            popup.setOnMenuItemClickListener(item -> {
+                switch (item.getItemId()) {
+                case R.id.stats_intervals_resolution_week:
+                    item.setChecked(true);
+                    getViewModel().setIntervalsResolution(StatsFragmentViewModel.Resolution.WEEK);
+                    return true;
+                case R.id.stats_intervals_resolution_month:
+                    item.setChecked(true);
+                    getViewModel().setIntervalsResolution(StatsFragmentViewModel.Resolution.MONTH);
+                    return true;
+                case R.id.stats_intervals_resolution_year:
+                    item.setChecked(true);
+                    getViewModel().setIntervalsResolution(StatsFragmentViewModel.Resolution.YEAR);
+                    return true;
+                default:
+                    return false;
+                }
+            });
+            
+            popup.show();
         });
     }
     

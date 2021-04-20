@@ -225,14 +225,7 @@ public class TestUtils
          */
         public LiveDataSynchronizerBase(LiveData<T> liveData)
         {
-            Observer<T> dummyObserver = new Observer<T>()
-            {
-                @Override
-                public void onChanged(T t)
-                {
-                    mBlocker.unblockThread();
-                }
-            };
+            Observer<T> dummyObserver = t -> mBlocker.unblockThread();
             attachObserver(liveData, dummyObserver);
             sync(); // sync any initial LiveData activation
         }
@@ -268,14 +261,9 @@ public class TestUtils
             final SyncedActivityAction<T> syncedActivityAction)
     {
         final ThreadBlocker blocker = new ThreadBlocker();
-        scenario.onActivity(new ActivityScenario.ActivityAction<T>()
-        {
-            @Override
-            public void perform(T activity)
-            {
-                syncedActivityAction.perform(activity);
-                blocker.unblockThread();
-            }
+        scenario.onActivity(activity -> {
+            syncedActivityAction.perform(activity);
+            blocker.unblockThread();
         });
         blocker.blockThread();
     }
@@ -289,16 +277,9 @@ public class TestUtils
     {
         final TestUtils.DoubleRef<Boolean> inDesiredOrientation = new TestUtils.DoubleRef<>(false);
         TestUtils.SyncedActivityAction<T> checkInDesiredOrientation =
-                new TestUtils.SyncedActivityAction<T>()
-                {
-                    @Override
-                    public void perform(T activity)
-                    {
-                        inDesiredOrientation.ref =
-                                (activity.getResources().getConfiguration().orientation ==
-                                 desiredOrientation);
-                    }
-                };
+                activity -> inDesiredOrientation.ref =
+                        (activity.getResources().getConfiguration().orientation ==
+                         desiredOrientation);
         
         // check if already oriented
         performSyncedActivityAction(scenario, checkInDesiredOrientation);
@@ -306,14 +287,8 @@ public class TestUtils
         if (inDesiredOrientation.ref) {return true;}
         
         // perform orientation change
-        performSyncedActivityAction(scenario, new SyncedActivityAction<T>()
-        {
-            @Override
-            public void perform(T activity)
-            {
-                activity.setRequestedOrientation(desiredOrientation);
-            }
-        });
+        performSyncedActivityAction(scenario,
+                                    activity -> activity.setRequestedOrientation(desiredOrientation));
         // wait for orientation change
         while (!inDesiredOrientation.ref &&
                !scenario.getState().isAtLeast(Lifecycle.State.RESUMED)) {
@@ -362,25 +337,13 @@ public class TestUtils
             final Observer<T> observer,
             final ThreadBlocker blocker)
     {
-        final Observer<T> unblockingObserver = new Observer<T>()
-        {
-            @Override
-            public void onChanged(T t)
-            {
-                observer.onChanged(t);
-                if (blocker != null) {
-                    blocker.unblockThread();
-                }
+        final Observer<T> unblockingObserver = t -> {
+            observer.onChanged(t);
+            if (blocker != null) {
+                blocker.unblockThread();
             }
         };
-        runOnMainSync(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                liveData.observeForever(unblockingObserver);
-            }
-        });
+        runOnMainSync(() -> liveData.observeForever(unblockingObserver));
         if (blocker != null) {
             blocker.blockThread();
         }
@@ -391,14 +354,9 @@ public class TestUtils
             final Observer<T> observer)
     {
         final ThreadBlocker blocker = new ThreadBlocker();
-        runOnMainSync(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                liveData.removeObserver(observer);
-                blocker.unblockThread();
-            }
+        runOnMainSync(() -> {
+            liveData.removeObserver(observer);
+            blocker.unblockThread();
         });
         blocker.blockThread();
     }
@@ -414,20 +372,12 @@ public class TestUtils
     public static <T> void activateInstrumentationLiveData(LiveData<T> liveData)
     {
         final TestUtils.ThreadBlocker dummyBlocker = new TestUtils.ThreadBlocker();
-        Observer<T> dummyObserver = new Observer<T>()
-        {
-            @Override
-            public void onChanged(T t) {/* do nothing */}
-        };
+        Observer<T> dummyObserver = t -> {/* do nothing */};
         observeLiveDataOnMainThread(liveData, dummyObserver, dummyBlocker);
     }
     
     public static <T> void activateLocalLiveData(LiveData<T> liveData)
     {
-        liveData.observeForever(new Observer<T>()
-        {
-            @Override
-            public void onChanged(T t) {/* do nothing */}
-        });
+        liveData.observeForever(t -> {/* do nothing */});
     }
 }

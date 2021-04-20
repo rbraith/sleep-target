@@ -49,37 +49,18 @@ public class DurationPickerFragment
         NumberPicker hourPicker = durationPicker.findViewById(R.id.hour_picker);
         hourPicker.setMaxValue(99);
         hourPicker.setValue(mHour);
-        hourPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener()
-        {
-            @Override
-            public void onValueChange(NumberPicker picker, int oldVal, int newVal)
-            {
-                setHour(newVal);
-            }
-        });
+        hourPicker.setOnValueChangedListener((picker, oldVal, newVal) -> setHour(newVal));
         
         NumberPicker minutePicker = durationPicker.findViewById(R.id.minute_picker);
         minutePicker.setMaxValue(59);
         minutePicker.setValue(mMinute);
-        minutePicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener()
-        {
-            @Override
-            public void onValueChange(NumberPicker picker, int oldVal, int newVal)
-            {
-                setMinute(newVal);
-            }
-        });
+        minutePicker.setOnValueChangedListener((picker, oldVal, newVal) -> setMinute(newVal));
         
         builder.setView(durationPicker)
                 .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        if (mListener != null) {
-                            mListener.onDurationSet(dialog, which, mHour, mMinute);
-                        }
+                .setPositiveButton("OK", (dialog, which) -> {
+                    if (mListener != null) {
+                        mListener.onDurationSet(dialog, which, mHour, mMinute);
                     }
                 });
         return builder.create();

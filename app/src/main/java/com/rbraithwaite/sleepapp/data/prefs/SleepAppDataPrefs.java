@@ -31,8 +31,6 @@ public class SleepAppDataPrefs
     private Context mContext;
     
     private MutableLiveData<CurrentSessionPrefsData> mCurrentSession;
-
-//    private MutableLiveData<CurrentSession> mCurrentSession;
     
     private SharedPreferences mSharedPrefs;
 
@@ -73,19 +71,14 @@ public class SleepAppDataPrefs
     
     public void setCurrentSession(@NonNull final CurrentSessionPrefsData currentSession)
     {
-        mExecutor.execute(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                synchronized (SleepAppDataPrefs.this) {
-                    commitCurrentSession(currentSession);
-                    
-                    // not using getCurrentSession() here so that the async postValue() call in
-                    // that method is not called after this one.
-                    if (mCurrentSession != null) {
-                        mCurrentSession.postValue(currentSession);
-                    }
+        mExecutor.execute(() -> {
+            synchronized (SleepAppDataPrefs.this) {
+                commitCurrentSession(currentSession);
+                
+                // not using getCurrentSession() here so that the async postValue() call in
+                // that method is not called after this one.
+                if (mCurrentSession != null) {
+                    mCurrentSession.postValue(currentSession);
                 }
             }
         });
@@ -170,14 +163,7 @@ public class SleepAppDataPrefs
     {
         final MediatorLiveData<T> mediator = new MediatorLiveData<>();
         
-        mediator.addSource(source, new Observer<T>()
-        {
-            @Override
-            public void onChanged(T value)
-            {
-                mediator.setValue(value);
-            }
-        });
+        mediator.addSource(source, mediator::setValue);
         
         return mediator;
     }
@@ -186,18 +172,13 @@ public class SleepAppDataPrefs
     {
         if (mCurrentSession == null) {
             mCurrentSession = new MutableLiveData<>();
-            mExecutor.execute(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    synchronized (SleepAppDataPrefs.this) {
-                        mCurrentSession.postValue(new CurrentSessionPrefsData(
-                                retrieveStart(),
-                                retrieveAdditionalComments(),
-                                retrieveMoodIndex(),
-                                retrieveSelectedTagIds()));
-                    }
+            mExecutor.execute(() -> {
+                synchronized (SleepAppDataPrefs.this) {
+                    mCurrentSession.postValue(new CurrentSessionPrefsData(
+                            retrieveStart(),
+                            retrieveAdditionalComments(),
+                            retrieveMoodIndex(),
+                            retrieveSelectedTagIds()));
                 }
             });
         }

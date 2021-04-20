@@ -150,44 +150,16 @@ public class DateTimeController
 
     private void bindViewModel()
     {
-        mViewModel.getDateText().observe(mLifecycleOwner, new Observer<String>()
-        {
-            @Override
-            public void onChanged(String s)
-            {
-                mDateText.setText(s);
-            }
-        });
+        mViewModel.getDateText().observe(mLifecycleOwner, s -> mDateText.setText(s));
         
-        mViewModel.getTimeOfDayText().observe(mLifecycleOwner, new Observer<String>()
-        {
-            @Override
-            public void onChanged(String s)
-            {
-                mTimeOfDayText.setText(s);
-            }
-        });
+        mViewModel.getTimeOfDayText().observe(mLifecycleOwner, s -> mTimeOfDayText.setText(s));
     }
     
     private void setupListeners()
     {
-        mDateText.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                onDateClicked();
-            }
-        });
+        mDateText.setOnClickListener(v -> onDateClicked());
         
-        mTimeOfDayText.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                onTimeOfDayClicked();
-            }
-        });
+        mTimeOfDayText.setOnClickListener(v -> onTimeOfDayClicked());
     }
     
     private void onDateClicked()
@@ -195,33 +167,19 @@ public class DateTimeController
         LiveDataFuture.getValue(
                 mViewModel.getDate(),
                 mLifecycleOwner,
-                new LiveDataFuture.OnValueListener<DateTimeViewModel.Date>()
-                {
-                    @Override
-                    public void onValue(DateTimeViewModel.Date value)
-                    {
-                        DatePickerFragment datePicker = new DatePickerFragment();
-                        datePicker.setArguments(DatePickerFragment.createArguments(
-                                value.year, value.month, value.dayOfMonth));
-                        datePicker.setOnDateSetListener(new DatePickerFragment.OnDateSetListener()
-                        {
-                            @Override
-                            public void onDateSet(
-                                    DatePicker view,
-                                    int year,
-                                    int month,
-                                    int dayOfMonth)
-                            {
-                                if (mCallbacks != null) {
-                                    if (!mCallbacks.beforeSetDate(year, month, dayOfMonth)) {
-                                        return;
-                                    }
-                                }
-                                mViewModel.setDate(year, month, dayOfMonth);
+                date -> {
+                    DatePickerFragment datePicker = new DatePickerFragment();
+                    datePicker.setArguments(DatePickerFragment.createArguments(
+                            date.year, date.month, date.dayOfMonth));
+                    datePicker.setOnDateSetListener((view, year, month, dayOfMonth) -> {
+                        if (mCallbacks != null) {
+                            if (!mCallbacks.beforeSetDate(year, month, dayOfMonth)) {
+                                return;
                             }
-                        });
-                        datePicker.show(mFragmentManager, DIALOG_DATE_PICKER);
-                    }
+                        }
+                        mViewModel.setDate(year, month, dayOfMonth);
+                    });
+                    datePicker.show(mFragmentManager, DIALOG_DATE_PICKER);
                 });
     }
     
@@ -230,29 +188,19 @@ public class DateTimeController
         LiveDataFuture.getValue(
                 mViewModel.getTimeOfDay(),
                 mLifecycleOwner,
-                new LiveDataFuture.OnValueListener<DateTimeViewModel.TimeOfDay>()
-                {
-                    @Override
-                    public void onValue(DateTimeViewModel.TimeOfDay value)
-                    {
-                        TimePickerFragment timePicker = new TimePickerFragment();
-                        timePicker.setArguments(TimePickerFragment.createArguments(
-                                value.hourOfDay, value.minute));
-                        timePicker.setOnTimeSetListener(new TimePickerFragment.OnTimeSetListener()
-                        {
-                            @Override
-                            public void onTimeSet(TimePicker view, int hourOfDay, int minute)
-                            {
-                                if (mCallbacks != null) {
-                                    if (!mCallbacks.beforeSetTimeOfDay(hourOfDay, minute)) {
-                                        return;
-                                    }
-                                }
-                                mViewModel.setTimeOfDay(hourOfDay, minute);
+                timeOfDay -> {
+                    TimePickerFragment timePicker = new TimePickerFragment();
+                    timePicker.setArguments(TimePickerFragment.createArguments(
+                            timeOfDay.hourOfDay, timeOfDay.minute));
+                    timePicker.setOnTimeSetListener((view, hourOfDay, minute) -> {
+                        if (mCallbacks != null) {
+                            if (!mCallbacks.beforeSetTimeOfDay(hourOfDay, minute)) {
+                                return;
                             }
-                        });
-                        timePicker.show(mFragmentManager, DIALOG_TIME_PICKER);
-                    }
+                        }
+                        mViewModel.setTimeOfDay(hourOfDay, minute);
+                    });
+                    timePicker.show(mFragmentManager, DIALOG_TIME_PICKER);
                 });
     }
 }

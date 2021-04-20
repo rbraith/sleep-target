@@ -165,29 +165,24 @@ public class StatsFragmentViewModel
     {
         return Transformations.map(
                 getIntervalsConfigMutable(),
-                new Function<SleepIntervalsDataSet.Config, String>()
-                {
-                    @Override
-                    public String apply(SleepIntervalsDataSet.Config config)
-                    {
-                        Resolution intervalsResolution = getIntervalsResolution();
-                        switch (intervalsResolution) {
-                        case WEEK:
-                            // add 1 day so it displays mon-sun, instead of sun-sun
-                            GregorianCalendar cal = new GregorianCalendar();
-                            cal.setTime(config.dateRange.getStart());
-                            cal.add(Calendar.DAY_OF_WEEK, 1);
-                            return StatsFormatting.formatIntervalsRange(
-                                    new DateRange(cal.getTime(), config.dateRange.getEnd()));
-                        case MONTH:
-                            // The range offset is negative, so the end date will have the correct
-                            // month.
-                            return StatsFormatting.formatIntervalsMonthOf(config.dateRange.getEnd());
-                        case YEAR:
-                            return StatsFormatting.formatIntervalsYearOf(config.dateRange.getEnd());
-                        default:
-                            return null;
-                        }
+                config -> {
+                    Resolution intervalsResolution = getIntervalsResolution();
+                    switch (intervalsResolution) {
+                    case WEEK:
+                        // add 1 day so it displays mon-sun, instead of sun-sun
+                        GregorianCalendar cal = new GregorianCalendar();
+                        cal.setTime(config.dateRange.getStart());
+                        cal.add(Calendar.DAY_OF_WEEK, 1);
+                        return StatsFormatting.formatIntervalsRange(
+                                new DateRange(cal.getTime(), config.dateRange.getEnd()));
+                    case MONTH:
+                        // The range offset is negative, so the end date will have the correct
+                        // month.
+                        return StatsFormatting.formatIntervalsMonthOf(config.dateRange.getEnd());
+                    case YEAR:
+                        return StatsFormatting.formatIntervalsYearOf(config.dateRange.getEnd());
+                    default:
+                        return null;
                     }
                 });
     }
@@ -337,42 +332,24 @@ public class StatsFragmentViewModel
         // intervals are reconfigured
         mIntervalsDataSet = Transformations.switchMap(
                 getIntervalsConfigMutable(),
-                new Function<SleepIntervalsDataSet.Config, LiveData<SleepIntervalsDataSet>>()
-                {
-                    @Override
-                    public LiveData<SleepIntervalsDataSet> apply(final SleepIntervalsDataSet.Config config)
-                    {
-                        // returning a switch map transformation here since there are 2 needed
-                        // layers of asynchronicity (the repo query and then the computation of the
-                        // data set) and Transformations conveniently handles that first layer.
-                        return Transformations.switchMap(
-                                mSleepSessionRepository.getSleepSessionsInRange(
-                                        config.dateRange.getStart(),
-                                        config.dateRange.getEnd()),
-                                new Function<List<SleepSession>,
-                                        LiveData<SleepIntervalsDataSet>>()
-                                {
-                                    @Override
-                                    public LiveData<SleepIntervalsDataSet> apply(final List<SleepSession> sleepSessions)
-                                    {
-                                        final MutableLiveData<SleepIntervalsDataSet> liveData =
-                                                new MutableLiveData<>();
-                                        // computing the data set from the sleep sessions is a
-                                        // potentially big job and needs to be asynchronous.
-                                        mExecutor.execute(new Runnable()
-                                        {
-                                            @Override
-                                            public void run()
-                                            {
-                                                liveData.postValue(mSleepIntervalsDataSetGenerator.generateFromConfig(
-                                                        sleepSessions,
-                                                        config));
-                                            }
-                                        });
-                                        return liveData;
-                                    }
-                                });
-                    }
+                config -> {
+                    // returning a switch map transformation here since there are 2 needed
+                    // layers of asynchronicity (the repo query and then the computation of the
+                    // data set) and Transformations conveniently handles that first layer.
+                    return Transformations.switchMap(
+                            mSleepSessionRepository.getSleepSessionsInRange(
+                                    config.dateRange.getStart(),
+                                    config.dateRange.getEnd()),
+                            sleepSessions -> {
+                                final MutableLiveData<SleepIntervalsDataSet> liveData =
+                                        new MutableLiveData<>();
+                                // computing the data set from the sleep sessions is a
+                                // potentially big job and needs to be asynchronous.
+                                mExecutor.execute(() -> liveData.postValue(mSleepIntervalsDataSetGenerator.generateFromConfig(
+                                        sleepSessions,
+                                        config)));
+                                return liveData;
+                            });
                 });
     }
 }

@@ -127,25 +127,13 @@ public class MoodDialogFragment
         builder.setView(createMoodEditDialogView(mMoods));
         
         if (mPositiveListener != null) {
-            builder.setPositiveButton(mPositiveTextId, new DialogInterface.OnClickListener()
-            {
-                @Override
-                public void onClick(DialogInterface dialog, int which)
-                {
-                    mPositiveListener.onClick(mSelected);
-                }
-            });
+            builder.setPositiveButton(mPositiveTextId,
+                                      (dialog, which) -> mPositiveListener.onClick(mSelected));
         }
         
         if (mNegativeListener != null) {
-            builder.setNegativeButton(mNegativeTextId, new DialogInterface.OnClickListener()
-            {
-                @Override
-                public void onClick(DialogInterface dialog, int which)
-                {
-                    mNegativeListener.onClick(mSelected);
-                }
-            });
+            builder.setNegativeButton(mNegativeTextId,
+                                      (dialog, which) -> mNegativeListener.onClick(mSelected));
         }
         
         return builder.create();
@@ -205,14 +193,9 @@ public class MoodDialogFragment
             mHighlighter.highlight(moodView);
         }
         
-        moodView.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                mHighlighter.highlight(v);
-                setSelected(new SelectionData(moodData, moodIndex));
-            }
+        moodView.setOnClickListener(v -> {
+            mHighlighter.highlight(v);
+            setSelected(new SelectionData(moodData, moodIndex));
         });
         
         return moodView;

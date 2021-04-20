@@ -32,27 +32,13 @@ public class MainActivityTests
         onView(withId(R.id.main_bottomnav)).check(matches(isDisplayed()));
 
         // set the bottom nav to not be visible
-        mainActivityScenario.onActivity(new ActivityScenario.ActivityAction<MainActivity>()
-        {
-            @Override
-            public void perform(MainActivity activity)
-            {
-                activity.setBottomNavVisibility(false);
-            }
-        });
+        mainActivityScenario.onActivity(activity -> activity.setBottomNavVisibility(false));
 
         // assert that the bottom nav is not visible
         onView(withId(R.id.main_bottomnav)).check(matches(not(isDisplayed())));
 
         // set bottom nav back to visible
-        mainActivityScenario.onActivity(new ActivityScenario.ActivityAction<MainActivity>()
-        {
-            @Override
-            public void perform(MainActivity activity)
-            {
-                activity.setBottomNavVisibility(true);
-            }
-        });
+        mainActivityScenario.onActivity(activity -> activity.setBottomNavVisibility(true));
 
         // assert that bottom nav has gone back to visible
         onView(withId(R.id.main_bottomnav)).check(matches(isDisplayed()));

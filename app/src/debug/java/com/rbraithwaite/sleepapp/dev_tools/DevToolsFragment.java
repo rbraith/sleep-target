@@ -53,21 +53,9 @@ public class DevToolsFragment
         final ProgressBar clearDatabaseProgessBar =
                 view.findViewById(R.id.dev_tool_clear_data_progress);
         clearDatabaseProgessBar.setVisibility(View.GONE);
-        clearDatabaseButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                clearDatabaseProgessBar.setVisibility(View.VISIBLE);
-                getViewModel().clearData(new DevToolsFragmentViewModel.AsyncTaskListener()
-                {
-                    @Override
-                    public void onComplete()
-                    {
-                        clearDatabaseProgessBar.setVisibility(View.GONE);
-                    }
-                });
-            }
+        clearDatabaseButton.setOnClickListener(v -> {
+            clearDatabaseProgessBar.setVisibility(View.VISIBLE);
+            getViewModel().clearData(() -> clearDatabaseProgessBar.setVisibility(View.GONE));
         });
         
         
@@ -75,23 +63,11 @@ public class DevToolsFragment
         Button add100SleepSessionsButton = view.findViewById(R.id.dev_tool_add_100);
         final ProgressBar add100ProgressBar = view.findViewById(R.id.dev_tool_add_100_progress);
         add100ProgressBar.setVisibility(View.GONE);
-        add100SleepSessionsButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                add100ProgressBar.setVisibility(View.VISIBLE);
-                getViewModel().addArbitrarySleepSessions(
-                        100,
-                        new DevToolsFragmentViewModel.AsyncTaskListener()
-                        {
-                            @Override
-                            public void onComplete()
-                            {
-                                add100ProgressBar.setVisibility(View.GONE);
-                            }
-                        });
-            }
+        add100SleepSessionsButton.setOnClickListener(v -> {
+            add100ProgressBar.setVisibility(View.VISIBLE);
+            getViewModel().addArbitrarySleepSessions(
+                    100,
+                    () -> add100ProgressBar.setVisibility(View.GONE));
         });
     }
 }

@@ -92,16 +92,7 @@ public class SleepGoalsFragment
         LiveData<List<List<Date>>> succeededGoalDates = LiveDataUtils.merge(
                 viewModel.getSucceededWakeTimeGoalDates(),
                 viewModel.getSucceededSleepDurationGoalDates(),
-                new LiveDataUtils.Merger<List<Date>, List<Date>, List<List<Date>>>()
-                {
-                    @Override
-                    public List<List<Date>> applyMerge(
-                            List<Date> wakeTimeGoalDates,
-                            List<Date> sleepDurationGoalDates)
-                    {
-                        return Arrays.asList(wakeTimeGoalDates, sleepDurationGoalDates);
-                    }
-                });
+                (wakeTimeGoalDates, sleepDurationGoalDates) -> Arrays.asList(wakeTimeGoalDates, sleepDurationGoalDates));
         
         // OPTIMIZE [21-03-14 10:44PM] -- right now I am using all succeeded goal dates in history -
         //  it would probably be better to only use those relevant to the currently displayed month
@@ -112,17 +103,12 @@ public class SleepGoalsFragment
         //  changes to a new month.
         succeededGoalDates.observe(
                 getViewLifecycleOwner(),
-                new Observer<List<List<Date>>>()
-                {
-                    @Override
-                    public void onChanged(List<List<Date>> bothGoalDates)
-                    {
-                        List<Date> wakeTimeGoalDates = bothGoalDates.get(0);
-                        List<Date> sleepDurationGoalDates = bothGoalDates.get(1);
-                        
-                        streakCalendar.setSucceededGoalDates(wakeTimeGoalDates,
-                                                             sleepDurationGoalDates);
-                    }
+                bothGoalDates -> {
+                    List<Date> wakeTimeGoalDates = bothGoalDates.get(0);
+                    List<Date> sleepDurationGoalDates = bothGoalDates.get(1);
+                    
+                    streakCalendar.setSucceededGoalDates(wakeTimeGoalDates,
+                                                         sleepDurationGoalDates);
                 });
     }
     
@@ -137,31 +123,19 @@ public class SleepGoalsFragment
         //  initWakeTimeLayout().
         getViewModel().hasWakeTime().observe(
                 getViewLifecycleOwner(),
-                new Observer<Boolean>()
-                {
-                    @Override
-                    public void onChanged(Boolean hasWakeTime)
-                    {
-                        if (hasWakeTime != null) {
-                            if (hasWakeTime) {
-                                wakeTimeLayout.setVisibility(View.VISIBLE);
-                                buttonAddNewWakeTime.setVisibility(View.GONE);
-                            } else {
-                                buttonAddNewWakeTime.setVisibility(View.VISIBLE);
-                                wakeTimeLayout.setVisibility(View.GONE);
-                            }
+                hasWakeTime -> {
+                    if (hasWakeTime != null) {
+                        if (hasWakeTime) {
+                            wakeTimeLayout.setVisibility(View.VISIBLE);
+                            buttonAddNewWakeTime.setVisibility(View.GONE);
+                        } else {
+                            buttonAddNewWakeTime.setVisibility(View.VISIBLE);
+                            wakeTimeLayout.setVisibility(View.GONE);
                         }
                     }
                 });
         
-        buttonAddNewWakeTime.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                displayWakeTimePickerDialog(getViewModel().getDefaultWakeTime());
-            }
-        });
+        buttonAddNewWakeTime.setOnClickListener(v -> displayWakeTimePickerDialog(getViewModel().getDefaultWakeTime()));
         
         initWakeTimeLayout(wakeTimeLayout);
     }
@@ -172,32 +146,20 @@ public class SleepGoalsFragment
         final View sleepDurationGoalLayout = fragmentRoot.findViewById(R.id.sleep_goals_duration);
         final Button buttonAddNewSleepDuration =
                 fragmentRoot.findViewById(R.id.sleep_goals_new_duration_btn);
-        buttonAddNewSleepDuration.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                displaySleepDurationGoalPickerDialog(getViewModel().getDefaultSleepDurationGoal());
-            }
-        });
+        buttonAddNewSleepDuration.setOnClickListener(v -> displaySleepDurationGoalPickerDialog(getViewModel().getDefaultSleepDurationGoal()));
         
         getViewModel().hasSleepDurationGoal().observe(
                 getViewLifecycleOwner(),
-                new Observer<Boolean>()
-                {
-                    @Override
-                    public void onChanged(Boolean hasSleepDurationGoal)
-                    {
-                        if (hasSleepDurationGoal != null) {
-                            // REFACTOR [21-01-29 2:47AM] -- consider making this:
-                            //  toggleSleepDurationGoalDisplay(bool, view, view).
-                            if (hasSleepDurationGoal) {
-                                sleepDurationGoalLayout.setVisibility(View.VISIBLE);
-                                buttonAddNewSleepDuration.setVisibility(View.GONE);
-                            } else {
-                                sleepDurationGoalLayout.setVisibility(View.GONE);
-                                buttonAddNewSleepDuration.setVisibility(View.VISIBLE);
-                            }
+                hasSleepDurationGoal -> {
+                    if (hasSleepDurationGoal != null) {
+                        // REFACTOR [21-01-29 2:47AM] -- consider making this:
+                        //  toggleSleepDurationGoalDisplay(bool, view, view).
+                        if (hasSleepDurationGoal) {
+                            sleepDurationGoalLayout.setVisibility(View.VISIBLE);
+                            buttonAddNewSleepDuration.setVisibility(View.GONE);
+                        } else {
+                            sleepDurationGoalLayout.setVisibility(View.GONE);
+                            buttonAddNewSleepDuration.setVisibility(View.VISIBLE);
                         }
                     }
                 });
@@ -211,44 +173,16 @@ public class SleepGoalsFragment
                 sleepDurationGoalLayout.findViewById(R.id.duration_value);
         getViewModel().getSleepDurationGoalText().observe(
                 getViewLifecycleOwner(),
-                new Observer<String>()
-                {
-                    @Override
-                    public void onChanged(String sleepDurationGoal)
-                    {
-                        valueText.setText(sleepDurationGoal);
-                    }
-                });
+                sleepDurationGoalText -> valueText.setText(sleepDurationGoalText));
         
         Button editButton = sleepDurationGoalLayout.findViewById(R.id.duration_edit_btn);
-        editButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                LiveDataFuture.getValue(
-                        getViewModel().getSleepDurationGoal(),
-                        getViewLifecycleOwner(),
-                        new LiveDataFuture.OnValueListener<SleepDurationGoalUIData>()
-                        {
-                            @Override
-                            public void onValue(SleepDurationGoalUIData goal)
-                            {
-                                displaySleepDurationGoalPickerDialog(goal);
-                            }
-                        });
-            }
-        });
+        editButton.setOnClickListener(v -> LiveDataFuture.getValue(
+                getViewModel().getSleepDurationGoal(),
+                getViewLifecycleOwner(),
+                this::displaySleepDurationGoalPickerDialog));
         
         Button deleteButton = sleepDurationGoalLayout.findViewById(R.id.duration_delete_btn);
-        deleteButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                displaySleepDurationGoalDeleteDialog();
-            }
-        });
+        deleteButton.setOnClickListener(v -> displaySleepDurationGoalDeleteDialog());
     }
     
     
@@ -257,44 +191,16 @@ public class SleepGoalsFragment
         final TextView wakeTimeValue = wakeTimeLayout.findViewById(R.id.waketime_value);
         getViewModel().getWakeTimeText().observe(
                 getViewLifecycleOwner(),
-                new Observer<String>()
-                {
-                    @Override
-                    public void onChanged(String waketime)
-                    {
-                        wakeTimeValue.setText(waketime);
-                    }
-                });
+                wakeTimeValue::setText);
         Button wakeTimeEditButton = wakeTimeLayout.findViewById(R.id.waketime_edit_btn);
-        wakeTimeEditButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                LiveDataFuture.getValue(
-                        getViewModel().getWakeTimeGoalDateMillis(),
-                        getViewLifecycleOwner(),
-                        new LiveDataFuture.OnValueListener<Long>()
-                        {
-                            @Override
-                            public void onValue(Long wakeTimeDateMillis)
-                            {
-                                // No null check needed since in theory this button should not
-                                // even be visible unless there is already a wake-time.
-                                displayWakeTimePickerDialog(wakeTimeDateMillis);
-                            }
-                        });
-            }
-        });
+        wakeTimeEditButton.setOnClickListener(v -> LiveDataFuture.getValue(
+                getViewModel().getWakeTimeGoalDateMillis(),
+                getViewLifecycleOwner(),
+                // No null check needed since in theory this button should not
+                // even be visible unless there is already a wake-time.
+                this::displayWakeTimePickerDialog));
         Button wakeTimeDeleteButton = wakeTimeLayout.findViewById(R.id.waketime_delete_btn);
-        wakeTimeDeleteButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                displayWakeTimeDeleteDialog();
-            }
-        });
+        wakeTimeDeleteButton.setOnClickListener(v -> displayWakeTimeDeleteDialog());
     }
     
     private void displaySleepDurationGoalPickerDialog(SleepDurationGoalUIData initialValue)
@@ -302,18 +208,7 @@ public class SleepGoalsFragment
         DurationPickerFragment durationPickerDialog = DurationPickerFragment.createInstance(
                 initialValue.hours,
                 initialValue.remainingMinutes,
-                new DurationPickerFragment.OnDurationSetListener()
-                {
-                    @Override
-                    public void onDurationSet(
-                            DialogInterface dialog,
-                            int which,
-                            int hour,
-                            int minute)
-                    {
-                        getViewModel().setSleepDurationGoal(hour, minute);
-                    }
-                });
+                (dialog, which, hour, minute) -> getViewModel().setSleepDurationGoal(hour, minute));
         durationPickerDialog.show(getChildFragmentManager(), PICKER_SLEEP_DURATION);
     }
     
@@ -323,14 +218,7 @@ public class SleepGoalsFragment
                 .createDeleteDialog(
                         requireContext(),
                         R.string.sleep_goals_delete_duration_dialog_title,
-                        new DialogInterface.OnClickListener()
-                        {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which)
-                            {
-                                getViewModel().clearSleepDurationGoal();
-                            }
-                        })
+                        (dialog, which) -> getViewModel().clearSleepDurationGoal())
                 .show(getChildFragmentManager(), DIALOG_DELETE_DURATION);
         ;
     }
@@ -341,14 +229,7 @@ public class SleepGoalsFragment
                 .createDeleteDialog(
                         requireContext(),
                         R.string.sleep_goals_delete_waketime_dialog_title,
-                        new DialogInterface.OnClickListener()
-                        {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which)
-                            {
-                                getViewModel().clearWakeTime();
-                            }
-                        })
+                        (dialog, which) -> getViewModel().clearWakeTime())
                 .show(getChildFragmentManager(), DIALOG_DELETE_WAKETIME);
     }
     
@@ -362,14 +243,7 @@ public class SleepGoalsFragment
         TimePickerFragment timePicker = new TimePickerFragment();
         timePicker.setArguments(TimePickerFragment.createArguments(cal.get(Calendar.HOUR_OF_DAY),
                                                                    cal.get(Calendar.MINUTE)));
-        timePicker.setOnTimeSetListener(new TimePickerFragment.OnTimeSetListener()
-        {
-            @Override
-            public void onTimeSet(TimePicker view, int hourOfDay, int minute)
-            {
-                getViewModel().setWakeTime(hourOfDay, minute);
-            }
-        });
+        timePicker.setOnTimeSetListener((view, hourOfDay, minute) -> getViewModel().setWakeTime(hourOfDay, minute));
         timePicker.show(getChildFragmentManager(), WAKETIME_TIME_PICKER);
     }
 }

@@ -61,44 +61,25 @@ public class CurrentGoalsRepositoryImpl
     {
         return Transformations.map(
                 mWakeTimeGoalDao.getCurrentWakeTimeGoal(),
-                new Function<WakeTimeGoalEntity, WakeTimeGoal>()
-                {
-                    @Override
-                    public WakeTimeGoal apply(WakeTimeGoalEntity input)
-                    {
-                        return ConvertWakeTimeGoal.fromEntity(input);
-                    }
-                }
+                ConvertWakeTimeGoal::fromEntity
         );
     }
     
     @Override
     public void setWakeTimeGoal(final WakeTimeGoal wakeTimeGoal)
     {
-        mExecutor.execute(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                mWakeTimeGoalDao.updateWakeTimeGoal(
-                        ConvertWakeTimeGoal.toEntity(wakeTimeGoal));
-            }
-        });
+        mExecutor.execute(() -> mWakeTimeGoalDao.updateWakeTimeGoal(
+                ConvertWakeTimeGoal.toEntity(wakeTimeGoal)));
     }
     
     @Override
     public void clearWakeTimeGoal()
     {
-        mExecutor.execute(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                WakeTimeGoalEntity entity = new WakeTimeGoalEntity();
-                entity.editTime = mTimeUtils.getNow();
-                entity.wakeTimeGoal = WakeTimeGoalEntity.NO_GOAL;
-                mWakeTimeGoalDao.updateWakeTimeGoal(entity);
-            }
+        mExecutor.execute(() -> {
+            WakeTimeGoalEntity entity = new WakeTimeGoalEntity();
+            entity.editTime = mTimeUtils.getNow();
+            entity.wakeTimeGoal = WakeTimeGoalEntity.NO_GOAL;
+            mWakeTimeGoalDao.updateWakeTimeGoal(entity);
         });
     }
     
@@ -107,43 +88,24 @@ public class CurrentGoalsRepositoryImpl
     {
         return Transformations.map(
                 mSleepDurationGoalDao.getCurrentSleepDurationGoal(),
-                new Function<SleepDurationGoalEntity, SleepDurationGoal>()
-                {
-                    @Override
-                    public SleepDurationGoal apply(SleepDurationGoalEntity input)
-                    {
-                        return ConvertSleepDurationGoal.fromEntity(input);
-                    }
-                });
+                ConvertSleepDurationGoal::fromEntity);
     }
     
     @Override
     public void setSleepDurationGoal(final SleepDurationGoal sleepDurationGoal)
     {
-        mExecutor.execute(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                mSleepDurationGoalDao.updateSleepDurationGoal(
-                        ConvertSleepDurationGoal.toEntity(sleepDurationGoal));
-            }
-        });
+        mExecutor.execute(() -> mSleepDurationGoalDao.updateSleepDurationGoal(
+                ConvertSleepDurationGoal.toEntity(sleepDurationGoal)));
     }
     
     @Override
     public void clearSleepDurationGoal()
     {
-        mExecutor.execute(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                SleepDurationGoalEntity entity = new SleepDurationGoalEntity();
-                entity.editTime = mTimeUtils.getNow();
-                entity.goalMinutes = SleepDurationGoalEntity.NO_GOAL;
-                mSleepDurationGoalDao.updateSleepDurationGoal(entity);
-            }
+        mExecutor.execute(() -> {
+            SleepDurationGoalEntity entity = new SleepDurationGoalEntity();
+            entity.editTime = mTimeUtils.getNow();
+            entity.goalMinutes = SleepDurationGoalEntity.NO_GOAL;
+            mSleepDurationGoalDao.updateSleepDurationGoal(entity);
         });
     }
     
@@ -155,17 +117,12 @@ public class CurrentGoalsRepositoryImpl
     {
         return Transformations.map(
                 mWakeTimeGoalDao.getWakeTimeGoalHistory(),
-                new Function<List<WakeTimeGoalEntity>, List<WakeTimeGoal>>()
-                {
-                    @Override
-                    public List<WakeTimeGoal> apply(List<WakeTimeGoalEntity> input)
-                    {
-                        List<WakeTimeGoal> result = new ArrayList<>();
-                        for (WakeTimeGoalEntity entity : input) {
-                            result.add(ConvertWakeTimeGoal.fromEntity(entity));
-                        }
-                        return result;
+                input -> {
+                    List<WakeTimeGoal> result = new ArrayList<>();
+                    for (WakeTimeGoalEntity entity : input) {
+                        result.add(ConvertWakeTimeGoal.fromEntity(entity));
                     }
+                    return result;
                 });
     }
     
@@ -174,18 +131,13 @@ public class CurrentGoalsRepositoryImpl
     {
         return Transformations.map(
                 mSleepDurationGoalDao.getSleepDurationGoalHistory(),
-                new Function<List<SleepDurationGoalEntity>, List<SleepDurationGoal>>()
-                {
-                    @Override
-                    public List<SleepDurationGoal> apply(List<SleepDurationGoalEntity> input)
-                    {
-                        // REFACTOR [21-03-15 8:54PM] -- duplicates getWakeTimeGoalHistory() logic.
-                        List<SleepDurationGoal> result = new ArrayList<>();
-                        for (SleepDurationGoalEntity entity : input) {
-                            result.add(ConvertSleepDurationGoal.fromEntity(entity));
-                        }
-                        return result;
+                input -> {
+                    // REFACTOR [21-03-15 8:54PM] -- duplicates getWakeTimeGoalHistory() logic.
+                    List<SleepDurationGoal> result = new ArrayList<>();
+                    for (SleepDurationGoalEntity entity : input) {
+                        result.add(ConvertSleepDurationGoal.fromEntity(entity));
                     }
+                    return result;
                 });
     }
 }

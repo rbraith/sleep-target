@@ -83,30 +83,9 @@ public class SessionArchiveFragment
         if (mRecyclerViewAdapter == null) {
             mRecyclerViewAdapter = new SessionArchiveRecyclerViewAdapter(
                     getViewModel(),
-                    new ProviderOf<Fragment>()
-                    {
-                        @Override
-                        public Fragment provide()
-                        {
-                            return SessionArchiveFragment.this;
-                        }
-                    },
-                    new ProviderOf<Context>()
-                    {
-                        @Override
-                        public Context provide()
-                        {
-                            return requireContext();
-                        }
-                    },
-                    new SessionArchiveRecyclerViewAdapter.OnListItemClickListener()
-                    {
-                        @Override
-                        public void onClick(View v, int position)
-                        {
-                            navigateToEditSessionScreen(position);
-                        }
-                    });
+                    () -> SessionArchiveFragment.this,
+                    this::requireContext,
+                    (v, position) -> navigateToEditSessionScreen(position));
         }
         return mRecyclerViewAdapter;
     }
@@ -122,40 +101,18 @@ public class SessionArchiveFragment
         LiveDataFuture.getValue(
                 getViewModel().getAllSleepSessionIds(),
                 getViewLifecycleOwner(),
-                new LiveDataFuture.OnValueListener<List<Integer>>()
-                {
-                    @Override
-                    public void onValue(List<Integer> sleepSessionIds)
-                    {
-                        LiveDataFuture.getValue(
-                                getViewModel().getSleepSession(
-                                        sleepSessionIds.get(listItemPosition)),
-                                getViewLifecycleOwner(),
-                                new LiveDataFuture.OnValueListener<SleepSessionWrapper>()
-                                {
-                                    @Override
-                                    public void onValue(SleepSessionWrapper initialEditData)
-                                    {
-                                        getNavController().navigate(toEditSessionScreen(
-                                                initialEditData));
-                                    }
-                                });
-                    }
-                });
+                sleepSessionIds -> LiveDataFuture.getValue(
+                        getViewModel().getSleepSession(sleepSessionIds.get(listItemPosition)),
+                        getViewLifecycleOwner(),
+                        initialEditData -> getNavController().navigate(toEditSessionScreen(
+                                initialEditData))));
     }
     
     private void initFloatingActionButton(View fragmentRoot)
     {
         FloatingActionButton floatingActionButton =
                 fragmentRoot.findViewById(R.id.session_archive_fab);
-        floatingActionButton.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                navigateToAddSessionScreen();
-            }
-        });
+        floatingActionButton.setOnClickListener(v -> navigateToAddSessionScreen());
     }
     
     private void navigateToAddSessionScreen()
@@ -163,31 +120,26 @@ public class SessionArchiveFragment
         LiveDataFuture.getValue(
                 getViewModel().getInitialAddSessionData(),
                 getViewLifecycleOwner(),
-                new LiveDataFuture.OnValueListener<SleepSessionWrapper>()
-                {
-                    @Override
-                    public void onValue(SleepSessionWrapper initialData)
-                    {
-                        SessionDataFragment.ArgsBuilder argsBuilder =
-                                new SessionDataFragment.ArgsBuilder(initialData)
-                                        .setPositiveActionListener(new SessionDataFragment.ActionListener()
+                initialData -> {
+                    SessionDataFragment.ArgsBuilder argsBuilder =
+                            new SessionDataFragment.ArgsBuilder(initialData)
+                                    .setPositiveActionListener(new SessionDataFragment.ActionListener()
+                                    {
+                                        @Override
+                                        public void onAction(
+                                                SessionDataFragment fragment,
+                                                SleepSessionWrapper result)
                                         {
-                                            @Override
-                                            public void onAction(
-                                                    SessionDataFragment fragment,
-                                                    SleepSessionWrapper result)
-                                            {
-                                                getViewModel().addSleepSession(result);
-                                                fragment.completed();
-                                            }
-                                        });
-                        SessionArchiveFragmentDirections.ActionSessionArchiveToSessionData
-                                toAddSessionScreen =
-                                SessionArchiveFragmentDirections.actionSessionArchiveToSessionData(
-                                        argsBuilder.build());
-                        
-                        getNavController().navigate(toAddSessionScreen);
-                    }
+                                            getViewModel().addSleepSession(result);
+                                            fragment.completed();
+                                        }
+                                    });
+                    SessionArchiveFragmentDirections.ActionSessionArchiveToSessionData
+                            toAddSessionScreen =
+                            SessionArchiveFragmentDirections.actionSessionArchiveToSessionData(
+                                    argsBuilder.build());
+                    
+                    getNavController().navigate(toAddSessionScreen);
                 }
         );
     }
@@ -227,22 +179,17 @@ public class SessionArchiveFragment
                                 requireContext(),
                                 R.string.session_archive_delete_dialog_title,
                                 R.string.session_archive_delete_dialog_message,
-                                new DialogInterface.OnClickListener()
-                                {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which)
-                                    {
-                                        // this is alright since SessionArchiveFragment's
-                                        // view model is lifecycle-owned by the activity
-                                        int deletedId =
-                                                getViewModel().deleteSession(result);
-                                        Snackbar.make(
-                                                fragment.getView(),
-                                                "Deleted session #" + deletedId,
-                                                Snackbar.LENGTH_SHORT)
-                                                .show();
-                                        fragment.completed();
-                                    }
+                                (dialog, which) -> {
+                                    // this is alright since SessionArchiveFragment's
+                                    // view model is lifecycle-owned by the activity
+                                    int deletedId =
+                                            getViewModel().deleteSession(result);
+                                    Snackbar.make(
+                                            fragment.getView(),
+                                            "Deleted session #" + deletedId,
+                                            Snackbar.LENGTH_SHORT)
+                                            .show();
+                                    fragment.completed();
                                 });
                         
                         deleteDialog.show(fragment.getChildFragmentManager(),

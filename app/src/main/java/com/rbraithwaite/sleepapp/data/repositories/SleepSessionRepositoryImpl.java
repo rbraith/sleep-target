@@ -49,45 +49,24 @@ public class SleepSessionRepositoryImpl
     @Override
     public void addSleepSession(final SleepSession newSleepSession)
     {
-        mExecutor.execute(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                mSleepSessionDao.addSleepSession(
-                        ConvertSleepSession.toEntity(newSleepSession));
-            }
-        });
+        mExecutor.execute(() -> mSleepSessionDao.addSleepSession(
+                ConvertSleepSession.toEntity(newSleepSession)));
     }
     
     @Override
     public void addSleepSessionWithTags(
             SleepSession newSleepSession, List<Integer> tagIds)
     {
-        mExecutor.execute(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                mSleepSessionDao.addSleepSessionWithTags(
-                        ConvertSleepSession.toEntity(newSleepSession),
-                        tagIds);
-            }
-        });
+        mExecutor.execute(() -> mSleepSessionDao.addSleepSessionWithTags(
+                ConvertSleepSession.toEntity(newSleepSession),
+                tagIds));
     }
     
     @Override
     public void updateSleepSession(final SleepSession sleepSession)
     {
-        mExecutor.execute(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                mSleepSessionDao.updateSleepSession(
-                        ConvertSleepSession.toEntity(sleepSession));
-            }
-        });
+        mExecutor.execute(() -> mSleepSessionDao.updateSleepSession(
+                ConvertSleepSession.toEntity(sleepSession)));
     }
     
     @Override
@@ -95,27 +74,13 @@ public class SleepSessionRepositoryImpl
     {
         return Transformations.map(
                 mSleepSessionDao.getSleepSession(id),
-                new Function<SleepSessionEntity, SleepSession>()
-                {
-                    @Override
-                    public SleepSession apply(SleepSessionEntity input)
-                    {
-                        return ConvertSleepSession.fromEntity(input);
-                    }
-                });
+                ConvertSleepSession::fromEntity);
     }
     
     @Override
     public void deleteSleepSession(final int id)
     {
-        mExecutor.execute(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                mSleepSessionDao.deleteSleepSession(id);
-            }
-        });
+        mExecutor.execute(() -> mSleepSessionDao.deleteSleepSession(id));
     }
     
     /**
@@ -132,26 +97,16 @@ public class SleepSessionRepositoryImpl
                 mSleepSessionDao.getSleepSessionsInRange(
                         start.getTime(),
                         end.getTime()),
-                new Function<List<SleepSessionEntity>, LiveData<List<SleepSession>>>()
-                {
-                    @Override
-                    public LiveData<List<SleepSession>> apply(final List<SleepSessionEntity> input)
-                    {
-                        final MutableLiveData<List<SleepSession>> liveData =
-                                new MutableLiveData<>();
-                        // map the input to the SleepSessionModel list asynchronously
-                        mExecutor.execute(new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                List<SleepSession> result =
-                                        ConvertSleepSession.fromEntities(input);
-                                liveData.postValue(result);
-                            }
-                        });
-                        return liveData;
-                    }
+                entities -> {
+                    final MutableLiveData<List<SleepSession>> liveData =
+                            new MutableLiveData<>();
+                    // map the input to the SleepSessionModel list asynchronously
+                    mExecutor.execute(() -> {
+                        List<SleepSession> result =
+                                ConvertSleepSession.fromEntities(entities);
+                        liveData.postValue(result);
+                    });
+                    return liveData;
                 });
     }
     

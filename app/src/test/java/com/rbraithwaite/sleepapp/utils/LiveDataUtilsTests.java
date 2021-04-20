@@ -29,18 +29,8 @@ public class LiveDataUtilsTests
         LiveData<Boolean> result = LiveDataUtils.merge(
                 testA,
                 testB,
-                new LiveDataUtils.Merger<String,
-                        Integer, Boolean>()
-                {
-                    @Override
-                    public Boolean applyMerge(
-                            String testAVal,
-                            Integer testBVal)
-                    {
-                        return (testAVal.equals(testA.getValue()) &&
-                                testBVal.equals(testB.getValue()));
-                    }
-                });
+                (testAVal, testBVal) -> (testAVal.equals(testA.getValue()) &&
+                        testBVal.equals(testB.getValue())));
         
         TestUtils.activateLocalLiveData(result);
         assertThat(result.getValue(), is(true));
@@ -55,17 +45,7 @@ public class LiveDataUtilsTests
         LiveData<String> result = LiveDataUtils.merge(
                 testA,
                 testB,
-                new LiveDataUtils.Merger<String,
-                        Integer, String>()
-                {
-                    @Override
-                    public String applyMerge(
-                            String testAVal,
-                            Integer testBVal)
-                    {
-                        return testAVal + testBVal;
-                    }
-                });
+                (testAVal, testBVal) -> testAVal + testBVal);
     
         TestUtils.activateLocalLiveData(result);
         

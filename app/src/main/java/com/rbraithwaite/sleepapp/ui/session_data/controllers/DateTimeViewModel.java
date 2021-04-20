@@ -75,16 +75,11 @@ public class DateTimeViewModel
     {
         return Transformations.map(
                 getDate(),
-                new Function<Date, String>()
-                {
-                    @Override
-                    public String apply(Date input)
-                    {
-                        if (input == null || mFormatter == null) {
-                            return null;
-                        }
-                        return mFormatter.formatDate(input.year, input.month, input.dayOfMonth);
+                date -> {
+                    if (date == null || mFormatter == null) {
+                        return null;
                     }
+                    return mFormatter.formatDate(date.year, date.month, date.dayOfMonth);
                 });
     }
     
@@ -92,16 +87,11 @@ public class DateTimeViewModel
     {
         return Transformations.map(
                 getTimeOfDay(),
-                new Function<TimeOfDay, String>()
-                {
-                    @Override
-                    public String apply(TimeOfDay input)
-                    {
-                        if (input == null || mFormatter == null) {
-                            return null;
-                        }
-                        return mFormatter.formatTimeOfDay(input.hourOfDay, input.minute);
+                timeOfDay -> {
+                    if (timeOfDay == null || mFormatter == null) {
+                        return null;
                     }
+                    return mFormatter.formatTimeOfDay(timeOfDay.hourOfDay, timeOfDay.minute);
                 });
     }
     

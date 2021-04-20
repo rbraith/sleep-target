@@ -65,16 +65,11 @@ public class DatePickerFragmentTests
                 calendar.get(Calendar.DAY_OF_MONTH)));
         
         final TestUtils.ThreadBlocker blocker = new TestUtils.ThreadBlocker();
-        dialog.setOnDateSetListener(new DatePickerFragment.OnDateSetListener()
-        {
-            @Override
-            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth)
-            {
-                assertThat(year, is(testYear));
-                assertThat(month, is(testMonth));
-                assertThat(dayOfMonth, is(testDayOfMonth));
-                blocker.unblockThread();
-            }
+        dialog.setOnDateSetListener((view, year, month, dayOfMonth) -> {
+            assertThat(year, is(testYear));
+            assertThat(month, is(testMonth));
+            assertThat(dayOfMonth, is(testDayOfMonth));
+            blocker.unblockThread();
         });
         DialogTestHelper<DatePickerFragment> helper =
                 DialogTestHelper.launchProvidedInstance(dialog);

@@ -48,14 +48,8 @@ public class SleepIntervalsChartFactory
             final Context context,
             final SleepIntervalsDataSet dataSet)
     {
-        return createChartAsync(context, dataSet, new Factory<XYMultipleSeriesRenderer>()
-        {
-            @Override
-            public XYMultipleSeriesRenderer create()
-            {
-                return mRendererHelper.createRangeRenderer(dataSet);
-            }
-        });
+        return createChartAsync(context, dataSet,
+                                () -> mRendererHelper.createRangeRenderer(dataSet));
     }
     
     public LiveData<View> createMonthChartAsync(
@@ -63,14 +57,8 @@ public class SleepIntervalsChartFactory
             final SleepIntervalsDataSet dataSet,
             final int month)
     {
-        return createChartAsync(context, dataSet, new Factory<XYMultipleSeriesRenderer>()
-        {
-            @Override
-            public XYMultipleSeriesRenderer create()
-            {
-                return mRendererHelper.createMonthRenderer(dataSet, month);
-            }
-        });
+        return createChartAsync(context, dataSet,
+                                () -> mRendererHelper.createMonthRenderer(dataSet, month));
     }
     
     public LiveData<View> createYearChartAsync(
@@ -78,14 +66,8 @@ public class SleepIntervalsChartFactory
             final SleepIntervalsDataSet dataSet,
             final int year)
     {
-        return createChartAsync(context, dataSet, new Factory<XYMultipleSeriesRenderer>()
-        {
-            @Override
-            public XYMultipleSeriesRenderer create()
-            {
-                return mRendererHelper.createYearRenderer(dataSet, year);
-            }
-        });
+        return createChartAsync(context, dataSet,
+                                () -> mRendererHelper.createYearRenderer(dataSet, year));
     }
     
 //*********************************************************
@@ -99,18 +81,11 @@ public class SleepIntervalsChartFactory
     {
         return Transformations.map(
                 createAsync(rendererFactory),
-                new Function<XYMultipleSeriesRenderer, View>()
-                {
-                    @Override
-                    public View apply(XYMultipleSeriesRenderer renderer)
-                    {
-                        return ChartFactory.getRangeBarChartView(
-                                context,
-                                dataSet.getDataSet(),
-                                renderer,
-                                BarChart.Type.STACKED);
-                    }
-                });
+                renderer -> ChartFactory.getRangeBarChartView(
+                        context,
+                        dataSet.getDataSet(),
+                        renderer,
+                        BarChart.Type.STACKED));
     }
     
     // REFACTOR [21-03-4 3:08AM] -- extract this as a general utility
@@ -118,14 +93,7 @@ public class SleepIntervalsChartFactory
     {
         final MutableLiveData<T> liveData = new MutableLiveData<>();
         
-        mExecutor.execute(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                liveData.postValue(factory.create());
-            }
-        });
+        mExecutor.execute(() -> liveData.postValue(factory.create()));
         
         return liveData;
     }

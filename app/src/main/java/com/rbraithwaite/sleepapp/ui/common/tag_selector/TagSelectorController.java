@@ -34,14 +34,7 @@ public class TagSelectorController
     private Context mContext;
     private FragmentManager mFragmentManager;
     
-    private View.OnClickListener mDisplayDialogListener = new View.OnClickListener()
-    {
-        @Override
-        public void onClick(View v)
-        {
-            displayTagDialog();
-        }
-    };
+    private View.OnClickListener mDisplayDialogListener = v -> displayTagDialog();
     private LinearLayout.LayoutParams mTagViewParams;
 
 //*********************************************************
@@ -91,20 +84,15 @@ public class TagSelectorController
     {
         mViewModel.getSelectedTags().observe(
                 lifecycleOwner,
-                new Observer<List<TagUiData>>()
-                {
-                    @Override
-                    public void onChanged(List<TagUiData> selectedTags)
-                    {
-                        if (selectedTags.isEmpty()) {
-                            mSelectedTagsScrollView.setVisibility(View.INVISIBLE);
-                            mAddTagsButton.setVisibility(View.VISIBLE);
-                        } else {
-                            mSelectedTagsScrollView.setVisibility(View.VISIBLE);
-                            mAddTagsButton.setVisibility(View.GONE);
-                            
-                            updateSelectedTagsScrollView(selectedTags);
-                        }
+                selectedTags -> {
+                    if (selectedTags.isEmpty()) {
+                        mSelectedTagsScrollView.setVisibility(View.INVISIBLE);
+                        mAddTagsButton.setVisibility(View.VISIBLE);
+                    } else {
+                        mSelectedTagsScrollView.setVisibility(View.VISIBLE);
+                        mAddTagsButton.setVisibility(View.GONE);
+                        
+                        updateSelectedTagsScrollView(selectedTags);
                     }
                 });
     }

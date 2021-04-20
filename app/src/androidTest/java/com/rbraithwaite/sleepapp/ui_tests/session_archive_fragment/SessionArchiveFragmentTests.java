@@ -184,14 +184,7 @@ public class SessionArchiveFragmentTests
     {
         HiltFragmentTestHelper<SessionArchiveFragment> testHelper =
                 HiltFragmentTestHelper.launchFragment(SessionArchiveFragment.class);
-        testHelper.performSyncedFragmentAction(new HiltFragmentTestHelper.SyncedFragmentAction<SessionArchiveFragment>()
-        {
-            @Override
-            public void perform(SessionArchiveFragment fragment)
-            {
-                assertThat(fragment.getRecyclerViewAdapter(), is(notNullValue()));
-            }
-        });
+        testHelper.performSyncedFragmentAction(fragment -> assertThat(fragment.getRecyclerViewAdapter(), is(notNullValue())));
     }
     
     @Test
@@ -265,18 +258,13 @@ public class SessionArchiveFragmentTests
         final TestUtils.DoubleRef<String> originalStartDateText = new TestUtils.DoubleRef<>(null);
         final TestUtils.DoubleRef<String> originalEndDateText = new TestUtils.DoubleRef<>(null);
         TestUtils.performSyncedActivityAction(
-                scenario, new TestUtils.SyncedActivityAction<MainActivity>()
-                {
-                    @Override
-                    public void perform(MainActivity activity)
-                    {
-                        TextView startDate =
-                                activity.findViewById(R.id.session_archive_list_item_start_VALUE);
-                        TextView endDate =
-                                activity.findViewById(R.id.session_archive_list_item_stop_VALUE);
-                        originalStartDateText.ref = startDate.getText().toString();
-                        originalEndDateText.ref = endDate.getText().toString();
-                    }
+                scenario, activity -> {
+                    TextView startDate =
+                            activity.findViewById(R.id.session_archive_list_item_start_VALUE);
+                    TextView endDate =
+                            activity.findViewById(R.id.session_archive_list_item_stop_VALUE);
+                    originalStartDateText.ref = startDate.getText().toString();
+                    originalEndDateText.ref = endDate.getText().toString();
                 }
         );
         

@@ -46,14 +46,7 @@ public class HiltFragmentTestHelper<FragmentType extends Fragment>
     {
         mScenario = ActivityScenario.launch(HiltFragmentActivity.class);
         TestUtils.performSyncedActivityAction(
-                mScenario, new TestUtils.SyncedActivityAction<HiltFragmentActivity>()
-                {
-                    @Override
-                    public void perform(HiltFragmentActivity activity)
-                    {
-                        setupActivityWithFragment(activity, fragmentClass, args);
-                    }
-                });
+                mScenario, activity -> setupActivityWithFragment(activity, fragmentClass, args));
     }
     
 //*********************************************************
@@ -82,14 +75,9 @@ public class HiltFragmentTestHelper<FragmentType extends Fragment>
     {
         TestUtils.performSyncedActivityAction(
                 mScenario,
-                new TestUtils.SyncedActivityAction<HiltFragmentActivity>()
-                {
-                    @Override
-                    public void perform(HiltFragmentActivity activity)
-                    {
-                        FragmentType fragment = (FragmentType) activity.getFragment();
-                        syncedFragmentAction.perform(fragment);
-                    }
+                activity -> {
+                    FragmentType fragment = (FragmentType) activity.getFragment();
+                    syncedFragmentAction.perform(fragment);
                 }
         );
     }

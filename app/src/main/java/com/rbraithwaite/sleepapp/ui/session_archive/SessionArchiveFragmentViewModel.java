@@ -76,14 +76,7 @@ public class SessionArchiveFragmentViewModel
         // convert from db form to ui form
         return Transformations.map(
                 mSleepSessionRepository.getSleepSession(id),
-                new Function<SleepSession, SessionArchiveListItem>()
-                {
-                    @Override
-                    public SessionArchiveListItem apply(SleepSession input)
-                    {
-                        return ConvertSessionArchiveListItem.fromSleepSession(input);
-                    }
-                });
+                ConvertSessionArchiveListItem::fromSleepSession);
     }
     
     public LiveData<List<Integer>> getAllSleepSessionIds()
@@ -107,14 +100,7 @@ public class SessionArchiveFragmentViewModel
     {
         return Transformations.map(
                 mSleepSessionRepository.getSleepSession(id),
-                new Function<SleepSession, SleepSessionWrapper>()
-                {
-                    @Override
-                    public SleepSessionWrapper apply(SleepSession input)
-                    {
-                        return new SleepSessionWrapper(input);
-                    }
-                });
+                SleepSessionWrapper::new);
     }
 
 //*********************************************************
