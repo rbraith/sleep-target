@@ -6,8 +6,10 @@ import androidx.annotation.Nullable;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class SleepSession
         implements Serializable
@@ -23,6 +25,7 @@ public class SleepSession
     
     private String mAdditionalComments;
     private Mood mMood;
+    private List<Tag> mTags;
 
 //*********************************************************
 // public constants
@@ -104,6 +107,17 @@ public class SleepSession
             @Nullable String additionalComments,
             @Nullable Mood mood)
     {
+        this(id, start, durationMillis, additionalComments, mood, null);
+    }
+    
+    public SleepSession(
+            int id,
+            @NonNull Date start,
+            long durationMillis,
+            @Nullable String additionalComments,
+            @Nullable Mood mood,
+            @Nullable List<Tag> tags)
+    {
         // OPTIMIZE [21-03-26 2:03AM] -- It's not ideal to always & blindly be validating the inputs
         //  inside here - there are many cases where I can be confident that the input data is
         //  already valid. I need to develop a general & flexible strategy for input validation.
@@ -116,6 +130,7 @@ public class SleepSession
         mDurationMillis = durationMillis;
         mAdditionalComments = additionalComments;
         mMood = mood;
+        mTags = tags == null ? new ArrayList<>() : tags;
         
         mTimeUtils = createTimeUtils();
     }
@@ -227,7 +242,7 @@ public class SleepSession
     {
         mMood = mood;
     }
-    
+
 //*********************************************************
 // protected api
 //*********************************************************

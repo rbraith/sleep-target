@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
 
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.espresso.matcher.BoundedMatcher;
 
 import org.hamcrest.BaseMatcher;
@@ -18,6 +19,7 @@ public class EspressoMatchers
 //*********************************************************
 
     private EspressoMatchers() {/* No instantiation */}
+
 
 
 //*********************************************************
@@ -49,6 +51,25 @@ public class EspressoMatchers
             public void describeTo(Description description)
             {
                 description.appendText("View tag of value: " + value.toString());
+            }
+        };
+    }
+    
+    public static Matcher<View> recyclerViewWithCount(int count)
+    {
+        return new BoundedMatcher<View, RecyclerView>(RecyclerView.class)
+        {
+            @Override
+            protected boolean matchesSafely(RecyclerView item)
+            {
+                RecyclerView.Adapter<?> adapter = item.getAdapter();
+                return adapter != null && adapter.getItemCount() == count;
+            }
+            
+            @Override
+            public void describeTo(Description description)
+            {
+                description.appendText("recycler view with count " + count);
             }
         };
     }

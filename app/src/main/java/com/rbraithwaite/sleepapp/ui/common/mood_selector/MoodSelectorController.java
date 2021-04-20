@@ -181,7 +181,7 @@ public class MoodSelectorController
                     mAddButton.setVisibility(View.VISIBLE);
                     mMoodValue.setVisibility(View.GONE);
                 } else {
-                    mAddButton.setVisibility(View.GONE);
+                    mAddButton.setVisibility(View.INVISIBLE);
                     mMoodValue.setVisibility(View.VISIBLE);
                     
                     mMoodValue.removeAllViews();

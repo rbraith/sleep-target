@@ -328,6 +328,11 @@ public class TestUtils
         InstrumentationRegistry.getInstrumentation().runOnMainSync(runner);
     }
     
+    public static Context getContext()
+    {
+        return InstrumentationRegistry.getInstrumentation().getTargetContext();
+    }
+    
     /**
      * Resets the database for instumentation tests.
      */

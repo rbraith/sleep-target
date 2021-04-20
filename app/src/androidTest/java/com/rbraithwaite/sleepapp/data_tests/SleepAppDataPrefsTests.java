@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -72,6 +73,8 @@ public class SleepAppDataPrefsTests
         TestUtils.activateInstrumentationLiveData(currentSession);
         assertThat(currentSession.getValue().start, is(nullValue()));
         assertThat(currentSession.getValue().additionalComments, is(nullValue()));
+        assertThat(currentSession.getValue().moodIndex, is(CurrentSessionPrefsData.NO_MOOD));
+        assertThat(currentSession.getValue().selectedTagIds.isEmpty(), is(true));
     }
     
     @Test
@@ -84,7 +87,8 @@ public class SleepAppDataPrefsTests
         CurrentSessionPrefsData expected = new CurrentSessionPrefsData(
                 TestUtils.ArbitraryData.getDate(),
                 "test",
-                2);
+                2,
+                Arrays.asList(1, 2, 3));
         prefs.setCurrentSession(expected);
         
         synchronizer.sync();

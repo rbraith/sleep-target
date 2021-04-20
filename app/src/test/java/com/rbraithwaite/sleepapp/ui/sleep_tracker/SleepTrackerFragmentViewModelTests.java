@@ -17,6 +17,7 @@ import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.data.MockRepositoryUtils;
 import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodUiData;
+import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagUiData;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFormatting;
@@ -31,9 +32,12 @@ import org.mockito.ArgumentCaptor;
 import org.robolectric.shadow.api.Shadow;
 import org.robolectric.shadows.ShadowLooper;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -42,6 +46,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -102,6 +107,38 @@ public class SleepTrackerFragmentViewModelTests
     }
     
     @Test
+    public void getInitialTagData_getsTagDataFromCurrentSession()
+    {
+        List<Integer> expectedIdsList = Arrays.asList(1, 2, 3);
+        when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(new MutableLiveData<>(
+                new CurrentSession(null, null, null, expectedIdsList)));
+        
+        LiveData<SleepTrackerFragmentViewModel.InitialTagData> initialTagData =
+                viewModel.getInitialTagData();
+        TestUtils.activateLocalLiveData(initialTagData);
+        
+        assertThat(initialTagData.getValue().selectedTagIds, is(equalTo(expectedIdsList)));
+    }
+    
+    @Test
+    public void getPersistedSelectedTagIds_returnsCorrectData()
+    {
+        List<Integer> expected = Arrays.asList(1, 2, 3);
+        when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(
+                // REFACTOR [21-04-19 7:48PM] -- add CurrentSession(selected tag ids) ctor.
+                new MutableLiveData<>(new CurrentSession(
+                        null,
+                        null,
+                        null,
+                        expected)));
+        
+        LiveData<List<Integer>> selectedTagIds = viewModel.getPersistedSelectedTagIds();
+        
+        TestUtils.activateLocalLiveData(selectedTagIds);
+        assertThat(selectedTagIds.getValue(), is(equalTo(expected)));
+    }
+    
+    @Test
     public void clearLocalMood_clearsMood()
     {
         when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(
@@ -109,7 +146,8 @@ public class SleepTrackerFragmentViewModelTests
                         null,
                         null,
                         // start with persisted a mood
-                        new Mood(Mood.Type.MOOD_2))));
+                        new Mood(Mood.Type.MOOD_2),
+                        null)));
         
         viewModel.clearLocalMood();
         
@@ -125,10 +163,12 @@ public class SleepTrackerFragmentViewModelTests
     public void getPersistedMood_returnsPersistedMood()
     {
         when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(
+                // REFACTOR [21-04-19 7:48PM] -- add CurrentSession(Mood) ctor.
                 new MutableLiveData<>(new CurrentSession(
                         null,
                         null,
-                        new Mood(Mood.Type.MOOD_1))));
+                        new Mood(Mood.Type.MOOD_1),
+                        null)));
         
         LiveData<MoodUiData> moodUiData = viewModel.getPersistedMood();
         
@@ -140,14 +180,17 @@ public class SleepTrackerFragmentViewModelTests
     public void persist_persistsCorrectData()
     {
         Date expectedStart = TestUtils.ArbitraryData.getDate();
+        String expectedComments = "test";
+        MoodUiData expectedMood = new MoodUiData(MoodUiData.Type.MOOD_2);
+        List<TagUiData> expectedSelectedTags = Arrays.asList(
+                new TagUiData(3, "what"));
+        
         when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(
                 new MutableLiveData<>(new CurrentSession(expectedStart)));
         
-        String expectedComments = "test";
-        MoodUiData expectedMood = new MoodUiData(MoodUiData.Type.MOOD_2);
-        
         viewModel.setLocalAdditionalComments(expectedComments);
         viewModel.setLocalMood(expectedMood);
+        viewModel.setLocalSelectedTags(expectedSelectedTags);
         viewModel.persistCurrentSession();
         
         ArgumentCaptor<CurrentSession> arg = ArgumentCaptor.forClass(CurrentSession.class);
@@ -157,6 +200,10 @@ public class SleepTrackerFragmentViewModelTests
         assertThat(currentSession.getStart(), is(equalTo(expectedStart)));
         assertThat(currentSession.getAdditionalComments(), is(equalTo(expectedComments)));
         assertThat(currentSession.getMood().getType(), is(equalTo(Mood.Type.MOOD_2)));
+        assertThat(currentSession.getSelectedTagIds(), is(equalTo(
+                expectedSelectedTags.stream()
+                        .map(tagUiData -> tagUiData.tagId)
+                        .collect(Collectors.toList()))));
     }
     
     @Test
@@ -351,8 +398,9 @@ public class SleepTrackerFragmentViewModelTests
     }
     
     @Test
-    public void endSleepSession_recordsNewSession() throws InterruptedException
+    public void endSleepSession_recordsNewSession()
     {
+        // REFACTOR [21-04-20 5:43PM] -- maybe add tag data to the CurrentSession here.
         LiveData<CurrentSession> startTime = new MutableLiveData<>(
                 new CurrentSession(TestUtils.ArbitraryData.getDate()));
         LiveData<WakeTimeGoal> wakeTimeGoal =
@@ -372,7 +420,7 @@ public class SleepTrackerFragmentViewModelTests
         ArgumentCaptor<SleepSession> addSleepSessionArg =
                 ArgumentCaptor.forClass(SleepSession.class);
         verify(mockSleepSessionRepository, times(1))
-                .addSleepSession(addSleepSessionArg.capture());
+                .addSleepSessionWithTags(addSleepSessionArg.capture(), anyListOf(Integer.class));
         
         SleepSession addSleepSession = addSleepSessionArg.getValue();
         assertThat(addSleepSession.getStart(), is(equalTo(startTime.getValue().getStart())));

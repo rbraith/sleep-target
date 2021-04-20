@@ -8,6 +8,7 @@ import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDurationGoalDao;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalDao;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionDao;
+import com.rbraithwaite.sleepapp.data.database.tables.tag.TagDao;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -54,6 +55,13 @@ public class DatabaseDependenciesModule
     public static SleepDurationGoalDao provideSleepDurationGoalDao(SleepAppDatabase database)
     {
         return database.getSleepDurationGoalDao();
+    }
+    
+    @Singleton
+    @Provides
+    public static TagDao provideTagDao(SleepAppDatabase database)
+    {
+        return database.getTagDao();
     }
     
     // REFACTOR [21-03-9 2:16AM] -- I should add a qualifier to make it explicit that this is async.

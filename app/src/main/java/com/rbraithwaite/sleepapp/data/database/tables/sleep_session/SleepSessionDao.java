@@ -3,9 +3,15 @@ package com.rbraithwaite.sleepapp.data.database.tables.sleep_session;
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
+import androidx.room.Transaction;
 import androidx.room.Update;
 
+import com.rbraithwaite.sleepapp.data.database.junctions.sleep_session_tags.SleepSessionTagJunction;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.data.SleepSessionWithTags;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Dao
@@ -15,7 +21,6 @@ public abstract class SleepSessionDao
 // abstract
 //*********************************************************
 
-    // atm this long retval is only useful for tests
     @Insert
     public abstract long addSleepSession(SleepSessionEntity sleepSession);
     
@@ -32,6 +37,11 @@ public abstract class SleepSessionDao
     @Query("SELECT * FROM " + SleepSessionContract.TABLE_NAME +
            " WHERE " + SleepSessionContract.Columns.ID + " = :sleepSessionId")
     public abstract LiveData<SleepSessionEntity> getSleepSession(int sleepSessionId);
+    
+    @Transaction
+    @Query("SELECT * FROM " + SleepSessionContract.TABLE_NAME +
+           " WHERE " + SleepSessionContract.Columns.ID + " = :sleepSessionId")
+    public abstract LiveData<SleepSessionWithTags> getSleepSessionWithTags(int sleepSessionId);
     
     @Query("SELECT " + SleepSessionContract.Columns.ID +
            " FROM " + SleepSessionContract.TABLE_NAME)
@@ -59,4 +69,37 @@ public abstract class SleepSessionDao
            " ORDER BY " + SleepSessionContract.Columns.START_TIME + " DESC" +
            " LIMIT 1;")
     public abstract SleepSessionEntity getFirstSleepSessionStartingBefore(long dateTimeMillis);
+    
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    protected abstract void addTagsToSleepSession(List<SleepSessionTagJunction> junctions);
+
+//*********************************************************
+// api
+//*********************************************************
+
+    
+    /**
+     * Adds a new sleep session and its associated tags.
+     *
+     * @param sleepSession The new sleep session to add
+     * @param tagIds       The ids of the tags associated with the new sleep session
+     *
+     * @return The id of the new sleep session
+     */
+    @Transaction
+    public long addSleepSessionWithTags(SleepSessionEntity sleepSession, List<Integer> tagIds)
+    {
+        long newSessionId = addSleepSession(sleepSession);
+        
+        List<SleepSessionTagJunction> junctions = new ArrayList<>();
+        for (Integer tagId : tagIds) {
+            SleepSessionTagJunction junction = new SleepSessionTagJunction();
+            junction.sessionId = (int) newSessionId;
+            junction.tagId = tagId;
+            junctions.add(junction);
+        }
+        addTagsToSleepSession(junctions);
+        
+        return newSessionId;
+    }
 }

@@ -26,7 +26,8 @@ public class ConvertCurrentSession
                 currentSession.getAdditionalComments(),
                 currentSession.getMood() == null ?
                         CurrentSessionPrefsData.NO_MOOD :
-                        currentSession.getMood().toIndex());
+                        currentSession.getMood().toIndex(),
+                currentSession.getSelectedTagIds());
     }
     
     public static CurrentSession fromPrefsData(CurrentSessionPrefsData prefsData)
@@ -39,7 +40,8 @@ public class ConvertCurrentSession
                 prefsData.additionalComments,
                 prefsData.moodIndex == CurrentSessionPrefsData.NO_MOOD ?
                         null :
-                        Mood.fromIndex(prefsData.moodIndex));
+                        Mood.fromIndex(prefsData.moodIndex),
+                prefsData.selectedTagIds);
         return currentSession;
     }
 }

@@ -189,6 +189,9 @@ public class SessionArchiveRecyclerViewAdapter
         return mFragmentProvider.provide();
     }
     
+    // BUG [21-04-17 4:22PM] -- binding the view model to a view holder is no good, see
+    //  https://stackoverflow.com/a/64199325
+    //  Instead use a pattern more like TagSelectorRecyclerAdapter.
     private void bindToViewModel(final ViewHolder viewHolder, final int position)
     {
         // REFACTOR [21-01-13 9:17PM] -- use a LiveDataFuture here to get rid of this getValue call?

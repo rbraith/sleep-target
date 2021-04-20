@@ -26,6 +26,8 @@ import java.util.concurrent.Executor;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -60,6 +62,19 @@ public class SleepSessionRepositoryImplTests
     {
         mockSleepSessionDao = null;
         repository = null;
+    }
+    
+    @Test
+    public void addSleepSessionWithTags_callsDao()
+    {
+        SleepSession testSession = TestUtils.ArbitraryData.getSleepSession();
+        List<Integer> tagIds = Arrays.asList(1, 2, 3);
+        
+        // SUT
+        repository.addSleepSessionWithTags(testSession, tagIds);
+        
+        verify(mockSleepSessionDao, times(1))
+                .addSleepSessionWithTags(any(SleepSessionEntity.class), anyListOf(Integer.class));
     }
     
     // REFACTOR [21-03-15 3:08PM] make this a stub test instead? - test the value of the

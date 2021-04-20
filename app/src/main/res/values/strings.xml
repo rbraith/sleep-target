@@ -17,4 +17,6 @@
     <string name="session_data_delete_waketime_dialog_title">Delete wake-time goal?</string>
     <string name="sleep_goals_delete_duration_dialog_title">Delete sleep duration goal?</string>
     <string name="session_data_delete_duration_dialog_title">Delete sleep duration goal?</string>
+    <string name="close">Close</string>
+    <string name="tag_selector_dialog_add_tag_text">Add Custom Tag</string>
 </resources>

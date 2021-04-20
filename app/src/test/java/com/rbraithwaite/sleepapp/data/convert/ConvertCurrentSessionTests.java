@@ -7,6 +7,8 @@ import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 
 import org.junit.Test;
 
+import java.util.Arrays;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -30,13 +32,15 @@ public class ConvertCurrentSessionTests
         CurrentSession currentSession = new CurrentSession(
                 TestUtils.ArbitraryData.getDate(),
                 "test",
-                Mood.fromIndex(2));
+                Mood.fromIndex(2),
+                Arrays.asList(1, 2, 3));
         
         CurrentSessionPrefsData result = ConvertCurrentSession.toPrefsData(currentSession);
         
         assertThat(result.start, is(equalTo(currentSession.getStart())));
         assertThat(result.additionalComments, is(equalTo(currentSession.getAdditionalComments())));
         assertThat(result.moodIndex, is(currentSession.getMood().toIndex()));
+        assertThat(result.selectedTagIds, is(equalTo(currentSession.getSelectedTagIds())));
     }
     
     @Test
@@ -51,12 +55,14 @@ public class ConvertCurrentSessionTests
         CurrentSessionPrefsData data = new CurrentSessionPrefsData(
                 TestUtils.ArbitraryData.getDate(),
                 "test",
-                2);
+                2,
+                Arrays.asList(1, 2, 3));
         
         CurrentSession currentSession = ConvertCurrentSession.fromPrefsData(data);
         
         assertThat(currentSession.getAdditionalComments(), is(equalTo(data.additionalComments)));
         assertThat(currentSession.getStart(), is(equalTo(data.start)));
         assertThat(currentSession.getMood().toIndex(), is(data.moodIndex));
+        assertThat(currentSession.getSelectedTagIds(), is(equalTo(data.selectedTagIds)));
     }
 }

@@ -61,6 +61,22 @@ public class SleepSessionRepositoryImpl
     }
     
     @Override
+    public void addSleepSessionWithTags(
+            SleepSession newSleepSession, List<Integer> tagIds)
+    {
+        mExecutor.execute(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                mSleepSessionDao.addSleepSessionWithTags(
+                        ConvertSleepSession.toEntity(newSleepSession),
+                        tagIds);
+            }
+        });
+    }
+    
+    @Override
     public void updateSleepSession(final SleepSession sleepSession)
     {
         mExecutor.execute(new Runnable()

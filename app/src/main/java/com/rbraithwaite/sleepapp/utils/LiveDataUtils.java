@@ -20,17 +20,22 @@ public class LiveDataUtils
     {
         C applyMerge(A a, B b);
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
 
     private LiveDataUtils() {/* No instantiation */}
-    
+
 //*********************************************************
 // api
 //*********************************************************
 
+    public static <T> void refresh(MutableLiveData<T> liveData)
+    {
+        liveData.setValue(liveData.getValue());
+    }
+    
     public static <T> MutableLiveData<T> lazyInitMutable(MutableLiveData<T> mutable, T initialValue)
     {
         return mutable == null ? new MutableLiveData<>(initialValue) : mutable;

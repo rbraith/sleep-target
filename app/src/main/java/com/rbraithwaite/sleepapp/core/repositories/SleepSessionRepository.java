@@ -19,6 +19,19 @@ public interface SleepSessionRepository
     //  be to define simple data structures for this layer boundary.
     void addSleepSession(final SleepSession newSleepSession);
     
+    // HACK [21-04-19 10:19PM] -- This is a really ugly solution to the tag data representation
+    //  disparity between CurrentSession & SleepSession (see this method's usage in
+    //  SleepTrackerFragmentViewModel
+    //  and CurrentSession.toSleepSession())
+    //  ---
+    //  This is a strong argument for clearly defined simple-data domain boundaries (ie use cases).
+    /**
+     * @param newSleepSession The new SleepSession to add. This sleep session's id & tags are
+     *                        ignored.
+     * @param tagIds          The ids of the tags that belong to this new sleep session.
+     */
+    void addSleepSessionWithTags(SleepSession newSleepSession, List<Integer> tagIds);
+    
     void updateSleepSession(final SleepSession updatedSleepSession);
     
     // REFACTOR [21-03-24 10:26PM] -- I will need to replace LiveData references in the core with

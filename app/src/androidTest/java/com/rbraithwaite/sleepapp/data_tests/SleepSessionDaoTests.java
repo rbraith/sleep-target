@@ -12,6 +12,9 @@ import com.rbraithwaite.sleepapp.data.convert.ConvertSleepSession;
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionDao;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.data.SleepSessionWithTags;
+import com.rbraithwaite.sleepapp.data.database.tables.tag.TagDao;
+import com.rbraithwaite.sleepapp.data.database.tables.tag.TagEntity;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 
 import org.junit.After;
@@ -21,6 +24,7 @@ import org.junit.Test;
 import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -68,6 +72,52 @@ public class SleepSessionDaoTests
     public void teardown()
     {
         database.close();
+    }
+    
+    @Test
+    public void getSleepSessionWithTags_returnsNullIfNoSleepSession()
+    {
+        LiveData<SleepSessionWithTags> result = sleepSessionDao.getSleepSessionWithTags(2);
+        TestUtils.activateInstrumentationLiveData(result);
+        
+        assertThat(result.getValue(), is(nullValue()));
+    }
+    
+    @Test
+    public void getSleepSessionWithTags_returnsCorrectData()
+    {
+        TagEntity tag1 = new TagEntity();
+        tag1.text = "tag1";
+        TagEntity tag2 = new TagEntity();
+        tag2.text = "tag2";
+        
+        TagDao tagDao = database.getTagDao();
+        int tag1Id = (int) tagDao.addTag(tag1);
+        int tag2Id = (int) tagDao.addTag(tag2);
+        tag1.id = tag1Id;
+        tag2.id = tag2Id;
+        
+        int sessionId = (int) sleepSessionDao.addSleepSessionWithTags(
+                TestUtils.ArbitraryData.getSleepSessionEntity(),
+                Arrays.asList(tag1Id, tag2Id));
+        
+        LiveData<SleepSessionWithTags> result = sleepSessionDao.getSleepSessionWithTags(sessionId);
+        TestUtils.activateInstrumentationLiveData(result);
+        
+        assertThat(result.getValue().tags.size(), is(2));
+        assertThat(result.getValue().tags.get(0), is(equalTo(tag1)));
+        assertThat(result.getValue().tags.get(1), is(equalTo(tag2)));
+    }
+    
+    @Test
+    public void getSleepSessionWithTags_returnsEmptyTagListIfNoTags()
+    {
+        int newId =
+                (int) sleepSessionDao.addSleepSession(TestUtils.ArbitraryData.getSleepSessionEntity());
+        LiveData<SleepSessionWithTags> result = sleepSessionDao.getSleepSessionWithTags(newId);
+        TestUtils.activateInstrumentationLiveData(result);
+        
+        assertThat(result.getValue().tags.isEmpty(), is(true));
     }
     
     @Test

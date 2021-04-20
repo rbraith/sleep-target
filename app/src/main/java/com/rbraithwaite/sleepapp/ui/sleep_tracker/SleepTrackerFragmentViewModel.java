@@ -17,11 +17,15 @@ import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.di.UIDependenciesModule;
 import com.rbraithwaite.sleepapp.ui.common.mood_selector.ConvertMood;
 import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodUiData;
+import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagUiData;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
 import com.rbraithwaite.sleepapp.utils.TickingLiveData;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class SleepTrackerFragmentViewModel
         extends ViewModel
@@ -51,12 +55,28 @@ public class SleepTrackerFragmentViewModel
     private LocalValue<String> mLocalAdditionalComments = new LocalValue<>();
     
     private LocalValue<Mood> mLocalMood = new LocalValue<>();
+    
+    private LocalValue<List<TagUiData>> mLocalSelectedTags = new LocalValue<>();
 
 //*********************************************************
 // private constants
 //*********************************************************
 
     private static final String TAG = "SleepTrackerFragmentVie";
+
+//*********************************************************
+// public helpers
+//*********************************************************
+
+    public static class InitialTagData
+    {
+        public List<Integer> selectedTagIds;
+        
+        public InitialTagData(List<Integer> selectedTagIds)
+        {
+            this.selectedTagIds = selectedTagIds;
+        }
+    }
 
 //*********************************************************
 // constructors
@@ -76,7 +96,7 @@ public class SleepTrackerFragmentViewModel
         mDateTimeFormatter = dateTimeFormatter;
         mTimeUtils = createTimeUtils();
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -117,7 +137,8 @@ public class SleepTrackerFragmentViewModel
                         mCurrentSessionRepository.setCurrentSession(new CurrentSession(
                                 mTimeUtils.getNow(),
                                 mLocalAdditionalComments.consumeIfValid(currentSession.getAdditionalComments()),
-                                mLocalMood.consumeIfValid(currentSession.getMood())));
+                                mLocalMood.consumeIfValid(currentSession.getMood()),
+                                consumeLocalSelectedTagIds(currentSession.getSelectedTagIds())));
                     }
                 });
     }
@@ -137,7 +158,14 @@ public class SleepTrackerFragmentViewModel
                                     mLocalAdditionalComments.consumeIfValid(currentSession.getAdditionalComments()));
                             currentSession.setMood(
                                     mLocalMood.consumeIfValid(currentSession.getMood()));
-                            mSleepSessionRepository.addSleepSession(currentSession.toSleepSession());
+                            // HACK [21-04-19 10:23PM] -- I could have converted the local TagUiData
+                            //  selected tags to Tag models and set them in the SleepSession, but
+                            //  that felt really wasteful, since I really only need the tag ids
+                            //  anyway for a new session. This solution also feels bad though - I
+                            //  need something much better here.
+                            mSleepSessionRepository.addSleepSessionWithTags(
+                                    currentSession.toSleepSession(),
+                                    consumeLocalSelectedTagIds(currentSession.getSelectedTagIds()));
                             mCurrentSessionRepository.clearCurrentSession();
                         }
                     }
@@ -148,6 +176,8 @@ public class SleepTrackerFragmentViewModel
     {
         mTimeUtils = timeUtils;
     }
+    
+    // REFACTOR [21-03-31 1:05AM] -- extract everything relating to the local additional comments.
     
     public LiveData<String> getCurrentSleepSessionDuration()
     {
@@ -187,8 +217,6 @@ public class SleepTrackerFragmentViewModel
         
         return mCurrentSleepSessionDuration;
     }
-    
-    // REFACTOR [21-03-31 1:05AM] -- extract everything relating to the local additional comments.
     
     public LiveData<String> getSessionStartTime()
     {
@@ -283,7 +311,8 @@ public class SleepTrackerFragmentViewModel
                         mCurrentSessionRepository.setCurrentSession(new CurrentSession(
                                 currentSession.getStart(),
                                 mLocalAdditionalComments.consumeIfValid(currentSession.getAdditionalComments()),
-                                mLocalMood.consumeIfValid(currentSession.getMood())));
+                                mLocalMood.consumeIfValid(currentSession.getMood()),
+                                consumeLocalSelectedTagIds(currentSession.getSelectedTagIds())));
                     }
                 });
     }
@@ -317,7 +346,26 @@ public class SleepTrackerFragmentViewModel
     {
         setLocalMood(null);
     }
-
+    
+    public void setLocalSelectedTags(List<TagUiData> selectedTags)
+    {
+        mLocalSelectedTags.set(selectedTags);
+    }
+    
+    public LiveData<InitialTagData> getInitialTagData()
+    {
+        return Transformations.map(
+                getCurrentSession(),
+                currentSession -> new InitialTagData(currentSession.getSelectedTagIds()));
+    }
+    
+    public LiveData<List<Integer>> getPersistedSelectedTagIds()
+    {
+        return Transformations.map(
+                getCurrentSession(),
+                CurrentSession::getSelectedTagIds);
+    }
+    
 //*********************************************************
 // protected api
 //*********************************************************
@@ -326,10 +374,21 @@ public class SleepTrackerFragmentViewModel
     {
         return new TimeUtils();
     }
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
+
+    private List<Integer> getIdsFromTags(List<TagUiData> tags)
+    {
+        return tags.stream().map(tagUiData -> tagUiData.tagId).collect(Collectors.toList());
+    }
+
+    private List<Integer> consumeLocalSelectedTagIds(List<Integer> invalidDefault)
+    {
+        List<TagUiData> localSelectedTags = mLocalSelectedTags.consumeIfValid(null);
+        return localSelectedTags == null ? invalidDefault : getIdsFromTags(localSelectedTags);
+    }
 
     private LiveData<CurrentSession> getCurrentSession()
     {

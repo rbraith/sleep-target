@@ -4,7 +4,9 @@ import androidx.annotation.Nullable;
 
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class CurrentSession
 {
@@ -17,6 +19,7 @@ public class CurrentSession
     
     private String mAdditionalComments;
     private Mood mMood;
+    private List<Integer> mSelectedTagIds;
 
 //*********************************************************
 // constructors
@@ -34,18 +37,20 @@ public class CurrentSession
     
     public CurrentSession(@Nullable Date start, @Nullable String additionalComments)
     {
-        this(start, additionalComments, null);
+        this(start, additionalComments, null, null);
     }
     
     public CurrentSession(
             @Nullable Date start,
             @Nullable String additionalComments,
-            @Nullable Mood mood)
+            @Nullable Mood mood,
+            @Nullable List<Integer> selectedTagIds)
     {
         mStart = start;
         mAdditionalComments = additionalComments;
         mTimeUtils = createTimeUtils();
         mMood = mood;
+        mSelectedTagIds = selectedTagIds == null ? new ArrayList<>() : selectedTagIds;
     }
 
 
@@ -87,8 +92,17 @@ public class CurrentSession
         return mTimeUtils.getNow().getTime() - mStart.getTime();
     }
     
+    // SMELL [21-04-19 10:30PM] -- It's ugly to ignore the tag ids in the current session.
+    //  A potential solution to this might be to provide a TagRepository to the CurrentSession
+    //  so that it can convert its tag ids to Tag models when it needs to, but this seems really
+    //  smelly as well, idk.
+    //  maybe not? https://softwareengineering.stackexchange.com/a/318710
+    //  https://stackoverflow.com/a/47897704.
+    
     /**
-     * @return This current session as a distinct sleep session.
+     * @return This current session as a distinct sleep session. Note: the returned SleepSession
+     * will have no {@link Tag tags}, ignoring any {@link #getSelectedTagIds() selected tag ids} in
+     * the CurrentSession.
      */
     public SleepSession toSleepSession()
     {
@@ -109,6 +123,11 @@ public class CurrentSession
         mAdditionalComments = additionalComments;
     }
     
+    public List<Integer> getSelectedTagIds()
+    {
+        return mSelectedTagIds;
+    }
+
 //*********************************************************
 // protected api
 //*********************************************************

@@ -23,6 +23,7 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.assertThat;
+import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
@@ -36,6 +37,9 @@ import static org.hamcrest.Matchers.not;
 public class SleepTrackerFragmentTests
 {
     // TODO [21-04-3 2:35AM] -- UI test for mood selection highlighting?
+
+    // TODO [21-04-19 5:39PM] tag selector tests missing from more context tests below:
+    //  - tag editing functionality.
     
 //*********************************************************
 // api
@@ -47,9 +51,18 @@ public class SleepTrackerFragmentTests
         // GIVEN the user has input some additional comments
         ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
         
+        // comments
         String expectedText = "You want your belt to buckle, not your chair.";
         UITestUtils.typeOnMultilineEditText(expectedText, onView(withId(R.id.additional_comments)));
+        // mood
         SleepTrackerFragmentTestUtils.addMood(1);
+        // tag
+        String tagText = "test";
+        SleepTrackerFragmentTestUtils.addTag(tagText);
+        SleepTrackerFragmentTestUtils.checkTagCountMatches(1);
+        SleepTrackerFragmentTestUtils.toggleTagSelection(0);
+        onView(withId(R.id.tag_selector_tags_scroll)).check(matches(isDisplayed()));
+        onView(withId(R.id.tag_selector_tags_scroll)).check(matches(hasDescendant(withText(tagText))));
         
         // WHEN the user ends the current session
         onView(withId(R.id.sleep_tracker_button)).perform(click());
@@ -58,6 +71,7 @@ public class SleepTrackerFragmentTests
         // THEN the additional comments text resets
         onView(withId(R.id.additional_comments)).check(matches(withText("")));
         onView(withId(R.id.mood_selector_add_btn)).check(matches(isDisplayed()));
+        onView(withId(R.id.tag_selector_add_tags_btn)).check(matches(isDisplayed()));
     }
     
     @Test
@@ -69,6 +83,9 @@ public class SleepTrackerFragmentTests
         String expectedText = "It's one banana, Michael. What could it cost, $10?";
         UITestUtils.typeOnMultilineEditText(expectedText, onView(withId(R.id.additional_comments)));
         SleepTrackerFragmentTestUtils.addMood(1);
+        String tagText = "test";
+        SleepTrackerFragmentTestUtils.addTag(tagText);
+        SleepTrackerFragmentTestUtils.toggleTagSelection(0);
         
         // WHEN the user returns to the sleep tracker screen from another screen
         UITestNavigate.fromHome_toGoals();
@@ -77,6 +94,8 @@ public class SleepTrackerFragmentTests
         // THEN the additional comment text is retained
         onView(withId(R.id.additional_comments)).check(matches(withText(expectedText)));
         onView(withId(R.id.mood_selector_mood_value)).check(matches(isDisplayed()));
+        onView(withId(R.id.tag_selector_tags_scroll)).check(matches(isDisplayed()));
+        onView(withId(R.id.tag_selector_tags_scroll)).check(matches(hasDescendant(withText(tagText))));
     }
     
     @Test
@@ -85,9 +104,14 @@ public class SleepTrackerFragmentTests
         // GIVEN the user has input some additional comments
         ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
         
+        // REFACTOR [21-04-20 2:52PM] -- this same setup & verification is duplicated across
+        //  several of these tests.
         String expectedText = "I don't care for GOB.";
         UITestUtils.typeOnMultilineEditText(expectedText, onView(withId(R.id.additional_comments)));
         SleepTrackerFragmentTestUtils.addMood(1);
+        String tagText = "test";
+        SleepTrackerFragmentTestUtils.addTag(tagText);
+        SleepTrackerFragmentTestUtils.toggleTagSelection(0);
         
         // WHEN the app is restarted
         scenario = UITestUtils.restartApp(scenario, MainActivity.class);
@@ -95,6 +119,8 @@ public class SleepTrackerFragmentTests
         // THEN the additional comment text is retained
         onView(withId(R.id.additional_comments)).check(matches(withText(expectedText)));
         onView(withId(R.id.mood_selector_mood_value)).check(matches(isDisplayed()));
+        onView(withId(R.id.tag_selector_tags_scroll)).check(matches(isDisplayed()));
+        onView(withId(R.id.tag_selector_tags_scroll)).check(matches(hasDescendant(withText(tagText))));
     }
     
     @Test

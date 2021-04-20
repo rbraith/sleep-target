@@ -25,6 +25,11 @@ import com.rbraithwaite.sleepapp.ui.BaseFragment;
 import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodSelectorController;
 import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodSelectorViewModel;
 import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodUiData;
+import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagSelectorController;
+import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagSelectorViewModel;
+import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagUiData;
+
+import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -37,15 +42,12 @@ public class SleepTrackerFragment
 //*********************************************************
 
     private EditText mAdditionalComments;
-
-
-//*********************************************************
-// package properties
-//*********************************************************
-
-    MoodSelectorController mMoodSelectorController;
     
-    MoodSelectorViewModel mMoodSelectorViewModel;
+    private MoodSelectorController mMoodSelectorController;
+    private MoodSelectorViewModel mMoodSelectorViewModel;
+    
+    private TagSelectorController mTagSelectorController;
+    private TagSelectorViewModel mTagSelectorViewModel;
 
 //*********************************************************
 // constructors
@@ -79,6 +81,7 @@ public class SleepTrackerFragment
         initGoalsDisplay(view);
         initAdditionalCommentsText(view);
         initMoodSelector(view);
+        initTagSelector(view);
     }
     
     @Override
@@ -129,6 +132,33 @@ public class SleepTrackerFragment
 // private methods
 //*********************************************************
 
+    private void initTagSelector(final View fragmentRoot)
+    {
+        mTagSelectorViewModel = new TagSelectorViewModel(requireContext());
+        
+        mTagSelectorViewModel.getSelectedTags().observe(
+                getViewLifecycleOwner(),
+                new Observer<List<TagUiData>>()
+                {
+                    @Override
+                    public void onChanged(List<TagUiData> selectedTags)
+                    {
+                        getViewModel().setLocalSelectedTags(selectedTags);
+                    }
+                });
+        
+        mTagSelectorController = new TagSelectorController(
+                fragmentRoot.findViewById(R.id.more_context_tags),
+                mTagSelectorViewModel,
+                getViewLifecycleOwner(),
+                requireContext(),
+                getChildFragmentManager());
+        
+        getViewModel().getPersistedSelectedTagIds().observe(
+                getViewLifecycleOwner(),
+                selectedTagIds -> mTagSelectorViewModel.setSelectedTagIds(selectedTagIds));
+    }
+    
     private void initMoodSelector(View fragmentRoot)
     {
         mMoodSelectorViewModel = new MoodSelectorViewModel();
@@ -138,6 +168,9 @@ public class SleepTrackerFragment
                 requireContext(),
                 getViewLifecycleOwner(),
                 getChildFragmentManager());
+        // REFACTOR [21-04-12 2:52AM] -- Like with the tag selector, these callbacks should come
+        //  from the view model, probably as LiveData - anything having to do with the view state
+        //  should be managed by the view model.
         mMoodSelectorController.setCallbacks(new MoodSelectorController.Callbacks()
         {
             @Override

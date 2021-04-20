@@ -13,7 +13,11 @@ import androidx.lifecycle.Observer;
 import com.rbraithwaite.sleepapp.data.database.convert.ConvertDate;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -23,10 +27,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext;
 @Singleton
 public class SleepAppDataPrefs
 {
-//*********************************************************
-// private properties
-//*********************************************************
-
     private Executor mExecutor;
     private Context mContext;
     
@@ -36,29 +36,18 @@ public class SleepAppDataPrefs
     
     private SharedPreferences mSharedPrefs;
 
-//*********************************************************
-// private constants
-//*********************************************************
-
     private static final long NULL_LONG_VAL = -1L;
     private static final int NULL_INT_VAL = -1;
     
     private static final String SESSION_START_KEY = "SessionStart";
     private static final String ADDITIONAL_COMMENTS_KEY = "Comments";
     private static final String MOOD_KEY = "Mood";
+    private static final String SELECTED_TAGS_KEY = "SelectedTagIds";
 
-
-//*********************************************************
-// public constants
-//*********************************************************
 
     // HACK [20-11-14 8:06PM] -- made this public to allow tests to reset the shared prefs
     //  not ideal, find a better solution.
     public static final String PREFS_FILE_KEY = "com.rbraithwaite.sleepapp.PREFS_FILE_KEY";
-
-//*********************************************************
-// constructors
-//*********************************************************
 
     @Inject
     public SleepAppDataPrefs(
@@ -69,10 +58,6 @@ public class SleepAppDataPrefs
         mExecutor = executor;
     }
 
-
-//*********************************************************
-// api
-//*********************************************************
 
     
     /**
@@ -106,10 +91,6 @@ public class SleepAppDataPrefs
         });
     }
 
-//*********************************************************
-// private methods
-//*********************************************************
-
     private void commitCurrentSession(CurrentSessionPrefsData currentSession)
     {
         // REFACTOR [21-04-2 10:24PM] -- prefs data should take the millis directly - move getTime()
@@ -122,6 +103,8 @@ public class SleepAppDataPrefs
         commitInt(MOOD_KEY,
                   currentSession.moodIndex == CurrentSessionPrefsData.NO_MOOD ? NULL_INT_VAL :
                           currentSession.moodIndex);
+        
+        commitSelectedTagIds(currentSession.selectedTagIds);
     }
     
     private Date retrieveStart()
@@ -135,10 +118,30 @@ public class SleepAppDataPrefs
         return getSharedPrefs().getString(ADDITIONAL_COMMENTS_KEY, null);
     }
     
+//*********************************************************
+// private methods
+//*********************************************************
+
     private int retrieveMoodIndex()
     {
         int moodIndex = getSharedPrefs().getInt(MOOD_KEY, NULL_INT_VAL);
         return moodIndex == NULL_INT_VAL ? CurrentSessionPrefsData.NO_MOOD : moodIndex;
+    }
+    
+    private List<Integer> retrieveSelectedTagIds()
+    {
+        Set<String> storedTagIdData = getSharedPrefs().getStringSet(SELECTED_TAGS_KEY, new HashSet<>());
+        return storedTagIdData.stream().map(Integer::valueOf).collect(Collectors.toList());
+    }
+    
+    @SuppressLint("ApplySharedPref") // suppress commit() warning
+    private void commitSelectedTagIds(List<Integer> selectedTagIds)
+    {
+        getSharedPrefs().edit()
+                .putStringSet(
+                        SELECTED_TAGS_KEY,
+                        selectedTagIds.stream().map(Object::toString).collect(Collectors.toSet()))
+                .commit();
     }
     
     @SuppressLint("ApplySharedPref") // suppress commit() warning
@@ -192,7 +195,8 @@ public class SleepAppDataPrefs
                         mCurrentSession.postValue(new CurrentSessionPrefsData(
                                 retrieveStart(),
                                 retrieveAdditionalComments(),
-                                retrieveMoodIndex()));
+                                retrieveMoodIndex(),
+                                retrieveSelectedTagIds()));
                     }
                 }
             });

@@ -56,6 +56,7 @@ android {
             // needed for robolectric, see: http://robolectric.org/getting-started/
             includeAndroidResources = true
         }
+        animationsDisabled = true
     }
 
     buildTypes {
