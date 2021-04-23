@@ -33,4 +33,20 @@ public class SleepSessionWithTags
             )
     )
     public List<TagEntity> tags;
+    
+//*********************************************************
+// constructors
+//*********************************************************
+
+    public SleepSessionWithTags()
+    {
+    }
+    
+    public SleepSessionWithTags(
+            SleepSessionEntity sleepSession,
+            List<TagEntity> tags)
+    {
+        this.sleepSession = sleepSession;
+        this.tags = tags;
+    }
 }

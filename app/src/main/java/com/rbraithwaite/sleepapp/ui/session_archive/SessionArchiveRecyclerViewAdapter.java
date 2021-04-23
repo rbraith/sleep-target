@@ -1,29 +1,35 @@
 package com.rbraithwaite.sleepapp.ui.session_archive;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.common.mood_selector.EmojiMoodViewFactory;
 import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodViewFactory;
+import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveRecyclerViewAdapter.ViewHolder;
 import com.rbraithwaite.sleepapp.ui.session_archive.data.SessionArchiveListItem;
+import com.rbraithwaite.sleepapp.utils.SingleObserver;
 import com.rbraithwaite.sleepapp.utils.interfaces.ProviderOf;
 
 import java.util.List;
+import java.util.Locale;
 
+// BUG [21-04-22 2:08AM] -- I think there's a bug in here somewhere related to LiveData updates
+//  causing the recycler to refresh too many times.
 public class SessionArchiveRecyclerViewAdapter
         extends RecyclerView.Adapter<SessionArchiveRecyclerViewAdapter.ViewHolder>
 {
@@ -37,7 +43,7 @@ public class SessionArchiveRecyclerViewAdapter
     private ProviderOf<Fragment> mFragmentProvider;
     private ProviderOf<Context> mContextProvider;
     private SessionArchiveFragmentViewModel mViewModel;
-    private LiveData<List<Integer>> mSleepSessionDataIds;
+    private List<Integer> mSleepSessionDataIds;
     
     private OnListItemClickListener mOnListItemClickListener;
     
@@ -66,11 +72,18 @@ public class SessionArchiveRecyclerViewAdapter
     static class ViewHolder
             extends RecyclerView.ViewHolder
     {
+        private SingleObserver<SessionArchiveListItem> observer;
         TextView startTime;
         TextView stopTime;
         TextView duration;
         ImageView additionalCommentsIcon;
         FrameLayout moodFrame;
+        LinearLayout tagsFrame;
+        // SMELL [21-04-21 8:49PM] -- These explicitly enumerated sub-views don't feel like a great
+        //  solution - take a closer look at this system.
+        LinearLayout tagsLineOne;
+        LinearLayout tagsLineTwo;
+        TextView tagsMore;
         
         public ViewHolder(
                 @NonNull View itemView,
@@ -86,6 +99,10 @@ public class SessionArchiveRecyclerViewAdapter
             this.additionalCommentsIcon =
                     itemView.findViewById(R.id.session_archive_list_item_comment_icon);
             this.moodFrame = itemView.findViewById(R.id.session_archive_list_item_mood_frame);
+            this.tagsFrame = itemView.findViewById(R.id.session_archive_list_item_tags);
+            this.tagsLineOne = this.tagsFrame.findViewById(R.id.tags_line_one);
+            this.tagsLineTwo = this.tagsFrame.findViewById(R.id.tags_line_two);
+            this.tagsMore = this.tagsFrame.findViewById(R.id.tags_more);
             
             itemView.setOnClickListener(v -> {
                 if (onListItemClickListener != null) {
@@ -115,15 +132,14 @@ public class SessionArchiveRecyclerViewAdapter
         
         // SMELL [21-03-24 10:39PM] consider a different solution for displayed the sessions
         //  - do some research on conventional patterns.
-        mSleepSessionDataIds = mViewModel.getAllSleepSessionIds();
-        mSleepSessionDataIds.observe(
+        mViewModel.getAllSleepSessionIds().observe(
                 getLifecycleOwner(),
-                integers -> {
-                    Log.d(TAG, "onChanged: session data id list changed, notifying...");
+                sessionIds -> {
+                    mSleepSessionDataIds = sessionIds;
                     notifyDataSetChanged();
                 });
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -136,9 +152,11 @@ public class SessionArchiveRecyclerViewAdapter
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.session_archive_list_item, parent, false);
         mFragmentProvider.provide().registerForContextMenu(view);
-        return new ViewHolder(view, mOnListItemClickListener);
+        ViewHolder viewHolder = new ViewHolder(view, mOnListItemClickListener);
+        viewHolder.observer = createViewHolderObserver(viewHolder);
+        return viewHolder;
     }
-
+    
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position)
     {
@@ -152,15 +170,14 @@ public class SessionArchiveRecyclerViewAdapter
     @Override
     public int getItemCount()
     {
-        List<Integer> ids = mSleepSessionDataIds.getValue();
-        if (ids == null) { return 0; }
+        if (mSleepSessionDataIds == null) { return 0; }
         
-        int itemCount = ids.size();
+        int itemCount = mSleepSessionDataIds.size();
         Log.d(TAG, "getItemCount: itemCount is " + itemCount);
         
         return itemCount;
     }
-    
+
 //*********************************************************
 // protected api
 //*********************************************************
@@ -179,38 +196,125 @@ public class SessionArchiveRecyclerViewAdapter
         return mFragmentProvider.provide();
     }
     
-    // BUG [21-04-17 4:22PM] -- binding the view model to a view holder is no good, see
-    //  https://stackoverflow.com/a/64199325
-    //  Instead use a pattern more like TagSelectorRecyclerAdapter.
     private void bindToViewModel(final ViewHolder viewHolder, final int position)
     {
-        // REFACTOR [21-01-13 9:17PM] -- use a LiveDataFuture here to get rid of this getValue call?
-        LiveData<SessionArchiveListItem> listItem = mViewModel.getListItemData(
-                mSleepSessionDataIds.getValue().get(position));
-        
-        // I thought the new Observer here might leak memory and cause duplicate updates, but
-        // getSleepSession data provides a new livedata instance so I should be ok?
-        listItem.observe(
-                getLifecycleOwner(),
-                sessionArchiveListItem -> {
-                    Log.d(TAG, "onChanged: item data changed! updating...");
-                    if (sessionArchiveListItem != null) {
-                        viewHolder.startTime.setText(sessionArchiveListItem.startTime);
-                        viewHolder.stopTime.setText(sessionArchiveListItem.endTime);
-                        viewHolder.duration.setText(sessionArchiveListItem.sessionDuration);
-                        viewHolder.additionalCommentsIcon.setVisibility(
-                                sessionArchiveListItem.hasAdditionalComments ?
-                                        View.VISIBLE : View.GONE);
-                        
-                        if (sessionArchiveListItem.mood != null) {
-                            viewHolder.moodFrame.setVisibility(View.VISIBLE);
-                            viewHolder.moodFrame.removeAllViews();
-                            viewHolder.moodFrame.addView(mMoodViewFactory.createView(
-                                    sessionArchiveListItem.mood,
-                                    mContextProvider.provide(),
-                                    20f));
-                        }
+        LiveData<SessionArchiveListItem> listItem =
+                mViewModel.getListItemData(mSleepSessionDataIds.get(position));
+        listItem.observe(getLifecycleOwner(), viewHolder.observer.transferTo(listItem));
+    }
+    
+    // REFACTOR [21-04-22 11:49PM] -- Regarding this & other view holder related methods - consider
+    //  moving them to ViewHolder for a more OOP solution (I originally had it that way, but then
+    //  ViewHolder was very large compared to SessionArchiveRecyclerViewAdapter - still, come
+    //  back to this, maybe move ViewHolder into its own file).
+    private SingleObserver<SessionArchiveListItem> createViewHolderObserver(ViewHolder viewHolder)
+    {
+        return new SingleObserver<SessionArchiveListItem>()
+        {
+            @Override
+            public void onChanged(SessionArchiveListItem sessionArchiveListItem)
+            {
+                if (sessionArchiveListItem != null) {
+                    viewHolder.startTime.setText(sessionArchiveListItem.startTime);
+                    viewHolder.stopTime.setText(sessionArchiveListItem.endTime);
+                    viewHolder.duration.setText(sessionArchiveListItem.sessionDuration);
+                    viewHolder.additionalCommentsIcon.setVisibility(
+                            sessionArchiveListItem.hasAdditionalComments ?
+                                    View.VISIBLE : View.GONE);
+                    
+                    if (sessionArchiveListItem.mood != null) {
+                        viewHolder.moodFrame.setVisibility(View.VISIBLE);
+                        viewHolder.moodFrame.removeAllViews();
+                        viewHolder.moodFrame.addView(mMoodViewFactory.createView(
+                                sessionArchiveListItem.mood,
+                                mContextProvider.provide(),
+                                20f));
                     }
-                });
+                    
+                    if (!sessionArchiveListItem.tags.isEmpty()) {
+                        viewHolder.tagsFrame.setVisibility(View.VISIBLE);
+                        setupListItemTagList(
+                                viewHolder,
+                                sessionArchiveListItem.tags,
+                                mContextProvider.provide());
+                    } else {
+                        viewHolder.tagsFrame.setVisibility(View.GONE);
+                    }
+                }
+            }
+        };
+    }
+    
+    // REFACTOR [21-04-21 9:18PM] -- the logic in here is very similar to
+    //  TagSelectorController.updateSelectedTagsScrollView - similar lists of tags (though maybe
+    //  there are enough key differences, e.g. no scroll view here)
+    private void setupListItemTagList(ViewHolder viewHolder, List<String> tags, Context context)
+    {
+        // TODO [21-04-21 9:00PM] figure out some relation between the frame width and
+        //  number of allowed characters per tag line (will depend on the character size - maybe
+        //  pull a consistent size from tags_more?) - this will be important for landscape
+        //  orientation where the list item has more horizontal space.
+//        int frameWidth = viewHolder.tagsFrame.getWidth();
+        int maxLineCharacters = 20;
+        
+        LinearLayout[] lines = {viewHolder.tagsLineOne, viewHolder.tagsLineTwo};
+        for (LinearLayout line : lines) {
+            line.removeAllViews();
+        }
+        
+        int currentLineCharacters = 0;
+        int lineIndex = 0;
+        LinearLayout currentLine = lines[lineIndex];
+        int displayedTagsCount = 0;
+        for (String tagText : tags) {
+            currentLineCharacters += tagText.length();
+            
+            if (currentLineCharacters >= maxLineCharacters) {
+                lineIndex++;
+                if (lineIndex == lines.length) {
+                    // reached max lines, exit the loop and don't display any more tags
+                    break;
+                } else {
+                    currentLine = lines[lineIndex];
+                    currentLineCharacters = tagText.length();
+                }
+            }
+    
+            // TODO [21-04-21 9:01PM] I need to account for "long tag text" edge cases
+            //      - if a tag exceeds the max allowed characters, cut it off with "..."
+            //      - be careful not to drop down to the next line on tags that are too long anyway.
+            
+            currentLine.addView(generateTagView(tagText, context));
+            displayedTagsCount++;
+        }
+        
+        // If there are more tags than could fit in the available lines, display some text
+        // indicating these extra tags
+        if (displayedTagsCount < tags.size()) {
+            viewHolder.tagsMore.setText(String.format(
+                    Locale.CANADA,
+                    context.getString(R.string.session_archive_item_more_tags_text),
+                    tags.size() - displayedTagsCount));
+        }
+    }
+    
+    // REFACTOR [21-04-21 9:16PM] -- various hardcoded values.
+    private View generateTagView(String tagText, Context context)
+    {
+        // OPTIMIZE [21-04-22 10:55PM] -- These params don't need to be instantiated each time
+        //  - use a constant.
+        LinearLayout.LayoutParams tagViewParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        tagViewParams.setMargins(15, 0, 0, 0);
+    
+        TextView tagView = new TextView(context);
+        tagView.setText(tagText);
+        tagView.setTextSize(10f);
+        tagView.setPadding(15, 5, 15, 5);
+        tagView.setLayoutParams(tagViewParams);
+        tagView.setBackgroundColor(Color.CYAN);
+        
+        return tagView;
     }
 }

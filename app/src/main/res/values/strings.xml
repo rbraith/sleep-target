@@ -19,4 +19,5 @@
     <string name="session_data_delete_duration_dialog_title">Delete sleep duration goal?</string>
     <string name="close">Close</string>
     <string name="tag_selector_dialog_add_tag_text">Add Custom Tag</string>
+    <string name="session_archive_item_more_tags_text">+ %d more</string>
 </resources>

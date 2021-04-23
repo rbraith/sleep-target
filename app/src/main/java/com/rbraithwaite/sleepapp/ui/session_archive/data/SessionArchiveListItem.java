@@ -2,6 +2,9 @@ package com.rbraithwaite.sleepapp.ui.session_archive.data;
 
 import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodUiData;
 
+import java.util.ArrayList;
+import java.util.List;
+
 // ui pojo, to be converted within a viewmodel
 public class SessionArchiveListItem
 {
@@ -14,6 +17,7 @@ public class SessionArchiveListItem
     public String sessionDuration;
     public boolean hasAdditionalComments;
     public MoodUiData mood;
+    public List<String> tags;
 
 //*********************************************************
 // api
@@ -24,7 +28,8 @@ public class SessionArchiveListItem
             String endTime,
             String sessionDuration,
             boolean hasAdditionalComments,
-            MoodUiData mood)
+            MoodUiData mood,
+            List<String> tags)
     {
         SessionArchiveListItem listItem = new SessionArchiveListItem();
         listItem.startTime = startTime;
@@ -32,6 +37,7 @@ public class SessionArchiveListItem
         listItem.sessionDuration = sessionDuration;
         listItem.hasAdditionalComments = hasAdditionalComments;
         listItem.mood = mood;
+        listItem.tags = tags == null ? new ArrayList<>() : tags;
         return listItem;
     }
 }

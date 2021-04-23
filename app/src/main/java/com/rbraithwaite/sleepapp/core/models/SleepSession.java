@@ -136,6 +136,17 @@ public class SleepSession
     }
 
 //*********************************************************
+// overrides
+//*********************************************************
+
+    @NonNull
+    @Override
+    public String toString()
+    {
+        return "SleepSession id:" + getId();
+    }
+    
+//*********************************************************
 // api
 //*********************************************************
 
@@ -242,7 +253,17 @@ public class SleepSession
     {
         mMood = mood;
     }
-
+    
+    public List<Tag> getTags()
+    {
+        return mTags;
+    }
+    
+    public void setTags(List<Tag> tags)
+    {
+        mTags = tags;
+    }
+    
 //*********************************************************
 // protected api
 //*********************************************************

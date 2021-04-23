@@ -8,6 +8,7 @@ import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.Update;
 
+import com.rbraithwaite.sleepapp.data.database.junctions.sleep_session_tags.SleepSessionTagContract;
 import com.rbraithwaite.sleepapp.data.database.junctions.sleep_session_tags.SleepSessionTagJunction;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.data.SleepSessionWithTags;
 
@@ -72,6 +73,11 @@ public abstract class SleepSessionDao
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     protected abstract void addTagsToSleepSession(List<SleepSessionTagJunction> junctions);
+    
+    @Query("DELETE FROM " + SleepSessionTagContract.TABLE_NAME +
+           " WHERE " + SleepSessionTagContract.Columns.SESSION_ID + " = :sleepSessionId")
+    protected abstract void deleteAllTagsFromSleepSession(int sleepSessionId);
+
 
 //*********************************************************
 // api
@@ -91,15 +97,35 @@ public abstract class SleepSessionDao
     {
         long newSessionId = addSleepSession(sleepSession);
         
+        _addTagsToSleepSession((int) newSessionId, tagIds);
+        
+        return newSessionId;
+    }
+    
+    @Transaction
+    public void updateSleepSessionWithTags(
+            SleepSessionEntity updatedSleepSession,
+            List<Integer> tagIds)
+    {
+        updateSleepSession(updatedSleepSession);
+        deleteAllTagsFromSleepSession(updatedSleepSession.id);
+        _addTagsToSleepSession(updatedSleepSession.id, tagIds);
+    }
+    
+//*********************************************************
+// private methods
+//*********************************************************
+
+    // REFACTOR [21-04-22 8:51PM] -- Find a better name for this.
+    private void _addTagsToSleepSession(int sleepSessionId, List<Integer> tagIds)
+    {
         List<SleepSessionTagJunction> junctions = new ArrayList<>();
         for (Integer tagId : tagIds) {
             SleepSessionTagJunction junction = new SleepSessionTagJunction();
-            junction.sessionId = (int) newSessionId;
+            junction.sessionId = sleepSessionId;
             junction.tagId = tagId;
             junctions.add(junction);
         }
         addTagsToSleepSession(junctions);
-        
-        return newSessionId;
     }
 }

@@ -27,6 +27,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -94,7 +96,9 @@ public class SessionArchiveFragmentViewModelTests
     {
         SleepSession sleepSession = TestUtils.ArbitraryData.getSleepSession();
         viewModel.addSleepSession(new SleepSessionWrapper(sleepSession));
-        verify(mockSleepSessionRepository).addSleepSession(sleepSession);
+        // TODO [21-04-22 9:16PM] -- verify the tag id values.
+        verify(mockSleepSessionRepository).addSleepSessionWithTags(eq(sleepSession),
+                                                                   anyListOf(Integer.class));
     }
     
     @Test

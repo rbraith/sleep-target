@@ -53,7 +53,7 @@
         android:inputType="textMultiLine"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/session_data_mood" />
+        app:layout_constraintTop_toBottomOf="@+id/session_data_tags" />
 
     <include
         android:id="@+id/session_data_mood"
@@ -65,5 +65,15 @@
         android:layout_marginTop="64dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/session_data_duration" />
+
+    <include
+        android:id="@+id/session_data_tags"
+        layout="@layout/tag_selector"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginLeft="32dp"
+        app:layout_constraintStart_toEndOf="@+id/session_data_mood"
+        app:layout_constraintTop_toTopOf="@+id/session_data_mood" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

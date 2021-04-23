@@ -1,19 +1,13 @@
 package com.rbraithwaite.sleepapp.ui_tests.session_archive_fragment;
 
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
-import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestNavigate;
 import com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils;
 
-import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 public class SessionArchiveFragmentTestUtils
 {
-//*********************************************************
-// constructors
-//*********************************************************
-
     private SessionArchiveFragmentTestUtils() {/* No instantiation */}
 
 //*********************************************************
@@ -31,5 +25,10 @@ public class SessionArchiveFragmentTestUtils
         calendar.setTime(sleepSession.getEnd());
         SessionDataFragmentTestUtils.setEndDateTime(calendar);
         SessionDataFragmentTestUtils.pressPositive();
+        
+        // TODO [21-04-21 8:16PM] -- this needs to add the other data as well:
+        //      - mood
+        //      - comments
+        //      - tags.
     }
 }

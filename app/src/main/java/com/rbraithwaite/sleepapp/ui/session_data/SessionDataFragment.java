@@ -23,6 +23,8 @@ import com.rbraithwaite.sleepapp.ui.BaseFragment;
 import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodSelectorController;
 import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodSelectorViewModel;
 import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodUiData;
+import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagSelectorController;
+import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagSelectorViewModel;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragmentDirections;
 import com.rbraithwaite.sleepapp.ui.session_data.controllers.DateTimeController;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
@@ -173,6 +175,7 @@ public class SessionDataFragment
         initSessionDuration(view);
         initAdditionalComments(view);
         initMoodSelector(view);
+        initTagSelector(view);
         
         // init back press behaviour
         requireActivity().getOnBackPressedDispatcher().addCallback(
@@ -264,6 +267,36 @@ public class SessionDataFragment
 //*********************************************************
 // private methods
 //*********************************************************
+    
+    private TagSelectorController mTagSelectorController;
+    private TagSelectorViewModel mTagSelectorViewModel;
+    private boolean mIsTagSelectorInitialized = false;
+    
+    private void initTagSelector(View fragmentRoot)
+    {
+        mTagSelectorViewModel = new TagSelectorViewModel(requireContext());
+        mTagSelectorViewModel.setSelectedTagIds(getViewModel().getTagIds());
+        
+        mTagSelectorViewModel.getSelectedTags().observe(
+                getViewLifecycleOwner(),
+                selectedTags -> {
+                    // HACK [21-04-22 1:03AM] -- This bool isn't a great solution - I needed
+                    //  something to prevent the setSelectedIds() call above from immediately
+                    //  notifying this observer with unchanged data.
+                    if (!mIsTagSelectorInitialized) {
+                           mIsTagSelectorInitialized = true;
+                    } else {
+                        getViewModel().setTags(selectedTags);
+                    }
+                });
+        
+        mTagSelectorController = new TagSelectorController(
+                fragmentRoot.findViewById(R.id.session_data_tags),
+                mTagSelectorViewModel,
+                getViewLifecycleOwner(),
+                requireContext(),
+                getChildFragmentManager());
+    }
 
     private void initMoodSelector(View fragmentRoot)
     {

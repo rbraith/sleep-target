@@ -3,9 +3,10 @@ package com.rbraithwaite.sleepapp.data.convert;
 import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.data.SleepSessionWithTags;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ConvertSleepSession
 {
@@ -51,12 +52,22 @@ public class ConvertSleepSession
     //  another place for this logic?
     public static List<SleepSession> fromEntities(List<SleepSessionEntity> entities)
     {
-        // List.stream() requires api 24+ :/
-        List<SleepSession> result = new ArrayList<>();
-        for (SleepSessionEntity entity : entities) {
-            result.add(ConvertSleepSession.fromEntity(
-                    entity));
+        return entities.stream()
+                .map(ConvertSleepSession::fromEntity)
+                .collect(Collectors.toList());
+    }
+    
+    public static SleepSession fromEntityWithTags(SleepSessionWithTags entityWithTags)
+    {
+        if (entityWithTags == null) {
+            return null;
         }
-        return result;
+        
+        SleepSession sleepSession = fromEntity(entityWithTags.sleepSession);
+        sleepSession.setTags(entityWithTags.tags.stream()
+                                     .map(ConvertTag::fromEntity)
+                                     .collect(Collectors.toList()));
+        
+        return sleepSession;
     }
 }

@@ -10,6 +10,7 @@ import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.MoodSelectorTestUtils;
+import com.rbraithwaite.sleepapp.test_utils.ui.TagSelectorTestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestNavigate;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
@@ -43,6 +44,38 @@ public class SessionArchiveFragmentTests
 // api
 //*********************************************************
 
+    // REFACTOR [21-04-22 12:47AM] -- Not sure where to put this so I'm putting it here: the
+    //  layouts for sleep_tracker_more_context.xml and session_data_fragment.xml are very similar.
+    //  Consider extracting this group of [mood, tags, comments, etc] as a separate layout.
+    @Test
+    public void tagList_displaysProperly()
+    {
+        ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
+        UITestNavigate.fromHome_toSessionArchive();
+        
+        // add a new session with no tags to the archive
+        SessionArchiveFragmentTestUtils.addSession(new SleepSession(
+                TestUtils.ArbitraryData.getDate(),
+                TestUtils.ArbitraryData.getDurationMillis()));
+        
+        // verify that the tag list for the list item is not displayed
+        onView(withId(R.id.session_archive_list_item_tags)).check(matches(not(isDisplayed())));
+        
+        // add some tags to that session
+        onView(withId(R.id.session_archive_list_item_card)).perform(click());
+        // REFACTOR [21-04-22 1:39AM] -- I need a better way of setting up data for UI tests,
+        //  because
+        //  this takes forever.
+        for (int i = 0; i < 2; i++) {
+            TagSelectorTestUtils.addTag("test " + i);
+            TagSelectorTestUtils.toggleTagSelection(i);
+        }
+        SessionDataFragmentTestUtils.pressPositive();
+        
+        // verify that the tag list for the list item is now displayed
+        onView(withId(R.id.session_archive_list_item_tags)).check(matches(isDisplayed()));
+    }
+    
     @Test
     public void moodIcon_displaysProperly()
     {
@@ -184,7 +217,8 @@ public class SessionArchiveFragmentTests
     {
         HiltFragmentTestHelper<SessionArchiveFragment> testHelper =
                 HiltFragmentTestHelper.launchFragment(SessionArchiveFragment.class);
-        testHelper.performSyncedFragmentAction(fragment -> assertThat(fragment.getRecyclerViewAdapter(), is(notNullValue())));
+        testHelper.performSyncedFragmentAction(fragment -> assertThat(fragment.getRecyclerViewAdapter(),
+                                                                      is(notNullValue())));
     }
     
     @Test

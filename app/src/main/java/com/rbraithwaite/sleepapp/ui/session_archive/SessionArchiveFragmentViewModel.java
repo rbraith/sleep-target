@@ -1,6 +1,5 @@
 package com.rbraithwaite.sleepapp.ui.session_archive;
 
-import androidx.arch.core.util.Function;
 import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -8,6 +7,7 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
+import com.rbraithwaite.sleepapp.core.models.Tag;
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.di.UIDependenciesModule;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
@@ -17,6 +17,7 @@ import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SessionArchiveFragmentViewModel
         extends ViewModel
@@ -56,7 +57,11 @@ public class SessionArchiveFragmentViewModel
 
     public void addSleepSession(SleepSessionWrapper sleepSession)
     {
-        mSleepSessionRepository.addSleepSession(sleepSession.getModel());
+        mSleepSessionRepository.addSleepSessionWithTags(
+                sleepSession.getModel(),
+                sleepSession.getModel().getTags().stream()
+                        .map(Tag::getTagId)
+                        .collect(Collectors.toList()));
     }
     
     public void updateSleepSession(SleepSessionWrapper sleepSession)
@@ -73,7 +78,6 @@ public class SessionArchiveFragmentViewModel
     
     public LiveData<SessionArchiveListItem> getListItemData(int id)
     {
-        // convert from db form to ui form
         return Transformations.map(
                 mSleepSessionRepository.getSleepSession(id),
                 ConvertSessionArchiveListItem::fromSleepSession);

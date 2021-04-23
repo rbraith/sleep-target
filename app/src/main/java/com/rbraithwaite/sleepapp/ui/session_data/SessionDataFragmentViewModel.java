@@ -1,23 +1,27 @@
 package com.rbraithwaite.sleepapp.ui.session_data;
 
-import androidx.arch.core.util.Function;
 import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
+import com.rbraithwaite.sleepapp.core.models.Tag;
 import com.rbraithwaite.sleepapp.ui.common.mood_selector.ConvertMood;
 import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodUiData;
+import com.rbraithwaite.sleepapp.ui.common.tag_selector.ConvertTag;
+import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagUiData;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 // REFACTOR [21-01-5 2:30AM] -- passing around Dates and longs for times-of-day or dates is too
 //  much information. Instead there should be TimeOfDay and Date which are simple POJOs and
@@ -230,44 +234,54 @@ public class SessionDataFragmentViewModel
         // update the UI when the EditText will retain the text value while the fragment is
         // displayed. When the fragment restarts it will then use this value to initialize itself,
         // from getAdditionalComments().
-        SleepSession sleepSession = mSleepSession.getValue();
+        String commentsToSet = additionalComments;
         // the sleep session might be null if clearSleepSession() was called (or if it was set
         // to null manually)
-        if (sleepSession != null) {
-            sleepSession.setAdditionalComments(additionalComments);
-        }
+        getOptionalSleepSession().ifPresent(sleepSession -> sleepSession.setAdditionalComments(
+                commentsToSet));
     }
     
     public MoodUiData getMood()
     {
         // REFACTOR [21-04-7 9:04PM] -- consider returning LiveData instead.
-        SleepSession sleepSession = getSleepSession().getValue();
-        if (sleepSession == null) {
-            return null;
-        }
-        return ConvertMood.toUiData(sleepSession.getMood());
+        return getOptionalSleepSession()
+                .map(sleepSession -> ConvertMood.toUiData(sleepSession.getMood()))
+                .orElse(null);
     }
     
     public void setMood(MoodUiData mood)
     {
         // note: this change is not broadcast with notifySessionChanged(), as the mood selector will
         // handle its own UI updates
-        SleepSession sleepSession = getSleepSession().getValue();
-        if (sleepSession != null) {
-            sleepSession.setMood(ConvertMood.fromUiData(mood));
-        }
+        getOptionalSleepSession().ifPresent(sleepSession -> sleepSession.setMood(ConvertMood.fromUiData(
+                mood)));
     }
     
     public void clearMood()
     {
         // note: this change is not broadcast with notifySessionChanged(), as the mood selector will
         // handle its own UI updates
-        SleepSession sleepSession = getSleepSession().getValue();
-        if (sleepSession != null) {
-            sleepSession.setMood(null);
-        }
+        getOptionalSleepSession().ifPresent(sleepSession -> sleepSession.setMood(null));
     }
-
+    
+    public void setTags(List<TagUiData> tags)
+    {
+        getOptionalSleepSession().ifPresent(
+                sleepSession -> sleepSession.setTags(tags.stream()
+                                                             .map(ConvertTag::fromUiData)
+                                                             .collect(Collectors.toList())));
+    }
+    
+    public List<Integer> getTagIds()
+    {
+        return getOptionalSleepSession()
+                .map(sleepSession -> sleepSession.getTags()
+                        .stream()
+                        .map(Tag::getTagId)
+                        .collect(Collectors.toList()))
+                .orElse(null);
+    }
+    
 //*********************************************************
 // protected api
 //*********************************************************
@@ -281,6 +295,11 @@ public class SessionDataFragmentViewModel
 //*********************************************************
 // private methods
 //*********************************************************
+
+    private Optional<SleepSession> getOptionalSleepSession()
+    {
+        return Optional.ofNullable(getSleepSession().getValue());
+    }
 
     private LiveData<SleepSession> getSleepSession()
     {

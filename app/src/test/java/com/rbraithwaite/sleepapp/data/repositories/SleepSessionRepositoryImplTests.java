@@ -5,8 +5,10 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
+import com.rbraithwaite.sleepapp.core.models.Tag;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionDao;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.data.SleepSessionWithTags;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 
 import org.junit.After;
@@ -119,8 +121,10 @@ public class SleepSessionRepositoryImplTests
         int positiveId = 1;
         
         SleepSessionEntity testEntity = TestUtils.ArbitraryData.getSleepSessionEntity();
-        when(mockSleepSessionDao.getSleepSession(positiveId))
-                .thenReturn(new MutableLiveData<>(testEntity));
+        when(mockSleepSessionDao.getSleepSessionWithTags(positiveId))
+                .thenReturn(new MutableLiveData<>(new SleepSessionWithTags(
+                        testEntity,
+                        new ArrayList<>())));
         
         LiveData<SleepSession> liveData = repository.getSleepSession(positiveId);
         TestUtils.activateLocalLiveData(liveData);
@@ -145,13 +149,19 @@ public class SleepSessionRepositoryImplTests
     {
         SleepSession testSleepSession = TestUtils.ArbitraryData.getSleepSession();
         testSleepSession.setId(5);
+        testSleepSession.setTags(Arrays.asList(
+                new Tag(1, "tag 1"),
+                new Tag(2, "tag 2")));
         
         repository.updateSleepSession(testSleepSession);
         
         ArgumentCaptor<SleepSessionEntity> databaseUpdateSessionCaptor =
                 ArgumentCaptor.forClass(SleepSessionEntity.class);
         verify(mockSleepSessionDao,
-               times(1)).updateSleepSession(databaseUpdateSessionCaptor.capture());
+               times(1)).updateSleepSessionWithTags(
+                databaseUpdateSessionCaptor.capture(),
+                // TODO [21-04-22 9:04PM] -- capture the tag ids & verify them.
+                anyListOf(Integer.class));
         SleepSessionEntity sleepSessionEntity = databaseUpdateSessionCaptor.getValue();
         assertThat(sleepSessionEntity.id, is(testSleepSession.getId()));
         assertThat(sleepSessionEntity.startTime, is(testSleepSession.getStart()));

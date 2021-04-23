@@ -5,9 +5,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
+import com.rbraithwaite.sleepapp.core.models.Tag;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.ui.common.mood_selector.ConvertMood;
 import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodUiData;
+import com.rbraithwaite.sleepapp.ui.common.tag_selector.ConvertTag;
+import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagUiData;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
@@ -17,9 +20,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -50,6 +55,41 @@ public class SessionDataFragmentViewModelTests
     public void teardown()
     {
         viewModel = null;
+    }
+    
+    @Test
+    public void setTags_affectsResult()
+    {
+        viewModel.setSessionData(new SleepSessionWrapper(
+                TestUtils.ArbitraryData.getSleepSession()));
+        
+        List<TagUiData> expected = Arrays.asList(new TagUiData(2, "what"));
+        // SUT
+        viewModel.setTags(expected);
+        
+        // verify
+        SleepSession result = viewModel.getResult().getModel();
+        assertThat(result.getTags().size(), is(expected.size()));
+        assertThat(ConvertTag.toUiData(result.getTags().get(0)), is(equalTo(expected.get(0))));
+    }
+    
+    @Test
+    public void getTagIds_reflectsSessionData()
+    {
+        SleepSession sleepSession = TestUtils.ArbitraryData.getSleepSession();
+        sleepSession.setTags(Arrays.asList(
+                new Tag(1, "arbitrary"),
+                new Tag(2, "arbitrary")));
+        
+        viewModel.setSessionData(new SleepSessionWrapper(sleepSession));
+        
+        // SUT
+        List<Integer> tagIds = viewModel.getTagIds();
+        
+        assertThat(tagIds.size(), is(sleepSession.getTags().size()));
+        for (int i = 0; i < tagIds.size(); i++) {
+            assertThat(tagIds.get(i), is(sleepSession.getTags().get(i).getTagId()));
+        }
     }
     
     @Test

@@ -1,19 +1,19 @@
 package com.rbraithwaite.sleepapp.data.repositories;
 
-import androidx.arch.core.util.Function;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
+import com.rbraithwaite.sleepapp.core.models.Tag;
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.data.convert.ConvertSleepSession;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionDao;
-import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -65,16 +65,17 @@ public class SleepSessionRepositoryImpl
     @Override
     public void updateSleepSession(final SleepSession sleepSession)
     {
-        mExecutor.execute(() -> mSleepSessionDao.updateSleepSession(
-                ConvertSleepSession.toEntity(sleepSession)));
+        mExecutor.execute(() -> mSleepSessionDao.updateSleepSessionWithTags(
+                ConvertSleepSession.toEntity(sleepSession),
+                sleepSession.getTags().stream().map(Tag::getTagId).collect(Collectors.toList())));
     }
     
     @Override
     public LiveData<SleepSession> getSleepSession(int id)
     {
         return Transformations.map(
-                mSleepSessionDao.getSleepSession(id),
-                ConvertSleepSession::fromEntity);
+                mSleepSessionDao.getSleepSessionWithTags(id),
+                ConvertSleepSession::fromEntityWithTags);
     }
     
     @Override
