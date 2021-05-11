@@ -27,4 +27,8 @@ public abstract class TagDao
     
     @Update
     public abstract void updateTag(TagEntity tag);
+    
+    @Query("SELECT * FROM " + TagContract.TABLE_NAME + " WHERE " + TagContract.Columns.ID +
+           " IN(:ids)")
+    public abstract LiveData<List<TagEntity>> getTagsWithIds(List<Integer> ids);
 }

@@ -57,11 +57,22 @@ public class SessionArchiveFragmentViewModel
 
     public void addSleepSession(SleepSessionWrapper sleepSession)
     {
-        mSleepSessionRepository.addSleepSessionWithTags(
-                sleepSession.getModel(),
-                sleepSession.getModel().getTags().stream()
-                        .map(Tag::getTagId)
-                        .collect(Collectors.toList()));
+        // SMELL [21-05-10 4:19PM] -- It feels wrong to be using a SleepSession model here -
+        //  SessionDataFragment should be storing its data in a POJO instead?
+        SleepSession model = sleepSession.getModel();
+        
+        // REFACTOR [21-05-10 3:46PM] -- extract this conversion logic.
+        SleepSessionRepository.NewSleepSessionData newSleepSession =
+                new SleepSessionRepository.NewSleepSessionData(
+                        model.getStart(),
+                        model.getEnd(),
+                        model.getDurationMillis(),
+                        model.getAdditionalComments(),
+                        model.getMood(),
+                        model.getTags().stream().map(Tag::getTagId).collect(Collectors.toList()),
+                        model.getRating());
+        
+        mSleepSessionRepository.addSleepSession(newSleepSession);
     }
     
     public void updateSleepSession(SleepSessionWrapper sleepSession)

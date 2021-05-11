@@ -2,6 +2,7 @@ package com.rbraithwaite.sleepapp.data.repositories;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.Transformations;
 
 import com.rbraithwaite.sleepapp.core.models.Tag;
 import com.rbraithwaite.sleepapp.core.repositories.TagRepository;
@@ -14,6 +15,7 @@ import com.rbraithwaite.sleepapp.utils.list_tracking.ListTrackingLiveData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -35,7 +37,7 @@ public class TagRepositoryImpl
 //*********************************************************
 
     private static final String TAG = "TagRepositoryImpl";
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -46,7 +48,7 @@ public class TagRepositoryImpl
         mTagDao = tagDao;
         mExecutor = executor;
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -116,6 +118,16 @@ public class TagRepositoryImpl
         });
     }
     
+    @Override
+    public LiveData<List<Tag>> getTagsWithIds(List<Integer> tagIds)
+    {
+        return Transformations.map(
+                mTagDao.getTagsWithIds(tagIds),
+                tagEntities -> tagEntities.stream()
+                        .map(ConvertTag::fromEntity)
+                        .collect(Collectors.toList()));
+    }
+
 //*********************************************************
 // private methods
 //*********************************************************

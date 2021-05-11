@@ -2,8 +2,7 @@ package com.rbraithwaite.sleepapp.ui.session_archive.convert;
 
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.core.models.Tag;
-import com.rbraithwaite.sleepapp.ui.common.mood_selector.ConvertMood;
-import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
+import com.rbraithwaite.sleepapp.ui.common.convert.ConvertMood;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFormatting;
 import com.rbraithwaite.sleepapp.ui.session_archive.data.SessionArchiveListItem;
 
@@ -12,13 +11,23 @@ import java.util.stream.Collectors;
 
 public class ConvertSessionArchiveListItem
 {
+//*********************************************************
+// constructors
+//*********************************************************
+
     private ConvertSessionArchiveListItem() {/* No instantiation */}
+
+//*********************************************************
+// api
+//*********************************************************
+
     
     /**
      * Converts a SleepSession to a SessionArchiveListItem.
      *
      * @param sleepSession The SleepSession to convert.
-     * @return  The converted SessionArchiveListItem. Returns null if sleepSession is null.
+     *
+     * @return The converted SessionArchiveListItem. Returns null if sleepSession is null.
      */
     public static SessionArchiveListItem fromSleepSession(SleepSession sleepSession)
     {
@@ -34,6 +43,10 @@ public class ConvertSessionArchiveListItem
                 convertTags(sleepSession.getTags()));
     }
     
+//*********************************************************
+// private methods
+//*********************************************************
+
     private static List<String> convertTags(List<Tag> tags)
     {
         if (tags == null) {

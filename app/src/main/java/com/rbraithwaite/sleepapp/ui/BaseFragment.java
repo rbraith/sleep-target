@@ -3,6 +3,7 @@ package com.rbraithwaite.sleepapp.ui;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModel;
@@ -38,6 +39,28 @@ public abstract class BaseFragment<V extends ViewModel>
     {
         super.onActivityCreated(savedInstanceState);
         setMainActivityBottomNavVisibility(getBottomNavVisibility());
+    }
+
+//*********************************************************
+// api
+//*********************************************************
+
+    
+    /**
+     * Gets a currently-displayed DialogFragment by its tag.
+     *
+     * @param dialogTag The tag to find the fragment by.
+     *
+     * @return The DialogFragment, or null if that fragment is not currently displayed or is not a
+     * DialogFragment.
+     */
+    public DialogFragment getDialogByTag(String dialogTag)
+    {
+        try {
+            return (DialogFragment) getChildFragmentManager().findFragmentByTag(dialogTag);
+        } catch (ClassCastException e) {
+            return null;
+        }
     }
 
 //*********************************************************

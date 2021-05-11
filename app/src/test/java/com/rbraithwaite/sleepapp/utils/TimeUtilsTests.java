@@ -7,10 +7,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 public class TimeUtilsTests
 {
@@ -30,6 +33,15 @@ public class TimeUtilsTests
         timeUtils = null;
     }
     
+    @Test
+    public void addDurationToDate_returnsCorrectDate()
+    {
+        Date date = TestUtils.ArbitraryData.getDate();
+        int expectedDuration = 123456;
+        Date newDate = new TimeUtils().addDurationToDate(date, expectedDuration);
+        
+        assertThat(newDate.getTime() - date.getTime(), is(equalTo((long)expectedDuration)));
+    }
 
     @Test
     public void setCalendarTimeOfDay_positiveInput()

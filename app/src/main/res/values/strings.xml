@@ -20,4 +20,12 @@
     <string name="close">Close</string>
     <string name="tag_selector_dialog_add_tag_text">Add Custom Tag</string>
     <string name="session_archive_item_more_tags_text">+ %d more</string>
+    <string name="postsleepdialog_title">Keep Sleep Session?</string>
+    <string name="keep">Keep</string>
+    <string name="discard">Discard</string>
+    <string name="postsleep_discard_title">Discard this session?</string>
+    <string name="postsleep_discard_warning">This will clear all details about this session and cannot be undone.</string>
+    <string name="postsleepdialog_nomood">No Mood</string>
+    <string name="postsleepdialog_nocomments">No Comments</string>
+    <string name="tagscroll_no_selected_tags">No Tags Selected</string>
 </resources>

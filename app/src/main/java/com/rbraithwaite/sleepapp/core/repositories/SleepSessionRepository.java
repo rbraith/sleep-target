@@ -2,6 +2,7 @@ package com.rbraithwaite.sleepapp.core.repositories;
 
 import androidx.lifecycle.LiveData;
 
+import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 
 import java.util.Date;
@@ -11,26 +12,45 @@ import java.util.List;
 public interface SleepSessionRepository
 {
 //*********************************************************
+// public helpers
+//*********************************************************
+
+    public static class NewSleepSessionData
+    {
+        public Date start;
+        public Date end;
+        public long durationMillis;
+        public String additionalComments;
+        // REFACTOR [21-05-10 3:45PM] -- this should be the mood index instead.
+        public Mood mood;
+        public List<Integer> tagIds;
+        
+        public float rating;
+        
+        public NewSleepSessionData(
+                Date start,
+                Date end,
+                long durationMillis,
+                String additionalComments, Mood mood, List<Integer> tagIds, float rating)
+        {
+            this.start = start;
+            this.end = end;
+            this.durationMillis = durationMillis;
+            this.additionalComments = additionalComments;
+            this.mood = mood;
+            this.tagIds = tagIds;
+            this.rating = rating;
+        }
+    }
+    
+//*********************************************************
 // abstract
 //*********************************************************
 
     // REFACTOR [21-03-24 10:41PM] -- Right now repositories are working with domain entities,
     //  coupling these entities to the repository implementations - a more 'clean' approach would
     //  be to define simple data structures for this layer boundary.
-    void addSleepSession(final SleepSession newSleepSession);
-    
-    // HACK [21-04-19 10:19PM] -- This is a really ugly solution to the tag data representation
-    //  disparity between CurrentSession & SleepSession (see this method's usage in
-    //  SleepTrackerFragmentViewModel
-    //  and CurrentSession.toSleepSession())
-    //  ---
-    //  This is a strong argument for clearly defined simple-data domain boundaries (ie use cases).
-    /**
-     * @param newSleepSession The new SleepSession to add. This sleep session's id & tags are
-     *                        ignored.
-     * @param tagIds          The ids of the tags that belong to this new sleep session.
-     */
-    void addSleepSessionWithTags(SleepSession newSleepSession, List<Integer> tagIds);
+    void addSleepSession(final NewSleepSessionData newSleepSession);
     
     void updateSleepSession(final SleepSession updatedSleepSession);
     

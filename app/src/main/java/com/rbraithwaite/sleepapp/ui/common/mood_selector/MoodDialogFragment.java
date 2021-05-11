@@ -2,7 +2,6 @@ package com.rbraithwaite.sleepapp.ui.common.mood_selector;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -12,6 +11,8 @@ import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+
+import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 
 import java.util.List;
 
@@ -147,6 +148,7 @@ public class MoodDialogFragment
     {
         return MOOD_VIEW_TAG_PREFIX + moodIndex;
     }
+
 
 
 //*********************************************************

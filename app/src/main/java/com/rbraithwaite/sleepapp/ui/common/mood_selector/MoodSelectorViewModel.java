@@ -3,6 +3,8 @@ package com.rbraithwaite.sleepapp.ui.common.mood_selector;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +46,7 @@ public class MoodSelectorViewModel
         return mMood.getValue() != null;
     }
     
-    public void clearMood()
+    public void clearSelectedMood()
     {
         mMood.setValue(null);
     }

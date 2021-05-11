@@ -33,7 +33,7 @@ import static org.hamcrest.Matchers.is;
 public class WakeTimeGoalDaoTests
 {
     // REFACTOR [21-03-8 10:12PM] -- this setup stuff is boilerplate, duplicated in
-    //  SleepSessionDaoTests
+    //  SleepSessionDaoTests & other dao test classes
     //  make a common base test class for this stuff if that's possible - look into test
     //  inheritance.
 

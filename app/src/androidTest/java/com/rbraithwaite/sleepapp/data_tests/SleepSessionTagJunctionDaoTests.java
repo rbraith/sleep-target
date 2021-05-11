@@ -40,7 +40,7 @@ public class SleepSessionTagJunctionDaoTests
     private SleepSessionTagJunctionDao sleepSessionTagJunctionDao;
     private TagDao tagDao;
     private SleepSessionDao sleepSessionDao;
-    
+
 //*********************************************************
 // public properties
 //*********************************************************
@@ -48,7 +48,7 @@ public class SleepSessionTagJunctionDaoTests
     @Rule
     // protection against potentially infinitely blocked threads
     public Timeout timeout = new Timeout(10, TimeUnit.SECONDS);
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -68,7 +68,8 @@ public class SleepSessionTagJunctionDaoTests
     {
         database.close();
     }
-
+    
+    
     // REFACTOR [21-04-22 8:39PM] -- Should this be in SleepSessionDaoTests?
     @Test
     public void getSleepSessionWithTags_reflects_updateSleepSessionWithTags()

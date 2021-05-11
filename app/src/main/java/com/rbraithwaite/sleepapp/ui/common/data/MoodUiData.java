@@ -1,4 +1,6 @@
-package com.rbraithwaite.sleepapp.ui.common.mood_selector;
+package com.rbraithwaite.sleepapp.ui.common.data;
+
+import java.util.Arrays;
 
 public class MoodUiData
 {
@@ -57,5 +59,16 @@ public class MoodUiData
         if (o == null || getClass() != o.getClass()) { return false; }
         MoodUiData moodUiData = (MoodUiData) o;
         return type == moodUiData.type;
+    }
+    
+//*********************************************************
+// api
+//*********************************************************
+
+    public int asIndex()
+    {
+        // REFACTOR [21-05-1 8:48PM] -- extract this as a generic enum utility - this same logic
+        //  is used elsewhere (I think w/ domain Mood).
+        return Arrays.asList(Type.values()).indexOf(type);
     }
 }

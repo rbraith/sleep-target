@@ -5,99 +5,148 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
+import com.rbraithwaite.sleepapp.test_utils.data.database.DatabaseTestDriver;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestNavigate;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
+import com.rbraithwaite.sleepapp.test_utils.ui.drivers.SleepTrackerTestDriver;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFormatting;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFragment;
 import com.rbraithwaite.sleepapp.ui_tests.sleep_goals_fragment.SleepGoalsFragmentTestUtils;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.concurrent.ExecutionException;
+import java.util.Arrays;
+import java.util.List;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.assertThat;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
+// REFACTOR [21-05-1 5:00PM] -- Putting this here, but this is a general refactoring:
+//  - I should hide Espresso details behind more descriptive interfaces
+//  - as a general rule I should not allow any Espresso dependencies in any test classes
+//  ---
+//  an idea:
+//  - instead of SleepTrackerFragmentTestUtils have something like SleepTrackerTestHelper, which
+//      will handle launching the sleep tracker screen, performing inputs, and checking values.
 @RunWith(AndroidJUnit4.class)
 public class SleepTrackerFragmentTests
 {
     // TODO [21-04-3 2:35AM] -- UI test for mood selection highlighting?
-
+    
     // TODO [21-04-19 5:39PM] tag selector tests missing from more context tests below:
     //  - tag editing functionality.
+
+//*********************************************************
+// package properties
+//*********************************************************
+
+    SleepTrackerTestDriver sleepTracker;
+    DatabaseTestDriver database;
     
 //*********************************************************
 // api
 //*********************************************************
 
-    @Test
-    public void moreContext_resetsWhenSessionEnds()
+    @Before
+    public void setup()
     {
-        // GIVEN the user has input some additional comments
-        ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
-        
-        // comments
-        String expectedText = "You want your belt to buckle, not your chair.";
-        UITestUtils.typeOnMultilineEditText(expectedText, onView(withId(R.id.additional_comments)));
-        // mood
-        SleepTrackerFragmentTestUtils.addMood(1);
-        // tag
-        String tagText = "test";
-        SleepTrackerFragmentTestUtils.addTag(tagText);
-        SleepTrackerFragmentTestUtils.checkTagCountMatches(1);
-        SleepTrackerFragmentTestUtils.toggleTagSelection(0);
-        onView(withId(R.id.tag_selector_tags_scroll)).check(matches(isDisplayed()));
-        onView(withId(R.id.tag_selector_tags_scroll)).check(matches(hasDescendant(withText(tagText))));
-        
-        // WHEN the user ends the current session
-        onView(withId(R.id.sleep_tracker_button)).perform(click());
-        onView(withId(R.id.sleep_tracker_button)).perform(click());
-        
-        // THEN the additional comments text resets
-        onView(withId(R.id.additional_comments)).check(matches(withText("")));
-        onView(withId(R.id.mood_selector_add_btn)).check(matches(isDisplayed()));
-        onView(withId(R.id.tag_selector_add_tags_btn)).check(matches(isDisplayed()));
+        sleepTracker = new SleepTrackerTestDriver();
+        database = new DatabaseTestDriver();
+    }
+    
+    @After
+    public void teardown()
+    {
+        sleepTracker = null;
+        database = null;
     }
     
     @Test
-    public void moreContext_isRetainedFromDifferentScreen()
+    public void postSleepDialogDisplaysCorrectValuesWhenDetailsAreUnset()
     {
-        // GIVEN the user has input some additional comments
-        ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
+        // details are unset by default, so you just need to stop a session
+        sleepTracker.stopSleepSession(12345); // arbitrary duration
         
-        String expectedText = "It's one banana, Michael. What could it cost, $10?";
-        UITestUtils.typeOnMultilineEditText(expectedText, onView(withId(R.id.additional_comments)));
-        SleepTrackerFragmentTestUtils.addMood(1);
-        String tagText = "test";
-        SleepTrackerFragmentTestUtils.addTag(tagText);
-        SleepTrackerFragmentTestUtils.toggleTagSelection(0);
-        
-        // WHEN the user returns to the sleep tracker screen from another screen
-        UITestNavigate.fromHome_toGoals();
-        UITestNavigate.up();
-        
-        // THEN the additional comment text is retained
-        onView(withId(R.id.additional_comments)).check(matches(withText(expectedText)));
-        onView(withId(R.id.mood_selector_mood_value)).check(matches(isDisplayed()));
-        onView(withId(R.id.tag_selector_tags_scroll)).check(matches(isDisplayed()));
-        onView(withId(R.id.tag_selector_tags_scroll)).check(matches(hasDescendant(withText(tagText))));
+        sleepTracker.assertThat.postSleepDialogCommentsAreUnset();
+        sleepTracker.assertThat.postSleepDialogMoodIsUnset();
+        sleepTracker.assertThat.postSleepDialogTagsAreUnset();
     }
     
+    // regression for #14
+    @Test
+    public void detailsAreClearedWhenSessionEnds()
+    {
+        // SMELL [21-05-7 1:20AM] -- [big job] In general, my tests have abstraction level
+        //  problems - ie they should be way more abstract, clear, and simple - I need a better
+        //  "test harness".
+        sleepTracker.addNewMood(2);
+        List<Integer> tagIndices = sleepTracker.addTags(Arrays.asList("tag1", "tag2"));
+        sleepTracker.toggleTagSelections(tagIndices);
+        sleepTracker.setAdditionalComments("some comments");
+        
+        sleepTracker.keepSleepSession(12345); // arbitrary duration
+        
+        sleepTracker.assertThat.detailsAreCleared();
+    }
+    
+    @Test
+    public void postSleepDialogOpensWithCorrectValues()
+    {
+        int expectedMoodIndex = 2;
+        sleepTracker.addNewMood(2);
+        
+        List<Integer> expectedSelectedTagIds = sleepTracker.addTags(Arrays.asList("tag1", "tag2"));
+        // hard-coded toggle of the 2 tags added above
+        sleepTracker.toggleTagSelections(Arrays.asList(0, 1));
+        
+        String expectedComments = "some comments";
+        sleepTracker.setAdditionalComments(expectedComments);
+        
+        int expectedDuration = 12345;
+        sleepTracker.stopSleepSession(expectedDuration);
+        
+        sleepTracker.assertThat.postSleepDialogHasMood(expectedMoodIndex);
+        sleepTracker.assertThat.postSleepDialogHasSelectedTags(expectedSelectedTagIds);
+        sleepTracker.assertThat.postSleepDialogHasComments(expectedComments);
+        sleepTracker.assertThat.postSleepDialogHasDuration(expectedDuration);
+        sleepTracker.assertThat.postSleepDialogRatingIsUnset();
+    }
+    
+    @Test
+    public void detailsAreRetainedOnFragmentRestart()
+    {
+        int expectedMoodIndex = 2;
+        sleepTracker.addNewMood(2);
+        
+        // REFACTOR [21-05-8 1:19AM] -- this could be addAndSelectTags.
+        List<Integer> expectedSelectedTagIds = sleepTracker.addTags(Arrays.asList("tag1", "tag2"));
+        // hard-coded toggle of the 2 tags added above
+        sleepTracker.toggleTagSelections(Arrays.asList(0, 1));
+        
+        String expectedComments = "It's one banana, Michael. What could it cost, $10?";
+        sleepTracker.setAdditionalComments(expectedComments);
+        
+        sleepTracker.restartFragment();
+        
+        sleepTracker.assertThat.additionalCommentsMatch(expectedComments);
+        sleepTracker.assertThat.selectedMoodMatches(expectedMoodIndex);
+        sleepTracker.assertThat.selectedTagsMatch(expectedSelectedTagIds);
+    }
+    
+    // REFACTOR [21-05-8 4:06PM] -- use SleepTrackerDriver here.
     @Test
     public void moreContext_isRetainedOnAppRestart()
     {
@@ -108,7 +157,7 @@ public class SleepTrackerFragmentTests
         //  several of these tests.
         String expectedText = "I don't care for GOB.";
         UITestUtils.typeOnMultilineEditText(expectedText, onView(withId(R.id.additional_comments)));
-        SleepTrackerFragmentTestUtils.addMood(1);
+        SleepTrackerFragmentTestUtils.selectMood(1);
         String tagText = "test";
         SleepTrackerFragmentTestUtils.addTag(tagText);
         SleepTrackerFragmentTestUtils.toggleTagSelection(0);
@@ -123,6 +172,7 @@ public class SleepTrackerFragmentTests
         onView(withId(R.id.tag_selector_tags_scroll)).check(matches(hasDescendant(withText(tagText))));
     }
     
+    // REFACTOR [21-05-8 4:06PM] -- use SleepTrackerDriver here.
     @Test
     public void sleepDurationGoal_displaysProperly()
     {
@@ -147,6 +197,7 @@ public class SleepTrackerFragmentTests
                         new SleepDurationGoal(testHours, testMinutes))))));
     }
     
+    // REFACTOR [21-05-8 4:06PM] -- use SleepTrackerDriver here.
     @Test
     public void wakeTime_isDisplayedWhenSet()
     {
@@ -166,6 +217,7 @@ public class SleepTrackerFragmentTests
         onView(withId(R.id.sleep_tracker_waketime_goal_value)).check(matches(isDisplayed()));
     }
     
+    // REFACTOR [21-05-8 4:06PM] -- use SleepTrackerDriver here.
     @Test
     public void sessionStartTime_notDisplayedWhenNotInSession()
     {
@@ -179,6 +231,7 @@ public class SleepTrackerFragmentTests
         onView(withId(R.id.sleep_tracker_started_text)).check(matches(not(isDisplayed())));
     }
     
+    // REFACTOR [21-05-8 4:06PM] -- use SleepTrackerDriver here.
     @Test
     public void sessionStartTime_isDisplayedWhenInSession()
     {
@@ -200,56 +253,25 @@ public class SleepTrackerFragmentTests
     @Test
     public void sleepTrackerButtonTextChangesOnSessionStatus()
     {
-        // GIVEN the user is on the sleep tracker screen
-        HiltFragmentTestHelper<SleepTrackerFragment> testHelper =
-                HiltFragmentTestHelper.launchFragment(SleepTrackerFragment.class);
-        
-        // AND there is no current session
-        onView(withId(R.id.sleep_tracker_button)).check(matches(withText(R.string.sleep_tracker_button_start)));
-        
-        // WHEN the user presses the sleep tracking button
-        onView(withId(R.id.sleep_tracker_button)).perform(click());
-        
-        // THEN the text changes to indicate there is a session in progress
-        onView(withId(R.id.sleep_tracker_button)).check(matches(withText(R.string.sleep_tracker_button_stop)));
-        
-        //-------------------------------------------------
-        
-        // GIVEN there is a session in progress
-        // WHEN the user eventually presses the button again to stop the session
-        onView(withId(R.id.sleep_tracker_button)).perform(click());
-        
-        // THEN the text returns to its original state
-        onView(withId(R.id.sleep_tracker_button)).check(matches(withText(R.string.sleep_tracker_button_start)));
+        sleepTracker.assertThat.sleepTrackerButtonIsInState(
+                SleepTrackerTestDriver.Assertions.TrackerButtonState.NOT_STARTED);
+        sleepTracker.startSessionManually();
+        sleepTracker.assertThat.sleepTrackerButtonIsInState(
+                SleepTrackerTestDriver.Assertions.TrackerButtonState.STARTED);
+        sleepTracker.stopAndDiscardSessionManually();
+        sleepTracker.assertThat.sleepTrackerButtonIsInState(
+                SleepTrackerTestDriver.Assertions.TrackerButtonState.NOT_STARTED);
     }
     
     @Test
-    public void addSessionToArchiveWithSleepTrackerButton() throws
-            InterruptedException,
-            ExecutionException
+    public void keptSleepSessionIsAddedToTheDatabase()
     {
-        ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
-        
-        // first note the current sleep sessions in the archive
-        UITestNavigate.fromHome_toSessionArchive();
-        int initialCount = UITestUtils.getSessionArchiveCount(scenario);
-        
-        // GIVEN the user records a sleep session with the sleep tracker button
-        onView(withContentDescription(R.string.nav_app_bar_navigate_up_description)).perform(click()); // return to sleep tracker screen
-        onView(withId(R.id.sleep_tracker_button)).check(matches(withText(R.string.sleep_tracker_button_start))); // confirm that a session is not in progress
-        // record the session
-        onView(withId(R.id.sleep_tracker_button)).perform(click());
-        Thread.sleep(500);
-        onView(withId(R.id.sleep_tracker_button)).perform(click());
-        
-        // WHEN the user navigates to the sleep archive screen
-        UITestNavigate.fromHome_toSessionArchive();
-        
-        // THEN the user should see the archive updated with that new session
-        int updatedCount = UITestUtils.getSessionArchiveCount(scenario);
-        assertThat(updatedCount, is(greaterThan(initialCount)));
+        database.assertThat.sleepSessionCountIs(0);
+        sleepTracker.keepSleepSession(12345);
+        database.assertThat.sleepSessionCountIs(1);
     }
     
+    // REFACTOR [21-05-8 4:06PM] -- use SleepTrackerDriver here.
     @Test
     public void currentSessionTimeDisplay_isZeroWhenNoSession()
     {
@@ -264,6 +286,7 @@ public class SleepTrackerFragmentTests
                 .check(matches(withText(durationFormatter.formatDurationMillis(0))));
     }
     
+    // REFACTOR [21-05-8 4:06PM] -- use SleepTrackerDriver here.
     // BUG [20-12-13 4:28AM] -- is there an async problem with this test? it passes most of the time
     //  but it has failed 2 times on me now
     //  --

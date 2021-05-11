@@ -16,6 +16,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withTagValue;
 import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoMatchers.tagValue;
 import static org.hamcrest.Matchers.allOf;
 
+@Deprecated
 public class MoodSelectorTestUtils
 {
 //*********************************************************
@@ -23,7 +24,7 @@ public class MoodSelectorTestUtils
 //*********************************************************
 
     private MoodSelectorTestUtils() {/* No instantiation */}
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -34,7 +35,7 @@ public class MoodSelectorTestUtils
                      withId(R.id.mood_selector_add_btn))).perform(click());
         
         onView(withTagValue(tagValue(MoodDialogFragment.formatMoodTag(moodIndex)))).perform(click());
-        DialogTestUtils.pressOK();
+        DialogTestUtils.pressPositiveButton();
     }
     
     public static void selectMood(Matcher<View> moodSelector, int moodIndex)
@@ -43,6 +44,6 @@ public class MoodSelectorTestUtils
                      withId(R.id.mood_selector_mood_value))).perform(click());
         
         onView(withTagValue(tagValue(MoodDialogFragment.formatMoodTag(moodIndex)))).perform(click());
-        DialogTestUtils.pressOK();
+        DialogTestUtils.pressPositiveButton();
     }
 }

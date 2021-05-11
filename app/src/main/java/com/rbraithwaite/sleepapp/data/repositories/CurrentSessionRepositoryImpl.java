@@ -1,15 +1,14 @@
 package com.rbraithwaite.sleepapp.data.repositories;
 
 import androidx.annotation.NonNull;
-import androidx.arch.core.util.Function;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
 
 import com.rbraithwaite.sleepapp.core.models.CurrentSession;
 import com.rbraithwaite.sleepapp.core.repositories.CurrentSessionRepository;
 import com.rbraithwaite.sleepapp.data.convert.ConvertCurrentSession;
-import com.rbraithwaite.sleepapp.data.prefs.CurrentSessionPrefsData;
 import com.rbraithwaite.sleepapp.data.prefs.SleepAppDataPrefs;
+import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -23,15 +22,17 @@ public class CurrentSessionRepositoryImpl
 //*********************************************************
 
     private SleepAppDataPrefs mDataPrefs;
+    private TimeUtils mTimeUtils;
 
 //*********************************************************
 // constructors
 //*********************************************************
 
     @Inject
-    public CurrentSessionRepositoryImpl(SleepAppDataPrefs dataPrefs)
+    public CurrentSessionRepositoryImpl(SleepAppDataPrefs dataPrefs, TimeUtils timeUtils)
     {
         mDataPrefs = dataPrefs;
+        mTimeUtils = timeUtils;
     }
 
 //*********************************************************
@@ -41,7 +42,7 @@ public class CurrentSessionRepositoryImpl
     @Override
     public void clearCurrentSession()
     {
-        setCurrentSession(new CurrentSession());
+        setCurrentSession(new CurrentSession(mTimeUtils));
     }
     
     @Override
@@ -49,7 +50,7 @@ public class CurrentSessionRepositoryImpl
     {
         return Transformations.map(
                 mDataPrefs.getCurrentSession(),
-                ConvertCurrentSession::fromPrefsData);
+                prefsData -> ConvertCurrentSession.fromPrefsData(prefsData, mTimeUtils));
     }
     
     @Override

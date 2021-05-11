@@ -75,7 +75,7 @@ public class SessionDataFragmentTests
         onTimePicker().perform(PickerActions.setTime(
                 calendar.get(Calendar.HOUR_OF_DAY),
                 calendar.get(Calendar.MINUTE)));
-        DialogTestUtils.pressOK();
+        DialogTestUtils.pressPositiveButton();
         
         // THEN the start time is updated
         onStartTimeTextView().check(matches(withText(new DateTimeFormatter().formatTimeOfDay(
@@ -128,7 +128,7 @@ public class SessionDataFragmentTests
                 calendar.get(Calendar.HOUR_OF_DAY),
                 calendar.get(Calendar.MINUTE)));
         
-        DialogTestUtils.pressOK();
+        DialogTestUtils.pressPositiveButton();
         
         // WHEN the user reopens the dialog
         onStartTimeTextView().perform(click());
@@ -156,7 +156,7 @@ public class SessionDataFragmentTests
                 calendar.get(Calendar.HOUR_OF_DAY),
                 calendar.get(Calendar.MINUTE)));
         
-        DialogTestUtils.pressOK();
+        DialogTestUtils.pressPositiveButton();
         
         // THEN the start time is not updated
         onStartTimeTextView().check(matches(withText(new DateTimeFormatter().formatTimeOfDay(
@@ -185,7 +185,7 @@ public class SessionDataFragmentTests
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)));
         
-        DialogTestUtils.pressOK();
+        DialogTestUtils.pressPositiveButton();
         
         // THEN the start date text is updated
         onStartDateTextView().check(matches(withText(new DateTimeFormatter().formatDate
@@ -240,7 +240,7 @@ public class SessionDataFragmentTests
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)));
         
-        DialogTestUtils.pressOK();
+        DialogTestUtils.pressPositiveButton();
         
         // THEN the start date is not updated
         onStartDateTextView().check(matches(withText(new DateTimeFormatter().formatDate(
@@ -265,7 +265,7 @@ public class SessionDataFragmentTests
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)));
         
-        DialogTestUtils.pressOK();
+        DialogTestUtils.pressPositiveButton();
         
         // WHEN the user reopens the dialog
         onStartDateTextView().perform(click());
@@ -320,7 +320,7 @@ public class SessionDataFragmentTests
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)));
         
-        DialogTestUtils.pressOK();
+        DialogTestUtils.pressPositiveButton();
         
         // THEN the end date text is updated
         onEndDateTextView().check(matches(withText(
@@ -347,7 +347,7 @@ public class SessionDataFragmentTests
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)));
         
-        DialogTestUtils.pressOK();
+        DialogTestUtils.pressPositiveButton();
         
         // WHEN the user reopens the dialog
         onEndDateTextView().perform(click());
@@ -378,7 +378,7 @@ public class SessionDataFragmentTests
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)));
         
-        DialogTestUtils.pressOK();
+        DialogTestUtils.pressPositiveButton();
         
         // THEN the end date is not updated
         onEndDateTextView().check(matches(withText(new DateTimeFormatter().formatDate(
@@ -428,7 +428,7 @@ public class SessionDataFragmentTests
         onTimePicker().perform(PickerActions.setTime(
                 calendar.get(Calendar.HOUR_OF_DAY),
                 calendar.get(Calendar.MINUTE)));
-        DialogTestUtils.pressOK();
+        DialogTestUtils.pressPositiveButton();
         
         // THEN the end time is updated
         onEndTimeTextView().check(matches(withText(new DateTimeFormatter().formatTimeOfDay(
@@ -454,7 +454,7 @@ public class SessionDataFragmentTests
                 calendar.get(Calendar.HOUR_OF_DAY),
                 calendar.get(Calendar.MINUTE)));
         
-        DialogTestUtils.pressOK();
+        DialogTestUtils.pressPositiveButton();
         
         // WHEN the user reopens the dialog
         onEndTimeTextView().perform(click());
@@ -482,7 +482,7 @@ public class SessionDataFragmentTests
                 calendar.get(Calendar.HOUR_OF_DAY),
                 calendar.get(Calendar.MINUTE)));
         
-        DialogTestUtils.pressOK();
+        DialogTestUtils.pressPositiveButton();
         
         // THEN the end time is not updated
         onEndTimeTextView().check(matches(withText(new DateTimeFormatter().formatTimeOfDay(

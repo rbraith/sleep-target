@@ -6,10 +6,12 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.GregorianCalendar;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 public class CommonFormattingTests
 {
@@ -17,6 +19,22 @@ public class CommonFormattingTests
 // api
 //*********************************************************
 
+    @Test
+    public void formatFullDate_returnsNullIfNullInput()
+    {
+        assertThat(CommonFormatting.formatFullDate(null), is(nullValue()));
+    }
+    
+    @Test
+    public void formatFullDate_formatsDate()
+    {
+        GregorianCalendar cal = new GregorianCalendar(2021, 4, 2, 12, 34);
+        
+        String formatted = CommonFormatting.formatFullDate(cal.getTime());
+        
+        assertThat(formatted, is(equalTo("12:34 PM, May 2 2021")));
+    }
+    
     @Test
     public void formatSleepDurationGoal_positiveInput()
     {

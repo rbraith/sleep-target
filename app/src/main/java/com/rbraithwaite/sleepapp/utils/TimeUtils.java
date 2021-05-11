@@ -97,4 +97,12 @@ public class TimeUtils
     {
         return Integer.parseInt(new SimpleDateFormat("yyyyMMdd", Locale.CANADA).format(date));
     }
+    
+    public Date addDurationToDate(Date date, int durationMillis)
+    {
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTime(date);
+        cal.add(Calendar.MILLISECOND, durationMillis);
+        return cal.getTime();
+    }
 }

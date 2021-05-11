@@ -1,6 +1,6 @@
 package com.rbraithwaite.sleepapp.ui.session_archive.data;
 
-import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodUiData;
+import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 
 import java.util.ArrayList;
 import java.util.List;

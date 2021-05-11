@@ -3,6 +3,8 @@ package com.rbraithwaite.sleepapp.ui.format;
 import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
 import com.rbraithwaite.sleepapp.ui.Constants;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 public class CommonFormatting
@@ -50,5 +52,16 @@ public class CommonFormatting
                              hours,
                              minutes,
                              seconds);
+    }
+    
+    public static String formatFullDate(Date date)
+    {
+        if (date == null) {
+            return null;
+        }
+        SimpleDateFormat format = new SimpleDateFormat(
+                Constants.STANDARD_FORMAT_FULL_DATE,
+                Constants.STANDARD_LOCALE);
+        return format.format(date);
     }
 }

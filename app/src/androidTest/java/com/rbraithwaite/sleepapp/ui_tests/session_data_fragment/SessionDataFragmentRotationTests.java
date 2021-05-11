@@ -52,7 +52,7 @@ public class SessionDataFragmentRotationTests
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)));
         
-        DialogTestUtils.pressOK();
+        DialogTestUtils.pressPositiveButton();
         
         // WHEN the device is rotated
         TestUtils.rotateActivitySynced(testHelper.getScenario(),
@@ -77,7 +77,7 @@ public class SessionDataFragmentRotationTests
                 calendar.get(Calendar.HOUR_OF_DAY),
                 calendar.get(Calendar.MINUTE)));
         
-        DialogTestUtils.pressOK();
+        DialogTestUtils.pressPositiveButton();
         
         // WHEN the device is rotated
         TestUtils.rotateActivitySynced(testHelper.getScenario(),
@@ -104,7 +104,7 @@ public class SessionDataFragmentRotationTests
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)));
         
-        DialogTestUtils.pressOK();
+        DialogTestUtils.pressPositiveButton();
         
         // WHEN the device is rotated
         TestUtils.rotateActivitySynced(testHelper.getScenario(),
@@ -129,7 +129,7 @@ public class SessionDataFragmentRotationTests
                 calendar.get(Calendar.HOUR_OF_DAY),
                 calendar.get(Calendar.MINUTE)));
         
-        DialogTestUtils.pressOK();
+        DialogTestUtils.pressPositiveButton();
         
         // WHEN the device is rotated
         TestUtils.rotateActivitySynced(testHelper.getScenario(),

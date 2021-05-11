@@ -7,9 +7,9 @@ import android.widget.FrameLayout;
 
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.Observer;
 
 import com.rbraithwaite.sleepapp.R;
+import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 
 public class MoodSelectorController
 {
@@ -36,6 +36,12 @@ public class MoodSelectorController
 //*********************************************************
 
     private static final String DIALOG_TAG = "MoodSelectorController_dialog";
+
+//*********************************************************
+// public constants
+//*********************************************************
+
+    public static final float MOOD_DISPLAY_SCALE = 50f;
 
 //*********************************************************
 // public helpers
@@ -73,9 +79,11 @@ public class MoodSelectorController
         mLastSelectedIndex = mViewModel.getMoodIndex();
         bindViewModel();
         
-        mAddButton.setOnClickListener(v -> displayMoodDialog(R.string.cancel, createOnCancelListener()));
+        mAddButton.setOnClickListener(v -> displayMoodDialog(R.string.cancel,
+                                                             createOnCancelListener()));
         
-        mMoodValue.setOnClickListener(v -> displayMoodDialog(R.string.delete, createOnDeleteListener()));
+        mMoodValue.setOnClickListener(v -> displayMoodDialog(R.string.delete,
+                                                             createOnDeleteListener()));
     }
 
 //*********************************************************
@@ -121,7 +129,7 @@ public class MoodSelectorController
     {
         return selection -> {
             mLastSelectedIndex = MoodDialogFragment.NO_MOOD_SELECTED;
-            mViewModel.clearMood();
+            mViewModel.clearSelectedMood();
             if (mCallbacks != null) {
                 mCallbacks.onMoodDeleted();
             }
@@ -150,7 +158,7 @@ public class MoodSelectorController
                 mMoodValue.setVisibility(View.VISIBLE);
                 
                 mMoodValue.removeAllViews();
-                mMoodValue.addView(mMoodViewFactory.createView(mood, mContext, 50f));
+                mMoodValue.addView(mMoodViewFactory.createView(mood, mContext, MOOD_DISPLAY_SCALE));
             }
         });
     }

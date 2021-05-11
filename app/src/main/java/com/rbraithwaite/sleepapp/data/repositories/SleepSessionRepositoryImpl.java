@@ -9,6 +9,7 @@ import com.rbraithwaite.sleepapp.core.models.Tag;
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.data.convert.ConvertSleepSession;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionDao;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 
 import java.util.Date;
 import java.util.List;
@@ -47,19 +48,11 @@ public class SleepSessionRepositoryImpl
 //*********************************************************
 
     @Override
-    public void addSleepSession(final SleepSession newSleepSession)
-    {
-        mExecutor.execute(() -> mSleepSessionDao.addSleepSession(
-                ConvertSleepSession.toEntity(newSleepSession)));
-    }
-    
-    @Override
-    public void addSleepSessionWithTags(
-            SleepSession newSleepSession, List<Integer> tagIds)
+    public void addSleepSession(final NewSleepSessionData newSleepSession)
     {
         mExecutor.execute(() -> mSleepSessionDao.addSleepSessionWithTags(
-                ConvertSleepSession.toEntity(newSleepSession),
-                tagIds));
+                convertNewSleepSessionToEntity(newSleepSession),
+                newSleepSession.tagIds));
     }
     
     @Override
@@ -138,5 +131,20 @@ public class SleepSessionRepositoryImpl
     public LiveData<List<Integer>> getAllSleepSessionIds()
     {
         return mSleepSessionDao.getAllSleepSessionIds();
+    }
+    
+//*********************************************************
+// private methods
+//*********************************************************
+
+    private SleepSessionEntity convertNewSleepSessionToEntity(NewSleepSessionData newSleepSession)
+    {
+        return new SleepSessionEntity(
+                newSleepSession.start,
+                newSleepSession.end,
+                newSleepSession.durationMillis,
+                newSleepSession.additionalComments,
+                newSleepSession.mood == null ? null : newSleepSession.mood.toIndex(),
+                newSleepSession.rating);
     }
 }

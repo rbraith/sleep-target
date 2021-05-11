@@ -6,6 +6,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.core.models.Tag;
+import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionDao;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.data.SleepSessionWithTags;
@@ -28,8 +29,8 @@ import java.util.concurrent.Executor;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -64,19 +65,6 @@ public class SleepSessionRepositoryImplTests
     {
         mockSleepSessionDao = null;
         repository = null;
-    }
-    
-    @Test
-    public void addSleepSessionWithTags_callsDao()
-    {
-        SleepSession testSession = TestUtils.ArbitraryData.getSleepSession();
-        List<Integer> tagIds = Arrays.asList(1, 2, 3);
-        
-        // SUT
-        repository.addSleepSessionWithTags(testSession, tagIds);
-        
-        verify(mockSleepSessionDao, times(1))
-                .addSleepSessionWithTags(any(SleepSessionEntity.class), anyListOf(Integer.class));
     }
     
     // REFACTOR [21-03-15 3:08PM] make this a stub test instead? - test the value of the
@@ -173,16 +161,34 @@ public class SleepSessionRepositoryImplTests
     @Test
     public void addSleepSession_addsSleepSession()
     {
-        SleepSession testSleepSession = TestUtils.ArbitraryData.getSleepSession();
-        repository.addSleepSession(testSleepSession);
+        SleepSessionRepository.NewSleepSessionData newSleepSession =
+                TestUtils.ArbitraryData.getNewSleepSessionData();
         
-        ArgumentCaptor<SleepSessionEntity> addSleepSessionArg =
-                ArgumentCaptor.forClass(SleepSessionEntity.class);
-        verify(mockSleepSessionDao, times(1)).addSleepSession(addSleepSessionArg.capture());
+        // SUT
+        repository.addSleepSession(newSleepSession);
         
-        SleepSessionEntity daoArg = addSleepSessionArg.getValue();
-        assertThat(testSleepSession.getId(), is(equalTo(daoArg.id)));
-        assertThat(testSleepSession.getStart(), is(equalTo(daoArg.startTime)));
-        assertThat(testSleepSession.getDurationMillis(), is(equalTo(daoArg.duration)));
+        ArgumentCaptor<SleepSessionEntity> arg = ArgumentCaptor.forClass(SleepSessionEntity.class);
+        verify(mockSleepSessionDao, times(1))
+                .addSleepSessionWithTags(arg.capture(), eq(newSleepSession.tagIds));
+        
+        SleepSessionEntity entity = arg.getValue();
+        
+        assertThat_NewSleepSession_equalTo_SleepSessionEntity(newSleepSession, entity);
+    }
+    
+//*********************************************************
+// private methods
+//*********************************************************
+
+    private void assertThat_NewSleepSession_equalTo_SleepSessionEntity(
+            SleepSessionRepository.NewSleepSessionData newSleepSession,
+            SleepSessionEntity entity)
+    {
+        assertThat(entity.startTime, is(equalTo(newSleepSession.start)));
+        assertThat(entity.endTime, is(equalTo(newSleepSession.end)));
+        assertThat(entity.duration, is(equalTo(newSleepSession.durationMillis)));
+        assertThat(entity.additionalComments, is(equalTo(newSleepSession.additionalComments)));
+        assertThat(entity.moodIndex, is(equalTo(newSleepSession.mood.toIndex())));
+        assertThat(entity.rating, is(equalTo(newSleepSession.rating)));
     }
 }

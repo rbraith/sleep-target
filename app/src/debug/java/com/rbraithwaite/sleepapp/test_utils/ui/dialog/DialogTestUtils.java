@@ -12,16 +12,19 @@ public class DialogTestUtils
 //*********************************************************
 
     private DialogTestUtils() {/* No instantiation */}
-    
+
 //*********************************************************
 // api
 //*********************************************************
 
-    public static void pressOK()
+    public static void pressPositiveButton()
     {
         // button1 is dialog positive btn
         onView(withId(android.R.id.button1)).inRoot(isDialog()).perform(click());
     }
     
-    // TODO [20-12-5 8:09PM] -- pressCancel()
+    public static void pressNegativeButton()
+    {
+        onView(withId(android.R.id.button2)).inRoot(isDialog()).perform(click());
+    }
 }

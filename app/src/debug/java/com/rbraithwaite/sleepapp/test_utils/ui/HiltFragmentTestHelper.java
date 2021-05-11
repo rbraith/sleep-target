@@ -28,7 +28,7 @@ public class HiltFragmentTestHelper<FragmentType extends Fragment>
 //*********************************************************
 
     private ActivityScenario<HiltFragmentActivity> mScenario;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -37,7 +37,7 @@ public class HiltFragmentTestHelper<FragmentType extends Fragment>
     {
         public void perform(F fragment);
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -48,7 +48,7 @@ public class HiltFragmentTestHelper<FragmentType extends Fragment>
         TestUtils.performSyncedActivityAction(
                 mScenario, activity -> setupActivityWithFragment(activity, fragmentClass, args));
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -82,6 +82,12 @@ public class HiltFragmentTestHelper<FragmentType extends Fragment>
         );
     }
     
+    public void restartFragment()
+    {
+        // this is what FragmentScenario does so I'm doing it too lol
+        mScenario.recreate();
+    }
+
 //*********************************************************
 // private methods
 //*********************************************************

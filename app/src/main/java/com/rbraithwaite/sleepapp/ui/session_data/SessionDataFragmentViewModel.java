@@ -9,8 +9,8 @@ import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.core.models.Tag;
-import com.rbraithwaite.sleepapp.ui.common.mood_selector.ConvertMood;
-import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodUiData;
+import com.rbraithwaite.sleepapp.ui.common.convert.ConvertMood;
+import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.common.tag_selector.ConvertTag;
 import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagUiData;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
@@ -281,7 +281,7 @@ public class SessionDataFragmentViewModel
                         .collect(Collectors.toList()))
                 .orElse(null);
     }
-    
+
 //*********************************************************
 // protected api
 //*********************************************************
@@ -300,7 +300,7 @@ public class SessionDataFragmentViewModel
     {
         return Optional.ofNullable(getSleepSession().getValue());
     }
-
+    
     private LiveData<SleepSession> getSleepSession()
     {
         return mSleepSession;

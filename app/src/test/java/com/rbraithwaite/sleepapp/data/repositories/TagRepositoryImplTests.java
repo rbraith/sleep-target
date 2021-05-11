@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -26,6 +27,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
@@ -38,7 +41,7 @@ public class TagRepositoryImplTests
 
     private TagRepositoryImpl repository;
     private TagDao mockTagDao;
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -55,6 +58,14 @@ public class TagRepositoryImplTests
     {
         repository = null;
         mockTagDao = null;
+    }
+    
+    @Test
+    public void getTagsWithIds_callsDao()
+    {
+        List<Integer> expected = Arrays.asList(1, 2, 3);
+        repository.getTagsWithIds(expected);
+        verify(mockTagDao, times(1)).getTagsWithIds(expected);
     }
     
     @Test
@@ -145,6 +156,7 @@ public class TagRepositoryImplTests
         assertThat(lastChange.index, is(0));
         assertThat(lastChange.changeType, is(ListTrackingData.ChangeType.MODIFIED));
     }
+
 
 //*********************************************************
 // private methods

@@ -26,6 +26,7 @@ public class SleepSession
     private String mAdditionalComments;
     private Mood mMood;
     private List<Tag> mTags;
+    private float mRating;
 
 //*********************************************************
 // public constants
@@ -55,6 +56,9 @@ public class SleepSession
         }
     }
 
+    // REFACTOR [21-05-10 3:09PM] -- There are so many properties now - I should probably replace
+    //  all these ctors with a builder.
+    
 //*********************************************************
 // constructors
 //*********************************************************
@@ -130,8 +134,7 @@ public class SleepSession
         mDurationMillis = durationMillis;
         mAdditionalComments = additionalComments;
         mMood = mood;
-        mTags = tags == null ? new ArrayList<>() : tags;
-        
+        setTags(tags);
         mTimeUtils = createTimeUtils();
     }
 
@@ -145,7 +148,7 @@ public class SleepSession
     {
         return "SleepSession id:" + getId();
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -259,11 +262,22 @@ public class SleepSession
         return mTags;
     }
     
+    // TODO [21-05-10 4:19PM] -- test needed for null input behaviour.
     public void setTags(List<Tag> tags)
     {
-        mTags = tags;
+        mTags = tags == null ? new ArrayList<>() : tags;
     }
     
+    public float getRating()
+    {
+        return mRating;
+    }
+    
+    public void setRating(Float rating)
+    {
+        mRating = rating == null ? 0f : rating;
+    }
+
 //*********************************************************
 // protected api
 //*********************************************************

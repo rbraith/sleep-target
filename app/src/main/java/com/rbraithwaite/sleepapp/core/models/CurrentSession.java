@@ -22,38 +22,75 @@ public class CurrentSession
     private List<Integer> mSelectedTagIds;
 
 //*********************************************************
+// public helpers
+//*********************************************************
+
+    
+    /**
+     * A static "snapshot" of some CurrentSession's state. This is needed as CurrentSession's
+     * duration is always updating in real time - see {@link #getOngoingDurationMillis()}
+     */
+    public static class Snapshot
+    {
+        public Date start;
+        public Date end;
+        public long durationMillis;
+        public Mood mood;
+        public String additionalComments;
+        public List<Integer> selectedTagIds;
+        
+        public Snapshot(
+                Date start,
+                Date end,
+                long durationMillis,
+                Mood mood, String additionalComments, List<Integer> selectedTagIds)
+        {
+            this.start = start;
+            this.end = end;
+            this.durationMillis = durationMillis;
+            this.mood = mood;
+            this.additionalComments = additionalComments;
+            this.selectedTagIds = selectedTagIds;
+        }
+    }
+    
+//*********************************************************
 // constructors
 //*********************************************************
 
-    public CurrentSession()
+    public CurrentSession(TimeUtils timeUtils)
     {
-        this(null);
+        this(null, timeUtils);
     }
     
-    public CurrentSession(@Nullable Date start)
+    public CurrentSession(@Nullable Date start, TimeUtils timeUtils)
     {
-        this(start, null);
-    }
-    
-    public CurrentSession(@Nullable Date start, @Nullable String additionalComments)
-    {
-        this(start, additionalComments, null, null);
+        this(start, null, timeUtils);
     }
     
     public CurrentSession(
             @Nullable Date start,
             @Nullable String additionalComments,
-            @Nullable Mood mood,
-            @Nullable List<Integer> selectedTagIds)
+            TimeUtils timeUtils)
     {
-        mStart = start;
-        mAdditionalComments = additionalComments;
-        mTimeUtils = createTimeUtils();
-        mMood = mood;
-        mSelectedTagIds = selectedTagIds == null ? new ArrayList<>() : selectedTagIds;
+        this(start, additionalComments, null, null, timeUtils);
     }
 
 
+    public CurrentSession(
+            @Nullable Date start,
+            @Nullable String additionalComments,
+            @Nullable Mood mood,
+            @Nullable List<Integer> selectedTagIds,
+            TimeUtils timeUtils)
+    {
+        mStart = start;
+        mAdditionalComments = additionalComments;
+        mTimeUtils = timeUtils;
+        mMood = mood;
+        mSelectedTagIds = selectedTagIds == null ? new ArrayList<>() : selectedTagIds;
+    }
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -92,27 +129,6 @@ public class CurrentSession
         return mTimeUtils.getNow().getTime() - mStart.getTime();
     }
     
-    // SMELL [21-04-19 10:30PM] -- It's ugly to ignore the tag ids in the current session.
-    //  A potential solution to this might be to provide a TagRepository to the CurrentSession
-    //  so that it can convert its tag ids to Tag models when it needs to, but this seems really
-    //  smelly as well, idk.
-    //  maybe not? https://softwareengineering.stackexchange.com/a/318710
-    //  https://stackoverflow.com/a/47897704.
-    
-    /**
-     * @return This current session as a distinct sleep session. Note: the returned SleepSession
-     * will have no {@link Tag tags}, ignoring any {@link #getSelectedTagIds() selected tag ids} in
-     * the CurrentSession.
-     */
-    public SleepSession toSleepSession()
-    {
-        return new SleepSession(
-                getStart(),
-                getOngoingDurationMillis(),
-                getAdditionalComments(),
-                getMood());
-    }
-    
     public String getAdditionalComments()
     {
         return mAdditionalComments;
@@ -127,13 +143,25 @@ public class CurrentSession
     {
         return mSelectedTagIds;
     }
-
-//*********************************************************
-// protected api
-//*********************************************************
-
-    protected TimeUtils createTimeUtils()
+    
+    public void setSelectedTagIds(List<Integer> selectedTagIds)
     {
-        return new TimeUtils();
+        mSelectedTagIds = selectedTagIds;
+    }
+    
+    public Snapshot createSnapshot()
+    {
+        Date start = getStart();
+        int durationMillis = (int) getOngoingDurationMillis();
+        
+        Date end = mTimeUtils.addDurationToDate(start, durationMillis);
+        
+        return new Snapshot(
+                start,
+                end,
+                durationMillis,
+                getMood(),
+                getAdditionalComments(),
+                getSelectedTagIds());
     }
 }

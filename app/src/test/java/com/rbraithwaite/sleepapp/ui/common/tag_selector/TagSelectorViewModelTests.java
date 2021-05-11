@@ -13,8 +13,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,7 +35,7 @@ public class TagSelectorViewModelTests
 //*********************************************************
 
     private TagRepository mockTagRepository;
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -52,6 +50,24 @@ public class TagSelectorViewModelTests
     public void teardown()
     {
         mockTagRepository = null;
+    }
+    
+    @Test
+    public void clearSelectedTags_updates_getSelectedTags()
+    {
+        Tag tag1 = new Tag(1, "test1");
+        Tag tag2 = new Tag(2, "test2");
+        Tag tag3 = new Tag(3, "test3");
+        
+        TagSelectorViewModel viewModel = createViewModel(Arrays.asList(tag1, tag2, tag3));
+        
+        viewModel.setSelectedTagIds(Arrays.asList(1, 2, 3));
+        
+        LiveData<List<TagUiData>> selectedTags = viewModel.getSelectedTags();
+        TestUtils.activateLocalLiveData(selectedTags);
+        
+        viewModel.clearSelectedTags();
+        assertThat(selectedTags.getValue().isEmpty(), is(true));
     }
     
     @Test
@@ -281,7 +297,7 @@ public class TagSelectorViewModelTests
         assertThat(changedIndices.getValue().contains(1), is(true));
         assertThat(listItems.get(1).beingEdited, is(false));
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

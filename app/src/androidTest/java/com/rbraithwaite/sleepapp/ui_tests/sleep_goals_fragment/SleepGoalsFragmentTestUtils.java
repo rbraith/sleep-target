@@ -49,7 +49,7 @@ public class SleepGoalsFragmentTestUtils
     {
         onView(withId(R.id.sleep_goals_new_duration_btn)).perform(click());
         DurationPickerTestUtils.setDuration(hours, minutes);
-        DialogTestUtils.pressOK();
+        DialogTestUtils.pressPositiveButton();
     }
     
     
@@ -57,6 +57,6 @@ public class SleepGoalsFragmentTestUtils
     {
         onView(withId(R.id.sleep_goals_new_waketime_btn)).perform(click());
         onTimePicker().perform(PickerActions.setTime(hour, minute));
-        DialogTestUtils.pressOK();
+        DialogTestUtils.pressPositiveButton();
     }
 }

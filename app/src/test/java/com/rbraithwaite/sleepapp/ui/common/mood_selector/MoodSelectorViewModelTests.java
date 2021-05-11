@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
+import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,7 +56,7 @@ public class MoodSelectorViewModelTests
         
         assertThat(viewModel.isMoodSet(), is(true));
         
-        viewModel.clearMood();
+        viewModel.clearSelectedMood();
         
         assertThat(viewModel.isMoodSet(), is(false));
     }

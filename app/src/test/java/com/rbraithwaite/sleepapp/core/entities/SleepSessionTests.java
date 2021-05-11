@@ -19,6 +19,14 @@ public class SleepSessionTests
 // api
 //*********************************************************
 
+    @Test
+    public void getRating_isZeroIfSetToNull()
+    {
+        SleepSession sleepSession = TestUtils.ArbitraryData.getSleepSession();
+        sleepSession.setRating(null);
+        assertThat(sleepSession.getRating(), is(0f));
+    }
+    
     @Test(expected = NullPointerException.class)
     public void setStartFixed_throwsIfNull()
     {

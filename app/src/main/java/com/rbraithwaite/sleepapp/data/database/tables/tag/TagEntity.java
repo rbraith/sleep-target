@@ -17,7 +17,7 @@ public class TagEntity
     
     @ColumnInfo(name = TagContract.Columns.TAG_TEXT)
     public String text;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -28,10 +28,15 @@ public class TagEntity
         this.text = text;
     }
     
+    public TagEntity(String text)
+    {
+        this.text = text;
+    }
+    
     public TagEntity()
     {
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************

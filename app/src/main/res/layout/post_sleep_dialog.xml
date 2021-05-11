@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/postsleep_rating_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Rate your sleep:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <RatingBar
+        android:id="@+id/postsleep_star_rating"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/postsleep_rating_title" />
+
+    <View
+        android:id="@+id/postsleep_div1"
+        android:layout_width="match_parent"
+        android:layout_height="8px"
+        android:layout_marginTop="8dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintTop_toBottomOf="@+id/postsleep_star_rating" />
+
+    <TextView
+        android:id="@+id/postsleep_details_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Sleep Details:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/postsleep_div1" />
+
+    <TextView
+        android:id="@+id/postsleep_start_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Start:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/postsleep_details_title" />
+
+    <TextView
+        android:id="@+id/postsleep_stop_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginLeft="24dp"
+        android:text="Stop:"
+        app:layout_constraintBaseline_toBaselineOf="@+id/postsleep_start_title"
+        app:layout_constraintStart_toEndOf="@+id/postsleep_start_value" />
+
+    <TextView
+        android:id="@+id/postsleep_duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="8dp"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="24sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/postsleep_start_value"
+        tools:text="1h 23m 45s" />
+
+    <TextView
+        android:id="@+id/postsleep_start_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@+id/postsleep_start_title"
+        app:layout_constraintTop_toBottomOf="@+id/postsleep_start_title"
+        tools:text="2:20 am, Feb 20 2020" />
+
+    <TextView
+        android:id="@+id/postsleep_stop_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@+id/postsleep_stop_title"
+        app:layout_constraintTop_toBottomOf="@+id/postsleep_stop_title"
+        tools:text="2:20 am, Feb 20 2020" />
+
+    <TextView
+        android:id="@+id/postsleep_comments_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/postsleep_tags_scroll"
+        tools:text="Additional Comments:" />
+
+    <FrameLayout
+        android:id="@+id/postsleep_mood_frame"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="@+id/postsleep_mood_title"
+        app:layout_constraintTop_toBottomOf="@+id/postsleep_mood_title">
+
+    </FrameLayout>
+
+    <ScrollView
+        android:id="@+id/postsleep_tags_scroll"
+        android:layout_width="0dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/postsleep_tags_title"
+        app:layout_constraintTop_toBottomOf="@+id/postsleep_tags_title" />
+
+    <TextView
+        android:id="@+id/postsleep_mood_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Mood:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/postsleep_duration" />
+
+    <TextView
+        android:id="@+id/postsleep_tags_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tags:"
+        app:layout_constraintBaseline_toBaselineOf="@+id/postsleep_mood_title"
+        app:layout_constraintStart_toEndOf="@+id/postsleep_duration" />
+
+    <ScrollView
+        android:id="@+id/postsleep_comments_scroll"
+        android:layout_width="0dp"
+        android:layout_height="150dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/postsleep_comments_title">
+
+        <TextView
+            android:id="@+id/postsleep_comments_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="Comments" />
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

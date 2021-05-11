@@ -29,7 +29,31 @@ public class SleepSessionEntity
     public String additionalComments;
     @ColumnInfo(name = SleepSessionContract.Columns.MOOD)
     public Integer moodIndex;
+    @ColumnInfo(name = SleepSessionContract.Columns.RATING)
+    public Float rating = 0f;
+    
+//*********************************************************
+// constructors
+//*********************************************************
 
+    public SleepSessionEntity()
+    {
+    }
+    
+    public SleepSessionEntity(
+            Date startTime,
+            Date endTime,
+            long duration,
+            String additionalComments, Integer moodIndex, Float rating)
+    {
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.duration = duration;
+        this.additionalComments = additionalComments;
+        this.moodIndex = moodIndex;
+        this.rating = rating;
+    }
+    
 //*********************************************************
 // overrides
 //*********************************************************
@@ -45,6 +69,7 @@ public class SleepSessionEntity
         hash = prime * hash + (int) duration;
         hash = prime * hash + (additionalComments == null ? 0 : additionalComments.hashCode());
         hash = prime * hash + moodIndex;
+        hash = prime * hash + rating.hashCode();
         return hash;
     }
     
@@ -59,6 +84,8 @@ public class SleepSessionEntity
                startTime.equals(entity.startTime) &&
                endTime.equals(entity.endTime) &&
                additionalComments.equals(entity.additionalComments) &&
-               moodIndex == entity.moodIndex;
+               ((moodIndex == null && entity.moodIndex == null) ||
+                (moodIndex != null && moodIndex.equals(entity.moodIndex))) &&
+               rating.equals(entity.rating);
     }
 }

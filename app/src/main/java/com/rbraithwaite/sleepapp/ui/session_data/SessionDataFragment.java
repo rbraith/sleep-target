@@ -15,14 +15,13 @@ import android.widget.TextView;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.Observer;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
+import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodSelectorController;
 import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodSelectorViewModel;
-import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagSelectorController;
 import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagSelectorViewModel;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragmentDirections;
@@ -56,12 +55,18 @@ public class SessionDataFragment
     
     private MoodSelectorController mMoodSelectorController;
     
+    private TagSelectorController mTagSelectorController;
+    
+    private TagSelectorViewModel mTagSelectorViewModel;
+    
+    private boolean mIsTagSelectorInitialized = false;
+    
 //*********************************************************
 // private constants
 //*********************************************************
 
     private static final String TAG = "SessionDataFragment";
-    
+
 //*********************************************************
 // public constants
 //*********************************************************
@@ -132,7 +137,7 @@ public class SessionDataFragment
          */
         public abstract void onAction(SessionDataFragment fragment, SleepSessionWrapper result);
     }
-
+    
 //*********************************************************
 // constructors
 //*********************************************************
@@ -201,7 +206,7 @@ public class SessionDataFragment
             menu.findItem(R.id.session_data_action_negative).setIcon(mNegativeIcon);
         }
     }
-    
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item)
     {
@@ -236,7 +241,7 @@ public class SessionDataFragment
     
     @Override
     protected boolean getBottomNavVisibility() { return false; }
-    
+
     @Override
     protected Class<SessionDataFragmentViewModel> getViewModelClass() { return SessionDataFragmentViewModel.class; }
     
@@ -257,7 +262,7 @@ public class SessionDataFragment
                 .actionSessionArchiveToSessionData(args)
                 .getArguments();
     }
-
+    
     // TODO [21-12-31 1:54AM] -- I should think more about possible ways of unit testing this.
     public void completed()
     {
@@ -267,11 +272,7 @@ public class SessionDataFragment
 //*********************************************************
 // private methods
 //*********************************************************
-    
-    private TagSelectorController mTagSelectorController;
-    private TagSelectorViewModel mTagSelectorViewModel;
-    private boolean mIsTagSelectorInitialized = false;
-    
+
     private void initTagSelector(View fragmentRoot)
     {
         mTagSelectorViewModel = new TagSelectorViewModel(requireContext());
@@ -284,7 +285,7 @@ public class SessionDataFragment
                     //  something to prevent the setSelectedIds() call above from immediately
                     //  notifying this observer with unchanged data.
                     if (!mIsTagSelectorInitialized) {
-                           mIsTagSelectorInitialized = true;
+                        mIsTagSelectorInitialized = true;
                     } else {
                         getViewModel().setTags(selectedTags);
                     }
@@ -297,7 +298,7 @@ public class SessionDataFragment
                 requireContext(),
                 getChildFragmentManager());
     }
-
+    
     private void initMoodSelector(View fragmentRoot)
     {
         mMoodSelectorController = new MoodSelectorController(
@@ -325,7 +326,7 @@ public class SessionDataFragment
             }
         });
     }
-
+    
     private void clearSessionDataThenNavigateUp()
     {
         getViewModel().clearSessionData();

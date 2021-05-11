@@ -107,7 +107,7 @@ public class SleepGoalsFragmentTests
         int expectedHours = 21;
         int expectedMinutes = 43;
         DurationPickerTestUtils.setDuration(expectedHours, expectedMinutes);
-        DialogTestUtils.pressOK();
+        DialogTestUtils.pressPositiveButton();
         
         onView(withId(R.id.duration_value)).check(matches(withText(
                 SleepGoalsFormatting.formatSleepDurationGoal(
@@ -124,7 +124,7 @@ public class SleepGoalsFragmentTests
         
         // WHEN they delete that goal (confirming the dialog)
         onView(withId(R.id.duration_delete_btn)).perform(click());
-        DialogTestUtils.pressOK();
+        DialogTestUtils.pressPositiveButton();
         
         // THEN that goal is deleted
         // AND the "add new sleep duration" button is displayed again
@@ -142,7 +142,7 @@ public class SleepGoalsFragmentTests
         
         // WHEN they delete that goal (confirming the dialog)
         onView(withId(R.id.waketime_delete_btn)).perform(click());
-        DialogTestUtils.pressOK();
+        DialogTestUtils.pressPositiveButton();
         
         // THEN that goal is deleted
         // AND the "add new wake-time" button is displayed again
@@ -170,7 +170,7 @@ public class SleepGoalsFragmentTests
         int expectedHourOfDay = 21;
         int expectedMinute = 43;
         onTimePicker().perform(PickerActions.setTime(expectedHourOfDay, expectedMinute));
-        DialogTestUtils.pressOK();
+        DialogTestUtils.pressPositiveButton();
         
         GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
         calendar.set(Calendar.HOUR_OF_DAY, expectedHourOfDay);

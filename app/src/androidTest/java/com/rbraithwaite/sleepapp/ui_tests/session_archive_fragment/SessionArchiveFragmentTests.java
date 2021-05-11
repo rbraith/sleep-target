@@ -3,6 +3,7 @@ package com.rbraithwaite.sleepapp.ui_tests.session_archive_fragment;
 import android.widget.TextView;
 
 import androidx.test.core.app.ActivityScenario;
+import androidx.test.espresso.GraphHolder;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.R;
@@ -18,6 +19,7 @@ import com.rbraithwaite.sleepapp.ui.MainActivity;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragment;
 import com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils;
+import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -140,7 +142,7 @@ public class SessionArchiveFragmentTests
         SessionDataFragmentTestUtils.pressNegative();
         
         // WHEN the user confirms the dialog positively
-        DialogTestUtils.pressOK();
+        DialogTestUtils.pressPositiveButton();
         
         // THEN the session is deleted from the archive
         assertRecyclerViewIsEmpty();
@@ -164,21 +166,22 @@ public class SessionArchiveFragmentTests
         // REFACTOR [20-12-17 7:19PM] -- use SessionArchiveFragmentTestUtils.addSession instead
         onView(withId(R.id.sleep_tracker_button)).perform(click());
         onView(withId(R.id.sleep_tracker_button)).perform(click());
-        
+        DialogTestUtils.pressPositiveButton();
+
         UITestNavigate.fromHome_toSessionArchive();
-        
+
         // AND the user has edited that session.
         onView(withId(R.id.session_archive_list_item_card)).perform(click());
-        
+
         // new date is guaranteed to be different from default add session date (which should be
         // current time)
         GregorianCalendar newStartDateTime = new GregorianCalendar(2015, 4, 3, 2, 1);
         SessionDataFragmentTestUtils.setStartDateTime(newStartDateTime);
         SessionDataFragmentTestUtils.pressPositive();
-        
+
         // WHEN the user goes to add a new session
         UITestNavigate.fromSessionArchive_toAddSession();
-        
+
         // THEN the add session screen displays the correct default values
         // screen should not be displaying previous changed values
         SessionDataFragmentTestUtils.checkStartDateTimeDoesNotMatch(newStartDateTime);

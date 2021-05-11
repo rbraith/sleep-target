@@ -149,13 +149,13 @@ public class SessionDataFragmentTestUtils
                 datetime.get(Calendar.YEAR),
                 datetime.get(Calendar.MONTH),
                 datetime.get(Calendar.DAY_OF_MONTH)));
-        DialogTestUtils.pressOK();
+        DialogTestUtils.pressPositiveButton();
         // REFACTOR [20-12-16 9:58PM] -- call this setTime(GregorianCalendar).
         // set time
         time.perform(click());
         onTimePicker().perform(PickerActions.setTime(
                 datetime.get(Calendar.HOUR_OF_DAY),
                 datetime.get(Calendar.MINUTE)));
-        DialogTestUtils.pressOK();
+        DialogTestUtils.pressPositiveButton();
     }
 }

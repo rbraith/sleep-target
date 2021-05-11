@@ -11,16 +11,21 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.rbraithwaite.sleepapp.core.models.CurrentSession;
 import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.core.models.WakeTimeGoal;
+import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDurationGoalEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.data.prefs.SleepAppDataPrefs;
+import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
+import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.CurrentSessionUiData;
 import com.rbraithwaite.sleepapp.ui.stats.data.DateRange;
+import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -112,12 +117,27 @@ public class TestUtils
         }
     }
     
+    // REFACTOR [21-05-8 4:34PM] -- move this to test_utils.data.ArbitraryTestData.
+    
     /**
      * Provides fixed, arbitrary data for cases where the specific details of the data aren't
      * important.
      */
     public static class ArbitraryData
     {
+        private ArbitraryData() {/* No instantiation */}
+        
+        public static CurrentSessionUiData getCurrentSessionUiData()
+        {
+            return new CurrentSessionUiData(
+                    "start",
+                    "end",
+                    "duration",
+                    new MoodUiData(MoodUiData.Type.MOOD_4),
+                    "comments",
+                    Arrays.asList(1, 2, 3));
+        }
+        
         public static List<Integer> getIdList() { return Arrays.asList(1, 2, 3, 4, 5); }
         
         public static Date getDate()
@@ -201,6 +221,28 @@ public class TestUtils
             entity.editTime = getDate();
             entity.goalMinutes = 1234;
             return entity;
+        }
+        
+        public static CurrentSession getCurrentSession()
+        {
+            return new CurrentSession(
+                    getDate(),
+                    "hello there",
+                    getMood(),
+                    Arrays.asList(1, 2, 3),
+                    new TimeUtils());
+        }
+        
+        public static SleepSessionRepository.NewSleepSessionData getNewSleepSessionData()
+        {
+            return new SleepSessionRepository.NewSleepSessionData(
+                    TestUtils.ArbitraryData.getDate(),
+                    TestUtils.ArbitraryData.getDate(),
+                    TestUtils.ArbitraryData.getDurationMillis(),
+                    "arbitrary comments",
+                    TestUtils.ArbitraryData.getMood(),
+                    Arrays.asList(1, 2, 3),
+                    3.5f);
         }
     }
 
@@ -379,5 +421,10 @@ public class TestUtils
     public static <T> void activateLocalLiveData(LiveData<T> liveData)
     {
         liveData.observeForever(t -> {/* do nothing */});
+    }
+    
+    public static String getString(int stringId)
+    {
+        return getContext().getString(stringId);
     }
 }
