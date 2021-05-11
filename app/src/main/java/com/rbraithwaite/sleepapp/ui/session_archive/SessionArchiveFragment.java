@@ -1,7 +1,5 @@
 package com.rbraithwaite.sleepapp.ui.session_archive;
 
-import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,7 +7,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -19,12 +16,9 @@ import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
 import com.rbraithwaite.sleepapp.ui.common.dialog.AlertDialogFragment;
 import com.rbraithwaite.sleepapp.ui.common.dialog.DialogUtils;
-import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragment;
-import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
+import com.rbraithwaite.sleepapp.ui.session_details.SessionDetailsFragment;
+import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
-import com.rbraithwaite.sleepapp.utils.interfaces.ProviderOf;
-
-import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -121,13 +115,13 @@ public class SessionArchiveFragment
                 getViewModel().getInitialAddSessionData(),
                 getViewLifecycleOwner(),
                 initialData -> {
-                    SessionDataFragment.ArgsBuilder argsBuilder =
-                            new SessionDataFragment.ArgsBuilder(initialData)
-                                    .setPositiveActionListener(new SessionDataFragment.ActionListener()
+                    SessionDetailsFragment.ArgsBuilder argsBuilder =
+                            new SessionDetailsFragment.ArgsBuilder(initialData)
+                                    .setPositiveActionListener(new SessionDetailsFragment.ActionListener()
                                     {
                                         @Override
                                         public void onAction(
-                                                SessionDataFragment fragment,
+                                                SessionDetailsFragment fragment,
                                                 SleepSessionWrapper result)
                                         {
                                             getViewModel().addSleepSession(result);
@@ -156,23 +150,23 @@ public class SessionArchiveFragment
         //      args, results, & up/back button behaviour.
         //  The reason I didn't go with that solution is because I figured safeargs & nav component
         //  would be a massive headache with it.
-        SessionDataFragment.ArgsBuilder argsBuilder = new SessionDataFragment.ArgsBuilder(
+        SessionDetailsFragment.ArgsBuilder argsBuilder = new SessionDetailsFragment.ArgsBuilder(
                 initialEditData)
                 .setNegativeIcon(DATA_ICON_DELETE)
-                .setPositiveActionListener(new SessionDataFragment.ActionListener()
+                .setPositiveActionListener(new SessionDetailsFragment.ActionListener()
                 {
                     @Override
-                    public void onAction(SessionDataFragment fragment, SleepSessionWrapper result)
+                    public void onAction(SessionDetailsFragment fragment, SleepSessionWrapper result)
                     {
                         getViewModel().updateSleepSession(result);
                         fragment.completed();
                     }
                 })
-                .setNegativeActionListener(new SessionDataFragment.ActionListener()
+                .setNegativeActionListener(new SessionDetailsFragment.ActionListener()
                 {
                     @Override
                     public void onAction(
-                            final SessionDataFragment fragment,
+                            final SessionDetailsFragment fragment,
                             final SleepSessionWrapper result)
                     {
                         AlertDialogFragment deleteDialog = DialogUtils.createDeleteDialog(

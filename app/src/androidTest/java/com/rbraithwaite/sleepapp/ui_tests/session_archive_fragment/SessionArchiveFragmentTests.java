@@ -3,7 +3,6 @@ package com.rbraithwaite.sleepapp.ui_tests.session_archive_fragment;
 import android.widget.TextView;
 
 import androidx.test.core.app.ActivityScenario;
-import androidx.test.espresso.GraphHolder;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.R;
@@ -18,8 +17,7 @@ import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragment;
-import com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils;
-import com.rbraithwaite.sleepapp.utils.TimeUtils;
+import com.rbraithwaite.sleepapp.ui_tests.session_details_fragment.SessionDetailsFragmentTestUtils;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,7 +70,7 @@ public class SessionArchiveFragmentTests
             TagSelectorTestUtils.addTag("test " + i);
             TagSelectorTestUtils.toggleTagSelection(i);
         }
-        SessionDataFragmentTestUtils.pressPositive();
+        SessionDetailsFragmentTestUtils.pressPositive();
         
         // verify that the tag list for the list item is now displayed
         onView(withId(R.id.session_archive_list_item_tags)).check(matches(isDisplayed()));
@@ -97,7 +95,7 @@ public class SessionArchiveFragmentTests
         // edit that session and add a mood
         onView(withId(R.id.session_archive_list_item_card)).perform(click());
         MoodSelectorTestUtils.addMood(withId(R.id.session_data_mood), 1);
-        SessionDataFragmentTestUtils.pressPositive();
+        SessionDetailsFragmentTestUtils.pressPositive();
         
         // verify that the list item mood is displayed
         onView(withId(R.id.session_archive_list_item_mood_frame)).check(matches(isDisplayed()));
@@ -120,7 +118,7 @@ public class SessionArchiveFragmentTests
         // edit that session and add a comment
         onView(withId(R.id.session_archive_list_item_card)).perform(click());
         UITestUtils.typeOnMultilineEditText("test!", onView(withId(R.id.session_data_comments)));
-        SessionDataFragmentTestUtils.pressPositive();
+        SessionDetailsFragmentTestUtils.pressPositive();
         
         // verify that the list item icon is displayed
         onView(withId(R.id.session_archive_list_item_comment_icon)).check(matches(isDisplayed()));
@@ -139,7 +137,7 @@ public class SessionArchiveFragmentTests
         SessionArchiveFragmentTestUtils.addSession(TestUtils.ArbitraryData.getSleepSession());
         
         onView(withId(R.id.session_archive_list_item_card)).perform(click());
-        SessionDataFragmentTestUtils.pressNegative();
+        SessionDetailsFragmentTestUtils.pressNegative();
         
         // WHEN the user confirms the dialog positively
         DialogTestUtils.pressPositiveButton();
@@ -176,15 +174,15 @@ public class SessionArchiveFragmentTests
         // new date is guaranteed to be different from default add session date (which should be
         // current time)
         GregorianCalendar newStartDateTime = new GregorianCalendar(2015, 4, 3, 2, 1);
-        SessionDataFragmentTestUtils.setStartDateTime(newStartDateTime);
-        SessionDataFragmentTestUtils.pressPositive();
+        SessionDetailsFragmentTestUtils.setStartDateTime(newStartDateTime);
+        SessionDetailsFragmentTestUtils.pressPositive();
 
         // WHEN the user goes to add a new session
         UITestNavigate.fromSessionArchive_toAddSession();
 
         // THEN the add session screen displays the correct default values
         // screen should not be displaying previous changed values
-        SessionDataFragmentTestUtils.checkStartDateTimeDoesNotMatch(newStartDateTime);
+        SessionDetailsFragmentTestUtils.checkStartDateTimeDoesNotMatch(newStartDateTime);
     }
     
     // regression test for #47
@@ -203,13 +201,13 @@ public class SessionArchiveFragmentTests
         // new date is guaranteed to be different from default add session date (which should be
         // current time)
         GregorianCalendar newStartDateTime = new GregorianCalendar(2015, 4, 3, 2, 1);
-        SessionDataFragmentTestUtils.setStartDateTime(newStartDateTime);
+        SessionDetailsFragmentTestUtils.setStartDateTime(newStartDateTime);
         UITestNavigate.up();
         
         // THEN the add session screen displays the correct default values
         UITestNavigate.fromSessionArchive_toAddSession();
         // screen should not be displaying previous changed values
-        SessionDataFragmentTestUtils.checkStartDateTimeDoesNotMatch(newStartDateTime);
+        SessionDetailsFragmentTestUtils.checkStartDateTimeDoesNotMatch(newStartDateTime);
     }
     
     // TODO [20-12-16 9:01PM] -- addSession_hasCorrectValuesAfterBackPress
@@ -235,7 +233,7 @@ public class SessionArchiveFragmentTests
         UITestNavigate.fromSessionArchive_toAddSession();
         
         // WHEN the operation is cancelled
-        SessionDataFragmentTestUtils.pressNegative();
+        SessionDetailsFragmentTestUtils.pressNegative();
         
         // THEN the user returns to the session archive
         onView(withId(R.id.session_archive_layout)).check(matches(isDisplayed()));
@@ -257,10 +255,10 @@ public class SessionArchiveFragmentTests
         expectedEnd.add(Calendar.DAY_OF_WEEK, 1);
         expectedEnd.add(Calendar.HOUR, 1);
         
-        SessionDataFragmentTestUtils.setStartDateTime(expectedStart);
-        SessionDataFragmentTestUtils.setEndDateTime(expectedEnd);
+        SessionDetailsFragmentTestUtils.setStartDateTime(expectedStart);
+        SessionDetailsFragmentTestUtils.setEndDateTime(expectedEnd);
         
-        SessionDataFragmentTestUtils.pressPositive();
+        SessionDetailsFragmentTestUtils.pressPositive();
         
         // THEN a new session is added with the correct values in the archive
         // these checks work because there will be only one list item at this point
@@ -310,8 +308,8 @@ public class SessionArchiveFragmentTests
         onView(withId(R.id.session_archive_list_item_card)).perform(click());
         GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
         calendar.add(Calendar.DAY_OF_MONTH, -5);
-        SessionDataFragmentTestUtils.setStartDateTime(calendar);
-        SessionDataFragmentTestUtils.pressPositive();
+        SessionDetailsFragmentTestUtils.setStartDateTime(calendar);
+        SessionDetailsFragmentTestUtils.pressPositive();
         
         // THEN that session's values are properly updated in the archive
         onView(withId(R.id.session_archive_list_item_start_VALUE))

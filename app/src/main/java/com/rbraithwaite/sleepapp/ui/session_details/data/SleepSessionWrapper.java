@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui.session_data.data;
+package com.rbraithwaite.sleepapp.ui.session_details.data;
 
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 

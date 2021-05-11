@@ -2,7 +2,7 @@ package com.rbraithwaite.sleepapp.ui_tests.session_archive_fragment;
 
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestNavigate;
-import com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils;
+import com.rbraithwaite.sleepapp.ui_tests.session_details_fragment.SessionDetailsFragmentTestUtils;
 
 import java.util.GregorianCalendar;
 
@@ -20,11 +20,11 @@ public class SessionArchiveFragmentTestUtils
         
         GregorianCalendar calendar = new GregorianCalendar();
         calendar.setTime(sleepSession.getStart());
-        SessionDataFragmentTestUtils.setStartDateTime(calendar);
+        SessionDetailsFragmentTestUtils.setStartDateTime(calendar);
         
         calendar.setTime(sleepSession.getEnd());
-        SessionDataFragmentTestUtils.setEndDateTime(calendar);
-        SessionDataFragmentTestUtils.pressPositive();
+        SessionDetailsFragmentTestUtils.setEndDateTime(calendar);
+        SessionDetailsFragmentTestUtils.pressPositive();
         
         // TODO [21-04-21 8:16PM] -- this needs to add the other data as well:
         //      - mood

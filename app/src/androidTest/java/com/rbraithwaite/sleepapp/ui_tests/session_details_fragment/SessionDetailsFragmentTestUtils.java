@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui_tests.session_data_fragment;
+package com.rbraithwaite.sleepapp.ui_tests.session_details_fragment;
 
 import android.os.Bundle;
 
@@ -11,8 +11,8 @@ import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
-import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragment;
-import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
+import com.rbraithwaite.sleepapp.ui.session_details.SessionDetailsFragment;
+import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -32,13 +32,13 @@ import static org.hamcrest.Matchers.not;
 // REFACTOR [20-12-16 9:55PM] -- move this to debug test_utils?
 // REFACTOR [20-12-16 10:06PM] -- maybe rename this SessionEditTestUtils? (current name is kinda
 //  long)
-public class SessionDataFragmentTestUtils
+public class SessionDetailsFragmentTestUtils
 {
 //*********************************************************
 // constructors
 //*********************************************************
 
-    private SessionDataFragmentTestUtils() {/* No instantiation */}
+    private SessionDetailsFragmentTestUtils() {/* No instantiation */}
 
 
 //*********************************************************
@@ -49,10 +49,10 @@ public class SessionDataFragmentTestUtils
     {
         DateTimeFormatter formatter = new DateTimeFormatter();
         // REFACTOR [20-12-16 10:02PM] -- call this checkStartDateDoesNotMatch.
-        SessionDataFragmentTestUtils.onStartDateTextView()
+        SessionDetailsFragmentTestUtils.onStartDateTextView()
                 .check(matches(not(withText(formatter.formatDate(datetime.getTime())))));
         // REFACTOR [20-12-16 10:02PM] -- call this checkStartTimeDoesNotMatch.
-        SessionDataFragmentTestUtils.onStartTimeTextView()
+        SessionDetailsFragmentTestUtils.onStartTimeTextView()
                 .check(matches(not(withText(formatter.formatTimeOfDay(datetime.getTime())))));
     }
     
@@ -76,12 +76,12 @@ public class SessionDataFragmentTestUtils
         setDateTime(onEndDateTextView(), onEndTimeTextView(), endDateTime);
     }
     
-    public static HiltFragmentTestHelper<SessionDataFragment> launchWithSleepSession(
+    public static HiltFragmentTestHelper<SessionDetailsFragment> launchWithSleepSession(
             SleepSession sleepSession)
     {
         return HiltFragmentTestHelper.launchFragmentWithArgs(
-                SessionDataFragment.class,
-                SessionDataFragment.createArguments(new SessionDataFragment.ArgsBuilder(
+                SessionDetailsFragment.class,
+                SessionDetailsFragment.createArguments(new SessionDetailsFragment.ArgsBuilder(
                         new SleepSessionWrapper(sleepSession)).build()));
     }
     
@@ -89,27 +89,27 @@ public class SessionDataFragmentTestUtils
      * Uses TestUtils.ArbitraryData.getDate for the start and end times, so that can reliably be
      * used when checking the values of the fragment.
      */
-    public static HiltFragmentTestHelper<SessionDataFragment> launchSessionDataFragmentWithArbitraryData()
+    public static HiltFragmentTestHelper<SessionDetailsFragment> launchSessionDetailsFragmentWithArbitraryData()
     {
-        Bundle args = SessionDataFragment.createArguments(
-                new SessionDataFragment.ArgsBuilder(
+        Bundle args = SessionDetailsFragment.createArguments(
+                new SessionDetailsFragment.ArgsBuilder(
                         new SleepSessionWrapper(TestUtils.ArbitraryData.getSleepSession()))
                         .build());
-        return HiltFragmentTestHelper.launchFragmentWithArgs(SessionDataFragment.class, args);
+        return HiltFragmentTestHelper.launchFragmentWithArgs(SessionDetailsFragment.class, args);
     }
     
     /**
      * Uses TestUtils.ArbitraryData.getDate for the start and end times, so that can reliably be
      * used when checking the values of the fragment.
      */
-    public static HiltFragmentTestHelper<SessionDataFragment> launchWithZeroDuration()
+    public static HiltFragmentTestHelper<SessionDetailsFragment> launchWithZeroDuration()
     {
         SleepSession sleepSession = TestUtils.ArbitraryData.getSleepSession();
         sleepSession.setDurationMillis(0);
         return HiltFragmentTestHelper.launchFragmentWithArgs(
-                SessionDataFragment.class,
-                SessionDataFragment.createArguments(
-                        new SessionDataFragment.ArgsBuilder(
+                SessionDetailsFragment.class,
+                SessionDetailsFragment.createArguments(
+                        new SessionDetailsFragment.ArgsBuilder(
                                 new SleepSessionWrapper(sleepSession)).build()));
     }
     

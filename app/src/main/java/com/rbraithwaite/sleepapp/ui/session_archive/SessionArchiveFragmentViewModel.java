@@ -13,7 +13,7 @@ import com.rbraithwaite.sleepapp.di.UIDependenciesModule;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.session_archive.convert.ConvertSessionArchiveListItem;
 import com.rbraithwaite.sleepapp.ui.session_archive.data.SessionArchiveListItem;
-import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
+import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import java.util.List;

@@ -9,7 +9,7 @@ import com.rbraithwaite.sleepapp.test_utils.ui.UITestNavigate;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
-import com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils;
+import com.rbraithwaite.sleepapp.ui_tests.session_details_fragment.SessionDetailsFragmentTestUtils;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -97,10 +97,10 @@ public class MainActivityNavigationTests
         onView(allOf(withParent(withId(R.id.session_data_end_time)), withId(R.id.name))).check(
                 matches(withText(R.string.session_data_end_time_name)));
         
-        SessionDataFragmentTestUtils.onStartDateTextView().check(matches(not(withText(""))));
-        SessionDataFragmentTestUtils.onEndDateTextView().check(matches(not(withText(""))));
-        SessionDataFragmentTestUtils.onStartTimeTextView().check(matches(not(withText(""))));
-        SessionDataFragmentTestUtils.onEndTimeTextView().check(matches(not(withText(""))));
+        SessionDetailsFragmentTestUtils.onStartDateTextView().check(matches(not(withText(""))));
+        SessionDetailsFragmentTestUtils.onEndDateTextView().check(matches(not(withText(""))));
+        SessionDetailsFragmentTestUtils.onStartTimeTextView().check(matches(not(withText(""))));
+        SessionDetailsFragmentTestUtils.onEndTimeTextView().check(matches(not(withText(""))));
         
         onView(withId(R.id.session_data_duration)).check(matches(withText(new DurationFormatter().formatDurationMillis(
                 0))));

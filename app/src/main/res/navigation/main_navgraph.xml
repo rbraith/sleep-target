@@ -22,15 +22,15 @@
         android:label="SessionArchiveFragment" >
         <action
             android:id="@+id/action_sessionArchive_to_sessionData"
-            app:destination="@id/nav_session_data" />
+            app:destination="@id/nav_session_details" />
     </fragment>
     <fragment
-        android:id="@+id/nav_session_data"
-        android:name="com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragment"
-        android:label="SessionDataFragment">
+        android:id="@+id/nav_session_details"
+        android:name="com.rbraithwaite.sleepapp.ui.session_details.SessionDetailsFragment"
+        android:label="SessionDetailsFragment">
         <argument
             android:name="args"
-            app:argType="com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragment$Args" />
+            app:argType="com.rbraithwaite.sleepapp.ui.session_details.SessionDetailsFragment$Args" />
     </fragment>
     <fragment
         android:id="@+id/nav_sleepgoals"

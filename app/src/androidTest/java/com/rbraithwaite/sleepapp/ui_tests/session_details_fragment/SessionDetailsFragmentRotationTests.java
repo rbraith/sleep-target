@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui_tests.session_data_fragment;
+package com.rbraithwaite.sleepapp.ui_tests.session_details_fragment;
 
 import android.content.pm.ActivityInfo;
 
@@ -9,7 +9,7 @@ import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
-import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragment;
+import com.rbraithwaite.sleepapp.ui.session_details.SessionDetailsFragment;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,14 +23,14 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoActions.setDatePickerDate;
 import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.onDatePicker;
 import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.onTimePicker;
-import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.launchSessionDataFragmentWithArbitraryData;
-import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onEndDateTextView;
-import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onEndTimeTextView;
-import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onStartDateTextView;
-import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onStartTimeTextView;
+import static com.rbraithwaite.sleepapp.ui_tests.session_details_fragment.SessionDetailsFragmentTestUtils.launchSessionDetailsFragmentWithArbitraryData;
+import static com.rbraithwaite.sleepapp.ui_tests.session_details_fragment.SessionDetailsFragmentTestUtils.onEndDateTextView;
+import static com.rbraithwaite.sleepapp.ui_tests.session_details_fragment.SessionDetailsFragmentTestUtils.onEndTimeTextView;
+import static com.rbraithwaite.sleepapp.ui_tests.session_details_fragment.SessionDetailsFragmentTestUtils.onStartDateTextView;
+import static com.rbraithwaite.sleepapp.ui_tests.session_details_fragment.SessionDetailsFragmentTestUtils.onStartTimeTextView;
 
 @RunWith(AndroidJUnit4.class)
-public class SessionDataFragmentRotationTests
+public class SessionDetailsFragmentRotationTests
 {
 //*********************************************************
 // api
@@ -40,8 +40,8 @@ public class SessionDataFragmentRotationTests
     public void startDate_persistsAcrossOrientationChange()
     {
         // GIVEN the user updates the start date
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                launchSessionDataFragmentWithArbitraryData();
+        HiltFragmentTestHelper<SessionDetailsFragment> testHelper =
+                launchSessionDetailsFragmentWithArbitraryData();
         
         onStartDateTextView().perform(click());
         
@@ -66,8 +66,8 @@ public class SessionDataFragmentRotationTests
     public void startTime_persistsAcrossOrientationChange()
     {
         // GIVEN the user updates the start time
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                launchSessionDataFragmentWithArbitraryData();
+        HiltFragmentTestHelper<SessionDetailsFragment> testHelper =
+                launchSessionDetailsFragmentWithArbitraryData();
         
         onStartTimeTextView().perform(click());
         
@@ -92,8 +92,8 @@ public class SessionDataFragmentRotationTests
     public void endDate_persistsAcrossOrientationChange()
     {
         // GIVEN the user updates the end date
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                launchSessionDataFragmentWithArbitraryData();
+        HiltFragmentTestHelper<SessionDetailsFragment> testHelper =
+                launchSessionDetailsFragmentWithArbitraryData();
         
         onEndDateTextView().perform(click());
         
@@ -118,8 +118,8 @@ public class SessionDataFragmentRotationTests
     public void endTime_persistsAcrossOrientationChange()
     {
         // GIVEN the user updates the end time
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                launchSessionDataFragmentWithArbitraryData();
+        HiltFragmentTestHelper<SessionDetailsFragment> testHelper =
+                launchSessionDetailsFragmentWithArbitraryData();
         
         onEndTimeTextView().perform(click());
         

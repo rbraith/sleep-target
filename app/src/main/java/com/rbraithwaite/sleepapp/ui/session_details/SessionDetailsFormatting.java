@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui.session_data;
+package com.rbraithwaite.sleepapp.ui.session_details;
 
 import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
 import com.rbraithwaite.sleepapp.ui.Constants;
@@ -8,13 +8,13 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-public class SessionDataFormatting
+public class SessionDetailsFormatting
 {
 //*********************************************************
 // constructors
 //*********************************************************
 
-    private SessionDataFormatting() {/* No instantiation */}
+    private SessionDetailsFormatting() {/* No instantiation */}
 
 //*********************************************************
 // api

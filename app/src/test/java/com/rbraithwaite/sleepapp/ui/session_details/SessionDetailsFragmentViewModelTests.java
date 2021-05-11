@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui.session_data;
+package com.rbraithwaite.sleepapp.ui.session_details;
 
 import androidx.lifecycle.LiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -12,7 +12,7 @@ import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.common.tag_selector.ConvertTag;
 import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagUiData;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
-import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
+import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
 
 import org.junit.After;
 import org.junit.Before;
@@ -32,13 +32,13 @@ import static org.hamcrest.Matchers.nullValue;
 
 // REFACTOR [20-12-8 8:52PM] -- consider splitting this into separate test classes?
 @RunWith(AndroidJUnit4.class)
-public class SessionDataFragmentViewModelTests
+public class SessionDetailsFragmentViewModelTests
 {
 //*********************************************************
 // package properties
 //*********************************************************
 
-    SessionDataFragmentViewModel viewModel;
+    SessionDetailsFragmentViewModel viewModel;
 
 //*********************************************************
 // api
@@ -47,7 +47,7 @@ public class SessionDataFragmentViewModelTests
     @Before
     public void setup()
     {
-        viewModel = new SessionDataFragmentViewModel();
+        viewModel = new SessionDetailsFragmentViewModel();
     }
     
     @After
@@ -176,7 +176,7 @@ public class SessionDataFragmentViewModelTests
         assertThat(result.getAdditionalComments(), is(equalTo(expectedComments)));
     }
     
-    @Test(expected = SessionDataFragmentViewModel.InvalidDateTimeException.class)
+    @Test(expected = SessionDetailsFragmentViewModel.InvalidDateTimeException.class)
     public void setEndTime_throwsIfEndIsBeforeStart()
     {
         GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
@@ -284,7 +284,7 @@ public class SessionDataFragmentViewModelTests
         assertTimesOfDayAreTheSame(endTime.getValue(), originalEnd);
     }
     
-    @Test(expected = SessionDataFragmentViewModel.InvalidDateTimeException.class)
+    @Test(expected = SessionDetailsFragmentViewModel.InvalidDateTimeException.class)
     public void setEndDate_throwsIfEndIsBeforeStart()
     {
         GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
@@ -347,7 +347,7 @@ public class SessionDataFragmentViewModelTests
         assertThat(startDate.getValue(), is(equalTo(calendar)));
     }
     
-    @Test(expected = SessionDataFragmentViewModel.InvalidDateTimeException.class)
+    @Test(expected = SessionDetailsFragmentViewModel.InvalidDateTimeException.class)
     public void setStartDate_throwsIfStartIsAfterEnd()
     {
         GregorianCalendar calendar = new GregorianCalendar();
@@ -419,7 +419,7 @@ public class SessionDataFragmentViewModelTests
     // TODO [20-12-6 8:20PM] -- test needed for setStartTime being called without
     //  setStartDateTime first being called.
     
-    @Test(expected = SessionDataFragmentViewModel.InvalidDateTimeException.class)
+    @Test(expected = SessionDetailsFragmentViewModel.InvalidDateTimeException.class)
     public void setStartTime_throwsIfStartIsAfterEnd()
     {
         GregorianCalendar calendar = new GregorianCalendar();

@@ -1,10 +1,9 @@
-package com.rbraithwaite.sleepapp.ui.session_data.controllers;
+package com.rbraithwaite.sleepapp.ui.session_details.controllers;
 
 import androidx.lifecycle.LiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
-import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
 
 import org.junit.After;
 import org.junit.Before;

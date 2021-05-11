@@ -1,13 +1,10 @@
-package com.rbraithwaite.sleepapp.ui.session_data.controllers;
+package com.rbraithwaite.sleepapp.ui.session_details.controllers;
 
 import android.view.View;
-import android.widget.DatePicker;
 import android.widget.TextView;
-import android.widget.TimePicker;
 
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.Observer;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.common.dialog.DatePickerFragment;

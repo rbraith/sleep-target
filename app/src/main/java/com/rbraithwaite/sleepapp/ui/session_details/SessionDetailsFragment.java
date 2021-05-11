@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui.session_data;
+package com.rbraithwaite.sleepapp.ui.session_details;
 
 import android.os.Bundle;
 import android.text.Editable;
@@ -25,8 +25,8 @@ import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodSelectorViewModel;
 import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagSelectorController;
 import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagSelectorViewModel;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragmentDirections;
-import com.rbraithwaite.sleepapp.ui.session_data.controllers.DateTimeController;
-import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
+import com.rbraithwaite.sleepapp.ui.session_details.controllers.DateTimeController;
+import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
 
 import java.io.Serializable;
@@ -36,8 +36,8 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 
 @AndroidEntryPoint
-public class SessionDataFragment
-        extends BaseFragment<SessionDataFragmentViewModel>
+public class SessionDetailsFragment
+        extends BaseFragment<SessionDetailsFragmentViewModel>
 {
 //*********************************************************
 // private properties
@@ -65,7 +65,7 @@ public class SessionDataFragment
 // private constants
 //*********************************************************
 
-    private static final String TAG = "SessionDataFragment";
+    private static final String TAG = "SessionDetailsFragment";
 
 //*********************************************************
 // public constants
@@ -135,14 +135,14 @@ public class SessionDataFragment
          * The fragment is passed so that clients can control whether or not the fragment is
          * completed, among other things.
          */
-        public abstract void onAction(SessionDataFragment fragment, SleepSessionWrapper result);
+        public abstract void onAction(SessionDetailsFragment fragment, SleepSessionWrapper result);
     }
     
 //*********************************************************
 // constructors
 //*********************************************************
 
-    public SessionDataFragment() { setHasOptionsMenu(true); }
+    public SessionDetailsFragment() { setHasOptionsMenu(true); }
     
 //*********************************************************
 // overrides
@@ -161,7 +161,7 @@ public class SessionDataFragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
     {
-        SessionDataFragmentArgs safeArgs = SessionDataFragmentArgs.fromBundle(getArguments());
+        SessionDetailsFragmentArgs safeArgs = SessionDetailsFragmentArgs.fromBundle(getArguments());
         Args args = safeArgs.getArgs();
         // init members
         mPositiveIcon = args.positiveIcon;
@@ -243,7 +243,7 @@ public class SessionDataFragment
     protected boolean getBottomNavVisibility() { return false; }
 
     @Override
-    protected Class<SessionDataFragmentViewModel> getViewModelClass() { return SessionDataFragmentViewModel.class; }
+    protected Class<SessionDetailsFragmentViewModel> getViewModelClass() { return SessionDetailsFragmentViewModel.class; }
     
 //*********************************************************
 // api
@@ -381,13 +381,13 @@ public class SessionDataFragment
             @Override
             public String formatTimeOfDay(int hourOfDay, int minute)
             {
-                return SessionDataFormatting.formatTimeOfDay(hourOfDay, minute);
+                return SessionDetailsFormatting.formatTimeOfDay(hourOfDay, minute);
             }
             
             @Override
             public String formatDate(int year, int month, int dayOfMonth)
             {
-                return SessionDataFormatting.formatDate(year, month, dayOfMonth);
+                return SessionDetailsFormatting.formatDate(year, month, dayOfMonth);
             }
         };
     }
@@ -409,7 +409,7 @@ public class SessionDataFragment
                             try {
                                 getViewModel().setStartDate(year, month, dayOfMonth);
                                 return true;
-                            } catch (SessionDataFragmentViewModel.InvalidDateTimeException e) {
+                            } catch (SessionDetailsFragmentViewModel.InvalidDateTimeException e) {
                                 displayErrorSnackbar(R.string.error_session_edit_start_datetime);
                                 return false;
                             }
@@ -421,7 +421,7 @@ public class SessionDataFragment
                             try {
                                 getViewModel().setStartTimeOfDay(hourOfDay, minute);
                                 return true;
-                            } catch (SessionDataFragmentViewModel.InvalidDateTimeException e) {
+                            } catch (SessionDetailsFragmentViewModel.InvalidDateTimeException e) {
                                 displayErrorSnackbar(R.string.error_session_edit_start_datetime);
                                 return false;
                             }
@@ -447,7 +447,7 @@ public class SessionDataFragment
                             try {
                                 getViewModel().setEndDate(year, month, dayOfMonth);
                                 return true;
-                            } catch (SessionDataFragmentViewModel.InvalidDateTimeException e) {
+                            } catch (SessionDetailsFragmentViewModel.InvalidDateTimeException e) {
                                 displayErrorSnackbar(R.string.error_session_edit_end_datetime);
                                 return false;
                             }
@@ -459,7 +459,7 @@ public class SessionDataFragment
                             try {
                                 getViewModel().setEndTimeOfDay(hourOfDay, minute);
                                 return true;
-                            } catch (SessionDataFragmentViewModel.InvalidDateTimeException e) {
+                            } catch (SessionDetailsFragmentViewModel.InvalidDateTimeException e) {
                                 displayErrorSnackbar(R.string.error_session_edit_end_datetime);
                                 return false;
                             }

@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui.session_data;
+package com.rbraithwaite.sleepapp.ui.session_details;
 
 import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFormatting;
@@ -9,7 +9,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
-public class SessionDataFormattingTests
+public class SessionDetailsFormattingTests
 {
 //*********************************************************
 // api
@@ -30,7 +30,7 @@ public class SessionDataFormattingTests
             String expected = (String) d[1];
             
             assertThat(
-                    SessionDataFormatting.formatSleepDurationGoal(new SleepDurationGoal(minutes)),
+                    SessionDetailsFormatting.formatSleepDurationGoal(new SleepDurationGoal(minutes)),
                     is(equalTo(expected)));
         }
     }
@@ -52,7 +52,7 @@ public class SessionDataFormattingTests
             String expected = (String) d[2];
             
             assertThat(
-                    SessionDataFormatting.formatTimeOfDay(hourOfDay, minutes),
+                    SessionDetailsFormatting.formatTimeOfDay(hourOfDay, minutes),
                     is(equalTo(expected)));
         }
     }
@@ -72,7 +72,7 @@ public class SessionDataFormattingTests
             String expected = (String) d[3];
             
             assertThat(
-                    SessionDataFormatting.formatDate(year, month, dayOfMonth),
+                    SessionDetailsFormatting.formatDate(year, month, dayOfMonth),
                     is(equalTo(expected)));
         }
     }

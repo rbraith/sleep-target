@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui.session_data;
+package com.rbraithwaite.sleepapp.ui.session_details;
 
 import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
@@ -14,7 +14,7 @@ import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.common.tag_selector.ConvertTag;
 import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagUiData;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
-import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
+import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import java.util.Calendar;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 //  much information. Instead there should be TimeOfDay and Date which are simple POJOs and
 //  contain eg hourOfDay & minute fields. Then I can use Date & Calendar in the impls to convert
 //  for storage or display
-public class SessionDataFragmentViewModel
+public class SessionDetailsFragmentViewModel
         extends ViewModel
 {
 //*********************************************************
@@ -56,7 +56,7 @@ public class SessionDataFragmentViewModel
 //*********************************************************
 
     @ViewModelInject
-    public SessionDataFragmentViewModel()
+    public SessionDetailsFragmentViewModel()
     {
     }
 

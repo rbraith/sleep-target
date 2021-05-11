@@ -11,7 +11,7 @@ import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_archive.data.SessionArchiveListItem;
-import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
+import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
 
 import org.junit.After;
 import org.junit.Before;

@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui_tests.session_data_fragment;
+package com.rbraithwaite.sleepapp.ui_tests.session_details_fragment;
 
 import android.os.Bundle;
 
@@ -13,8 +13,8 @@ import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
-import com.rbraithwaite.sleepapp.ui.session_data.SessionDataFragment;
-import com.rbraithwaite.sleepapp.ui.session_data.data.SleepSessionWrapper;
+import com.rbraithwaite.sleepapp.ui.session_details.SessionDetailsFragment;
+import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,13 +37,13 @@ import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoMatchers.datePicke
 import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoMatchers.timePickerWithTime;
 import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.onDatePicker;
 import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.onTimePicker;
-import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onEndDateTextView;
-import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onEndTimeTextView;
-import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onStartDateTextView;
-import static com.rbraithwaite.sleepapp.ui_tests.session_data_fragment.SessionDataFragmentTestUtils.onStartTimeTextView;
+import static com.rbraithwaite.sleepapp.ui_tests.session_details_fragment.SessionDetailsFragmentTestUtils.onEndDateTextView;
+import static com.rbraithwaite.sleepapp.ui_tests.session_details_fragment.SessionDetailsFragmentTestUtils.onEndTimeTextView;
+import static com.rbraithwaite.sleepapp.ui_tests.session_details_fragment.SessionDetailsFragmentTestUtils.onStartDateTextView;
+import static com.rbraithwaite.sleepapp.ui_tests.session_details_fragment.SessionDetailsFragmentTestUtils.onStartTimeTextView;
 
 @RunWith(AndroidJUnit4.class)
-public class SessionDataFragmentTests
+public class SessionDetailsFragmentTests
 {
 //*********************************************************
 // public properties
@@ -61,8 +61,8 @@ public class SessionDataFragmentTests
     public void startTime_updatesWhenPositiveDialogIsConfirmed()
     {
         // GIVEN the user has the start time dialog open
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                SessionDataFragmentTestUtils.launchWithZeroDuration();
+        HiltFragmentTestHelper<SessionDetailsFragment> testHelper =
+                SessionDetailsFragmentTestUtils.launchWithZeroDuration();
         
         onStartTimeTextView().perform(click());
         
@@ -97,10 +97,10 @@ public class SessionDataFragmentTests
         SleepSession sleepSession = TestUtils.ArbitraryData.getSleepSession();
         sleepSession.setStart(calendar.getTime());
         
-        Bundle args = SessionDataFragment.createArguments(
-                new SessionDataFragment.ArgsBuilder(new SleepSessionWrapper(sleepSession)).build());
-        HiltFragmentTestHelper<SessionDataFragment> testHelper
-                = HiltFragmentTestHelper.launchFragmentWithArgs(SessionDataFragment.class, args);
+        Bundle args = SessionDetailsFragment.createArguments(
+                new SessionDetailsFragment.ArgsBuilder(new SleepSessionWrapper(sleepSession)).build());
+        HiltFragmentTestHelper<SessionDetailsFragment> testHelper
+                = HiltFragmentTestHelper.launchFragmentWithArgs(SessionDetailsFragment.class, args);
         
         // WHEN the user presses the start time text view
         onStartTimeTextView().perform(click());
@@ -117,8 +117,8 @@ public class SessionDataFragmentTests
     public void startTimeDialog_reflectsUpdatedStartTime()
     {
         // GIVEN the user updates the start time from the dialog
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                SessionDataFragmentTestUtils.launchWithZeroDuration();
+        HiltFragmentTestHelper<SessionDetailsFragment> testHelper =
+                SessionDetailsFragmentTestUtils.launchWithZeroDuration();
         
         onStartTimeTextView().perform(click());
         
@@ -143,8 +143,8 @@ public class SessionDataFragmentTests
     public void invalidStartTimeDialog_showsError()
     {
         // GIVEN the user has the start time dialog open
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                SessionDataFragmentTestUtils.launchWithZeroDuration();
+        HiltFragmentTestHelper<SessionDetailsFragment> testHelper =
+                SessionDetailsFragmentTestUtils.launchWithZeroDuration();
         
         onStartTimeTextView().perform(click());
         
@@ -169,8 +169,8 @@ public class SessionDataFragmentTests
     public void startDate_updatesWhenPositiveDialogIsConfirmed()
     {
         // GIVEN the user has the start date dialog open
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                SessionDataFragmentTestUtils.launchWithZeroDuration();
+        HiltFragmentTestHelper<SessionDetailsFragment> testHelper =
+                SessionDetailsFragmentTestUtils.launchWithZeroDuration();
         
         onStartDateTextView().perform(click());
         
@@ -204,10 +204,10 @@ public class SessionDataFragmentTests
         SleepSession sleepSession = TestUtils.ArbitraryData.getSleepSession();
         sleepSession.setStart(calendar.getTime());
         
-        Bundle args = SessionDataFragment.createArguments(
-                new SessionDataFragment.ArgsBuilder(new SleepSessionWrapper(sleepSession)).build());
-        HiltFragmentTestHelper<SessionDataFragment> testHelper
-                = HiltFragmentTestHelper.launchFragmentWithArgs(SessionDataFragment.class, args);
+        Bundle args = SessionDetailsFragment.createArguments(
+                new SessionDetailsFragment.ArgsBuilder(new SleepSessionWrapper(sleepSession)).build());
+        HiltFragmentTestHelper<SessionDetailsFragment> testHelper
+                = HiltFragmentTestHelper.launchFragmentWithArgs(SessionDetailsFragment.class, args);
         
         // WHEN the user presses the start date text view
         onStartDateTextView().perform(click());
@@ -225,8 +225,8 @@ public class SessionDataFragmentTests
     public void invalidStartDateDialog_showsError()
     {
         // GIVEN the user has the start date dialog open
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                SessionDataFragmentTestUtils.launchWithZeroDuration();
+        HiltFragmentTestHelper<SessionDetailsFragment> testHelper =
+                SessionDetailsFragmentTestUtils.launchWithZeroDuration();
         
         onStartDateTextView().perform(click());
         
@@ -253,8 +253,8 @@ public class SessionDataFragmentTests
     public void startDateDialog_reflectsUpdatedStartDate()
     {
         // GIVEN the user updates the start date from the dialog
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                SessionDataFragmentTestUtils.launchWithZeroDuration();
+        HiltFragmentTestHelper<SessionDetailsFragment> testHelper =
+                SessionDetailsFragmentTestUtils.launchWithZeroDuration();
         
         onStartDateTextView().perform(click());
         
@@ -281,12 +281,12 @@ public class SessionDataFragmentTests
     public void endDate_displaysCorrectDialogWhenPressed()
     {
         // GIVEN the user has the session edit fragment open
-        Bundle args = SessionDataFragment.createArguments(
-                new SessionDataFragment.ArgsBuilder(
+        Bundle args = SessionDetailsFragment.createArguments(
+                new SessionDetailsFragment.ArgsBuilder(
                         new SleepSessionWrapper(TestUtils.ArbitraryData.getSleepSession()))
                         .build());
-        HiltFragmentTestHelper<SessionDataFragment> testHelper
-                = HiltFragmentTestHelper.launchFragmentWithArgs(SessionDataFragment.class, args);
+        HiltFragmentTestHelper<SessionDetailsFragment> testHelper
+                = HiltFragmentTestHelper.launchFragmentWithArgs(SessionDetailsFragment.class, args);
         
         // WHEN the user presses the end date text view
         onEndDateTextView().perform(click());
@@ -305,8 +305,8 @@ public class SessionDataFragmentTests
     public void endDate_updatesWhenPositiveDialogIsConfirmed()
     {
         // GIVEN the user has the end date dialog open
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                SessionDataFragmentTestUtils.launchWithZeroDuration();
+        HiltFragmentTestHelper<SessionDetailsFragment> testHelper =
+                SessionDetailsFragmentTestUtils.launchWithZeroDuration();
         
         onEndDateTextView().perform(click());
         
@@ -335,8 +335,8 @@ public class SessionDataFragmentTests
     public void endDateDialog_reflectsUpdatedEndDate()
     {
         // GIVEN the user updates the end date from the dialog
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                SessionDataFragmentTestUtils.launchWithZeroDuration();
+        HiltFragmentTestHelper<SessionDetailsFragment> testHelper =
+                SessionDetailsFragmentTestUtils.launchWithZeroDuration();
         
         onEndDateTextView().perform(click());
         
@@ -363,8 +363,8 @@ public class SessionDataFragmentTests
     public void invalidEndDate_showsError()
     {
         // GIVEN the user has the end date dialog open
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                SessionDataFragmentTestUtils.launchWithZeroDuration();
+        HiltFragmentTestHelper<SessionDetailsFragment> testHelper =
+                SessionDetailsFragmentTestUtils.launchWithZeroDuration();
         
         onEndDateTextView().perform(click());
         
@@ -391,12 +391,12 @@ public class SessionDataFragmentTests
     public void endTime_displaysCorrectDialogWhenPressed()
     {
         // GIVEN the user has the session edit fragment open
-        Bundle args = SessionDataFragment.createArguments(
-                new SessionDataFragment.ArgsBuilder(
+        Bundle args = SessionDetailsFragment.createArguments(
+                new SessionDetailsFragment.ArgsBuilder(
                         new SleepSessionWrapper(TestUtils.ArbitraryData.getSleepSession()))
                         .build());
-        HiltFragmentTestHelper<SessionDataFragment> testHelper
-                = HiltFragmentTestHelper.launchFragmentWithArgs(SessionDataFragment.class, args);
+        HiltFragmentTestHelper<SessionDetailsFragment> testHelper
+                = HiltFragmentTestHelper.launchFragmentWithArgs(SessionDetailsFragment.class, args);
         
         // WHEN the user presses the end time text view
         onEndTimeTextView().perform(click());
@@ -414,8 +414,8 @@ public class SessionDataFragmentTests
     public void endTime_updatesWhenPositiveDialogIsConfirmed()
     {
         // GIVEN the user has the end time dialog open
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                SessionDataFragmentTestUtils.launchWithZeroDuration();
+        HiltFragmentTestHelper<SessionDetailsFragment> testHelper =
+                SessionDetailsFragmentTestUtils.launchWithZeroDuration();
         
         onEndTimeTextView().perform(click());
         
@@ -443,8 +443,8 @@ public class SessionDataFragmentTests
     public void endTimeDialog_reflectsUpdatedEndTime()
     {
         // GIVEN the user updates the end time from the dialog
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                SessionDataFragmentTestUtils.launchWithZeroDuration();
+        HiltFragmentTestHelper<SessionDetailsFragment> testHelper =
+                SessionDetailsFragmentTestUtils.launchWithZeroDuration();
         
         onEndTimeTextView().perform(click());
         
@@ -469,8 +469,8 @@ public class SessionDataFragmentTests
     public void invalidEndTimeDialog_showsError()
     {
         // GIVEN the user has the end time dialog open
-        HiltFragmentTestHelper<SessionDataFragment> testHelper =
-                SessionDataFragmentTestUtils.launchWithZeroDuration();
+        HiltFragmentTestHelper<SessionDetailsFragment> testHelper =
+                SessionDetailsFragmentTestUtils.launchWithZeroDuration();
         
         onEndTimeTextView().perform(click());
         
@@ -509,11 +509,11 @@ public class SessionDataFragmentTests
         sleepSession.setStart(testStartTime);
         sleepSession.setDurationMillis(testEndTime.getTime() - testStartTime.getTime());
         
-        HiltFragmentTestHelper<SessionDataFragment> testHelper
+        HiltFragmentTestHelper<SessionDetailsFragment> testHelper
                 = HiltFragmentTestHelper.launchFragmentWithArgs(
-                SessionDataFragment.class,
-                SessionDataFragment.createArguments(
-                        new SessionDataFragment.ArgsBuilder(new SleepSessionWrapper(sleepSession))
+                SessionDetailsFragment.class,
+                SessionDetailsFragment.createArguments(
+                        new SessionDetailsFragment.ArgsBuilder(new SleepSessionWrapper(sleepSession))
                                 .setPositiveIcon(R.drawable.ic_baseline_bar_chart_24)
                                 .setNegativeIcon(R.drawable.ic_baseline_nights_stay_24)
                                 .build()));
