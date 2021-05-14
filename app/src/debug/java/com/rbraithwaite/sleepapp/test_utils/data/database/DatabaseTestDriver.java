@@ -1,12 +1,17 @@
 package com.rbraithwaite.sleepapp.test_utils.data.database;
 
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
+import androidx.lifecycle.LiveData;
+import androidx.room.Room;
 
-import androidx.test.platform.app.InstrumentationRegistry;
-
+import com.rbraithwaite.sleepapp.core.models.SleepSession;
+import com.rbraithwaite.sleepapp.core.models.Tag;
+import com.rbraithwaite.sleepapp.data.convert.ConvertSleepSession;
+import com.rbraithwaite.sleepapp.data.convert.ConvertTag;
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
-import com.rbraithwaite.sleepapp.test_utils.data.database.daos.SleepSessionTestDao;
+import com.rbraithwaite.sleepapp.test_utils.TestUtils;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -18,15 +23,14 @@ public class DatabaseTestDriver
 // private properties
 //*********************************************************
 
-    private SQLiteDatabase mDatabase;
-    private SleepSessionTestDao mSleepSessionTestDao;
+    private SleepAppDatabase mDatabase;
 
 //*********************************************************
 // public constants
 //*********************************************************
 
     public final Assertions assertThat;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -42,11 +46,14 @@ public class DatabaseTestDriver
         
         public void sleepSessionCountIs(int count)
         {
-            assertThat(mOwner.mSleepSessionTestDao.getAllSleepSessionIds().size(),
-                       is(equalTo(count)));
+            LiveData<List<Integer>> sessionIds =
+                    mOwner.mDatabase.getSleepSessionDao().getAllSleepSessionIds();
+            TestUtils.activateInstrumentationLiveData(sessionIds);
+            
+            assertThat(sessionIds.getValue().size(), is(equalTo(count)));
         }
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -55,22 +62,38 @@ public class DatabaseTestDriver
     {
         assertThat = new Assertions(this);
         mDatabase = findDatabase();
-        mSleepSessionTestDao = new SleepSessionTestDao(mDatabase);
     }
     
+//*********************************************************
+// api
+//*********************************************************
+
+    public void addSleepSession(SleepSession sleepSession)
+    {
+        // make sure the tags exist in the db before adding the sleep session w/ tags
+        for (Tag tag : sleepSession.getTags()) {
+            mDatabase.getTagDao().addTag(ConvertTag.toEntity(tag));
+        }
+        
+        // REFACTOR [21-05-14 3:58PM] -- This duplicates the SleepSessionRepository code, it
+        //  would be
+        //  better to use that repo directly
+        //  see https://developer.android.com/training/dependency-injection/hilt-testing#testing
+        //  -dependencies.
+        mDatabase.getSleepSessionDao().addSleepSessionWithTags(
+                ConvertSleepSession.toEntity(sleepSession),
+                sleepSession.getTags().stream().map(Tag::getTagId).collect(Collectors.toList()));
+    }
+
 //*********************************************************
 // private methods
 //*********************************************************
 
-    private SQLiteDatabase findDatabase()
+    private SleepAppDatabase findDatabase()
     {
-        // HACK [21-05-8 3:08PM] -- I need to find some way to access the RoomDatabase lol.
-        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        for (String databaseName : context.databaseList()) {
-            if (SleepAppDatabase.NAME.equals(databaseName)) {
-                return context.openOrCreateDatabase(SleepAppDatabase.NAME, 0, null);
-            }
-        }
-        throw new RuntimeException("Could not find database.");
+        return Room.databaseBuilder(
+                TestUtils.getContext(),
+                SleepAppDatabase.class,
+                SleepAppDatabase.NAME).build();
     }
 }

@@ -8,11 +8,13 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
+import com.rbraithwaite.sleepapp.test_utils.data.database.DatabaseTestDriver;
 import com.rbraithwaite.sleepapp.test_utils.ui.MoodSelectorTestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.TagSelectorTestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestNavigate;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
+import com.rbraithwaite.sleepapp.test_utils.ui.drivers.SessionArchiveTestDriver;
 import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
@@ -44,6 +46,30 @@ public class SessionArchiveFragmentTests
 // api
 //*********************************************************
 
+    // TODO [21-05-14 3:30PM] -- make this test coarser - check that all the session details are
+    //  displayed correctly in the list item.
+    @Test
+    public void ratingIndicatorDisplaysProperly()
+    {
+        // REFACTOR [21-05-14 3:36PM] -- put sessionArchive & database in a setup method.
+        //  update all tests to use these drivers.
+        DatabaseTestDriver database = new DatabaseTestDriver();
+        SleepSession sleepSession = TestUtils.ArbitraryData.getSleepSession();
+        database.addSleepSession(sleepSession);
+        
+        // REFACTOR [21-05-14 3:40PM] -- It would be better if the activity didn't launch
+        //  immediately, so I could instantiate the driver in setup, but still pre-define data in
+        //  the database in the test itself
+        //  ---
+        //  solution: inject a ProviderOf<FragmentTestHelper> instead, and have a
+        //  driver.launch() method - this could be in a generic base driver.
+        SessionArchiveTestDriver sessionArchive = new SessionArchiveTestDriver(
+                HiltFragmentTestHelper.launchFragment(SessionArchiveFragment.class));
+        
+        sessionArchive.assertThatListItemAtIndex(0).hasRating(sleepSession.getRating());
+    }
+    
+    
     // REFACTOR [21-04-22 12:47AM] -- Not sure where to put this so I'm putting it here: the
     //  layouts for sleep_tracker_more_context.xml and session_data_fragment.xml are very similar.
     //  Consider extracting this group of [mood, tags, comments, etc] as a separate layout.

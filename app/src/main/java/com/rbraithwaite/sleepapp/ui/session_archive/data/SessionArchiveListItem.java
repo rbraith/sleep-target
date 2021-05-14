@@ -18,6 +18,7 @@ public class SessionArchiveListItem
     public boolean hasAdditionalComments;
     public MoodUiData mood;
     public List<String> tags;
+    public float rating;
 
 //*********************************************************
 // api
@@ -29,7 +30,8 @@ public class SessionArchiveListItem
             String sessionDuration,
             boolean hasAdditionalComments,
             MoodUiData mood,
-            List<String> tags)
+            List<String> tags,
+            float rating)
     {
         SessionArchiveListItem listItem = new SessionArchiveListItem();
         listItem.startTime = startTime;
@@ -38,6 +40,7 @@ public class SessionArchiveListItem
         listItem.hasAdditionalComments = hasAdditionalComments;
         listItem.mood = mood;
         listItem.tags = tags == null ? new ArrayList<>() : tags;
+        listItem.rating = rating;
         return listItem;
     }
 }

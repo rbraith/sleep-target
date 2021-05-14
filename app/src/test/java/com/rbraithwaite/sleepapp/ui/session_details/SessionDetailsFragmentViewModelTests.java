@@ -20,7 +20,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.sql.Time;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -65,11 +64,11 @@ public class SessionDetailsFragmentViewModelTests
         viewModel.setSessionData(new SleepSessionWrapper(sleepSession));
         
         assertThat(viewModel.getRating(), is(equalTo(sleepSession.getRating())));
-    
+        
         // SUT
         float expectedRating = sleepSession.getRating() + 0.5f;
         viewModel.setRating(expectedRating);
-    
+        
         assertThat(viewModel.getRating(), is(equalTo(expectedRating)));
     }
     
@@ -188,11 +187,15 @@ public class SessionDetailsFragmentViewModelTests
         
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTime(expected.getStart());
-        viewModel.setStartDate(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
+        viewModel.setStartDate(cal.get(Calendar.YEAR),
+                               cal.get(Calendar.MONTH),
+                               cal.get(Calendar.DAY_OF_MONTH));
         viewModel.setStartTimeOfDay(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
-    
+        
         cal.setTime(expected.getEnd());
-        viewModel.setEndDate(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
+        viewModel.setEndDate(cal.get(Calendar.YEAR),
+                             cal.get(Calendar.MONTH),
+                             cal.get(Calendar.DAY_OF_MONTH));
         viewModel.setEndTimeOfDay(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
         
         viewModel.setAdditionalComments(expected.getAdditionalComments());

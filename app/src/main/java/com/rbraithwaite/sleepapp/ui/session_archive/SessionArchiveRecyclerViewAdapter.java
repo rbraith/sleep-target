@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -84,6 +85,7 @@ public class SessionArchiveRecyclerViewAdapter
         LinearLayout tagsLineOne;
         LinearLayout tagsLineTwo;
         TextView tagsMore;
+        RatingBar ratingIndicator;
         
         public ViewHolder(
                 @NonNull View itemView,
@@ -103,6 +105,7 @@ public class SessionArchiveRecyclerViewAdapter
             this.tagsLineOne = this.tagsFrame.findViewById(R.id.tags_line_one);
             this.tagsLineTwo = this.tagsFrame.findViewById(R.id.tags_line_two);
             this.tagsMore = this.tagsFrame.findViewById(R.id.tags_more);
+            this.ratingIndicator = itemView.findViewById(R.id.session_archive_list_item_rating);
             
             itemView.setOnClickListener(v -> {
                 if (onListItemClickListener != null) {
@@ -240,6 +243,8 @@ public class SessionArchiveRecyclerViewAdapter
                     } else {
                         viewHolder.tagsFrame.setVisibility(View.GONE);
                     }
+                    
+                    viewHolder.ratingIndicator.setRating(sessionArchiveListItem.rating);
                 }
             }
         };

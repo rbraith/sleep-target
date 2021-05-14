@@ -21,7 +21,7 @@ public class ConvertSessionArchiveListItem
 // api
 //*********************************************************
 
-    
+    // TEST NEEDED [21-05-14 5:09PM] -- update tests with rating data.
     /**
      * Converts a SleepSession to a SessionArchiveListItem.
      *
@@ -40,7 +40,8 @@ public class ConvertSessionArchiveListItem
                 SessionArchiveFormatting.formatDuration(sleepSession.getDurationMillis()),
                 (sleepSession.getAdditionalComments() != null),
                 ConvertMood.toUiData(sleepSession.getMood()),
-                convertTags(sleepSession.getTags()));
+                convertTags(sleepSession.getTags()),
+                sleepSession.getRating());
     }
     
 //*********************************************************
