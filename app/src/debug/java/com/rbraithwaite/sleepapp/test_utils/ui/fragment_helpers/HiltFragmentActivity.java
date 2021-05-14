@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.test_utils.ui;
+package com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -18,16 +18,8 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class HiltFragmentActivity
         extends AppCompatActivity
 {
-//*********************************************************
-// public constants
-//*********************************************************
-
     public static final String FRAGMENT_TAG = "hilt fragment";
     
-//*********************************************************
-// api
-//*********************************************************
-
     public Fragment getFragment()
     {
         return getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);

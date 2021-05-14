@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.test_utils.ui;
+package com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers;
 
 import android.os.Bundle;
 
@@ -21,22 +21,20 @@ import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 // You unfortunately lose the lifecycle-transition capabilities of FragmentScenario. I tried looking
 // at the FragmentScenario source, but its a final class so I don't think there's anything I can do.
 // This is mainly for testing fragment UI in isolation I guess.
+
+
+/**
+ * This is for testing Hilt fragments in isolation, since currently FragmentScenario doesn't play
+ * nice with them.
+ */
 public class HiltFragmentTestHelper<FragmentType extends Fragment>
+        implements FragmentTestHelper<FragmentType>
 {
 //*********************************************************
 // private properties
 //*********************************************************
 
     private ActivityScenario<HiltFragmentActivity> mScenario;
-
-//*********************************************************
-// public helpers
-//*********************************************************
-
-    public interface SyncedFragmentAction<F extends Fragment>
-    {
-        public void perform(F fragment);
-    }
 
 //*********************************************************
 // constructors
@@ -49,6 +47,33 @@ public class HiltFragmentTestHelper<FragmentType extends Fragment>
                 mScenario, activity -> setupActivityWithFragment(activity, fragmentClass, args));
     }
 
+//*********************************************************
+// overrides
+//*********************************************************
+
+    public ActivityScenario<HiltFragmentActivity> getScenario()
+    {
+        return mScenario;
+    }
+    
+    @Override
+    public void performSyncedFragmentAction(FragmentTestHelper.SyncedFragmentAction<FragmentType> syncedFragmentAction)
+    {
+        TestUtils.performSyncedActivityAction(
+                mScenario,
+                activity -> {
+                    FragmentType fragment = (FragmentType) activity.getFragment();
+                    syncedFragmentAction.performOn(fragment);
+                }
+        );
+    }
+    
+    public void restartFragment()
+    {
+        // this is what FragmentScenario does so I'm doing it too lol
+        mScenario.recreate();
+    }
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -64,28 +89,6 @@ public class HiltFragmentTestHelper<FragmentType extends Fragment>
             final Bundle args)
     {
         return new HiltFragmentTestHelper<>(fragmentClass, args);
-    }
-    
-    public ActivityScenario<HiltFragmentActivity> getScenario()
-    {
-        return mScenario;
-    }
-    
-    public void performSyncedFragmentAction(final SyncedFragmentAction<FragmentType> syncedFragmentAction)
-    {
-        TestUtils.performSyncedActivityAction(
-                mScenario,
-                activity -> {
-                    FragmentType fragment = (FragmentType) activity.getFragment();
-                    syncedFragmentAction.perform(fragment);
-                }
-        );
-    }
-    
-    public void restartFragment()
-    {
-        // this is what FragmentScenario does so I'm doing it too lol
-        mScenario.recreate();
     }
 
 //*********************************************************

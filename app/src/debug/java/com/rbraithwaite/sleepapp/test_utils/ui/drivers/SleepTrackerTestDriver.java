@@ -3,12 +3,14 @@ package com.rbraithwaite.sleepapp.test_utils.ui.drivers;
 import androidx.test.espresso.ViewInteraction;
 
 import com.rbraithwaite.sleepapp.R;
+import com.rbraithwaite.sleepapp.core.models.SleepSession;
+import com.rbraithwaite.sleepapp.core.models.Tag;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
-import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.assertion_utils.AssertOn;
 import com.rbraithwaite.sleepapp.test_utils.ui.assertion_utils.AssertionFailed;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
+import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.FragmentTestHelper;
 import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodSelectorViewModel;
 import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagScrollController;
 import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagSelectorViewModel;
@@ -18,11 +20,12 @@ import com.rbraithwaite.sleepapp.ui.sleep_tracker.PostSleepDialogFormatting;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFragment;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFragmentViewModel;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
+import com.rbraithwaite.sleepapp.utils.interfaces.Action;
 
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -41,7 +44,7 @@ public class SleepTrackerTestDriver
 // private properties
 //*********************************************************
 
-    private HiltFragmentTestHelper<SleepTrackerFragment> mHelper;
+    private FragmentTestHelper<SleepTrackerFragment> mHelper;
     private MoodSelectorDriver mMoodSelector;
     private TagSelectorDriver mTagSelectorDriver;
     private Boolean mInSession = false;
@@ -51,7 +54,7 @@ public class SleepTrackerTestDriver
 //*********************************************************
 
     public final Assertions assertThat;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -193,27 +196,17 @@ public class SleepTrackerTestDriver
         
         private void assertOnPostSleepDialog(AssertOn<PostSleepDialog> assertion)
         {
-            mOwningSleepTracker.mHelper.performSyncedFragmentAction(fragment -> {
-                PostSleepDialog dialog =
-                        (PostSleepDialog) fragment.getDialogByTag(SleepTrackerFragment.POST_SLEEP_DIALOG);
-                
-                if (dialog == null) {
-                    // REFACTOR [21-05-7 11:56PM] -- this could be less generic.
-                    throw new AssertionFailed("post sleep dialog does not exist");
-                }
-                
-                assertion.assertOn(dialog);
-            });
+            mOwningSleepTracker.performOnPostSleepDialog(assertion::assertOn);
         }
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
 
-    public SleepTrackerTestDriver()
+    public SleepTrackerTestDriver(FragmentTestHelper<SleepTrackerFragment> helper)
     {
-        mHelper = HiltFragmentTestHelper.launchFragment(SleepTrackerFragment.class);
+        mHelper = helper;
         mMoodSelector = new MoodSelectorDriver(
                 withId(R.id.more_context_mood),
                 getMoodSelectorViewModel());
@@ -222,7 +215,7 @@ public class SleepTrackerTestDriver
                 getTagSelectorViewModel());
         assertThat = new Assertions(this);
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -304,47 +297,11 @@ public class SleepTrackerTestDriver
     
     public void stopSleepSession(int durationMillis)
     {
-        // set the exact time by faking the TimeUtils
-        // use the actual time for the end time, and set the start time <durationMillis> before
-        // the end time
-        TimeUtils fakeTimeUtils = new TimeUtils()
-        {
-            private int timesCalled = 0;
-            private Date fakeStart;
-            private Date fakeEnd;
-            
-            @Override
-            public Date getNow()
-            {
-                timesCalled++;
-                maybeSetupDates();
-                
-                if (timesCalled == 1) {
-                    return fakeStart;
-                } else if (timesCalled == 2) {
-                    return fakeEnd;
-                } else {
-                    throw new RuntimeException("keepSleepSession TimeUtils called too much.");
-                }
-            }
-            
-            private void maybeSetupDates()
-            {
-                if (fakeStart != null) {
-                    return;
-                }
-                
-                fakeEnd = super.getNow();
-                
-                GregorianCalendar cal = new GregorianCalendar();
-                cal.setTime(fakeEnd);
-                cal.add(Calendar.MILLISECOND, durationMillis * -1);
-                
-                fakeStart = cal.getTime();
-            }
-        };
+        TimeUtils timeUtils = new TimeUtils();
+        Date end = timeUtils.getNow();
+        Date start = timeUtils.addDurationToDate(end, durationMillis * -1);
         
-        TimeUtils oldTimeUtils = injectTimeUtils(fakeTimeUtils);
+        TimeUtils oldTimeUtils = injectTimeUtils(createSessionTimeUtils(start, end));
         
         pressSleepTrackingButton();
         pressSleepTrackingButton();
@@ -357,9 +314,84 @@ public class SleepTrackerTestDriver
         mHelper.restartFragment();
     }
     
+    public void recordSpecificSession(SleepSession sleepSession)
+    {
+        setAdditionalComments(sleepSession.getAdditionalComments());
+        addNewMood(sleepSession.getMood().toIndex());
+        addTags(sleepSession.getTags().stream().map(Tag::getText).collect(Collectors.toList()));
+        // REFACTOR [21-05-11 11:47PM] -- call this ListUtils.asIndices().
+        toggleTagSelections(IntStream.range(0, sleepSession.getTags().size()).boxed().collect(
+                Collectors.toList()));
+        
+        // REFACTOR [21-05-11 9:56PM] -- this duplicates keepSleepSession - I should have an
+        //  overload: keepSleepSession(start, end) (although the adding of a rating is different...
+        //  overload stopSleepSession instead).
+        TimeUtils oldTimeUtils = injectTimeUtils(
+                createSessionTimeUtils(sleepSession.getStart(), sleepSession.getEnd()));
+        
+        pressSleepTrackingButton();
+        pressSleepTrackingButton();
+        
+        // reset the time utils once finished the operation
+        injectTimeUtils(oldTimeUtils);
+        
+        setPostSleepRating(sleepSession.getRating());
+        
+        DialogTestUtils.pressPositiveButton();
+    }
+    
+    public void setPostSleepRating(float rating)
+    {
+        performOnPostSleepDialog(dialog -> {
+            dialog.getViewModel().setRating(rating);
+        });
+    }
+    
 //*********************************************************
 // private methods
 //*********************************************************
+
+    private void performOnPostSleepDialog(Action<PostSleepDialog> action)
+    {
+        mHelper.performSyncedFragmentAction(fragment -> {
+            PostSleepDialog dialog =
+                    (PostSleepDialog) fragment.getDialogByTag(SleepTrackerFragment.POST_SLEEP_DIALOG);
+            
+            if (dialog == null) {
+                // REFACTOR [21-05-7 11:56PM] -- this could be less generic.
+                throw new AssertionFailed("post sleep dialog does not exist");
+            }
+            
+            action.performOn(dialog);
+        });
+    }
+    
+    /**
+     * Used to control the start & end times for a recorded sleep session. If getNow() is called
+     * more than twice it will throw a RuntimeException. If start or end is null, super.getNow()
+     * (i.e. the real time) is used in that Date's place.
+     */
+    private TimeUtils createSessionTimeUtils(Date start, Date end)
+    {
+        return new TimeUtils()
+        {
+            private int timesCalled = 0;
+            
+            @Override
+            public Date getNow()
+            {
+                timesCalled++;
+                
+                if (timesCalled == 1) {
+                    return start == null ? super.getNow() : start;
+                } else if (timesCalled == 2) {
+                    return end == null ? super.getNow() : end;
+                } else {
+                    throw new RuntimeException("keepSleepSession TimeUtils called too much.");
+                }
+            }
+        };
+    }
 
     private TagSelectorViewModel getTagSelectorViewModel()
     {

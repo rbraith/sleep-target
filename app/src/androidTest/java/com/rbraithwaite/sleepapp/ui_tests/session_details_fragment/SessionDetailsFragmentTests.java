@@ -8,9 +8,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
-import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
+import com.rbraithwaite.sleepapp.test_utils.ui.drivers.SessionDetailsTestDriver;
+import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_details.SessionDetailsFragment;
@@ -45,17 +46,9 @@ import static com.rbraithwaite.sleepapp.ui_tests.session_details_fragment.Sessio
 @RunWith(AndroidJUnit4.class)
 public class SessionDetailsFragmentTests
 {
-//*********************************************************
-// public properties
-//*********************************************************
-
     @Rule
     // protection against potentially infinitely blocked threads
     public Timeout timeout = new Timeout(10, TimeUnit.SECONDS);
-
-//*********************************************************
-// api
-//*********************************************************
 
     @Test
     public void startTime_updatesWhenPositiveDialogIsConfirmed()
@@ -387,14 +380,22 @@ public class SessionDetailsFragmentTests
         UITestUtils.checkSnackbarIsDisplayedWithMessage(R.string.error_session_edit_end_datetime);
     }
     
+//*********************************************************
+// api
+//*********************************************************
+
     @Test
     public void endTime_displaysCorrectDialogWhenPressed()
     {
         // GIVEN the user has the session edit fragment open
+        GregorianCalendar cal = new GregorianCalendar(2021, 4, 14, 12, 34);
+        SleepSession sleepSession = TestUtils.ArbitraryData.getSleepSession();
+        sleepSession.setStart(cal.getTime());
+        cal.add(Calendar.MINUTE, 10);
+        sleepSession.setEndFixed(cal);
+        
         Bundle args = SessionDetailsFragment.createArguments(
-                new SessionDetailsFragment.ArgsBuilder(
-                        new SleepSessionWrapper(TestUtils.ArbitraryData.getSleepSession()))
-                        .build());
+                new SessionDetailsFragment.ArgsBuilder(new SleepSessionWrapper(sleepSession)).build());
         HiltFragmentTestHelper<SessionDetailsFragment> testHelper
                 = HiltFragmentTestHelper.launchFragmentWithArgs(SessionDetailsFragment.class, args);
         
@@ -404,10 +405,8 @@ public class SessionDetailsFragmentTests
         // THEN a TimePickerDialog is displayed
         onTimePicker().check(matches(isDisplayed()));
         // AND the dialog values match the start time text
-        GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
-        onTimePicker().check(matches(timePickerWithTime(
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE))));
+        onTimePicker().check(matches(
+                timePickerWithTime(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE))));
     }
     
     @Test
@@ -497,41 +496,10 @@ public class SessionDetailsFragmentTests
     @Test
     public void argsAreProperlyDisplayed()
     {
-        // TODO [20-11-22 9:52PM] -- this test will need to be updated with comment, etc args
-        //  eventually.
-        
-        GregorianCalendar calendar = new GregorianCalendar(2019, 8, 7, 6, 5);
-        Date testStartTime = calendar.getTime();
-        calendar.add(GregorianCalendar.MINUTE, 25);
-        Date testEndTime = calendar.getTime();
-        
         SleepSession sleepSession = TestUtils.ArbitraryData.getSleepSession();
-        sleepSession.setStart(testStartTime);
-        sleepSession.setDurationMillis(testEndTime.getTime() - testStartTime.getTime());
         
-        HiltFragmentTestHelper<SessionDetailsFragment> testHelper
-                = HiltFragmentTestHelper.launchFragmentWithArgs(
-                SessionDetailsFragment.class,
-                SessionDetailsFragment.createArguments(
-                        new SessionDetailsFragment.ArgsBuilder(new SleepSessionWrapper(sleepSession))
-                                .setPositiveIcon(R.drawable.ic_baseline_bar_chart_24)
-                                .setNegativeIcon(R.drawable.ic_baseline_nights_stay_24)
-                                .build()));
+        SessionDetailsTestDriver sessionDetails = SessionDetailsTestDriver.startingWith(sleepSession);
         
-        DateTimeFormatter formatter = new DateTimeFormatter();
-        
-        onStartDateTextView().check(matches(withText(formatter.formatDate(testStartTime))));
-        onEndDateTextView().check(matches(withText(formatter.formatDate(testEndTime))));
-        
-        onStartTimeTextView().check(matches(withText(formatter.formatTimeOfDay(testStartTime))));
-        onEndTimeTextView().check(matches(withText(formatter.formatTimeOfDay(testEndTime))));
-        
-        onView(withId(R.id.session_data_duration))
-                .check(matches(withText(new DurationFormatter().formatDurationMillis(
-                        testEndTime.getTime() - testStartTime.getTime()))));
-        
-        // check menu item icons
-        // TODO [21-12-30 1:40PM] -- figure out some way to verify that the dynamic menu icons
-        //  display correctly.
+        sessionDetails.assertThat.displayedValuesMatch(sleepSession);
     }
 }

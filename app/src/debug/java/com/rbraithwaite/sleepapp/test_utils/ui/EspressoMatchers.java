@@ -12,6 +12,8 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 
+import java.util.Locale;
+
 public class EspressoMatchers
 {
 //*********************************************************
@@ -119,8 +121,10 @@ public class EspressoMatchers
             @Override
             public void describeTo(Description description)
             {
-                // BUG [20-12-8 9:45PM] -- this should print the target time
-                description.appendText("time picker with time");
+                description.appendText(String.format(Locale.CANADA,
+                                                     "time picker with time: %d:%d",
+                                                     hourOfDay,
+                                                     minute));
             }
         };
     }

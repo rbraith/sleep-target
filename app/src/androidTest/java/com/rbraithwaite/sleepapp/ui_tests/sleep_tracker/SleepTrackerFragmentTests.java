@@ -6,10 +6,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
 import com.rbraithwaite.sleepapp.test_utils.data.database.DatabaseTestDriver;
-import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestNavigate;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.drivers.SleepTrackerTestDriver;
+import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFormatting;
@@ -49,21 +49,14 @@ public class SleepTrackerFragmentTests
     // TODO [21-04-19 5:39PM] tag selector tests missing from more context tests below:
     //  - tag editing functionality.
 
-//*********************************************************
-// package properties
-//*********************************************************
-
     SleepTrackerTestDriver sleepTracker;
     DatabaseTestDriver database;
     
-//*********************************************************
-// api
-//*********************************************************
-
     @Before
     public void setup()
     {
-        sleepTracker = new SleepTrackerTestDriver();
+        sleepTracker = new SleepTrackerTestDriver(
+                HiltFragmentTestHelper.launchFragment(SleepTrackerFragment.class));
         database = new DatabaseTestDriver();
     }
     
@@ -102,6 +95,10 @@ public class SleepTrackerFragmentTests
         sleepTracker.assertThat.detailsAreCleared();
     }
     
+//*********************************************************
+// api
+//*********************************************************
+
     @Test
     public void postSleepDialogOpensWithCorrectValues()
     {

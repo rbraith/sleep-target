@@ -9,7 +9,7 @@ public class Mood
 //*********************************************************
 
     private Type type;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -29,7 +29,7 @@ public class Mood
         MOOD_11,
         MOOD_12
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -37,6 +37,27 @@ public class Mood
     public Mood(Type type)
     {
         this.type = type;
+    }
+
+//*********************************************************
+// overrides
+//*********************************************************
+
+    @Override
+    public int hashCode()
+    {
+        return type.hashCode();
+    }
+    
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        
+        Mood mood = (Mood) o;
+        
+        return type == mood.type;
     }
     
 //*********************************************************

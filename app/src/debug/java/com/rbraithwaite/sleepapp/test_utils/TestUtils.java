@@ -15,6 +15,7 @@ import com.rbraithwaite.sleepapp.core.models.CurrentSession;
 import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
+import com.rbraithwaite.sleepapp.core.models.Tag;
 import com.rbraithwaite.sleepapp.core.models.WakeTimeGoal;
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
@@ -27,6 +28,7 @@ import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.CurrentSessionUiData;
 import com.rbraithwaite.sleepapp.ui.stats.data.DateRange;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -165,16 +167,30 @@ public class TestUtils
             
             sleepSessionEntity.additionalComments = "lol!";
             
+            sleepSessionEntity.rating = 2.5f;
+            
             return sleepSessionEntity;
         }
         
         public static SleepSession getSleepSession()
         {
             return new SleepSession(
+                    0,
                     getDate(),
                     getDurationMillis(),
                     "test!",
-                    getMood());
+                    getMood(),
+                    getTagList(),
+                    2.5f);
+        }
+        
+        public static List<Tag> getTagList()
+        {
+            List<Tag> tagList = new ArrayList<>();
+            tagList.add(new Tag(1, "tag1"));
+            tagList.add(new Tag(2, "tag2"));
+            tagList.add(new Tag(3, "tag3"));
+            return tagList;
         }
         
         public static Mood getMood()
@@ -190,7 +206,10 @@ public class TestUtils
             return calendar.getTime();
         }
         
-        public static long getDurationMillis() {return 5000L;}
+        public static long getDurationMillis()
+        {
+            return 10 * 60 * 1000; // 10 min
+        }
         
         public static SleepDurationGoal getSleepDurationGoalModel()
         {

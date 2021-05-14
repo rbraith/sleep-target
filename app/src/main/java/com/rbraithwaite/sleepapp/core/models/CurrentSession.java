@@ -21,6 +21,7 @@ public class CurrentSession
     private Mood mMood;
     private List<Integer> mSelectedTagIds;
 
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -53,7 +54,7 @@ public class CurrentSession
             this.selectedTagIds = selectedTagIds;
         }
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -75,8 +76,8 @@ public class CurrentSession
     {
         this(start, additionalComments, null, null, timeUtils);
     }
-
-
+    
+    
     public CurrentSession(
             @Nullable Date start,
             @Nullable String additionalComments,
@@ -90,7 +91,7 @@ public class CurrentSession
         mMood = mood;
         mSelectedTagIds = selectedTagIds == null ? new ArrayList<>() : selectedTagIds;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -163,5 +164,10 @@ public class CurrentSession
                 getMood(),
                 getAdditionalComments(),
                 getSelectedTagIds());
+    }
+    
+    public void setTimeUtils(TimeUtils timeUtils)
+    {
+        mTimeUtils = timeUtils;
     }
 }

@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
@@ -34,7 +35,6 @@ import java.util.GregorianCalendar;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
-
 @AndroidEntryPoint
 public class SessionDetailsFragment
         extends BaseFragment<SessionDetailsFragmentViewModel>
@@ -48,6 +48,8 @@ public class SessionDetailsFragment
     private ActionListener mPositiveActionListener;
     private ActionListener mNegativeActionListener;
     
+    private RatingBar mRatingBar;
+    
     private DateTimeController mStartDateTimeController;
     private DateTimeController mEndDateTimeController;
     
@@ -58,9 +60,10 @@ public class SessionDetailsFragment
     private TagSelectorController mTagSelectorController;
     
     private TagSelectorViewModel mTagSelectorViewModel;
+    private MoodSelectorViewModel mMoodSelectorViewModel;
     
     private boolean mIsTagSelectorInitialized = false;
-    
+
 //*********************************************************
 // private constants
 //*********************************************************
@@ -137,13 +140,14 @@ public class SessionDetailsFragment
          */
         public abstract void onAction(SessionDetailsFragment fragment, SleepSessionWrapper result);
     }
-    
+
+
 //*********************************************************
 // constructors
 //*********************************************************
 
     public SessionDetailsFragment() { setHasOptionsMenu(true); }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -181,6 +185,7 @@ public class SessionDetailsFragment
         initAdditionalComments(view);
         initMoodSelector(view);
         initTagSelector(view);
+        initRating(view);
         
         // init back press behaviour
         requireActivity().getOnBackPressedDispatcher().addCallback(
@@ -206,7 +211,7 @@ public class SessionDetailsFragment
             menu.findItem(R.id.session_data_action_negative).setIcon(mNegativeIcon);
         }
     }
-
+    
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item)
     {
@@ -241,10 +246,16 @@ public class SessionDetailsFragment
     
     @Override
     protected boolean getBottomNavVisibility() { return false; }
-
+    
     @Override
     protected Class<SessionDetailsFragmentViewModel> getViewModelClass() { return SessionDetailsFragmentViewModel.class; }
     
+    @Override
+    public SessionDetailsFragmentViewModel getViewModel()
+    {
+        return super.getViewModel();
+    }
+
 //*********************************************************
 // api
 //*********************************************************
@@ -269,10 +280,34 @@ public class SessionDetailsFragment
         clearSessionDataThenNavigateUp();
     }
     
+    public RatingBar getRatingBar()
+    {
+        return mRatingBar;
+    }
+    
+    public TagSelectorViewModel getTagSelectorViewModel()
+    {
+        return mTagSelectorViewModel;
+    }
+    
+    public MoodSelectorViewModel getMoodSelectorViewModel()
+    {
+        return mMoodSelectorViewModel;
+    }
+
 //*********************************************************
 // private methods
 //*********************************************************
 
+    private void initRating(View fragmentRoot)
+    {
+        mRatingBar = fragmentRoot.findViewById(R.id.session_details_rating);
+        mRatingBar.setRating(getViewModel().getRating());
+        
+        mRatingBar.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> getViewModel().setRating(
+                rating));
+    }
+    
     private void initTagSelector(View fragmentRoot)
     {
         mTagSelectorViewModel = new TagSelectorViewModel(requireContext());
@@ -301,12 +336,14 @@ public class SessionDetailsFragment
     
     private void initMoodSelector(View fragmentRoot)
     {
+        mMoodSelectorViewModel = new MoodSelectorViewModel(getViewModel().getMood());
+        
         mMoodSelectorController = new MoodSelectorController(
                 fragmentRoot.findViewById(R.id.session_data_mood),
                 // Set the mood selector to the initial mood of the displayed session.
                 // There isn't a need to observe this value, as the mood selector will
                 // handle its own UI updates.
-                new MoodSelectorViewModel(getViewModel().getMood()),
+                mMoodSelectorViewModel,
                 requireContext(),
                 getViewLifecycleOwner(),
                 getChildFragmentManager());

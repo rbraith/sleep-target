@@ -13,12 +13,14 @@ import com.rbraithwaite.sleepapp.ui.common.tag_selector.ConvertTag;
 import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagUiData;
 import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
+import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.sql.Time;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -54,6 +56,21 @@ public class SessionDetailsFragmentViewModelTests
     public void teardown()
     {
         viewModel = null;
+    }
+    
+    @Test
+    public void getRating_reflects_setRating()
+    {
+        SleepSession sleepSession = TestUtils.ArbitraryData.getSleepSession();
+        viewModel.setSessionData(new SleepSessionWrapper(sleepSession));
+        
+        assertThat(viewModel.getRating(), is(equalTo(sleepSession.getRating())));
+    
+        // SUT
+        float expectedRating = sleepSession.getRating() + 0.5f;
+        viewModel.setRating(expectedRating);
+    
+        assertThat(viewModel.getRating(), is(equalTo(expectedRating)));
     }
     
     @Test
@@ -152,28 +169,40 @@ public class SessionDetailsFragmentViewModelTests
     @Test
     public void getResult_matchesViewModelState()
     {
-        // set viewmodel state
-        GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
-        Date startDateTime = calendar.getTime();
-        calendar.add(Calendar.MINUTE, 10);
-        calendar.add(Calendar.MONTH, 1);
-        long duration = calendar.getTimeInMillis() - startDateTime.getTime();
+        TimeUtils timeUtils = new TimeUtils();
         
+        SleepSession initial = new SleepSession(TestUtils.ArbitraryData.getDate(), 0);
+        viewModel.setSessionData(new SleepSessionWrapper(initial));
+        
+        // set the view model state
         SleepSession expected = new SleepSession(
-                5,
-                startDateTime,
-                duration);
-        viewModel.setSessionData(new SleepSessionWrapper(expected));
-        String expectedComments = "test";
-        viewModel.setAdditionalComments(expectedComments);
+                initial.getId(),
+                timeUtils.addDurationToDate(initial.getStart(), -1 * 10 * 60 * 1000), // -10min
+                5 * 60 * 1000, // 5 min
+                "some comments",
+                Mood.fromIndex(2),
+                // TODO [21-05-10 11:33PM] -- the view model takes TagUiData, so it kind
+                //  of a pain to test them right now.
+                null,
+                4.5f);
         
-        // check result values
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTime(expected.getStart());
+        viewModel.setStartDate(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
+        viewModel.setStartTimeOfDay(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
+    
+        cal.setTime(expected.getEnd());
+        viewModel.setEndDate(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
+        viewModel.setEndTimeOfDay(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
+        
+        viewModel.setAdditionalComments(expected.getAdditionalComments());
+        viewModel.setRating(expected.getRating());
+        viewModel.setMood(ConvertMood.toUiData(expected.getMood()));
+        
+        // SUT
         SleepSession result = viewModel.getResult().getModel();
-        // REFACTOR [21-12-30 3:05PM] -- implement SleepSession.equals().
-        assertThat(result.getId(), is(equalTo(expected.getId())));
-        assertThat(result.getStart(), is(equalTo(expected.getStart())));
-        assertThat(result.getDurationMillis(), is(equalTo(expected.getDurationMillis())));
-        assertThat(result.getAdditionalComments(), is(equalTo(expectedComments)));
+        
+        assertThat(result, is(equalTo(expected)));
     }
     
     @Test(expected = SessionDetailsFragmentViewModel.InvalidDateTimeException.class)

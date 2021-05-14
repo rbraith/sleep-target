@@ -8,12 +8,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
-import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.MoodSelectorTestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.TagSelectorTestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestNavigate;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
+import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragment;
@@ -165,21 +165,21 @@ public class SessionArchiveFragmentTests
         onView(withId(R.id.sleep_tracker_button)).perform(click());
         onView(withId(R.id.sleep_tracker_button)).perform(click());
         DialogTestUtils.pressPositiveButton();
-
+        
         UITestNavigate.fromHome_toSessionArchive();
-
+        
         // AND the user has edited that session.
         onView(withId(R.id.session_archive_list_item_card)).perform(click());
-
+        
         // new date is guaranteed to be different from default add session date (which should be
         // current time)
         GregorianCalendar newStartDateTime = new GregorianCalendar(2015, 4, 3, 2, 1);
         SessionDetailsFragmentTestUtils.setStartDateTime(newStartDateTime);
         SessionDetailsFragmentTestUtils.pressPositive();
-
+        
         // WHEN the user goes to add a new session
         UITestNavigate.fromSessionArchive_toAddSession();
-
+        
         // THEN the add session screen displays the correct default values
         // screen should not be displaying previous changed values
         SessionDetailsFragmentTestUtils.checkStartDateTimeDoesNotMatch(newStartDateTime);

@@ -78,7 +78,7 @@ public class SleepTrackerFragmentViewModel
     {
         void onKeepSession();
     }
-
+    
     public static class InitialTagData
     {
         public List<Integer> selectedTagIds;
@@ -359,7 +359,7 @@ public class SleepTrackerFragmentViewModel
                 snapshot.additionalComments,
                 snapshot.selectedTagIds);
     }
-    
+
 //*********************************************************
 // protected api
 //*********************************************************
@@ -368,6 +368,7 @@ public class SleepTrackerFragmentViewModel
     {
         return new TimeUtils();
     }
+
 
 //*********************************************************
 // private methods
@@ -393,6 +394,12 @@ public class SleepTrackerFragmentViewModel
         CurrentSession currentSession = getRepoCurrentSession().getValue();
         if (currentSession == null) {
             currentSession = new CurrentSession(mTimeUtils);
+        } else {
+            // HACK [21-05-11 11:38PM] -- This is specifically to aid testing, so that I can
+            //  get a stubbed TimeUtils into the current session and have it create a snapshot
+            //  with the desired end date. see for example
+            //  SleepTrackerTestDriver.recordSpecificSession().
+            currentSession.setTimeUtils(mTimeUtils);
         }
         
         updateCurrentSessionWithLocalValues(currentSession);
@@ -409,7 +416,7 @@ public class SleepTrackerFragmentViewModel
         currentSession.setSelectedTagIds(
                 chooseSelectedTagIds(mLocalSelectedTags, currentSession));
     }
-
+    
     private List<Integer> chooseSelectedTagIds(
             ActiveValue<List<TagUiData>> localSelectedTags,
             CurrentSession fallback)
@@ -417,7 +424,7 @@ public class SleepTrackerFragmentViewModel
         List<TagUiData> tagList = localSelectedTags.getElse(() -> null);
         return tagList == null ? fallback.getSelectedTagIds() : getIdsFromTags(tagList);
     }
-
+    
     private SleepSessionRepository.NewSleepSessionData prepareNewSleepSession(
             CurrentSession.Snapshot currentSessionSnapshot,
             PostSleepData postSleepData)
@@ -466,9 +473,9 @@ public class SleepTrackerFragmentViewModel
     {
         return new MutableLiveData<>(new CurrentSession(mTimeUtils));
     }
-
-    // REFACTOR [21-05-2 3:20AM] -- extract this.
     
+    // REFACTOR [21-05-2 3:20AM] -- extract this.
+
 //*********************************************************
 // private helpers
 //*********************************************************

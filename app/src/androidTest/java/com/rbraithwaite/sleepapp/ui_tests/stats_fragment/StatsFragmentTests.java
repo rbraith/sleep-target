@@ -4,7 +4,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
-import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
+import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.ui.stats.StatsFormatting;
 import com.rbraithwaite.sleepapp.ui.stats.StatsFragment;
 import com.rbraithwaite.sleepapp.ui.stats.StatsFragmentViewModel;
@@ -86,7 +86,8 @@ public class StatsFragmentTests
         
         final TestUtils.DoubleRef<DateRange> testDateRange = new TestUtils.DoubleRef<>(null);
         helper.performSyncedFragmentAction(fragment ->
-                                                   testDateRange.ref = fragment.getViewModel().getIntervalsDateRange());
+                                                   testDateRange.ref = fragment.getViewModel()
+                                                           .getIntervalsDateRange());
         
         // add 1 day, for mon-sun instead of sun-sun
         GregorianCalendar cal = new GregorianCalendar();
@@ -135,18 +136,23 @@ public class StatsFragmentTests
                 (int) timeUtils.hoursToMillis(
                         StatsFragmentViewModel.DEFAULT_INTERVALS_OFFSET_HOURS));
         
-        helper.performSyncedFragmentAction(fragment -> assertThat(fragment.getViewModel().getIntervalsDateRange(),
-                                                          is(equalTo(testDateRange))));
+        helper.performSyncedFragmentAction(fragment -> assertThat(fragment.getViewModel()
+                                                                          .getIntervalsDateRange(),
+                                                                  is(equalTo(testDateRange))));
         
         // SUT - exercising the time period selectors
         onView(withId(R.id.stats_time_period_back)).perform(click());
         
-        helper.performSyncedFragmentAction(fragment -> assertThat(fragment.getViewModel().getIntervalsDateRange(),
-                                                          is(equalTo(testDateRange.offsetDays(-7)))));
+        helper.performSyncedFragmentAction(fragment -> assertThat(fragment.getViewModel()
+                                                                          .getIntervalsDateRange(),
+                                                                  is(equalTo(testDateRange.offsetDays(
+                                                                          -7)))));
         
         onView(withId(R.id.stats_time_period_forward)).perform(click());
         
-        helper.performSyncedFragmentAction(fragment -> assertThat(fragment.getViewModel().getIntervalsDateRange(),
-                                                          is(equalTo(testDateRange.offsetDays(7)))));
+        helper.performSyncedFragmentAction(fragment -> assertThat(fragment.getViewModel()
+                                                                          .getIntervalsDateRange(),
+                                                                  is(equalTo(testDateRange.offsetDays(
+                                                                          7)))));
     }
 }

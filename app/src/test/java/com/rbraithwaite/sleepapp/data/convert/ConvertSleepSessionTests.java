@@ -71,6 +71,7 @@ public class ConvertSleepSessionTests
         assertThat(model.getStart(), is(equalTo(entity.startTime)));
         assertThat(model.getDurationMillis(), is(equalTo(entity.duration)));
         assertThat(model.getAdditionalComments(), is(equalTo(entity.additionalComments)));
+        assertThat(model.getRating(), is(equalTo(entity.rating)));
     }
     
     @Test

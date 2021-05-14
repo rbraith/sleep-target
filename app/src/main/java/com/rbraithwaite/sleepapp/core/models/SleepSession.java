@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class SleepSession
         implements Serializable
@@ -55,10 +56,10 @@ public class SleepSession
             super(message);
         }
     }
-
+    
     // REFACTOR [21-05-10 3:09PM] -- There are so many properties now - I should probably replace
     //  all these ctors with a builder.
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -122,6 +123,18 @@ public class SleepSession
             @Nullable Mood mood,
             @Nullable List<Tag> tags)
     {
+        this(id, start, durationMillis, additionalComments, mood, tags, null);
+    }
+    
+    public SleepSession(
+            int id,
+            @NonNull Date start,
+            long durationMillis,
+            @Nullable String additionalComments,
+            @Nullable Mood mood,
+            @Nullable List<Tag> tags,
+            Float rating)
+    {
         // OPTIMIZE [21-03-26 2:03AM] -- It's not ideal to always & blindly be validating the inputs
         //  inside here - there are many cases where I can be confident that the input data is
         //  already valid. I need to develop a general & flexible strategy for input validation.
@@ -135,12 +148,44 @@ public class SleepSession
         mAdditionalComments = additionalComments;
         mMood = mood;
         setTags(tags);
+        setRating(rating);
+        // REFACTOR [21-05-10 10:01PM] -- this should be ctor injected instead probably.
         mTimeUtils = createTimeUtils();
     }
-
+    
 //*********************************************************
 // overrides
 //*********************************************************
+
+    @Override
+    public int hashCode()
+    {
+        int result = mId;
+        result = 31 * result + mStart.hashCode();
+        result = 31 * result + (int) (mDurationMillis ^ (mDurationMillis >>> 32));
+        result = 31 * result + (mAdditionalComments != null ? mAdditionalComments.hashCode() : 0);
+        result = 31 * result + (mMood != null ? mMood.hashCode() : 0);
+        result = 31 * result + mTags.hashCode();
+        result = 31 * result + (mRating != +0.0f ? Float.floatToIntBits(mRating) : 0);
+        return result;
+    }
+    
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        
+        SleepSession that = (SleepSession) o;
+        
+        if (mId != that.mId) { return false; }
+        if (mDurationMillis != that.mDurationMillis) { return false; }
+        if (Float.compare(that.mRating, mRating) != 0) { return false; }
+        if (!mStart.equals(that.mStart)) { return false; }
+        if (!Objects.equals(mAdditionalComments, that.mAdditionalComments)) { return false; }
+        if (!Objects.equals(mMood, that.mMood)) { return false; }
+        return mTags.equals(that.mTags);
+    }
 
     @NonNull
     @Override

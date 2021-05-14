@@ -4,7 +4,7 @@
     <application>
         <!--        https://github.com/android/architecture-samples/blob/f2fd9ce969a431b20218f3ace38bbb95fd4d1151/app/src/debug/AndroidManifest.xml-->
         <activity
-            android:name=".test_utils.ui.HiltFragmentActivity"
+            android:name=".test_utils.ui.fragment_helpers.HiltFragmentActivity"
             android:exported="false"/>
         <activity
             android:name=".test_utils.ui.dialog.DialogTestHelper$Activity"

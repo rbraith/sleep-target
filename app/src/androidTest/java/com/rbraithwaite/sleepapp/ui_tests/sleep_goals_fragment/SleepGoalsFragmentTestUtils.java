@@ -3,9 +3,9 @@ package com.rbraithwaite.sleepapp.ui_tests.sleep_goals_fragment;
 import androidx.test.espresso.contrib.PickerActions;
 
 import com.rbraithwaite.sleepapp.R;
-import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DurationPickerTestUtils;
+import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFragment;
 
 import static androidx.test.espresso.Espresso.onView;

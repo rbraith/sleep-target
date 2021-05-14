@@ -8,8 +8,8 @@ import androidx.test.espresso.contrib.PickerActions;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
-import com.rbraithwaite.sleepapp.test_utils.ui.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
+import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.session_details.SessionDetailsFragment;
 import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
@@ -32,18 +32,11 @@ import static org.hamcrest.Matchers.not;
 // REFACTOR [20-12-16 9:55PM] -- move this to debug test_utils?
 // REFACTOR [20-12-16 10:06PM] -- maybe rename this SessionEditTestUtils? (current name is kinda
 //  long)
+@Deprecated
 public class SessionDetailsFragmentTestUtils
 {
-//*********************************************************
-// constructors
-//*********************************************************
-
     private SessionDetailsFragmentTestUtils() {/* No instantiation */}
 
-
-//*********************************************************
-// api
-//*********************************************************
 
     public static void checkStartDateTimeDoesNotMatch(GregorianCalendar datetime)
     {
@@ -56,6 +49,10 @@ public class SessionDetailsFragmentTestUtils
                 .check(matches(not(withText(formatter.formatTimeOfDay(datetime.getTime())))));
     }
     
+//*********************************************************
+// api
+//*********************************************************
+
     public static void pressPositive()
     {
         onView(withId(R.id.session_data_action_positive)).perform(click());
@@ -132,10 +129,6 @@ public class SessionDetailsFragmentTestUtils
     {
         return onView(allOf(withParent(withId(R.id.session_data_end_time)), withId(R.id.time)));
     }
-
-//*********************************************************
-// private methods
-//*********************************************************
 
     private static void setDateTime(
             ViewInteraction date,

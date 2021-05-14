@@ -281,6 +281,18 @@ public class SessionDetailsFragmentViewModel
                         .collect(Collectors.toList()))
                 .orElse(null);
     }
+    
+    public float getRating()
+    {
+        return getOptionalSleepSession()
+                .map(SleepSession::getRating)
+                .orElse(0f);
+    }
+    
+    public void setRating(float rating)
+    {
+        getOptionalSleepSession().ifPresent(sleepSession -> { sleepSession.setRating(rating); });
+    }
 
 //*********************************************************
 // protected api
@@ -296,6 +308,11 @@ public class SessionDetailsFragmentViewModel
 // private methods
 //*********************************************************
 
+    
+    /**
+     * Note: changes made to the sleep session from this method do not notify observers. Use {@link
+     * #notifySessionChanged()} in this case.
+     */
     private Optional<SleepSession> getOptionalSleepSession()
     {
         return Optional.ofNullable(getSleepSession().getValue());

@@ -20,6 +20,7 @@ public class ConvertSleepSession
 // api
 //*********************************************************
 
+    // TEST NEEDED [21-05-14 2:24PM] -- update tests with rating.
     public static SleepSessionEntity toEntity(SleepSession model)
     {
         if (model == null) {
@@ -32,6 +33,7 @@ public class ConvertSleepSession
         entity.duration = model.getDurationMillis();
         entity.additionalComments = model.getAdditionalComments();
         entity.moodIndex = model.getMood() == null ? null : model.getMood().toIndex();
+        entity.rating = model.getRating();
         return entity;
     }
     
@@ -40,12 +42,18 @@ public class ConvertSleepSession
         if (entity == null) {
             return null;
         }
-        return new SleepSession(
+        
+        SleepSession sleepSession = new SleepSession(
                 entity.id,
                 entity.startTime,
                 entity.duration,
                 entity.additionalComments,
                 Mood.fromIndex(entity.moodIndex));
+        
+        // REFACTOR [21-05-11 11:54PM] -- use a builder here.
+        sleepSession.setRating(entity.rating);
+        
+        return sleepSession;
     }
     
     // REFACTOR [21-03-24 11:01PM] -- This doesn't quite fit with the singular class name, find
