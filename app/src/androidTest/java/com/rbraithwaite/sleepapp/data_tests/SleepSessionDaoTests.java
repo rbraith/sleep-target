@@ -75,6 +75,26 @@ public class SleepSessionDaoTests
     }
     
     @Test
+    public void getLatestSleepSessionsFromOffset_returnsCorrectSessions()
+    {
+        // add 3 sleep sessions to the db
+        SleepSessionEntity entity1 = TestUtils.ArbitraryData.getSleepSessionEntity();
+        entity1.id = (int) sleepSessionDao.addSleepSession(entity1);
+        SleepSessionEntity entity2 = TestUtils.ArbitraryData.getSleepSessionEntity();
+        entity2.id = (int) sleepSessionDao.addSleepSession(entity2);
+        SleepSessionEntity entity3 = TestUtils.ArbitraryData.getSleepSessionEntity();
+        entity3.id = (int) sleepSessionDao.addSleepSession(entity3);
+        
+        // return 2nd sleep session
+        LiveData<List<SleepSessionEntity>> latestEntities =
+                sleepSessionDao.getLatestSleepSessionsFromOffset(1, 1);
+        TestUtils.activateInstrumentationLiveData(latestEntities);
+        
+        assertThat(latestEntities.getValue().size(), is(1));
+        assertThat(latestEntities.getValue().get(0), is(equalTo(entity2)));
+    }
+    
+    @Test
     public void getSleepSessionWithTags_returnsNullIfNoSleepSession()
     {
         LiveData<SleepSessionWithTags> result = sleepSessionDao.getSleepSessionWithTags(2);

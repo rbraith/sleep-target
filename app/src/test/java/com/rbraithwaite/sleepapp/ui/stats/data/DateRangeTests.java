@@ -1,6 +1,7 @@
 package com.rbraithwaite.sleepapp.ui.stats.data;
 
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
+import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.DateRange;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import org.junit.Test;

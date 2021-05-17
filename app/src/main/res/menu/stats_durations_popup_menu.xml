@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group
+        android:id="@+id/stats_durations_resolution_selector"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/stats_durations_resolution_10"
+            android:checked="true"
+            android:title="10" />
+        <item
+            android:id="@+id/stats_durations_resolution_50"
+            android:title="50" />
+        <item
+            android:id="@+id/stats_durations_resolution_100"
+            android:title="100" />
+    </group>
+</menu>

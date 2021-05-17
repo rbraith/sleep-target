@@ -7,10 +7,13 @@ import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.ui.common.dialog.TimePickerFragment;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Timeout;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.concurrent.TimeUnit;
 
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoMatchers.timePickerWithTime;
@@ -21,6 +24,14 @@ import static org.hamcrest.Matchers.is;
 
 public class TimePickerFragmentTests
 {
+//*********************************************************
+// public properties
+//*********************************************************
+
+    @Rule
+    // protection against potentially infinitely blocked threads
+    public Timeout timeout = new Timeout(10, TimeUnit.SECONDS);
+    
 //*********************************************************
 // api
 //*********************************************************

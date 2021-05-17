@@ -1,14 +1,13 @@
-package com.rbraithwaite.sleepapp.ui.stats.charts;
+package com.rbraithwaite.sleepapp.ui.stats.chart_intervals;
 
 import android.content.Context;
 import android.view.View;
 
-import androidx.arch.core.util.Function;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
-import com.rbraithwaite.sleepapp.ui.stats.data.SleepIntervalsDataSet;
+import com.rbraithwaite.sleepapp.utils.interfaces.Factory;
 
 import org.achartengine.ChartFactory;
 import org.achartengine.chart.BarChart;
@@ -26,7 +25,7 @@ public class SleepIntervalsChartFactory
 
     Executor mExecutor;
     SleepIntervalsRendererHelper mRendererHelper;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -39,7 +38,7 @@ public class SleepIntervalsChartFactory
         mExecutor = executor;
         mRendererHelper = rendererHelper;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -69,7 +68,7 @@ public class SleepIntervalsChartFactory
         return createChartAsync(context, dataSet,
                                 () -> mRendererHelper.createYearRenderer(dataSet, year));
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -96,14 +95,5 @@ public class SleepIntervalsChartFactory
         mExecutor.execute(() -> liveData.postValue(factory.create()));
         
         return liveData;
-    }
-    
-//*********************************************************
-// private helpers
-//*********************************************************
-
-    private interface Factory<T>
-    {
-        T create();
     }
 }

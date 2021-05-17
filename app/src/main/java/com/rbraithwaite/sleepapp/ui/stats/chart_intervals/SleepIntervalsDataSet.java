@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui.stats.data;
+package com.rbraithwaite.sleepapp.ui.stats.chart_intervals;
 
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
@@ -82,6 +82,7 @@ public class SleepIntervalsDataSet
             mTimeUtils = createTimeUtils();
         }
 
+
         
         /**
          * Each series X-value of the returned data set represents a 24hr window into which sleep
@@ -118,6 +119,7 @@ public class SleepIntervalsDataSet
             return new TimeUtils();
         }
 
+
         
         /**
          * <p>
@@ -138,7 +140,7 @@ public class SleepIntervalsDataSet
             long key = range.getStart().getTime();
             long rangeEnd = range.getEnd().getTime();
             while (key < rangeEnd) {
-                dataPointBuckets.put(key, new ArrayList<IntervalDataPoint>());
+                dataPointBuckets.put(key, new ArrayList<>());
                 key += TimeUtils.MILLIS_24_HOURS;
             }
             return dataPointBuckets;
@@ -206,8 +208,7 @@ public class SleepIntervalsDataSet
                         remainingDuration = relEndTime - relNextKeyTime;
                         relEndTime = relNextKeyTime;
                         // The first sleep session segment might occur before the range start, or
-                        // the
-                        // last sleep session segment might occur after range end, this check
+                        // the last sleep session segment might occur after range end, this check
                         // effectively prunes these segments
                         if (keyIsInRange(key, range)) {
                             dataPointBuckets.get(key).add(new IntervalDataPoint(
@@ -314,8 +315,4 @@ public class SleepIntervalsDataSet
         }
     }
 }
-
-//*********************************************************
-// constructors
-//*********************************************************
 

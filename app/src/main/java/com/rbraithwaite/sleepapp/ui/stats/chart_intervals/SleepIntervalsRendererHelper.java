@@ -1,10 +1,8 @@
-package com.rbraithwaite.sleepapp.ui.stats.charts;
+package com.rbraithwaite.sleepapp.ui.stats.chart_intervals;
 
 import android.graphics.Color;
 
 import com.rbraithwaite.sleepapp.ui.stats.StatsFormatting;
-import com.rbraithwaite.sleepapp.ui.stats.data.DateRange;
-import com.rbraithwaite.sleepapp.ui.stats.data.SleepIntervalsDataSet;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import org.achartengine.model.RangeCategorySeries;
@@ -19,26 +17,14 @@ import javax.inject.Inject;
 
 public class SleepIntervalsRendererHelper
 {
-//*********************************************************
-// package properties
-//*********************************************************
-
     TimeUtils mTimeUtils;
     
-//*********************************************************
-// constructors
-//*********************************************************
-
     @Inject
     public SleepIntervalsRendererHelper()
     {
         mTimeUtils = createTimeUtils();
     }
     
-//*********************************************************
-// api
-//*********************************************************
-
     public XYMultipleSeriesRenderer createRangeRenderer(SleepIntervalsDataSet dataSet)
     {
         int hoursOffset = computeHoursOffset(dataSet.getConfig().offsetMillis);
@@ -104,6 +90,10 @@ public class SleepIntervalsRendererHelper
         return renderer;
     }
     
+//*********************************************************
+// api
+//*********************************************************
+
     public XYMultipleSeriesRenderer createYearRenderer(SleepIntervalsDataSet dataSet, int year)
     {
         int hoursOffset = computeHoursOffset(dataSet.getConfig().offsetMillis);
@@ -119,33 +109,27 @@ public class SleepIntervalsRendererHelper
         cal.set(Calendar.YEAR, year);
         cal.set(Calendar.DAY_OF_YEAR, 1);
         
+        // add an X label for each month
         while (cal.get(Calendar.YEAR) == year) {
             renderer.addXTextLabel(
                     cal.get(Calendar.DAY_OF_YEAR),
                     StatsFormatting.formatIntervalsXLabelMonth(cal.getTime()));
             cal.add(Calendar.MONTH, 1);
         }
-        
+        // disable the default labels
         renderer.setXLabels(0);
-        
+    
+        // this is so that the bars at the far edges of the chart are not cut off
         renderer.setXAxisMin(0.5f);
         renderer.setXAxisMax(range.getDifferenceInDays() + 0.5f);
         
         return renderer;
     }
     
-//*********************************************************
-// protected api
-//*********************************************************
-
     protected TimeUtils createTimeUtils()
     {
         return new TimeUtils();
     }
-
-//*********************************************************
-// private methods
-//*********************************************************
 
     
     /**
@@ -167,6 +151,7 @@ public class SleepIntervalsRendererHelper
         // -----------------------------------------------------
         int sign = config.invert ? -1 : 1;
         
+        // add a label for the hours along the Y-axis, on every even hour
         for (int i = 1; i < 25; i++) {
             if (i % 2 == 0) {
                 multipleSeriesRenderer.addYTextLabel(
@@ -176,7 +161,9 @@ public class SleepIntervalsRendererHelper
         }
         multipleSeriesRenderer.addYTextLabel(
                 sign * hoursOffset, StatsFormatting.formatIntervalsYLabel(hoursOffset));
+        // disable the default labels
         multipleSeriesRenderer.setYLabels(0);
+        // setup the min/max Y display range
         double yMin;
         double yMax;
         if (config.invert) {

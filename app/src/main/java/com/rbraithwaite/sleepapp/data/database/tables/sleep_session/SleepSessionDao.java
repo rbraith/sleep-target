@@ -71,12 +71,23 @@ public abstract class SleepSessionDao
            " LIMIT 1;")
     public abstract SleepSessionEntity getFirstSleepSessionStartingBefore(long dateTimeMillis);
     
+    // OPTIMIZE [21-05-17 4:04PM] -- The ORDER BY here seems really inefficient? Like, is every
+    //  call to this sorting the entire table every time? Investigate this.
+    // https://stackoverflow.com/a/8976988
+    @Query("SELECT * FROM " + SleepSessionContract.TABLE_NAME +
+           " ORDER BY " + SleepSessionContract.Columns.START_TIME + " DESC" +
+           " LIMIT :count OFFSET :offset")
+    public abstract LiveData<List<SleepSessionEntity>> getLatestSleepSessionsFromOffset(
+            int offset,
+            int count);
+    
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     protected abstract void addTagsToSleepSession(List<SleepSessionTagJunction> junctions);
     
     @Query("DELETE FROM " + SleepSessionTagContract.TABLE_NAME +
            " WHERE " + SleepSessionTagContract.Columns.SESSION_ID + " = :sleepSessionId")
     protected abstract void deleteAllTagsFromSleepSession(int sleepSessionId);
+
 
 
 //*********************************************************
@@ -111,7 +122,7 @@ public abstract class SleepSessionDao
         deleteAllTagsFromSleepSession(updatedSleepSession.id);
         _addTagsToSleepSession(updatedSleepSession.id, tagIds);
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

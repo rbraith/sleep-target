@@ -1,6 +1,6 @@
 package com.rbraithwaite.sleepapp.ui.stats;
 
-import com.rbraithwaite.sleepapp.ui.stats.data.DateRange;
+import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.DateRange;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -8,15 +8,7 @@ import java.util.Locale;
 
 public class StatsFormatting
 {
-//*********************************************************
-// private constants
-//*********************************************************
-
     private static final String TAG = "StatsFormatting";
-
-//*********************************************************
-// constructors
-//*********************************************************
 
     private StatsFormatting() {/* No instantiation */}
     

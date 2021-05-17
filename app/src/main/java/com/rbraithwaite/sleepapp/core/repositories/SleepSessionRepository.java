@@ -42,7 +42,7 @@ public interface SleepSessionRepository
             this.rating = rating;
         }
     }
-    
+
 //*********************************************************
 // abstract
 //*********************************************************
@@ -85,4 +85,22 @@ public interface SleepSessionRepository
     SleepSession getFirstSleepSessionStartingBefore(long dateTimeMillis);
     
     LiveData<List<Integer>> getAllSleepSessionIds();
+    
+    /**
+     * Eh...I need to workshop the name for this. The idea is this will give you 'count' sleep
+     * sessions, going back in time and starting from 'offset'. For example, if 'count' is 50 and
+     * 'offset' is 0, this will give you the 50 most recent sleep sessions going back in time
+     * starting from the most recent. If 'offset' is 1, these would start from the second most
+     * recent, and so on.
+     *
+     * @param offset How many sleep sessions from the latest to ignore, before starting to collect
+     *               them.
+     * @param count  The number of sleep sessions to collect. If this is more than there are sleep
+     *               sessions available (given the offset), all those available sleep sessions are
+     *               collected. (Thus the size of the returned list isn't always guaranteed to be
+     *               'count')
+     *
+     * @return The latest 'count' sleep sessions from 'offset'.
+     */
+    LiveData<List<SleepSession>> getLatestSleepSessionsFromOffset(int offset, int count);
 }

@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui.stats.data;
+package com.rbraithwaite.sleepapp.ui.stats.chart_intervals;
 
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
@@ -40,7 +40,7 @@ public class DateRange
         mDifferenceInDays = other.mDifferenceInDays;
         mTimeUtils = other.mTimeUtils;
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -65,6 +65,7 @@ public class DateRange
                mStart.equals(dateRange.mStart) &&
                mEnd.equals(dateRange.mEnd);
     }
+
 
 //*********************************************************
 // api
@@ -97,7 +98,7 @@ public class DateRange
         
         return dateRange.init(start, end);
     }
-
+    
     /**
      * Returns the week of the date, with the start and end being at midnight.
      */
@@ -122,7 +123,7 @@ public class DateRange
         
         return dateRange.init(start.getTime(), end.getTime());
     }
-
+    
     public static DateRange asMonthOf(Date date)
     {
         return DateRange.asMonthOf(date, 0);
@@ -174,7 +175,7 @@ public class DateRange
         
         return this;
     }
-    
+
 //*********************************************************
 // protected api
 //*********************************************************
@@ -183,7 +184,7 @@ public class DateRange
     {
         return new TimeUtils();
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

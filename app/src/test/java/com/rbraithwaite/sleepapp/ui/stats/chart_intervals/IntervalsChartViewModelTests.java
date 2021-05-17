@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui.stats;
+package com.rbraithwaite.sleepapp.ui.stats.chart_intervals;
 
 import android.os.Looper;
 
@@ -6,10 +6,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
-import com.rbraithwaite.sleepapp.ui.stats.data.SleepIntervalsDataSet;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import org.junit.After;
@@ -19,7 +17,6 @@ import org.junit.runner.RunWith;
 
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
@@ -36,17 +33,17 @@ import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(AndroidJUnit4.class)
-public class StatsFragmentViewModelTests
+public class IntervalsChartViewModelTests
 {
 //*********************************************************
 // package properties
 //*********************************************************
 
-    StatsFragmentViewModel viewModel;
+    IntervalsChartViewModel viewModel;
     SleepSessionRepository mockSleepSessionRepository;
     SleepIntervalsDataSet.Generator mMockSleepIntervalsDataSetGenerator;
     Executor executor;
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -57,7 +54,7 @@ public class StatsFragmentViewModelTests
         mockSleepSessionRepository = mock(SleepSessionRepository.class);
         mMockSleepIntervalsDataSetGenerator = mock(SleepIntervalsDataSet.Generator.class);
         executor = new TestUtils.SynchronizedExecutor();
-        viewModel = new StatsFragmentViewModel(
+        viewModel = new IntervalsChartViewModel(
                 mockSleepSessionRepository,
                 mMockSleepIntervalsDataSetGenerator,
                 executor);
@@ -76,15 +73,15 @@ public class StatsFragmentViewModelTests
     public void getIntervalsResolution_returns_WEEK_byDefault()
     {
         assertThat(viewModel.getIntervalsResolution(),
-                   is(equalTo(StatsFragmentViewModel.Resolution.WEEK)));
+                   is(equalTo(IntervalsChartViewModel.Resolution.WEEK)));
     }
     
     @Test
     public void getIntervalsResolution_reflects_setIntervalsResolution()
     {
-        viewModel.setIntervalsResolution(StatsFragmentViewModel.Resolution.MONTH);
+        viewModel.setIntervalsResolution(IntervalsChartViewModel.Resolution.MONTH);
         assertThat(viewModel.getIntervalsResolution(),
-                   is(equalTo(StatsFragmentViewModel.Resolution.MONTH)));
+                   is(equalTo(IntervalsChartViewModel.Resolution.MONTH)));
     }
     
     @Test
@@ -95,7 +92,7 @@ public class StatsFragmentViewModelTests
         LiveData<SleepIntervalsDataSet> intervalsDataSet = viewModel.getIntervalsDataSet();
         TestUtils.activateLocalLiveData(intervalsDataSet);
         
-        viewModel.setIntervalsResolution(StatsFragmentViewModel.Resolution.MONTH);
+        viewModel.setIntervalsResolution(IntervalsChartViewModel.Resolution.MONTH);
         
         // These are called twice: first from the activation of the LiveData, then again when
         // the resolution changes.
@@ -148,7 +145,7 @@ public class StatsFragmentViewModelTests
         int diffDays1 = config1.dateRange.getDifferenceInDays();
         
         // SUT forward
-        viewModel.stepIntervalsRange(StatsFragmentViewModel.Step.FORWARD);
+        viewModel.stepIntervalsRange(IntervalsChartViewModel.Step.FORWARD);
         
         // verify
         SleepIntervalsDataSet.Config config2 = viewModel.getIntervalsDataSetConfig();
@@ -161,7 +158,7 @@ public class StatsFragmentViewModelTests
         assertThat(diffDays1, is(equalTo(diffDays2)));
         
         // SUT backward
-        viewModel.stepIntervalsRange(StatsFragmentViewModel.Step.BACKWARD);
+        viewModel.stepIntervalsRange(IntervalsChartViewModel.Step.BACKWARD);
         
         // verify
         SleepIntervalsDataSet.Config config3 = viewModel.getIntervalsDataSetConfig();
@@ -175,6 +172,6 @@ public class StatsFragmentViewModelTests
     private void avoidIntervalsDataSetNullPointer()
     {
         when(mockSleepSessionRepository.getSleepSessionsInRange(any(Date.class), any(Date.class)))
-                .thenReturn(new MutableLiveData<List<SleepSession>>(null));
+                .thenReturn(new MutableLiveData<>(null));
     }
 }

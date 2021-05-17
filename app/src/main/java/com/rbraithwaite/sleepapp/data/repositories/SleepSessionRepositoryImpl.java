@@ -29,6 +29,12 @@ public class SleepSessionRepositoryImpl
 
     private SleepSessionDao mSleepSessionDao;
     private Executor mExecutor;
+    
+//*********************************************************
+// private constants
+//*********************************************************
+
+    private static final String TAG = "SleepSessionRepositoryI";
 
 //*********************************************************
 // constructors
@@ -42,7 +48,7 @@ public class SleepSessionRepositoryImpl
         mSleepSessionDao = sleepSessionDao;
         mExecutor = executor;
     }
-
+    
 //*********************************************************
 // overrides
 //*********************************************************
@@ -133,6 +139,14 @@ public class SleepSessionRepositoryImpl
         return mSleepSessionDao.getAllSleepSessionIds();
     }
     
+    @Override
+    public LiveData<List<SleepSession>> getLatestSleepSessionsFromOffset(int offset, int count)
+    {
+        return Transformations.map(
+                mSleepSessionDao.getLatestSleepSessionsFromOffset(offset, count),
+                ConvertSleepSession::fromEntities);
+    }
+
 //*********************************************************
 // private methods
 //*********************************************************

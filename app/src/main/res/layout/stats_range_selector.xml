@@ -6,7 +6,7 @@
     android:layout_height="wrap_content">
 
     <ImageButton
-        android:id="@+id/stats_time_period_back"
+        android:id="@+id/stats_range_selector_back"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -14,7 +14,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/stats_time_period_value"
+        app:layout_constraintEnd_toStartOf="@+id/stats_range_selector_value"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_chainStyle="spread_inside"
         app:layout_constraintStart_toStartOf="parent"
@@ -22,31 +22,31 @@
         app:srcCompat="@drawable/ic_baseline_arrow_left_24" />
 
     <ImageButton
-        android:id="@+id/stats_time_period_forward"
+        android:id="@+id/stats_range_selector_forward"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/stats_time_period_back"
-        app:layout_constraintEnd_toStartOf="@+id/stats_time_period_more"
+        app:layout_constraintBottom_toBottomOf="@+id/stats_range_selector_back"
+        app:layout_constraintEnd_toStartOf="@+id/stats_range_selector_more"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/stats_time_period_value"
+        app:layout_constraintStart_toEndOf="@+id/stats_range_selector_value"
         app:srcCompat="@drawable/ic_baseline_arrow_right_24" />
 
     <TextView
-        android:id="@+id/stats_time_period_value"
+        android:id="@+id/stats_range_selector_value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="@+id/stats_time_period_back"
-        app:layout_constraintEnd_toStartOf="@+id/stats_time_period_forward"
+        app:layout_constraintBottom_toBottomOf="@+id/stats_range_selector_back"
+        app:layout_constraintEnd_toStartOf="@+id/stats_range_selector_forward"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/stats_time_period_back"
+        app:layout_constraintStart_toEndOf="@+id/stats_range_selector_back"
         tools:text="21/02/22 - 21/02/28" />
 
     <ImageButton
-        android:id="@+id/stats_time_period_more"
+        android:id="@+id/stats_range_selector_more"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"

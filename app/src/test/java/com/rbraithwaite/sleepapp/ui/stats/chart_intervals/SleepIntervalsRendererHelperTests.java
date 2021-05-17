@@ -1,10 +1,8 @@
-package com.rbraithwaite.sleepapp.ui.stats.charts;
+package com.rbraithwaite.sleepapp.ui.stats.chart_intervals;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.ui.stats.StatsFormatting;
-import com.rbraithwaite.sleepapp.ui.stats.data.DateRange;
-import com.rbraithwaite.sleepapp.ui.stats.data.SleepIntervalsDataSet;
 
 import org.achartengine.model.RangeCategorySeries;
 import org.achartengine.model.XYMultipleSeriesDataset;
@@ -33,7 +31,7 @@ public class SleepIntervalsRendererHelperTests
 //*********************************************************
 
     SleepIntervalsRendererHelper rendererHelper;
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -183,7 +181,7 @@ public class SleepIntervalsRendererHelperTests
             assertThat(renderer.getXTextLabel(location), is(equalTo(expected.get(location))));
         }
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

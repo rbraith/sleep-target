@@ -25,7 +25,7 @@ import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSession
 import com.rbraithwaite.sleepapp.data.prefs.SleepAppDataPrefs;
 import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.CurrentSessionUiData;
-import com.rbraithwaite.sleepapp.ui.stats.data.DateRange;
+import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.DateRange;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import java.util.ArrayList;

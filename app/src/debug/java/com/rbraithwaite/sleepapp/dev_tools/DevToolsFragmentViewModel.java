@@ -6,8 +6,10 @@ import android.os.Looper;
 import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.ViewModel;
 
+import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
+import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -21,7 +23,7 @@ public class DevToolsFragmentViewModel
 //*********************************************************
 // private properties
 //*********************************************************
-
+    
     // No repo layer here cause these are just dumb dev tools.
     // Otherwise I would need to implement 'addSleepSessions' in
     // SleepSessionRepository and SleepSessionDao, which isn't ideal
@@ -33,23 +35,46 @@ public class DevToolsFragmentViewModel
 //*********************************************************
 // private constants
 //*********************************************************
-
+    
     private static final long RANDOM_SEED = 123456L;
-
+    
+    private static final String[] mAdditionalCommentsPool = {
+            "What the fuck did you just fucking say about me, you little bitch?",
+            "I’ll have you know I graduated top of my class in the Navy Seals, and I’ve been " +
+            "involved in numerous secret raids on Al-Quaeda, and I have over 300 confirmed kills.",
+            "I am trained in gorilla warfare and I’m the top sniper in the entire US armed forces.",
+            "You are nothing to me but just another target.",
+            "I will wipe you the fuck out with precision the likes of which has never been seen " +
+            "before on this Earth, mark my fucking words.",
+            "You think you can get away with saying that shit to me over the Internet? Think " +
+            "again, fucker.",
+            "As we speak I am contacting my secret network of spies across the USA and your IP is" +
+            " being traced right now so you better prepare for the storm, maggot.",
+            " The storm that wipes out the pathetic little thing you call your life.",
+            "You’re fucking dead, kid. I can be anywhere, anytime, and I can kill you in over " +
+            "seven hundred ways, and that’s just with my bare hands.",
+            "Not only am I extensively trained in unarmed combat, but I have access to the entire" +
+            " arsenal of the United States Marine Corps and I will use it to its full extent to " +
+            "wipe your miserable ass off the face of the continent, you little shit.",
+            "If only you could have known what unholy retribution your little “clever” comment " +
+            "was about to bring down upon you, maybe you would have held your fucking tongue.",
+            "But you couldn’t, you didn’t, and now you’re paying the price, you goddamn idiot. I " +
+            "will shit fury all over you and you will drown in it. You’re fucking dead, kiddo. ",
+    };
+    
 //*********************************************************
 // public helpers
 //*********************************************************
-
+    
     public interface AsyncTaskListener
     {
         void onComplete();
     }
 
-
 //*********************************************************
 // constructors
 //*********************************************************
-
+    
     @ViewModelInject
     public DevToolsFragmentViewModel(
             SleepAppDatabase database,
@@ -65,7 +90,7 @@ public class DevToolsFragmentViewModel
 //*********************************************************
 // api
 //*********************************************************
-
+    
     public void clearData(final AsyncTaskListener listener)
     {
         runAsyncTask(
@@ -99,7 +124,7 @@ public class DevToolsFragmentViewModel
 //*********************************************************
 // private methods
 //*********************************************************
-
+    
     private void runAsyncTask(final Runnable task, final AsyncTaskListener listener)
     {
         mExecutor.execute(() -> {
@@ -117,7 +142,26 @@ public class DevToolsFragmentViewModel
         // 8pm -> 4am
         entity.startTime = randomStartTime(baseDay, 20, 28, rand);
         entity.duration = randomDurationHours(5, 10, rand) * 60 * 1000;
+        entity.endTime = new TimeUtils().addDurationToDate(entity.startTime, (int) entity.duration);
+        entity.moodIndex = randomMoodIndex(rand);
+        entity.additionalComments = randomComments(rand);
+        entity.rating = randomRating(rand);
         return entity;
+    }
+    
+    private int randomMoodIndex(Random rand)
+    {
+        return rand.nextInt(Mood.Type.values().length);
+    }
+    
+    private String randomComments(Random rand)
+    {
+        return mAdditionalCommentsPool[rand.nextInt(mAdditionalCommentsPool.length)];
+    }
+    
+    private float randomRating(Random rand)
+    {
+        return rand.nextFloat() * 5f;
     }
     
     private Date randomStartTime(

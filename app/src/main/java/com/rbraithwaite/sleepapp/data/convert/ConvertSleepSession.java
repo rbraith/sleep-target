@@ -1,5 +1,7 @@
 package com.rbraithwaite.sleepapp.data.convert;
 
+import android.util.Log;
+
 import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
@@ -11,11 +13,17 @@ import java.util.stream.Collectors;
 public class ConvertSleepSession
 {
 //*********************************************************
+// private constants
+//*********************************************************
+
+    private static final String TAG = "ConvertSleepSession";
+
+//*********************************************************
 // constructors
 //*********************************************************
 
     private ConvertSleepSession() {/* No instantiation */}
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -60,6 +68,7 @@ public class ConvertSleepSession
     //  another place for this logic?
     public static List<SleepSession> fromEntities(List<SleepSessionEntity> entities)
     {
+        Log.d(TAG, "fromEntities: entity count = " + entities.size());
         return entities.stream()
                 .map(ConvertSleepSession::fromEntity)
                 .collect(Collectors.toList());
