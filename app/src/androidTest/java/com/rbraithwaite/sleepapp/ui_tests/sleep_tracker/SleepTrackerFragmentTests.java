@@ -28,6 +28,7 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
+import static androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -176,8 +177,7 @@ public class SleepTrackerFragmentTests
         // GIVEN there is no sleep duration goal set
         ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
         // check that the goal info is not displayed if there is no goal
-        onView(withId(R.id.sleep_tracker_duration_goal_title)).check(matches(not(isDisplayed())));
-        onView(withId(R.id.sleep_tracker_duration_goal_value)).check(matches(not(isDisplayed())));
+        onView(withId(R.id.tracker_duration_goal_card)).check(matches(not(isDisplayed())));
         
         // WHEN the user sets a new sleep duration goal
         UITestNavigate.fromHome_toGoals();
@@ -187,8 +187,8 @@ public class SleepTrackerFragmentTests
         UITestNavigate.up();
         
         // THEN that goal is displayed on the sleep tracker screen
-        onView(withId(R.id.sleep_tracker_duration_goal_title)).check(matches(isDisplayed()));
-        onView(withId(R.id.sleep_tracker_duration_goal_value)).check(matches(allOf(
+        onView(allOf(withId(R.id.tracker_goal_value),
+                     isDescendantOfA(withId(R.id.tracker_duration_goal_card)))).check(matches(allOf(
                 isDisplayed(),
                 withText(SleepTrackerFormatting.formatSleepDurationGoal(
                         new SleepDurationGoal(testHours, testMinutes))))));
@@ -201,7 +201,7 @@ public class SleepTrackerFragmentTests
         // GIVEN the user has set a wake-time goal
         ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class);
         // wake time info view is not displayed when there is no wake time
-        onView(withId(R.id.sleep_tracker_waketime_goal_title)).check(matches(not(isDisplayed())));
+        onView(withId(R.id.tracker_waketime_goal_card)).check(matches(not(isDisplayed())));
         
         UITestNavigate.fromHome_toGoals();
         SleepGoalsFragmentTestUtils.addNewWakeTime(12, 34);
@@ -210,8 +210,7 @@ public class SleepTrackerFragmentTests
         UITestNavigate.up();
         
         // THEN the wake-time goal is displayed
-        onView(withId(R.id.sleep_tracker_waketime_goal_title)).check(matches(isDisplayed()));
-        onView(withId(R.id.sleep_tracker_waketime_goal_value)).check(matches(isDisplayed()));
+        onView(withId(R.id.tracker_waketime_goal_card)).check(matches(isDisplayed()));
     }
     
     // REFACTOR [21-05-8 4:06PM] -- use SleepTrackerDriver here.

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="MoodSelectorComponent">
+        <attr name="moodSelectorTitleStyle" format="reference"/>
+        <attr name="moodSelectorAddButtonStyle" format="reference"/>
+    </declare-styleable>
+
+    <declare-styleable name="TagSelectorComponent">
+        <attr name="tagSelectorTitleStyle" format="reference"/>
+        <attr name="tagSelectorAddButtonStyle" format="reference"/>
+    </declare-styleable>
+</resources>

@@ -6,39 +6,31 @@
     android:layout_height="wrap_content">
 
     <TextView
-        android:id="@+id/name"
+        style="?attr/trackerGoalTitleStyle"
+        android:id="@+id/tracker_goal_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
+        android:drawablePadding="10dp"
+        android:text="Wake Time"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Start Time:" />
+        app:drawableStartCompat="@drawable/ic_tracker_goal_trophy"
+        app:drawableLeftCompat="@drawable/ic_tracker_goal_trophy" />
 
     <TextView
-        android:id="@+id/date"
+        style="?attr/trackerGoalValueStyle"
+        android:id="@+id/tracker_goal_value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:textSize="24sp"
+        android:layout_marginBottom="16dp"
+        android:text="Error"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/time"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/name"
-        tools:text="Nov 3, 2020" />
-
-    <TextView
-        android:id="@+id/time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="24sp"
-        app:layout_constraintBaseline_toBaselineOf="@+id/date"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/date"
-        tools:text="8:00 pm" />
-
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tracker_goal_title"
+        tools:text="8:30 a.m." />
 </androidx.constraintlayout.widget.ConstraintLayout>

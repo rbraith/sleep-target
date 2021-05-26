@@ -3,55 +3,58 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
     <TextView
         android:id="@+id/more_context_title"
+        style="?attr/trackerDetailsTitleStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
-        android:text="Details [optional]:"
+        android:text="Optional Details"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/additional_comments"
+        style="?attr/trackerAdditionalCommentsStyle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
         android:ems="10"
         android:gravity="start|top"
         android:hint="Additional comments..."
         android:imeOptions="actionDone"
         android:inputType="textMultiLine"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/more_context_tags" />
 
-    <include
+    <com.rbraithwaite.sleepapp.ui.common.mood_selector.TEMP.MoodSelectorComponent
         android:id="@+id/more_context_mood"
-        layout="@layout/mood_selector"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="16dp"
+        android:theme="?attr/trackerMoodSelectorTheme"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/more_context_title" />
 
-    <include
+    <com.rbraithwaite.sleepapp.ui.common.tag_selector.TEMP.TagSelectorComponent
         android:id="@+id/more_context_tags"
-        layout="@layout/tag_selector"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginLeft="32dp"
+        android:theme="?attr/trackerTagSelectorTheme"
         app:layout_constraintStart_toEndOf="@+id/more_context_mood"
         app:layout_constraintTop_toTopOf="@+id/more_context_mood" />
 

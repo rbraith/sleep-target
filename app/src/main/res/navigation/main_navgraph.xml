@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/nav_sleeptracker"
         android:name="com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFragment"
-        android:label="SleepTrackerFragment">
+        android:label="App Name">
         <action
             android:id="@+id/action_sleepTracker_to_sessionArchive"
             app:destination="@id/nav_session_archive" />

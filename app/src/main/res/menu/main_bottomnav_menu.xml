@@ -9,7 +9,7 @@
             android:title="Track" />
         <item
             android:id="@+id/nav_sleepgoals"
-            android:icon="@drawable/ic_baseline_emoji_events_24"
+            android:icon="@drawable/ic_goal_trophy"
             android:title="Goals" />
         <item
             android:id="@+id/nav_sleepstats"

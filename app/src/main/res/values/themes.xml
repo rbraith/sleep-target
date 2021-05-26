@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar">
+        <item name="appBarLayoutStyle">@style/AppBar</item>
+        <item name="toolbarStyle">@style/ToolBar</item>
+        <item name="actionOverflowButtonStyle">@style/OverflowButton</item>
+        <item name="cardViewStyle">@style/AppCardView</item>
+        <item name="bottomNavigationStyle">@style/AppBottomNav</item>
+
+        <item name="android:windowBackground">?attr/appColorBackground</item>
+    </style>
+
+
+    <style name="AppTheme.DefaultColors">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+
+        <item name="colorSecondary">@color/colorSecondary</item>
+        <item name="colorOnSecondary">@color/colorOnSecondary</item>
+
+        <item name="colorPrimarySurface">@color/colorPrimarySurface</item>
+        <item name="colorOnPrimarySurface">@color/colorOnPrimarySurface</item>
+        <item name="appColorOnPrimarySurface2">@color/colorOnPrimarySurface2</item>
+
+        <item name="appColorSecondarySurface">@color/colorSecondarySurface</item>
+        <item name="appColorOnSecondarySurface">@color/colorOnSecondarySurface</item>
+
+        <item name="appColorBackground">@color/colorAppBackground</item>
+    </style>
+
+</resources>

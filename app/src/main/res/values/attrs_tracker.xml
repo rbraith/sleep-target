@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="AppTracker">
+        <attr name="trackerTitleColor" format="color"/>
+    </declare-styleable>
+
+    <declare-styleable name="TrackerGoal">
+        <attr name="trackerGoalTitleStyle" format="reference"/>
+        <attr name="trackerGoalValueStyle" format="reference"/>
+    </declare-styleable>
+
+    <declare-styleable name="TrackerTrackingSection">
+        <attr name="trackerMainButtonStyle" format="reference"/>
+        <attr name="trackerStartTimeStyle" format="reference"/>
+        <attr name="trackerSessionTimeStyle" format="reference"/>
+    </declare-styleable>
+
+    <declare-styleable name="TrackerOptionalDetails">
+        <attr name="trackerDetailsTitleStyle" format="reference"/>
+        <attr name="trackerAdditionalCommentsStyle" format="reference"/>
+        <attr name="trackerMoodSelectorTheme" format="reference"/>
+        <attr name="trackerTagSelectorTheme" format="reference"/>
+    </declare-styleable>
+</resources>

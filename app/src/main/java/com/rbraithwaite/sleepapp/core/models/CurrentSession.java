@@ -154,6 +154,13 @@ public class CurrentSession
     {
         Date start = getStart();
         int durationMillis = (int) getOngoingDurationMillis();
+        // HACK [21-05-25 3:35PM] -- this is a temporary bandaid here for a larger app-wide issue.
+        //  That issue being the multitude of places where I am casting from long to int for
+        //  a sleep session's duration. This behaviour is very far from ideal, what would be much
+        //  more preferable would be if the app were able to just handle long duration sleep sessions.
+        //  This hack here is to protect against overflows, but there are plenty of places
+        //  elsewhere in the app where no such protections (regardless of how hacky) exist.
+        durationMillis = Math.max(0, durationMillis);
         
         Date end = mTimeUtils.addDurationToDate(start, durationMillis);
         

@@ -55,7 +55,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/session_data_tags" />
 
-    <include
+    <com.rbraithwaite.sleepapp.ui.common.mood_selector.TEMP.MoodSelectorComponent
         android:id="@+id/session_data_mood"
         layout="@layout/mood_selector"
         android:layout_width="wrap_content"
@@ -66,7 +66,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/session_details_rating" />
 
-    <include
+    <com.rbraithwaite.sleepapp.ui.common.tag_selector.TEMP.TagSelectorComponent
         android:id="@+id/session_data_tags"
         layout="@layout/tag_selector"
         android:layout_width="wrap_content"

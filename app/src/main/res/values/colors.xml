@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#6200EE</color>
-    <color name="colorPrimaryDark">#3700B3</color>
-    <color name="colorAccent">#03DAC5</color>
+    <color name="colorPrimary">#9999ff</color>
+    <color name="colorSecondary">#ffffff</color>
+    <color name="colorOnPrimary">@color/colorAppBackground</color>
+    <color name="colorOnSecondary">@color/colorAppBackground</color>
+
+    <color name="colorAppBackground">#151515</color>
+
+    <!--Used for cards, etc.-->
+    <color name="colorPrimarySurface">#252525</color>
+    <color name="colorOnPrimarySurface">#aaaaaa</color>
+    <color name="colorOnPrimarySurface2">#777777</color>
+
+    <!--Higher elevation, used for app bar, dialogs, etc-->
+    <color name="colorSecondarySurface">#383838</color>
+    <color name="colorOnSecondarySurface">@color/colorSecondary</color>
+
 </resources>

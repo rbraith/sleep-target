@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="TrackerTheme">
+        <item name="trackerTitleColor">?attr/colorOnPrimarySurface</item>
+    </style>
+
+    <style name="TrackerGoalTheme">
+        <item name="trackerGoalTitleStyle">@style/TrackerGoalTitleStyle</item>
+        <item name="trackerGoalValueStyle">@style/TrackerGoalValueStyle</item>
+    </style>
+
+    <style name="TrackerTrackingSectionTheme">
+        <item name="trackerStartTimeStyle">@style/TrackerStartTime</item>
+        <item name="trackerMainButtonStyle">@style/TrackerButtonMain</item>
+        <item name="trackerSessionTimeStyle">@style/TrackerSessionTime</item>
+    </style>
+
+    <style name="TrackerMoodSelectorTheme">
+        <item name="moodSelectorTitleStyle">@style/TrackerSubTitleStyle</item>
+        <item name="moodSelectorAddButtonStyle">@style/TrackerDetailButtonStyle</item>
+    </style>
+
+    <style name="TrackerTagSelectorTheme">
+        <item name="tagSelectorTitleStyle">@style/TrackerSubTitleStyle</item>
+        <item name="tagSelectorAddButtonStyle">@style/TrackerDetailButtonStyle</item>
+    </style>
+
+    <style name="TrackerOptionalDetailsTheme">
+        <item name="trackerMoodSelectorTheme">@style/TrackerMoodSelectorTheme</item>
+        <item name="trackerTagSelectorTheme">@style/TrackerTagSelectorTheme</item>
+        <item name="trackerDetailsTitleStyle">@style/TrackerTitleStyle</item>
+    </style>
+</resources>

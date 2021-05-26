@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--These attrs are prefixed with 'app' to distinguish from android attrs-->
+    <declare-styleable name="App">
+        <!--colors-->
+        <attr name="appColorBackground" format="color"/>
+        <attr name="appColorOnPrimarySurface2" format="color"/>
+        <attr name="appColorSecondarySurface" format="color"/>
+        <attr name="appColorOnSecondarySurface" format="color"/>
+    </declare-styleable>
+</resources>

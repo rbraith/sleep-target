@@ -36,7 +36,7 @@ public class CommonFormatting
     public static String formatDurationMillis(long durationMillis)
     {
         if (durationMillis < 0) {
-            throw new IllegalArgumentException(String.format("duration must be >= 0 (%d)",
+            throw new IllegalArgumentException(String.format("duration must be >= 0 (was %d)",
                                                              durationMillis));
         }
         

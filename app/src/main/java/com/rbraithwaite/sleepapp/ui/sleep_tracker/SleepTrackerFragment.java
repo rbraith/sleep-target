@@ -78,7 +78,7 @@ public class SleepTrackerFragment
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState)
     {
-        return inflater.inflate(R.layout.sleep_tracker_fragment, container, false);
+        return inflater.inflate(R.layout.tracker_fragment, container, false);
     }
     
     @Override
@@ -216,14 +216,14 @@ public class SleepTrackerFragment
             {
                 getViewModel().setLocalMood(newMood);
             }
-            
+
             @Override
             public void onMoodDeleted()
             {
                 getViewModel().clearLocalMood();
             }
         });
-        
+
         // initialize the mood selector's selected mood
         LiveDataFuture.getValue(
                 getViewModel().getPersistedMood(),
@@ -265,10 +265,12 @@ public class SleepTrackerFragment
     private void initGoalsDisplay(View fragmentRoot)
     {
         // wake-time goal
-        final TextView wakeTimeGoalTitle =
-                fragmentRoot.findViewById(R.id.sleep_tracker_waketime_goal_title);
-        final TextView wakeTimeGoalValue =
-                fragmentRoot.findViewById(R.id.sleep_tracker_waketime_goal_value);
+        View wakeTimeGoalCard = fragmentRoot.findViewById(R.id.tracker_waketime_goal_card);
+        final TextView wakeTimeGoalTitle = wakeTimeGoalCard.findViewById(R.id.tracker_goal_title);
+        final TextView wakeTimeGoalValue = wakeTimeGoalCard.findViewById(R.id.tracker_goal_value);
+        
+        wakeTimeGoalTitle.setText(R.string.tracker_goal_waketime_title);
+        
         getViewModel().getWakeTimeGoalText().observe(
                 getViewLifecycleOwner(),
                 wakeTimeGoalText -> {
@@ -283,10 +285,12 @@ public class SleepTrackerFragment
                 });
         
         // sleep duration goal
-        final TextView sleepDurationGoalTitle =
-                fragmentRoot.findViewById(R.id.sleep_tracker_duration_goal_title);
-        final TextView sleepDurationGoalValue =
-                fragmentRoot.findViewById(R.id.sleep_tracker_duration_goal_value);
+        View sleepDurationGoalCard = fragmentRoot.findViewById(R.id.tracker_duration_goal_card);
+        final TextView sleepDurationGoalTitle = sleepDurationGoalCard.findViewById(R.id.tracker_goal_title);
+        final TextView sleepDurationGoalValue = sleepDurationGoalCard.findViewById(R.id.tracker_goal_value);
+        
+        sleepDurationGoalTitle.setText(R.string.tracker_goal_duration_title);
+        
         getViewModel().getSleepDurationGoalText().observe(
                 getViewLifecycleOwner(),
                 sleepDurationGoalText -> {

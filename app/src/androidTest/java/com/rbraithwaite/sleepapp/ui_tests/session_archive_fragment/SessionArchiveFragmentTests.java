@@ -71,7 +71,7 @@ public class SessionArchiveFragmentTests
     
     
     // REFACTOR [21-04-22 12:47AM] -- Not sure where to put this so I'm putting it here: the
-    //  layouts for sleep_tracker_more_context.xml and session_data_fragment.xml are very similar.
+    //  layouts for tracker_optional_details.xml and session_data_fragment.xml are very similar.
     //  Consider extracting this group of [mood, tags, comments, etc] as a separate layout.
     @Test
     public void tagList_displaysProperly()
