@@ -21,4 +21,8 @@
         <attr name="trackerMoodSelectorTheme" format="reference"/>
         <attr name="trackerTagSelectorTheme" format="reference"/>
     </declare-styleable>
+
+    <declare-styleable name="TrackerPostSleepDialog">
+        <attr name="trackerPostDialogNullDataMessageStyle" format="reference"/>
+    </declare-styleable>
 </resources>

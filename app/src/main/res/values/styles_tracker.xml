@@ -53,12 +53,51 @@
         <item name="drawableTint">?attr/colorOnPrimary</item>
     </style>
 
+<!--    post sleep dialog styles-->
+    <style name="TrackerPostSleepNullDataStyle" parent="AppTextView">
+        <item name="android:textColor">?attr/appColorOnBackgroundFloating2</item>
+    </style>
+
+    <style name="TrackerPostSleepTitleStyle">
+        <item name="android:textAppearance">@style/TrackerPostSleepTitleTextAppearance</item>
+    </style>
+
+    <style name="TrackerPostSleepTitleTextAppearance" parent="AppTextAppearance.TrackerTitle">
+        <item name="android:textColor">?attr/appColorOnBackgroundFloating</item>
+    </style>
+
+    <style name="TrackerPostSleepSubtitleStyle">
+        <item name="android:textAppearance">@style/TrackerPostSleepSubtitleTextAppearance</item>
+    </style>
+
+    <style name="TrackerPostSleepSubtitleTextAppearance" parent="AppTextAppearance.TrackerSubTitle">
+        <item name="android:textColor">?attr/appColorOnBackgroundFloating</item>
+    </style>
+
+    <style name="TrackerPostSleepRatingBarTheme">
+        <item name="colorSecondary">?attr/colorPrimary</item>
+    </style>
+
+    <style name="TrackerPostSleepCommentsStyle" parent="AppTextView">
+        <item name="android:textColor">?attr/colorSecondary</item>
+    </style>
+
+    <style name="TrackerPostSleepDateStyle" parent="AppTextView">
+        <item name="android:textColor">?attr/colorSecondary</item>
+        <!-- REFACTOR [21-05-27 4:56PM] - this is the same size as the subtitle, extract to
+                a common dimen. -->
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="TrackerPostSleepDurationStyle" parent="TrackerGoalValueStyle">
+    </style>
+
 
 <!--    common-->
     <style name="TrackerDetailButtonStyle" parent="AppButton.Capsule"/>
 
     <style name="TrackerTitleStyle" parent="AppTextView">
-        <item name="android:textAppearance">@style/AppTextAppearance.TrackerHeader</item>
+        <item name="android:textAppearance">@style/AppTextAppearance.TrackerTitle</item>
     </style>
 
     <style name="TrackerSubTitleStyle" parent="AppTextView">
@@ -78,7 +117,7 @@
         <item name="android:textSize">14sp</item>
     </style>
 
-    <style name="AppTextAppearance.TrackerHeader">
+    <style name="AppTextAppearance.TrackerTitle">
         <item name="android:textColor">?attr/trackerTitleColor</item>
         <item name="android:textSize">16sp</item>
     </style>

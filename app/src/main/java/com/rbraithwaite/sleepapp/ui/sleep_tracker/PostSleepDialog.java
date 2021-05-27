@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.RatingBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -201,8 +202,17 @@ public class PostSleepDialog
         // REFACTOR [21-05-9 3:19PM] -- this text & color stuff is state that should probably be
         //  handled in the view model.
         if (additionalComments == null || additionalComments.equals("")) {
-            commentsText.setText(R.string.postsleepdialog_nocomments);
-            commentsText.setTextColor(Color.GRAY);
+            // display 'No Comments' message instead
+            commentsText.setVisibility(View.GONE);
+            TextView noCommentsMessage = new TextView(
+                    mRoot.getContext(),
+                    null,
+                    R.attr.trackerPostDialogNullDataMessageStyle);
+            noCommentsMessage.setText(R.string.postsleepdialog_nocomments);
+            
+            ScrollView commentsScroll = dialogRoot.findViewById(R.id.postsleep_comments_scroll);
+            commentsScroll.removeAllViews();
+            commentsScroll.addView(noCommentsMessage);
         } else {
             commentsText.setText(additionalComments);
         }
@@ -220,7 +230,10 @@ public class PostSleepDialog
                     requireContext(),
                     MoodSelectorController.MOOD_DISPLAY_SCALE));
         } else {
-            TextView noMoodMessage = new TextView(requireContext());
+            TextView noMoodMessage = new TextView(
+                    mRoot.getContext(),
+                    null,
+                    R.attr.trackerPostDialogNullDataMessageStyle);
             noMoodMessage.setText(R.string.postsleepdialog_nomood);
             moodFrame.addView(noMoodMessage);
         }

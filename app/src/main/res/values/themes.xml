@@ -31,6 +31,8 @@
         <item name="appColorBackground">@color/colorAppBackground</item>
 
         <item name="colorBackgroundFloating">@color/colorBackgroundFloating</item>
+        <item name="appColorOnBackgroundFloating">@color/colorOnPrimarySurface</item>
+        <item name="appColorOnBackgroundFloating2">@color/colorOnPrimarySurface2</item>
         <item name="appColorSurfaceFloating">@color/colorSurfaceFloating</item>
     </style>
 

@@ -9,6 +9,7 @@
         <attr name="tagSelectorTitleStyle" format="reference"/>
         <attr name="tagSelectorAddButtonStyle" format="reference"/>
         <attr name="tagSelectorTagStyle" format="reference"/>
+        <attr name="tagSelectorNoTagsMessageStyle" format="reference"/>
         <attr name="tagSelectorDialogTheme" format="reference"/>
     </declare-styleable>
 

@@ -26,6 +26,7 @@
         <item name="tagSelectorTitleStyle">@style/TrackerSubTitleStyle</item>
         <item name="tagSelectorAddButtonStyle">@style/TrackerDetailButtonStyle</item>
         <item name="tagSelectorTagStyle">@style/TrackerSelectedTagStyle</item>
+        <item name="tagSelectorNoTagsMessageStyle">@style/TrackerSubTitleStyle</item>
         <item name="tagSelectorDialogTheme">@style/TrackerTagSelectorDialogTheme</item>
     </style>
 
@@ -49,5 +50,11 @@
         <item name="trackerMoodSelectorTheme">@style/TrackerMoodSelectorTheme</item>
         <item name="trackerTagSelectorTheme">@style/TrackerTagSelectorTheme</item>
         <item name="trackerDetailsTitleStyle">@style/TrackerTitleStyle</item>
+    </style>
+
+    <style name="TrackerPostDialogTheme">
+        <item name="trackerPostDialogNullDataMessageStyle">@style/TrackerPostSleepNullDataStyle</item>
+        <item name="tagSelectorTagStyle">@style/TrackerSelectedTagStyle</item>
+        <item name="tagSelectorNoTagsMessageStyle">@style/TrackerPostSleepNullDataStyle</item>
     </style>
 </resources>
