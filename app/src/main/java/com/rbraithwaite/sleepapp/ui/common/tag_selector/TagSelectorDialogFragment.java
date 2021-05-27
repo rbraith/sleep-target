@@ -3,6 +3,7 @@ package com.rbraithwaite.sleepapp.ui.common.tag_selector;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -24,13 +25,15 @@ public class TagSelectorDialogFragment
 //*********************************************************
 
     private TagSelectorViewModel mViewModel;
-
+    
+    private int mThemeId;
+    
 //*********************************************************
 // public constants
 //*********************************************************
 
     public static final String RECYCLER_TAG = "TagSelectorDialog_recycler";
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -45,31 +48,42 @@ public class TagSelectorDialogFragment
         
         return builder.create();
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
 
-    public static TagSelectorDialogFragment createInstance(TagSelectorViewModel viewModel)
+    
+    /**
+     * Creates a new instance of this fragment.
+     *
+     * @param viewModel     The viewmodel used in the dialog.
+     * @param dialogThemeId The theme that will be applied to the dialog view
+     */
+    public static TagSelectorDialogFragment createInstance(
+            TagSelectorViewModel viewModel,
+            int dialogThemeId)
     {
         TagSelectorDialogFragment fragment = new TagSelectorDialogFragment();
         fragment.mViewModel = viewModel;
+        fragment.mThemeId = dialogThemeId;
         return fragment;
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
 
     private View initTagRecycler()
     {
-        RecyclerView tagRecycler = new RecyclerView(requireContext());
+        RecyclerView tagRecycler = new RecyclerView(new ContextThemeWrapper(
+                requireContext(), mThemeId));
+        
         LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext());
         // These flags fix problems with the keyboard overlapping new tags when they are edited.
         // https://stackoverflow.com/a/40609951
         // Also I like having the 'add new tag' button at the top, and this is an easy way of
-        // getting
-        // that.
+        // getting that.
         layoutManager.setReverseLayout(true);
         layoutManager.setStackFromEnd(true);
         tagRecycler.setLayoutManager(layoutManager);

@@ -28,6 +28,32 @@
         <item name="android:textSize">14sp</item>
     </style>
 
+<!--    tag selector    -->
+    <style name="TrackerSelectedTagStyle">
+        <item name="android:textAppearance">@style/AppTextAppearance.TrackerSelectedTag</item>
+        <item name="shapeAppearanceOverlay">@style/CapsuleShapeAppearance</item>
+        <item name="backgroundTint">?attr/colorOnPrimarySurface</item>
+    </style>
+
+    <style name="AppTextAppearance.TrackerSelectedTag">
+        <item name="android:textColor">?attr/colorOnSecondary</item>
+    </style>
+
+    <style name="TrackerTagListItemTextStyle" parent="Widget.AppCompat.TextView">
+        <item name="android:textColor">?attr/appColorOnSecondarySurface</item>
+    </style>
+
+    <style name="TrackerTagListItemEditTextStyle" parent="Widget.AppCompat.EditText">
+        <item name="android:textColor">?attr/appColorOnSecondarySurface</item>
+    </style>
+
+    <style name="TrackerTagAddNewButtonStyle" parent="TrackerDetailButtonStyle">
+        <item name="backgroundTint">?attr/colorPrimary</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="drawableTint">?attr/colorOnPrimary</item>
+    </style>
+
+
 <!--    common-->
     <style name="TrackerDetailButtonStyle" parent="AppButton.Capsule"/>
 

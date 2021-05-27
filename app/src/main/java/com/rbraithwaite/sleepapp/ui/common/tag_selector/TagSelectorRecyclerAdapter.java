@@ -1,5 +1,6 @@
 package com.rbraithwaite.sleepapp.ui.common.tag_selector;
 
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,11 +11,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.color.MaterialColors;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.UiUtils;
+import com.rbraithwaite.sleepapp.utils.CommonUtils;
 
 import java.util.List;
 
@@ -98,6 +102,7 @@ public class TagSelectorRecyclerAdapter
     {
         private static final String TAG = "TagViewHolder";
         
+        private CardView mCard;
         private TextView mTagText;
         private EditText mTagEditText;
         private Button mTagEditButton;
@@ -105,7 +110,9 @@ public class TagSelectorRecyclerAdapter
         
         private TagSelectorViewModel mViewModel;
         
-        public TagViewHolder(@NonNull View itemView, TagSelectorViewModel viewModel)
+        private Attributes mAttributes;
+        
+        public TagViewHolder(@NonNull View itemView, TagSelectorViewModel viewModel, Attributes attributes)
         {
             super(itemView);
             
@@ -115,6 +122,9 @@ public class TagSelectorRecyclerAdapter
             mTagEditText = itemView.findViewById(R.id.tag_edittext);
             mTagEditButton = itemView.findViewById(R.id.tag_edit_btn);
             mTagDeleteButton = itemView.findViewById(R.id.tag_delete_btn);
+            mCard = itemView.findViewById(R.id.tag_selector_dialog_list_item_card);
+            
+            mAttributes = attributes;
         }
         
         private void expandView()
@@ -155,7 +165,8 @@ public class TagSelectorRecyclerAdapter
                 collapseView();
             }
             setEditTextActive(listItemData.beingEdited);
-            itemView.setBackgroundColor(listItemData.selected ? Color.CYAN : Color.TRANSPARENT);
+            mCard.setCardBackgroundColor(listItemData.selected ?
+                    mAttributes.selectedTagColor : mAttributes.unselectedTagColor);
             
             mTagText.setText(listItemData.tagUiData.text);
             mTagEditText.setText(listItemData.tagUiData.text);
@@ -184,6 +195,37 @@ public class TagSelectorRecyclerAdapter
         bindViewModel(lifecycleOwner);
     }
     
+    private static class Attributes
+    {
+        public final int unselectedTagColor;
+        public final int selectedTagColor;
+    
+        public Attributes(int unselectedTagColor, int selectedTagColor)
+        {
+            this.unselectedTagColor = unselectedTagColor;
+            this.selectedTagColor = selectedTagColor;
+        }
+    }
+    
+    private Attributes mAttributes;
+    
+    private void maybeInitAttributes(ViewGroup parent)
+    {
+        mAttributes = CommonUtils.lazyInit(mAttributes, () -> {
+            TypedArray ta = parent.getContext().obtainStyledAttributes(R.styleable.TagSelectorDialog);
+            Attributes attributes = new Attributes(
+                    ta.getColor(R.styleable.TagSelectorDialog_tagSelectorListItemUnselectedColor, -1),
+                    ta.getColor(R.styleable.TagSelectorDialog_tagSelectorListItemSelectedColor, -1));
+            ta.recycle();
+            return attributes;
+        });
+    }
+    
+    private Attributes getAttributes()
+    {
+        return mAttributes;
+    }
+    
 //*********************************************************
 // overrides
 //*********************************************************
@@ -192,10 +234,12 @@ public class TagSelectorRecyclerAdapter
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
     {
+        maybeInitAttributes(parent);
+        
         switch (viewType) {
         case VIEW_TYPE_TAG:
             View tagView = inflateLayout(R.layout.tag_selector_dialog_list_item, parent);
-            return new TagViewHolder(tagView, mViewModel);
+            return new TagViewHolder(tagView, mViewModel, getAttributes());
         
         case VIEW_TYPE_ADD_CUSTOM_BUTTON:
             View addButton = inflateLayout(R.layout.tag_selector_dialog_add_btn, parent);

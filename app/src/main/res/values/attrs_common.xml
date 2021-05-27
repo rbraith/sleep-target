@@ -8,5 +8,21 @@
     <declare-styleable name="TagSelectorComponent">
         <attr name="tagSelectorTitleStyle" format="reference"/>
         <attr name="tagSelectorAddButtonStyle" format="reference"/>
+        <attr name="tagSelectorTagStyle" format="reference"/>
+        <attr name="tagSelectorDialogTheme" format="reference"/>
+    </declare-styleable>
+
+    <declare-styleable name="TagSelectorDialog">
+        <attr name="tagSelectorListItemCardStyle" format="reference"/>
+        <attr name="tagSelectorListItemTextStyle" format="reference"/>
+        <attr name="tagSelectorListItemDeleteButtonStyle" format="reference"/>
+        <attr name="tagSelectorListItemEditButtonStyle" format="reference"/>
+        <attr name="tagSelectorListItemEditTextStyle" format="reference"/>
+        <attr name="tagSelectorListItemSelectedColor" format="color"/>
+        <!-- HACK [21-05-26 8:24PM] - Ideally it would be better to extract the colour from
+                tagSelectorListItemCardStyle but I had trouble with that. -->
+        <attr name="tagSelectorListItemUnselectedColor" format="color"/>
+        <attr name="tagSelectorListAddTagButtonStyle" format="reference"/>
+        <attr name="tagSelectorListAddTagEditTextStyle" format="reference"/>
     </declare-styleable>
 </resources>

@@ -16,6 +16,8 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorOnPrimary">@color/colorOnPrimary</item>
 
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+
         <item name="colorSecondary">@color/colorSecondary</item>
         <item name="colorOnSecondary">@color/colorOnSecondary</item>
 
@@ -27,6 +29,9 @@
         <item name="appColorOnSecondarySurface">@color/colorOnSecondarySurface</item>
 
         <item name="appColorBackground">@color/colorAppBackground</item>
+
+        <item name="colorBackgroundFloating">@color/colorBackgroundFloating</item>
+        <item name="appColorSurfaceFloating">@color/colorSurfaceFloating</item>
     </style>
 
 </resources>

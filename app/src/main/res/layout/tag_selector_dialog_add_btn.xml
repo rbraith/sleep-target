@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!-- REFACTOR [21-05-26 10:05PM] - the layout_marginBottom here duplicates the one in
+        tag_selector_dialog_list_item.xml - I should extract this value to a dimen resource. -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp">
 
     <EditText
         android:id="@+id/tag_add_btn_edittext"
+        style="?attr/tagSelectorListAddTagEditTextStyle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -24,6 +29,7 @@
 
     <Button
         android:id="@+id/tag_add_btn"
+        style="?attr/tagSelectorListAddTagButtonStyle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"

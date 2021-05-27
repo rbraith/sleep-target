@@ -1,13 +1,13 @@
 package com.rbraithwaite.sleepapp.ui.common.tag_selector;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.google.android.material.button.MaterialButton;
 import com.rbraithwaite.sleepapp.R;
 
 import java.util.List;
@@ -38,7 +38,7 @@ public class TagScrollController
 //*********************************************************
 
     public static final String TAGS_TAG = "TagScrollController_layout";
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -52,7 +52,7 @@ public class TagScrollController
         mRootScroll.removeAllViews();
         mRootScroll.addView(mLayout);
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -83,7 +83,7 @@ public class TagScrollController
             displaysTags();
         }
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -143,7 +143,8 @@ public class TagScrollController
     {
         final int TAG_VERTICAL_PADDING = 5;
         
-        TextView tagView = new TextView(mContext);
+        MaterialButton tagView = new MaterialButton(mContext, null, R.attr.tagSelectorTagStyle);
+        tagView.setClickable(false);
         tagView.setText(tag.text);
         tagView.setPadding(
                 DEFAULT_VIEW_SPACING,
@@ -151,7 +152,6 @@ public class TagScrollController
                 DEFAULT_VIEW_SPACING,
                 TAG_VERTICAL_PADDING);
         tagView.setLayoutParams(getTagViewParams());
-        tagView.setBackgroundColor(Color.CYAN);
         return tagView;
     }
     

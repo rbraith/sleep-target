@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--This defines common values for the tracker styles to reference.
+        This is applied to the root view of the tracker fragment.-->
     <style name="TrackerTheme">
         <item name="trackerTitleColor">?attr/colorOnPrimarySurface</item>
     </style>
@@ -23,6 +25,24 @@
     <style name="TrackerTagSelectorTheme">
         <item name="tagSelectorTitleStyle">@style/TrackerSubTitleStyle</item>
         <item name="tagSelectorAddButtonStyle">@style/TrackerDetailButtonStyle</item>
+        <item name="tagSelectorTagStyle">@style/TrackerSelectedTagStyle</item>
+        <item name="tagSelectorDialogTheme">@style/TrackerTagSelectorDialogTheme</item>
+    </style>
+
+    <style name="TrackerTagSelectorDialogTheme">
+        <item name="tagSelectorListItemCardStyle">@style/AppCardView</item>
+        <item name="tagSelectorListItemTextStyle">@style/TrackerTagListItemTextStyle</item>
+        <item name="tagSelectorListItemDeleteButtonStyle">@style/TrackerDetailButtonStyle</item>
+        <item name="tagSelectorListItemEditButtonStyle">@style/TrackerDetailButtonStyle</item>
+        <item name="tagSelectorListItemEditTextStyle">@style/TrackerTagListItemEditTextStyle</item>
+        <item name="tagSelectorListItemSelectedColor">?attr/colorPrimaryDark</item>
+        <!-- TODO [21-05-26 9:56PM] - I'm having trouble setting the background color of the
+                dialog right now. This isn't a huge deal and I don't want to spend too much time
+                investigating it atm, so I'm going to leave things as they are for now. I think
+                I would prefer that the dialog bg & card bg both be colorSecondarySurface.-->
+        <item name="tagSelectorListItemUnselectedColor">?attr/appColorSurfaceFloating</item>
+        <item name="tagSelectorListAddTagButtonStyle">@style/TrackerTagAddNewButtonStyle</item>
+        <item name="tagSelectorListAddTagEditTextStyle">@style/TrackerTagListItemEditTextStyle</item>
     </style>
 
     <style name="TrackerOptionalDetailsTheme">

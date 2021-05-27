@@ -27,12 +27,12 @@
         <item name="drawableTint">?attr/colorOnSecondary</item>
     </style>
 
-    <style name="CapsuleButtonShapeAppearance">
+    <style name="CapsuleShapeAppearance">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
     </style>
     <style name="AppButton.Capsule">
-        <item name="shapeAppearanceOverlay">@style/CapsuleButtonShapeAppearance</item>
+        <item name="shapeAppearanceOverlay">@style/CapsuleShapeAppearance</item>
     </style>
 
     <style name="AppTextView" parent="Widget.MaterialComponents.TextView"/>

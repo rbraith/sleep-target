@@ -1,6 +1,7 @@
 package com.rbraithwaite.sleepapp.ui.common.tag_selector;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ScrollView;
@@ -76,7 +77,7 @@ public class TagSelectorController
                 lifecycleOwner,
                 selectedTags -> {
                     if (selectedTags.isEmpty()) {
-                        mSelectedTagsScrollView.setVisibility(View.INVISIBLE);
+                        mSelectedTagsScrollView.setVisibility(View.GONE);
                         mAddTagsButton.setVisibility(View.VISIBLE);
                     } else {
                         mSelectedTagsScrollView.setVisibility(View.VISIBLE);
@@ -89,8 +90,14 @@ public class TagSelectorController
     
     private void displayTagDialog()
     {
+        // REFACTOR [21-05-26 9:21PM] -- abstract this stuff, I guess getDialogThemeId().
+        TypedArray ta = mRoot.getContext().obtainStyledAttributes(R.styleable.TagSelectorComponent);
+        int dialogThemeId =
+                ta.getResourceId(R.styleable.TagSelectorComponent_tagSelectorDialogTheme, -1);
+        ta.recycle();
+        
         TagSelectorDialogFragment
-                .createInstance(mViewModel)
+                .createInstance(mViewModel, dialogThemeId)
                 .show(mFragmentManager, DIALOG_TAG);
     }
     

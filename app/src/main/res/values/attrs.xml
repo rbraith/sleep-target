@@ -7,5 +7,6 @@
         <attr name="appColorOnPrimarySurface2" format="color"/>
         <attr name="appColorSecondarySurface" format="color"/>
         <attr name="appColorOnSecondarySurface" format="color"/>
+        <attr name="appColorSurfaceFloating" format="color"/>
     </declare-styleable>
 </resources>

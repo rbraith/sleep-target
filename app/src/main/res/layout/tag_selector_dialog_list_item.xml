@@ -3,8 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/tag_selector_dialog_list_item_card"
+    style="?attr/tagSelectorListItemCardStyle"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="8dp"
     android:layout_marginBottom="8dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -13,11 +16,12 @@
 
         <TextView
             android:id="@+id/tag_text"
+            style="?attr/tagSelectorListItemTextStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginLeft="16dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
             android:layout_marginRight="16dp"
             android:textSize="24sp"
@@ -28,6 +32,7 @@
 
         <Button
             android:id="@+id/tag_delete_btn"
+            style="?attr/tagSelectorListItemDeleteButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -46,6 +51,7 @@
 
         <Button
             android:id="@+id/tag_edit_btn"
+            style="?attr/tagSelectorListItemEditButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -60,6 +66,7 @@
 
         <EditText
             android:id="@+id/tag_edittext"
+            style="?attr/tagSelectorListItemEditTextStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"

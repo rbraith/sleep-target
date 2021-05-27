@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#9999ff</color>
+    <color name="colorPrimaryDark">#6359e6</color>
     <color name="colorSecondary">#ffffff</color>
     <color name="colorOnPrimary">@color/colorAppBackground</color>
     <color name="colorOnSecondary">@color/colorAppBackground</color>
 
     <color name="colorAppBackground">#151515</color>
+
+    <!-- TODO [21-05-26 9:58PM] - I'm having trouble applying this color to dialogs
+            - see comment in values/themes_tracker.xml::TrackerTagSelectorDialogTheme for
+            additional details.-->
+    <color name="colorBackgroundFloating">#ff0000</color>
+
+    <color name="colorSurfaceFloating">#505050</color>
 
     <!--Used for cards, etc.-->
     <color name="colorPrimarySurface">#252525</color>
