@@ -10,16 +10,13 @@
         android:name="com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFragment"
         android:label="App Name">
         <action
-            android:id="@+id/action_sleepTracker_to_sessionArchive"
-            app:destination="@id/nav_session_archive" />
-        <action
             android:id="@+id/action_nav_sleeptracker_to_debug_navgraph"
             app:destination="@id/debug_navgraph" />
     </fragment>
     <fragment
         android:id="@+id/nav_session_archive"
         android:name="com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragment"
-        android:label="SessionArchiveFragment" >
+        android:label="Archive">
         <action
             android:id="@+id/action_sessionArchive_to_sessionData"
             app:destination="@id/nav_session_details" />

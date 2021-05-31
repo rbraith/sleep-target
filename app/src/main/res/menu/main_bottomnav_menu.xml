@@ -8,6 +8,10 @@
             android:icon="@drawable/ic_baseline_nights_stay_24"
             android:title="Track" />
         <item
+            android:id="@+id/nav_session_archive"
+            android:icon="@drawable/ic_bottomnav_archive"
+            android:title="Archive" />
+        <item
             android:id="@+id/nav_sleepgoals"
             android:icon="@drawable/ic_goal_trophy"
             android:title="Goals" />

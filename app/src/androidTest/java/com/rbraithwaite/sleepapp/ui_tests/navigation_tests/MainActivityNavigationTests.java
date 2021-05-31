@@ -1,7 +1,6 @@
 package com.rbraithwaite.sleepapp.ui_tests.navigation_tests;
 
 import androidx.test.core.app.ActivityScenario;
-import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.R;
@@ -17,7 +16,6 @@ import org.junit.runner.RunWith;
 import java.util.concurrent.ExecutionException;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -131,6 +129,7 @@ public class MainActivityNavigationTests
         assertThat(sessionCount, is(equalTo(expected)));
     }
     
+    // TODO [21-05-30 10:32PM] -- this test is pretty useless.
     // Scenario: the user navigates from the home screen (sleep tracker) to the session archive
     // screen and back
     @Test
@@ -143,15 +142,10 @@ public class MainActivityNavigationTests
         onView(withId(R.id.main_bottomnav)).check(matches(isDisplayed()));
         
         // WHEN the user selects the session archive menu option
-        // https://developer.android.com/training/testing/espresso/recipes#matching-view-inside
-        // -action-bar
-        openActionBarOverflowOrOptionsMenu(ApplicationProvider.getApplicationContext());
-        onView(withText("Session Archive")).perform(click());
+        UITestNavigate.fromHome_toSessionArchive();
         
         // THEN the user is navigated to the session archive screen
         onView(withId(R.id.session_archive_list)).check(matches(isDisplayed()));
-        // AND the bottom navigation is not displayed
-        onView(withId(R.id.main_bottomnav)).check(matches(not(isDisplayed())));
         // AND the up button is displayed
         onView(withContentDescription(R.string.nav_app_bar_navigate_up_description)).check(matches(
                 isDisplayed()));

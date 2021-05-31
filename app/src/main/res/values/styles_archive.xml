@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!--    resources-->
+    <!-- REFACTOR [21-05-30 4:09AM] - I guess I could put this in dimens_archive.xml -->
+    <dimen name="archive_list_item_tag_corner_radius">8dp</dimen>
+
+<!--    styles-->
+    <style name="ArchiveListItemRatingStyle" parent="Widget.AppCompat.RatingBar.Small">
+    </style>
+
+    <style name="ArchiveListItemTagStyle" parent="AppTextView">
+
+        <item name="backgroundTint">?attr/colorOnPrimarySurface</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:textColor">?attr/colorOnSecondary</item>
+    </style>
+
+    <style name="ArchiveListItemTimeTitleStyle" parent="TrackerSubTitleStyle"/>
+
+    <style name="ArchiveListItemTimeValueStyle" parent="TrackerSubTitleStyle">
+        <item name="android:textColor">?attr/colorSecondary</item>
+    </style>
+
+    <style name="ArchiveListItemDurationStyle" parent="AppTextView">
+        <item name="android:textColor">?attr/colorSecondary</item>
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <style name="ArchiveListItemMoreTagsStyle" parent="AppTextView">
+        <item name="android:textColor">?attr/appColorOnPrimarySurface2</item>
+    </style>
+
+    <style name="ArchiveFabStyle" parent="Widget.MaterialComponents.FloatingActionButton">
+        <item name="backgroundTint">?attr/colorPrimary</item>
+        <item name="drawableTint">?attr/colorOnPrimary</item>
+    </style>
+
+</resources>

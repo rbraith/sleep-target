@@ -41,7 +41,7 @@ public class SleepTrackerFragment
 //*********************************************************
 // private properties
 //*********************************************************
-
+    
     private EditText mAdditionalComments;
     
     private MoodSelectorController mMoodSelectorController;

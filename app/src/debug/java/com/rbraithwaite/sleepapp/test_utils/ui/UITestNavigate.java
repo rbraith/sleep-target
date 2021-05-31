@@ -1,15 +1,11 @@
 package com.rbraithwaite.sleepapp.test_utils.ui;
 
-import androidx.test.core.app.ApplicationProvider;
-
 import com.rbraithwaite.sleepapp.R;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 
 
@@ -41,8 +37,7 @@ public class UITestNavigate
     
     public static void fromHome_toSessionArchive()
     {
-        openActionBarOverflowOrOptionsMenu(ApplicationProvider.getApplicationContext());
-        onView(withText("Session Archive")).perform(click());
+        onView(withId(R.id.nav_session_archive)).perform(click());
     }
     
     public static void fromSessionArchive_toAddSession()

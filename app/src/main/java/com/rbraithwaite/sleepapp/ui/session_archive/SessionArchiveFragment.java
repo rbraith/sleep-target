@@ -63,7 +63,7 @@ public class SessionArchiveFragment
     }
     
     @Override
-    protected boolean getBottomNavVisibility() { return false; }
+    protected boolean getBottomNavVisibility() { return true; }
     
     @Override
     protected Class<SessionArchiveFragmentViewModel> getViewModelClass() { return SessionArchiveFragmentViewModel.class; }
@@ -156,7 +156,9 @@ public class SessionArchiveFragment
                 .setPositiveActionListener(new SessionDetailsFragment.ActionListener()
                 {
                     @Override
-                    public void onAction(SessionDetailsFragment fragment, SleepSessionWrapper result)
+                    public void onAction(
+                            SessionDetailsFragment fragment,
+                            SleepSessionWrapper result)
                     {
                         getViewModel().updateSleepSession(result);
                         fragment.completed();

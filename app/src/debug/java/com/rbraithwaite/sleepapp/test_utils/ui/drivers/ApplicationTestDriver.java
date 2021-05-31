@@ -1,16 +1,16 @@
 package com.rbraithwaite.sleepapp.test_utils.ui.drivers;
 
 import androidx.test.core.app.ActivityScenario;
-import androidx.test.core.app.ApplicationProvider;
 
+import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.ApplicationFragmentTestHelper;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
 import com.rbraithwaite.sleepapp.utils.CommonUtils;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+
 
 /**
  * Drives the entire application. Starts on the sleep tracker screen.
@@ -27,7 +27,7 @@ public class ApplicationTestDriver
     private SleepTrackerTestDriver mSleepTracker;
     private SessionArchiveTestDriver mSessionArchive;
     private SessionDetailsTestDriver mSessionDetails;
-    
+
 
 //*********************************************************
 // public helpers
@@ -39,7 +39,7 @@ public class ApplicationTestDriver
         SLEEP_TRACKER,
         SESSION_DETAILS
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -48,7 +48,7 @@ public class ApplicationTestDriver
     {
         mScenario = ActivityScenario.launch(MainActivity.class);
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -95,7 +95,7 @@ public class ApplicationTestDriver
             throw new RuntimeException("Invalid destination: " + destination.toString());
         }
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -106,8 +106,7 @@ public class ApplicationTestDriver
         
         switch (location) {
         case SLEEP_TRACKER:
-            openActionBarOverflowOrOptionsMenu(ApplicationProvider.getApplicationContext());
-            onView(withText("Session Archive")).perform(click());
+            onView(withId(R.id.nav_session_archive)).perform(click());
             break;
         case ARCHIVE:
             break;

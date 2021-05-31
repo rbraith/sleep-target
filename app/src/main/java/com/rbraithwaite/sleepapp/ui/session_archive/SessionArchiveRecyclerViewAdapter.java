@@ -1,7 +1,6 @@
 package com.rbraithwaite.sleepapp.ui.session_archive;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,11 +17,15 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.shape.CornerFamily;
+import com.google.android.material.shape.MaterialShapeDrawable;
+import com.google.android.material.shape.ShapeAppearanceModel;
+import com.google.android.material.textview.MaterialTextView;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.common.mood_selector.EmojiMoodViewFactory;
 import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodViewFactory;
-import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveRecyclerViewAdapter.ViewHolder;
 import com.rbraithwaite.sleepapp.ui.session_archive.data.SessionArchiveListItem;
+import com.rbraithwaite.sleepapp.utils.CommonUtils;
 import com.rbraithwaite.sleepapp.utils.SingleObserver;
 import com.rbraithwaite.sleepapp.utils.interfaces.ProviderOf;
 
@@ -49,8 +52,10 @@ public class SessionArchiveRecyclerViewAdapter
     private OnListItemClickListener mOnListItemClickListener;
     
     private MoodViewFactory mMoodViewFactory;
-
-
+    
+    
+    private MaterialShapeDrawable mTagBackground;
+    
 //*********************************************************
 // private constants
 //*********************************************************
@@ -142,7 +147,7 @@ public class SessionArchiveRecyclerViewAdapter
                     notifyDataSetChanged();
                 });
     }
-
+    
 //*********************************************************
 // overrides
 //*********************************************************
@@ -169,7 +174,7 @@ public class SessionArchiveRecyclerViewAdapter
         //  ehhhh maybe don't do this..... since bindToViewModel calls notifyItemChanged
         bindToViewModel(holder, position);
     }
-    
+
     @Override
     public int getItemCount()
     {
@@ -189,7 +194,7 @@ public class SessionArchiveRecyclerViewAdapter
     {
         return new EmojiMoodViewFactory();
     }
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
@@ -239,7 +244,7 @@ public class SessionArchiveRecyclerViewAdapter
                         setupListItemTagList(
                                 viewHolder,
                                 sessionArchiveListItem.tags,
-                                mContextProvider.provide());
+                                viewHolder.itemView.getContext());
                     } else {
                         viewHolder.tagsFrame.setVisibility(View.GONE);
                     }
@@ -284,7 +289,7 @@ public class SessionArchiveRecyclerViewAdapter
                     currentLineCharacters = tagText.length();
                 }
             }
-    
+            
             // TODO [21-04-21 9:01PM] I need to account for "long tag text" edge cases
             //      - if a tag exceeds the max allowed characters, cut it off with "..."
             //      - be careful not to drop down to the next line on tags that are too long anyway.
@@ -303,6 +308,20 @@ public class SessionArchiveRecyclerViewAdapter
         }
     }
     
+    private MaterialShapeDrawable getTagBackground(Context context)
+    {
+        // https://stackoverflow.com/a/61768682
+        mTagBackground = CommonUtils.lazyInit(mTagBackground, () -> {
+            float cornerRadius = context.getResources()
+                    .getDimension(R.dimen.archive_list_item_tag_corner_radius);
+            ShapeAppearanceModel shapeAppearanceModel = new ShapeAppearanceModel().toBuilder()
+                    .setAllCorners(CornerFamily.ROUNDED, cornerRadius)
+                    .build();
+            return new MaterialShapeDrawable(shapeAppearanceModel);
+        });
+        return mTagBackground;
+    }
+    
     // REFACTOR [21-04-21 9:16PM] -- various hardcoded values.
     private View generateTagView(String tagText, Context context)
     {
@@ -311,14 +330,15 @@ public class SessionArchiveRecyclerViewAdapter
         LinearLayout.LayoutParams tagViewParams = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        tagViewParams.setMargins(15, 0, 0, 0);
-    
-        TextView tagView = new TextView(context);
+        tagViewParams.setMargins(0, 0, 15, 0);
+        
+        MaterialTextView tagView =
+                new MaterialTextView(context, null, R.attr.archiveListItemTagStyle);
         tagView.setText(tagText);
-        tagView.setTextSize(10f);
+        tagView.setBackground(getTagBackground(context));
+        
         tagView.setPadding(15, 5, 15, 5);
         tagView.setLayoutParams(tagViewParams);
-        tagView.setBackgroundColor(Color.CYAN);
         
         return tagView;
     }

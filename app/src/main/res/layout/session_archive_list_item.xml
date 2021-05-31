@@ -5,8 +5,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/session_archive_list_item_card"
     android:layout_width="match_parent"
-    android:layout_height="140dp"
-    android:layout_marginBottom="8dp">
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="8dp"
+    android:layout_marginBottom="8dp"
+    android:theme="@style/ArchiveListItemTheme">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -14,6 +17,7 @@
 
         <TextView
             android:id="@+id/session_archive_list_item_start"
+            style="@style/ArchiveListItemTimeTitleStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -25,58 +29,62 @@
 
         <TextView
             android:id="@+id/session_archive_list_item_start_VALUE"
+            style="@style/ArchiveListItemTimeValueStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginLeft="16dp"
             android:textStyle="bold"
             app:layout_constraintBaseline_toBaselineOf="@+id/session_archive_list_item_start"
-            app:layout_constraintStart_toEndOf="@+id/session_archive_list_item_start"
+            app:layout_constraintStart_toEndOf="@+id/session_archive_title_barrier"
             tools:text="2:20 am, Feb 20 2020" />
 
         <TextView
             android:id="@+id/session_archive_list_item_stop"
+            style="@style/ArchiveListItemTimeTitleStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginLeft="16dp"
             android:layout_marginTop="8dp"
-            android:text="Stop:"
+            android:text="End:"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/session_archive_list_item_start" />
 
         <TextView
             android:id="@+id/session_archive_list_item_stop_VALUE"
+            style="@style/ArchiveListItemTimeValueStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginLeft="16dp"
             android:textStyle="bold"
             app:layout_constraintBaseline_toBaselineOf="@+id/session_archive_list_item_stop"
-            app:layout_constraintStart_toEndOf="@+id/session_archive_list_item_stop"
+            app:layout_constraintStart_toEndOf="@+id/session_archive_title_barrier"
             tools:text="2:20 am, Feb 20 2020" />
 
         <TextView
             android:id="@+id/session_archive_list_item_duration_VALUE"
+            style="@style/ArchiveListItemDurationStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginLeft="16dp"
+            android:layout_marginTop="8dp"
             android:layout_marginBottom="16dp"
-            android:textSize="24sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/session_archive_list_item_stop"
             tools:text="1h 23m 45s" />
 
         <ImageView
             android:id="@+id/session_archive_list_item_comment_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginLeft="24dp"
-            app:layout_constraintStart_toEndOf="@+id/session_archive_list_item_start_VALUE"
-            app:layout_constraintTop_toTopOf="@+id/session_archive_list_item_start_VALUE"
-            app:srcCompat="@drawable/ic_baseline_comment_24" />
+            android:layout_marginTop="16dp"
+            app:layout_constraintStart_toEndOf="@+id/session_archive_time_barrier"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_archive_list_item_comment" />
 
         <FrameLayout
             android:id="@+id/session_archive_list_item_mood_frame"
@@ -84,32 +92,40 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
+            android:layout_marginTop="16dp"
             app:layout_constraintStart_toEndOf="@+id/session_archive_list_item_comment_icon"
-            app:layout_constraintTop_toTopOf="@+id/session_archive_list_item_comment_icon">
+            app:layout_constraintTop_toTopOf="parent">
 
         </FrameLayout>
 
         <LinearLayout
             android:id="@+id/session_archive_list_item_tags"
             android:layout_width="0dp"
-            android:layout_height="56dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
             android:layout_marginLeft="24dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="22dp"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="16dp"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/session_archive_list_item_stop_VALUE"
-            app:layout_constraintTop_toBottomOf="@+id/session_archive_list_item_comment_icon">
+            app:layout_constraintStart_toEndOf="@+id/session_archive_list_item_start_VALUE"
+            app:layout_constraintTop_toBottomOf="@+id/session_archive_comments_mood_barrier"
+            app:layout_constraintVertical_bias="0.0">
 
             <LinearLayout
                 android:id="@+id/tags_line_one"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"></LinearLayout>
+                android:orientation="horizontal">
+
+            </LinearLayout>
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="2dp" />
 
             <LinearLayout
                 android:id="@+id/tags_line_two"
@@ -118,8 +134,13 @@
                 android:layout_marginTop="5dp"
                 android:orientation="horizontal"></LinearLayout>
 
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="2dp" />
+
             <TextView
                 android:id="@+id/tags_more"
+                style="@style/ArchiveListItemMoreTagsStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 tools:text="+ 3 more" />
@@ -136,8 +157,34 @@
             android:layout_marginTop="16dp"
             android:clickable="false"
             android:isIndicator="true"
+            android:theme="@style/ArchiveRatingBarTheme"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/session_archive_title_barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="right"
+            app:constraint_referenced_ids="session_archive_list_item_start,session_archive_list_item_stop"
+            tools:layout_editor_absoluteX="395dp" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/session_archive_comments_mood_barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="session_archive_list_item_comment_icon,session_archive_list_item_mood_frame"
+            tools:layout_editor_absoluteY="142dp" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/session_archive_time_barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="right"
+            app:barrierMargin="24dp"
+            app:constraint_referenced_ids="session_archive_list_item_start_VALUE,session_archive_list_item_stop_VALUE"
+            tools:layout_editor_absoluteX="395dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>
