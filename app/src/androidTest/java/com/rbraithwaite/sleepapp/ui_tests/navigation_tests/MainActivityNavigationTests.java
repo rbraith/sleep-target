@@ -86,13 +86,13 @@ public class MainActivityNavigationTests
         onView(withId(R.id.session_archive_fab)).perform(click());
         
         // THEN the user is navigated to the "add session" screen
-        onView(withId(R.id.session_data_layout)).check(matches(isDisplayed()));
+        onView(withId(R.id.session_details_layout)).check(matches(isDisplayed()));
         // AND the bottom nav bar is not displayed
         onView(withId(R.id.main_bottomnav)).check(matches(not(isDisplayed())));
         // AND the input fields are displayed with default values
-        onView(allOf(withParent(withId(R.id.session_data_start_time)), withId(R.id.name))).check(
+        onView(allOf(withParent(withId(R.id.session_details_start_time)), withId(R.id.name))).check(
                 matches(withText(R.string.session_data_start_time_name)));
-        onView(allOf(withParent(withId(R.id.session_data_end_time)), withId(R.id.name))).check(
+        onView(allOf(withParent(withId(R.id.session_details_end_time)), withId(R.id.name))).check(
                 matches(withText(R.string.session_data_end_time_name)));
         
         SessionDetailsFragmentTestUtils.onStartDateTextView().check(matches(not(withText(""))));
@@ -100,7 +100,7 @@ public class MainActivityNavigationTests
         SessionDetailsFragmentTestUtils.onStartTimeTextView().check(matches(not(withText(""))));
         SessionDetailsFragmentTestUtils.onEndTimeTextView().check(matches(not(withText(""))));
         
-        onView(withId(R.id.session_data_duration)).check(matches(withText(new DurationFormatter().formatDurationMillis(
+        onView(withId(R.id.session_details_duration)).check(matches(withText(new DurationFormatter().formatDurationMillis(
                 0))));
     }
     

@@ -159,7 +159,7 @@ public class SessionDetailsFragment
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState)
     {
-        return inflater.inflate(R.layout.session_data_fragment, container, false);
+        return inflater.inflate(R.layout.session_details_fragment, container, false);
     }
     
     @Override
@@ -179,8 +179,8 @@ public class SessionDetailsFragment
         // init views
         // REFACTOR [21-03-31 2:13AM] -- make initStartDateTime and initEndDateTime take the
         //  view only, to make things consistent.
-        initStartDateTime(view.findViewById(R.id.session_data_start_time));
-        initEndDateTime(view.findViewById(R.id.session_data_end_time));
+        initStartDateTime(view.findViewById(R.id.session_details_start_time));
+        initEndDateTime(view.findViewById(R.id.session_details_end_time));
         initSessionDuration(view);
         initAdditionalComments(view);
         initMoodSelector(view);
@@ -203,7 +203,7 @@ public class SessionDetailsFragment
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater)
     {
-        inflater.inflate(R.menu.session_data_menu, menu);
+        inflater.inflate(R.menu.session_details_menu, menu);
         if (mPositiveIcon != DEFAULT_ICON) {
             menu.findItem(R.id.session_data_action_positive).setIcon(mPositiveIcon);
         }
@@ -327,7 +327,7 @@ public class SessionDetailsFragment
                 });
         
         mTagSelectorController = new TagSelectorController(
-                fragmentRoot.findViewById(R.id.session_data_tags),
+                fragmentRoot.findViewById(R.id.session_details_tags),
                 mTagSelectorViewModel,
                 getViewLifecycleOwner(),
                 requireContext(),
@@ -339,7 +339,7 @@ public class SessionDetailsFragment
         mMoodSelectorViewModel = new MoodSelectorViewModel(getViewModel().getMood());
         
         mMoodSelectorController = new MoodSelectorController(
-                fragmentRoot.findViewById(R.id.session_data_mood),
+                fragmentRoot.findViewById(R.id.session_details_mood),
                 // Set the mood selector to the initial mood of the displayed session.
                 // There isn't a need to observe this value, as the mood selector will
                 // handle its own UI updates.
@@ -372,7 +372,7 @@ public class SessionDetailsFragment
     
     private void initAdditionalComments(View fragmentRoot)
     {
-        mAdditionalComments = fragmentRoot.findViewById(R.id.session_data_comments);
+        mAdditionalComments = fragmentRoot.findViewById(R.id.session_details_comments);
         getViewModel().getAdditionalComments().observe(
                 getViewLifecycleOwner(),
                 s -> {
@@ -399,7 +399,7 @@ public class SessionDetailsFragment
     
     private void initSessionDuration(View fragmentRoot)
     {
-        final TextView sessionDurationText = fragmentRoot.findViewById(R.id.session_data_duration);
+        final TextView sessionDurationText = fragmentRoot.findViewById(R.id.session_details_duration);
         getViewModel().getSessionDurationText().observe(
                 getViewLifecycleOwner(),
                 newSessionDurationText -> {

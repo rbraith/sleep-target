@@ -24,7 +24,7 @@
     <fragment
         android:id="@+id/nav_session_details"
         android:name="com.rbraithwaite.sleepapp.ui.session_details.SessionDetailsFragment"
-        android:label="SessionDetailsFragment">
+        android:label="Sleep Details">
         <argument
             android:name="args"
             app:argType="com.rbraithwaite.sleepapp.ui.session_details.SessionDetailsFragment$Args" />

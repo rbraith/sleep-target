@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- REFACTOR [21-05-31 1:20AM] - This duplicates TrackerTitleStyle. -->
+    <style name="SessionDetailsTitleStyle" parent="AppTextView">
+        <item name="android:textColor">?attr/colorOnPrimarySurface</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="SessionDetailsDatetimeStyle" parent="AppTextView">
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <style name="SessionDetailsDurationStyle" parent="AppTextView">
+        <item name="android:textColor">?attr/colorSecondary</item>
+        <item name="android:textSize">30sp</item>
+    </style>
+
+    <style name="SessionDetailsCommentsStyle" parent="TrackerAdditionalCommentsStyle"/>
+</resources>

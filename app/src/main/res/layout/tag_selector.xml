@@ -19,8 +19,9 @@
     <ScrollView
         android:id="@+id/tag_selector_tags_scroll"
         android:layout_width="0dp"
-        android:layout_height="100dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        app:layout_constraintHeight_max="100dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tag_selector_title" />
 

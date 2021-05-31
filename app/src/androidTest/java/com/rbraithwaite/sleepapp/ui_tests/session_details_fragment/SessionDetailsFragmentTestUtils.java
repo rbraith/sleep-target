@@ -112,22 +112,22 @@ public class SessionDetailsFragmentTestUtils
     
     public static ViewInteraction onStartDateTextView()
     {
-        return onView(allOf(withParent(withId(R.id.session_data_start_time)), withId(R.id.date)));
+        return onView(allOf(withParent(withId(R.id.session_details_start_time)), withId(R.id.date)));
     }
     
     public static ViewInteraction onEndDateTextView()
     {
-        return onView(allOf(withParent(withId(R.id.session_data_end_time)), withId(R.id.date)));
+        return onView(allOf(withParent(withId(R.id.session_details_end_time)), withId(R.id.date)));
     }
     
     public static ViewInteraction onStartTimeTextView()
     {
-        return onView(allOf(withParent(withId(R.id.session_data_start_time)), withId(R.id.time)));
+        return onView(allOf(withParent(withId(R.id.session_details_start_time)), withId(R.id.time)));
     }
     
     public static ViewInteraction onEndTimeTextView()
     {
-        return onView(allOf(withParent(withId(R.id.session_data_end_time)), withId(R.id.time)));
+        return onView(allOf(withParent(withId(R.id.session_details_end_time)), withId(R.id.time)));
     }
 
     private static void setDateTime(

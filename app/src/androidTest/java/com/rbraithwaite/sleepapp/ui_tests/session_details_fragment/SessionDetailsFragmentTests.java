@@ -74,7 +74,7 @@ public class SessionDetailsFragmentTests
         onStartTimeTextView().check(matches(withText(new DateTimeFormatter().formatTimeOfDay(
                 calendar.getTime()))));
         // AND the session duration text is updated
-        onView(withId(R.id.session_data_duration))
+        onView(withId(R.id.session_details_duration))
                 .check(matches(withText(new DurationFormatter().formatDurationMillis(
                         originalDate.getTime() - calendar.getTime().getTime()))));
     }
@@ -184,7 +184,7 @@ public class SessionDetailsFragmentTests
         onStartDateTextView().check(matches(withText(new DateTimeFormatter().formatDate
                 (calendar.getTime()))));
         // AND the session duration text is updated
-        onView(withId(R.id.session_data_duration))
+        onView(withId(R.id.session_details_duration))
                 .check(matches(withText(new DurationFormatter().formatDurationMillis(
                         originalDate.getTime() - newDate.getTime()))));
     }
@@ -319,7 +319,7 @@ public class SessionDetailsFragmentTests
         onEndDateTextView().check(matches(withText(
                 new DateTimeFormatter().formatDate(calendar.getTime()))));
         // AND the session duration text is updated
-        onView(withId(R.id.session_data_duration))
+        onView(withId(R.id.session_details_duration))
                 .check(matches(withText(new DurationFormatter().formatDurationMillis(
                         newDate.getTime() - originalDate.getTime()))));
     }
@@ -433,7 +433,7 @@ public class SessionDetailsFragmentTests
         onEndTimeTextView().check(matches(withText(new DateTimeFormatter().formatTimeOfDay(
                 calendar.getTime()))));
         // AND the session duration text is updated
-        onView(withId(R.id.session_data_duration))
+        onView(withId(R.id.session_details_duration))
                 .check(matches(withText(new DurationFormatter().formatDurationMillis(
                         calendar.getTime().getTime() - originalDate.getTime()))));
     }

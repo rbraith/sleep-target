@@ -71,7 +71,7 @@ public class SessionArchiveFragmentTests
     
     
     // REFACTOR [21-04-22 12:47AM] -- Not sure where to put this so I'm putting it here: the
-    //  layouts for tracker_optional_details.xml and session_data_fragment.xml are very similar.
+    //  layouts for tracker_optional_details.xml and session_details_fragment.xml are very similar.
     //  Consider extracting this group of [mood, tags, comments, etc] as a separate layout.
     @Test
     public void tagList_displaysProperly()
@@ -120,7 +120,7 @@ public class SessionArchiveFragmentTests
         
         // edit that session and add a mood
         onView(withId(R.id.session_archive_list_item_card)).perform(click());
-        MoodSelectorTestUtils.addMood(withId(R.id.session_data_mood), 1);
+        MoodSelectorTestUtils.addMood(withId(R.id.session_details_mood), 1);
         SessionDetailsFragmentTestUtils.pressPositive();
         
         // verify that the list item mood is displayed
@@ -143,7 +143,7 @@ public class SessionArchiveFragmentTests
         
         // edit that session and add a comment
         onView(withId(R.id.session_archive_list_item_card)).perform(click());
-        UITestUtils.typeOnMultilineEditText("test!", onView(withId(R.id.session_data_comments)));
+        UITestUtils.typeOnMultilineEditText("test!", onView(withId(R.id.session_details_comments)));
         SessionDetailsFragmentTestUtils.pressPositive();
         
         // verify that the list item icon is displayed

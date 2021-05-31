@@ -50,6 +50,7 @@
         <item name="trackerMoodSelectorTheme">@style/TrackerMoodSelectorTheme</item>
         <item name="trackerTagSelectorTheme">@style/TrackerTagSelectorTheme</item>
         <item name="trackerDetailsTitleStyle">@style/TrackerTitleStyle</item>
+        <item name="trackerAdditionalCommentsStyle">@style/TrackerAdditionalCommentsStyle</item>
     </style>
 
     <style name="TrackerPostDialogTheme">

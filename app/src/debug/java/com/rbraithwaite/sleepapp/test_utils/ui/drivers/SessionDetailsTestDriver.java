@@ -99,12 +99,12 @@ public class SessionDetailsTestDriver
         
         public void additionalCommentsMatch(String additionalComments)
         {
-            onView(withId(R.id.session_data_comments)).check(matches(withText(additionalComments)));
+            onView(withId(R.id.session_details_comments)).check(matches(withText(additionalComments)));
         }
         
         public void durationMatches(long durationMillis)
         {
-            onView(withId(R.id.session_data_duration)).check(matches(withText(
+            onView(withId(R.id.session_details_duration)).check(matches(withText(
                     // REFACTOR [21-05-10 10:37PM] -- This should be SessionDetailsFormatting.
                     new DurationFormatter().formatDurationMillis(durationMillis))));
         }
@@ -168,24 +168,24 @@ public class SessionDetailsTestDriver
         
         private ViewInteraction onStartDate()
         {
-            return onView(allOf(withParent(withId(R.id.session_data_start_time)),
+            return onView(allOf(withParent(withId(R.id.session_details_start_time)),
                                 withId(R.id.date)));
         }
         
         private ViewInteraction onEndDate()
         {
-            return onView(allOf(withParent(withId(R.id.session_data_end_time)), withId(R.id.date)));
+            return onView(allOf(withParent(withId(R.id.session_details_end_time)), withId(R.id.date)));
         }
         
         private ViewInteraction onStartTimeOfDay()
         {
-            return onView(allOf(withParent(withId(R.id.session_data_start_time)),
+            return onView(allOf(withParent(withId(R.id.session_details_start_time)),
                                 withId(R.id.time)));
         }
         
         private ViewInteraction onEndTimeOfDay()
         {
-            return onView(allOf(withParent(withId(R.id.session_data_end_time)), withId(R.id.time)));
+            return onView(allOf(withParent(withId(R.id.session_details_end_time)), withId(R.id.time)));
         }
     }
     
@@ -268,10 +268,10 @@ public class SessionDetailsTestDriver
         mTagSelector = new TagSelectorDriver(
                 // REFACTOR [21-05-14 3:39AM] -- change remaining instances of "session_data" to
                 //  "session_details".
-                withId(R.id.session_data_tags),
+                withId(R.id.session_details_tags),
                 getTagSelectorViewModel());
         mMoodSelector = new MoodSelectorDriver(
-                withId(R.id.session_data_mood),
+                withId(R.id.session_details_mood),
                 getMoodSelectorViewModel());
     }
 }
