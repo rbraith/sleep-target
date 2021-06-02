@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="SleepGoalsTheme">
+        <item name="sleepGoalsWakeTimeColor">?attr/appColorTriadic3</item>
+        <item name="sleepGoalsDurationColor">?attr/appColorTriadic2</item>
+    </style>
+
+    <style name="SleepGoalsStreaksCalendarTheme">
+        <!--https://github.com/prolificinteractive/material-calendarview/wiki/Customization-->
+        <!--material-calendarview attrs-->
+        <item name="mcv_arrowColor">?attr/colorSecondary</item>
+        <item name="mcv_headerTextAppearance">@style/SleepGoalsCalendarHeaderTextAppearance</item>
+        <item name="mcv_dateTextAppearance">@style/SleepGoalsCalendarTextAppearance</item>
+        <item name="mcv_weekDayTextAppearance">@style/SleepGoalsCalendarTextAppearance</item>
+    </style>
+</resources>

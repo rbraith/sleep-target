@@ -2,6 +2,7 @@ package com.rbraithwaite.sleepapp.ui.sleep_goals.streak_calendar;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.text.style.ForegroundColorSpan;
 
 import androidx.appcompat.content.res.AppCompatResources;
 
@@ -29,14 +30,16 @@ public class BackgroundDecorator
 //*********************************************************
 
     private final Drawable mBackgroundDrawable;
+    private final int mTextColor;
     
 //*********************************************************
 // constructors
 //*********************************************************
 
-    public BackgroundDecorator(Context context, int backgroundDrawable)
+    public BackgroundDecorator(Context context, int backgroundDrawable, int textColor)
     {
         mBackgroundDrawable = AppCompatResources.getDrawable(context, backgroundDrawable);
+        mTextColor = textColor;
         mDates = new HashSet<>();
     }
     
@@ -54,6 +57,7 @@ public class BackgroundDecorator
     public void decorate(DayViewFacade view)
     {
         view.setBackgroundDrawable(mBackgroundDrawable);
+        view.addSpan(new ForegroundColorSpan(mTextColor));
     }
     
 //*********************************************************

@@ -69,5 +69,12 @@ public class DevToolsFragment
                     100,
                     () -> add100ProgressBar.setVisibility(View.GONE));
         });
+        
+        
+        // maybe add historical goal data
+        Button historicalGoalDataButton = view.findViewById(R.id.dev_tool_add_goal_history);
+        historicalGoalDataButton.setOnClickListener(v -> {
+            getViewModel().maybeInitHistoricalGoalData();
+        });
     }
 }

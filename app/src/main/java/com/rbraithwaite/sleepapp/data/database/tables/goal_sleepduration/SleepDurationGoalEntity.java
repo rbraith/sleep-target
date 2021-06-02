@@ -23,7 +23,17 @@ public class SleepDurationGoalEntity
     @ColumnInfo(name = SleepDurationGoalContract.Columns.GOAL_MINUTES)
     public int goalMinutes;
     
-//*********************************************************
+    public SleepDurationGoalEntity(Date editTime, int goalMinutes)
+    {
+        this.editTime = editTime;
+        this.goalMinutes = goalMinutes;
+    }
+    
+    public SleepDurationGoalEntity()
+    {
+    }
+    
+    //*********************************************************
 // public constants
 //*********************************************************
 

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="SleepGoalsButton" parent="AppButton.Capsule">
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="SleepGoalsDurationValue" parent="Widget.AppCompat.TextView">
+        <item name="android:textColor">?attr/sleepGoalsDurationColor</item>
+        <item name="android:textSize">40sp</item>
+    </style>
+
+    <style name="SleepGoalsWakeTimeValue" parent="SleepGoalsDurationValue">
+        <item name="android:textColor">?attr/sleepGoalsWakeTimeColor</item>
+    </style>
+
+    <style name="SleepGoalsTitle" parent="SessionDetailsTitleStyle"/>
+
+    <style name="SleepGoalsAddWakeTimeButton" parent="AppButton.Capsule">
+        <item name="backgroundTint">?attr/sleepGoalsWakeTimeColor</item>
+    </style>
+
+    <style name="SleepGoalsAddDurationButton" parent="SleepGoalsAddWakeTimeButton">
+        <item name="backgroundTint">?attr/sleepGoalsDurationColor</item>
+    </style>
+    
+    <style name="SleepGoalsCalendarTextAppearance" parent="TextAppearance.MaterialCalendarWidget.Date">
+        <item name="android:textColor">?attr/colorOnPrimarySurface</item>
+    </style>
+
+    <style name="SleepGoalsCalendarHeaderTextAppearance" parent="SleepGoalsCalendarTextAppearance">
+        <item name="android:textSize">16sp</item>
+    </style>
+
+</resources>

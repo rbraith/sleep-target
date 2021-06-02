@@ -7,7 +7,10 @@ import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.core.models.Mood;
+import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
+import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDurationGoalEntity;
+import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
@@ -120,6 +123,72 @@ public class DevToolsFragmentViewModel
                 },
                 listener);
     }
+    
+    public void maybeInitHistoricalGoalData()
+    {
+        runAsyncTask(() -> {
+            // For now, only having 1 historical value. This is hopefully enough to have the
+            // random generated sleep sessions succeed at least sometimes. Its important that
+            // the goals be set before the first generated sleep session, otherwise this data is
+            // arbitrary.
+            Date goalDate = new GregorianCalendar(2019, 10, 11).getTime();
+            int wakeTimeGoal = 8; // 8 am
+            int sleepDurationGoal = 8; // 8 hrs
+            
+            mDatabase.getSleepDurationGoalDao().updateSleepDurationGoal(
+                    new SleepDurationGoalEntity(
+                            goalDate,
+                            sleepDurationGoal * 60 /* 8 hours in minutes */));
+            
+            mDatabase.getWakeTimeGoalDao().updateWakeTimeGoal(
+                    new WakeTimeGoalEntity(
+                            goalDate,
+                            wakeTimeGoal * 60 * 60 * 1000 /* 8am waketime goal */));
+            
+            // REFACTOR [21-06-1 1:11AM] -- consider moving this to a separate tool.
+            // add some sleep sessions that hit the goals
+            // -----------------------------------------------------
+            // today will hit both goals
+            GregorianCalendar today = new GregorianCalendar();
+            // set to 12am... uhh there's probably a better way to do this lol
+            today = new GregorianCalendar(
+                    today.get(Calendar.YEAR),
+                    today.get(Calendar.MONTH),
+                    today.get(Calendar.DAY_OF_MONTH));
+            
+            // yesterday will only hit waketime goal
+            GregorianCalendar yesterday = new GregorianCalendar();
+            yesterday.setTime(today.getTime());
+            yesterday.add(Calendar.DAY_OF_MONTH, -1);
+            
+            // 2 days ago will only hit duration goal
+            GregorianCalendar two_days_ago = new GregorianCalendar();
+            two_days_ago.setTime(yesterday.getTime());
+            two_days_ago.add(Calendar.DAY_OF_MONTH, -1);
+            
+            TimeUtils timeUtils = new TimeUtils();
+            int durationGoalMillis = (int)timeUtils.hoursToMillis(sleepDurationGoal);
+            
+            SleepSessionEntity bothGoalsSuccess = new SleepSessionEntity(
+                    today.getTime(),
+                    timeUtils.addDurationToDate(today.getTime(), durationGoalMillis));
+            
+            SleepSessionEntity wakeTimeGoalSuccess = new SleepSessionEntity(
+                    // move the start forward so the duration goal is missed
+                    timeUtils.addDurationToDate(yesterday.getTime(), (int)timeUtils.hoursToMillis(2)),
+                    timeUtils.addDurationToDate(yesterday.getTime(), durationGoalMillis));
+            
+            // set this back so that the wake time goal is missed
+            two_days_ago.add(Calendar.HOUR, -2);
+            SleepSessionEntity durationGoalSuccess = new SleepSessionEntity(
+                    two_days_ago.getTime(),
+                    timeUtils.addDurationToDate(two_days_ago.getTime(), durationGoalMillis));
+            
+            mDatabase.getSleepSessionDao().addSleepSession(bothGoalsSuccess);
+            mDatabase.getSleepSessionDao().addSleepSession(wakeTimeGoalSuccess);
+            mDatabase.getSleepSessionDao().addSleepSession(durationGoalSuccess);
+        });
+    }
 
 //*********************************************************
 // private methods
@@ -129,9 +198,16 @@ public class DevToolsFragmentViewModel
     {
         mExecutor.execute(() -> {
             task.run();
-            Handler UIThreadHandler = new Handler(Looper.getMainLooper());
-            UIThreadHandler.post(listener::onComplete);
+            if (listener != null) {
+                Handler UIThreadHandler = new Handler(Looper.getMainLooper());
+                UIThreadHandler.post(listener::onComplete);
+            }
         });
+    }
+    
+    private void runAsyncTask(Runnable task)
+    {
+        runAsyncTask(task, null);
     }
     
     private SleepSessionEntity generateRandomSleepSessionEntity(

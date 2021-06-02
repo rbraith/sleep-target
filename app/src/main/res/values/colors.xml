@@ -6,12 +6,17 @@
     <color name="colorOnPrimary">@color/colorAppBackground</color>
     <color name="colorOnSecondary">@color/colorAppBackground</color>
 
+    <color name="colorTriadic2">#CCAC9D</color>
+    <color name="colorTriadic3">#9DCCAC</color>
+
     <color name="colorAppBackground">#151515</color>
 
     <!-- TODO [21-05-26 9:58PM] - I'm having trouble applying this color to dialogs
             - see comment in values/themes_tracker.xml::TrackerTagSelectorDialogTheme for
-            additional details.-->
-    <color name="colorBackgroundFloating">#ff0000</color>
+            additional details
+            - NOTE: colorBackgroundFloating is being applied to the delete dialog in the
+            goals screen.-->
+    <color name="colorBackgroundFloating">@color/colorSecondarySurface</color>
 
     <color name="colorSurfaceFloating">#505050</color>
 

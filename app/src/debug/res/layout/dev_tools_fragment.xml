@@ -32,9 +32,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
         app:layout_constraintStart_toEndOf="@+id/dev_tool_add_100"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/dev_tool_add_100" />
 
     <ProgressBar
         android:id="@+id/dev_tool_clear_data_progress"
@@ -43,8 +42,18 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
         app:layout_constraintStart_toEndOf="@+id/dev_tool_clear_data"
         app:layout_constraintTop_toTopOf="@+id/dev_tool_clear_data" />
+
+    <Button
+        android:id="@+id/dev_tool_add_goal_history"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="8dp"
+        android:text="Maybe Add Historical Goal Data"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dev_tool_clear_data" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

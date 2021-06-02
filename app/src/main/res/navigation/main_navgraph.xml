@@ -32,7 +32,7 @@
     <fragment
         android:id="@+id/nav_sleepgoals"
         android:name="com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFragment"
-        android:label="SleepGoalsFragment" />
+        android:label="Goals" />
     <include app:graph="@navigation/debug_navgraph" />
     <fragment
         android:id="@+id/nav_sleepstats"

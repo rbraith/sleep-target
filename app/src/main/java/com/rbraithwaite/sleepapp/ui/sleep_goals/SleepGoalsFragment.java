@@ -83,9 +83,10 @@ public class SleepGoalsFragment
 
     private void initStreakCalendar(View fragmentRoot)
     {
-        final StreakCalendar streakCalendar = new StreakCalendar(requireContext());
         FrameLayout streakCalendarFrame =
                 fragmentRoot.findViewById(R.id.sleep_goals_streaks_calendar_frame);
+        // use the frame context, so that the theme applied to the frame gets applied to the calendar
+        final StreakCalendar streakCalendar = new StreakCalendar(streakCalendarFrame.getContext());
         streakCalendarFrame.addView(streakCalendar.getView());
         
         SleepGoalsFragmentViewModel viewModel = getViewModel();

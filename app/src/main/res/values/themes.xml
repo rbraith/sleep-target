@@ -21,6 +21,9 @@
         <item name="colorSecondary">@color/colorSecondary</item>
         <item name="colorOnSecondary">@color/colorOnSecondary</item>
 
+        <item name="appColorTriadic2">@color/colorTriadic2</item>
+        <item name="appColorTriadic3">@color/colorTriadic3</item>
+
         <item name="colorPrimarySurface">@color/colorPrimarySurface</item>
         <item name="colorOnPrimarySurface">@color/colorOnPrimarySurface</item>
         <item name="appColorOnPrimarySurface2">@color/colorOnPrimarySurface2</item>
@@ -34,6 +37,8 @@
         <item name="appColorOnBackgroundFloating">@color/colorOnPrimarySurface</item>
         <item name="appColorOnBackgroundFloating2">@color/colorOnPrimarySurface2</item>
         <item name="appColorSurfaceFloating">@color/colorSurfaceFloating</item>
+
+        <item name="appDialogTitleIconColor">?attr/colorSecondary</item>
     </style>
 
 </resources>

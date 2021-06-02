@@ -54,7 +54,15 @@ public class SleepSessionEntity
         this.rating = rating;
     }
     
-//*********************************************************
+    public SleepSessionEntity(Date startTime, Date endTime)
+    {
+        this.startTime = startTime;
+        this.endTime = endTime;
+        // SMELL [21-06-1 1:16AM] -- It's questionable having any logic at all in SleepSessionEntity.
+        this.duration = endTime.getTime() - startTime.getTime();
+    }
+    
+    //*********************************************************
 // overrides
 //*********************************************************
 

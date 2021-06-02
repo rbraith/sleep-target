@@ -10,5 +10,10 @@
         <attr name="appColorSurfaceFloating" format="color"/>
         <attr name="appColorOnBackgroundFloating" format="color"/>
         <attr name="appColorOnBackgroundFloating2" format="color"/>
+
+        <attr name="appColorTriadic2" format="color"/>
+        <attr name="appColorTriadic3" format="color"/>
+
+        <attr name="appDialogTitleIconColor" format="color"/>
     </declare-styleable>
 </resources>

@@ -1,6 +1,8 @@
 package com.rbraithwaite.sleepapp.ui.sleep_goals.streak_calendar;
 
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.view.View;
 
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
@@ -41,17 +43,29 @@ public class StreakCalendar
     {
         mContext = context;
         
-        mWakeTimeGoalDecorator =
-                new BackgroundDecorator(context, R.drawable.ic_goalstreakcal_waketime_24);
-        mSleepDurationGoalDecorator =
-                new BackgroundDecorator(context, R.drawable.ic_goalstreakcal_sleepdur_24);
-        mBothGoalsDecorator = new BackgroundDecorator(context, R.drawable.ic_goalstreakcal_both_24);
+        int goalTextColor = getGoalTextColorFrom(context);
+        
+        mWakeTimeGoalDecorator = new BackgroundDecorator(
+                mContext, R.drawable.ic_goalstreakcal_waketime_24, goalTextColor);
+        mSleepDurationGoalDecorator = new BackgroundDecorator(
+                mContext, R.drawable.ic_goalstreakcal_sleepdur_24, goalTextColor);
+        mBothGoalsDecorator = new BackgroundDecorator(
+                context, R.drawable.ic_goalstreakcal_both_24, goalTextColor);
         
         mNoSelectDecorator = new NoSelectionDecorator(context);
         
         mWakeTimeGoalDates = new ArrayList<>();
         mSleepDurationGoalDates = new ArrayList<>();
         mBothGoalsDates = new ArrayList<>();
+    }
+    
+    private int getGoalTextColorFrom(Context context)
+    {
+        // goal text is using colorOnPrimary
+        TypedArray ta = mContext.obtainStyledAttributes(new int[] {R.attr.colorOnPrimary});
+        int goalTextColor = ta.getColor(0, -1);
+        ta.recycle();
+        return goalTextColor;
     }
     
 //*********************************************************
@@ -63,6 +77,9 @@ public class StreakCalendar
         if (mView == null) {
             mView = new MaterialCalendarView(mContext);
             
+            mView.setLeftArrow(R.drawable.ic_goalstreakcal_arrow_left);
+            mView.setRightArrow(R.drawable.ic_goalstreakcal_arrow_right);
+            
             mView.addDecorators(
                     mNoSelectDecorator,
                     mWakeTimeGoalDecorator,
@@ -71,7 +88,6 @@ public class StreakCalendar
             
             // disable remaining selection behaviour
             mView.setSelectionMode(MaterialCalendarView.SELECTION_MODE_NONE);
-            mView.setDateTextAppearance(R.style.MaterialCalendarNoSelectionTextAppearance);
         }
         return mView;
     }
