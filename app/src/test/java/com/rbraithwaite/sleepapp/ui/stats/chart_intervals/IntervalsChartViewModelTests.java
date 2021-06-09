@@ -41,9 +41,9 @@ public class IntervalsChartViewModelTests
 
     IntervalsChartViewModel viewModel;
     SleepSessionRepository mockSleepSessionRepository;
-    SleepIntervalsDataSet.Generator mMockSleepIntervalsDataSetGenerator;
+    SleepIntervalsDataSet.Generator mockSleepIntervalsDataSetGenerator;
     Executor executor;
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -52,11 +52,11 @@ public class IntervalsChartViewModelTests
     public void setup()
     {
         mockSleepSessionRepository = mock(SleepSessionRepository.class);
-        mMockSleepIntervalsDataSetGenerator = mock(SleepIntervalsDataSet.Generator.class);
+        mockSleepIntervalsDataSetGenerator = mock(SleepIntervalsDataSet.Generator.class);
         executor = new TestUtils.SynchronizedExecutor();
         viewModel = new IntervalsChartViewModel(
                 mockSleepSessionRepository,
-                mMockSleepIntervalsDataSetGenerator,
+                mockSleepIntervalsDataSetGenerator,
                 executor);
     }
     
@@ -66,7 +66,32 @@ public class IntervalsChartViewModelTests
         viewModel = null;
         executor = null;
         mockSleepSessionRepository = null;
-        mMockSleepIntervalsDataSetGenerator = null;
+        mockSleepIntervalsDataSetGenerator = null;
+    }
+    
+    @Test
+    public void hasAnyData_returnsFalseIfRepoIsEmpty()
+    {
+        when(mockSleepSessionRepository.getTotalSleepSessionCount()).thenReturn(
+                new MutableLiveData<>(0));
+        
+        LiveData<Boolean> hasAnyData = viewModel.hasAnyData();
+        TestUtils.activateLocalLiveData(hasAnyData);
+        
+        assertThat(hasAnyData.getValue(), is(false));
+    }
+    
+    @Test
+    public void hasAnyData_returnsTrueWhenThereIsData()
+    {
+        when(mockSleepSessionRepository.getTotalSleepSessionCount()).thenReturn((
+                                                                                        new MutableLiveData<>(
+                                                                                                1)));
+        
+        LiveData<Boolean> hasAnyData = viewModel.hasAnyData();
+        TestUtils.activateLocalLiveData(hasAnyData);
+        
+        assertThat(hasAnyData.getValue(), is(true));
     }
     
     @Test
@@ -98,7 +123,7 @@ public class IntervalsChartViewModelTests
         // the resolution changes.
         verify(mockSleepSessionRepository, times(2))
                 .getSleepSessionsInRange(any(Date.class), any(Date.class));
-        verify(mMockSleepIntervalsDataSetGenerator, times(2))
+        verify(mockSleepIntervalsDataSetGenerator, times(2))
                 .generateFromConfig(anyList(), any(SleepIntervalsDataSet.Config.class));
     }
     
@@ -122,7 +147,7 @@ public class IntervalsChartViewModelTests
                 .getSleepSessionsInRange(
                         testConfig.dateRange.getStart(),
                         testConfig.dateRange.getEnd());
-        verify(mMockSleepIntervalsDataSetGenerator, times(1))
+        verify(mockSleepIntervalsDataSetGenerator, times(1))
                 .generateFromConfig(anyList(), eq(testConfig));
     }
     

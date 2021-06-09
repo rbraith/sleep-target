@@ -8,16 +8,33 @@ import java.util.Locale;
 
 public class StatsFormatting
 {
+//*********************************************************
+// private constants
+//*********************************************************
+
     private static final String TAG = "StatsFormatting";
+    
+//*********************************************************
+// constructors
+//*********************************************************
 
     private StatsFormatting() {/* No instantiation */}
-    
+
 //*********************************************************
 // api
 //*********************************************************
 
+    // TEST NEEDED [21-06-8 6:00PM]
+    public static String formatDurationsYLabel(int hour)
+    {
+        return String.format(Locale.CANADA, "%dh", hour);
+    }
+    
     public static String formatIntervalsXLabelDate(Date date)
     {
+        // IDEA [21-06-7 5:04PM] I should add the days of the week here eg:
+        //   Mon
+        //  06/07.
         // REFACTOR [21-02-27 8:50PM] -- hardcoded locale.
         SimpleDateFormat xLabelFormat = new SimpleDateFormat("MM/dd", Locale.CANADA);
         return xLabelFormat.format(date);

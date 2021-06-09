@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="StatsRangeSelectorTheme">
+        <item name="rangeSelectorBackButtonStyle">@style/StatsRangeSelectorButton</item>
+        <item name="rangeSelectorForwardButtonStyle">@style/StatsRangeSelectorButton</item>
+        <item name="rangeSelectorMoreButtonStyle">@style/StatsRangeSelectorButton</item>
+        <item name="rangeSelectorValueTextStyle">@style/StatsRangeSelectorValueText</item>
+    </style>
+</resources>

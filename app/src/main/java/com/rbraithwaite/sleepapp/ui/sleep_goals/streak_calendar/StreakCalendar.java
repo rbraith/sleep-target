@@ -2,7 +2,6 @@ package com.rbraithwaite.sleepapp.ui.sleep_goals.streak_calendar;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Color;
 import android.view.View;
 
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
@@ -33,7 +32,7 @@ public class StreakCalendar
     List<Date> mWakeTimeGoalDates;
     List<Date> mSleepDurationGoalDates;
     List<Date> mBothGoalsDates;
-    
+
 
 //*********************************************************
 // constructors
@@ -43,7 +42,7 @@ public class StreakCalendar
     {
         mContext = context;
         
-        int goalTextColor = getGoalTextColorFrom(context);
+        int goalTextColor = getGoalTextColorFrom(mContext);
         
         mWakeTimeGoalDecorator = new BackgroundDecorator(
                 mContext, R.drawable.ic_goalstreakcal_waketime_24, goalTextColor);
@@ -52,20 +51,11 @@ public class StreakCalendar
         mBothGoalsDecorator = new BackgroundDecorator(
                 context, R.drawable.ic_goalstreakcal_both_24, goalTextColor);
         
-        mNoSelectDecorator = new NoSelectionDecorator(context);
+        mNoSelectDecorator = new NoSelectionDecorator(mContext);
         
         mWakeTimeGoalDates = new ArrayList<>();
         mSleepDurationGoalDates = new ArrayList<>();
         mBothGoalsDates = new ArrayList<>();
-    }
-    
-    private int getGoalTextColorFrom(Context context)
-    {
-        // goal text is using colorOnPrimary
-        TypedArray ta = mContext.obtainStyledAttributes(new int[] {R.attr.colorOnPrimary});
-        int goalTextColor = ta.getColor(0, -1);
-        ta.recycle();
-        return goalTextColor;
     }
     
 //*********************************************************
@@ -91,7 +81,7 @@ public class StreakCalendar
         }
         return mView;
     }
-    
+
     // TODO [21-03-16 9:36PM] -- this should be tested.
     public void setSucceededGoalDates(
             List<Date> wakeTimeGoalDates,
@@ -118,5 +108,18 @@ public class StreakCalendar
         mSleepDurationGoalDecorator.setDates(mSleepDurationGoalDates);
         mBothGoalsDecorator.setDates(mBothGoalsDates);
         mView.invalidateDecorators();
+    }
+    
+//*********************************************************
+// private methods
+//*********************************************************
+
+    private int getGoalTextColorFrom(Context context)
+    {
+        // goal text is using colorOnPrimary
+        TypedArray ta = context.obtainStyledAttributes(new int[] {R.attr.colorOnPrimary});
+        int goalTextColor = ta.getColor(0, -1);
+        ta.recycle();
+        return goalTextColor;
     }
 }

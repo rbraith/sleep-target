@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+// REFACTOR [21-06-4 6:47PM] -- move this to the domain?
 public class DateRange
 {
 //*********************************************************
@@ -65,6 +66,7 @@ public class DateRange
                mStart.equals(dateRange.mStart) &&
                mEnd.equals(dateRange.mEnd);
     }
+
 
 
 //*********************************************************

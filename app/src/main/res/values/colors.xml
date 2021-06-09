@@ -6,8 +6,11 @@
     <color name="colorOnPrimary">@color/colorAppBackground</color>
     <color name="colorOnSecondary">@color/colorAppBackground</color>
 
+<!--    these are relative to the primary color-->
     <color name="colorTriadic2">#CCAC9D</color>
     <color name="colorTriadic3">#9DCCAC</color>
+
+    <color name="colorComplementary">#BDCB9C</color>
 
     <color name="colorAppBackground">#151515</color>
 

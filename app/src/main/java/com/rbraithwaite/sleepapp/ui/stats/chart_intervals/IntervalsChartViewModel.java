@@ -76,6 +76,7 @@ public class IntervalsChartViewModel
         mTimeUtils = createTimeUtils();
     }
 
+
 //*********************************************************
 // api
 //*********************************************************
@@ -278,6 +279,16 @@ public class IntervalsChartViewModel
         default:
             return -2;
         }
+    }
+    
+    /**
+     * Whether or not there is any interval data, in any range.
+     */
+    public LiveData<Boolean> hasAnyData()
+    {
+        return Transformations.map(
+                mSleepSessionRepository.getTotalSleepSessionCount(),
+                count -> count > 0);
     }
 
 //*********************************************************

@@ -1,23 +1,24 @@
 package com.rbraithwaite.sleepapp.ui.stats.chart_durations;
 
-import android.graphics.Color;
+import android.content.Context;
 import android.graphics.Paint;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 
+import androidx.constraintlayout.widget.Group;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Transformations;
 
 import com.rbraithwaite.sleepapp.R;
+import com.rbraithwaite.sleepapp.ui.stats.StatsFormatting;
+import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.TEMP.AppColors;
+import com.rbraithwaite.sleepapp.ui.stats.common.CombinedChartViewFactory;
 import com.rbraithwaite.sleepapp.ui.stats.common.RangeSelectorController;
+import com.rbraithwaite.sleepapp.utils.AsyncUtils;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
 
-import org.achartengine.ChartFactory;
 import org.achartengine.chart.BarChart;
 import org.achartengine.chart.CombinedXYChart;
 import org.achartengine.chart.LineChart;
@@ -27,6 +28,7 @@ import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -37,15 +39,25 @@ public class DurationsChartController
 //*********************************************************
 
     private static final String TAG = "DurationsChartControlle";
+    
     private final int LEFT_Y_AXIS = 0;
     private final int RIGHT_Y_AXIS = 1;
+    
+    private final Context mContext;
+    
     private final View mRoot;
     private final FrameLayout mChartLayout;
+    private final Group mChartGroup;
+    private final View mNoDataMessage;
+    
+    private final AppColors mAppColors;
+    
     private final DurationsChartViewModel mViewModel;
     private final RangeSelectorController mRangeSelectorController;
-    private final Executor mExecutor;
-    private final LifecycleOwner mLifeCycleOwner;
     
+    private final LifecycleOwner mLifeCycleOwner;
+    private final AsyncUtils.AsyncFactory<CombinedChartViewFactory.Params> mParamsAsyncFactory;
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -57,10 +69,16 @@ public class DurationsChartController
             Executor executor)
     {
         mRoot = root;
-        mChartLayout = root.findViewById(R.id.stats_durations_layout);
+        mChartLayout = mRoot.findViewById(R.id.stats_durations_layout);
+        mChartGroup = mRoot.findViewById(R.id.stats_durations_chart_group);
+        mNoDataMessage = mRoot.findViewById(R.id.stats_durations_no_data);
+        
+        mContext = mRoot.getContext();
+        mAppColors = AppColors.from(mContext);
         
         mLifeCycleOwner = lifecycleOwner;
-        mExecutor = executor;
+        // REFACTOR [21-06-7 8:27PM] -- inject the factory instead of the executor?
+        mParamsAsyncFactory = new AsyncUtils.AsyncFactory<>(executor);
         
         mViewModel = viewModel;
         
@@ -68,144 +86,148 @@ public class DurationsChartController
                 lifecycleOwner,
                 this::displayData);
         
-        mRangeSelectorController = new RangeSelectorController(
-                mRoot.findViewById(R.id.stats_durations_range_selector))
-        {
-            @Override
-            public int getMenuId() { return R.menu.stats_durations_popup_menu; }
-            
-            @Override
-            public void onPopupMenuInflated(Menu popupMenu)
-            {
-                MenuItem previouslyChecked = popupMenu.findItem(
-                        getResolutionMenuItemId(mViewModel.getRangeDistance()));
-                previouslyChecked.setChecked(true);
-            }
-            
-            @Override
-            public boolean onPopupMenuItemClicked(MenuItem item)
-            {
-                switch (item.getItemId()) {
-                case R.id.stats_durations_resolution_10:
-                    item.setChecked(true);
-                    mViewModel.setRangeDistance(10);
-                    return true;
-                case R.id.stats_durations_resolution_50:
-                    item.setChecked(true);
-                    mViewModel.setRangeDistance(50);
-                    return true;
-                case R.id.stats_durations_resolution_100:
-                    item.setChecked(true);
-                    mViewModel.setRangeDistance(100);
-                    return true;
-                default:
-                    return false;
-                }
-            }
-            
-            @Override
-            public void onBackPressed()
-            {
-                mViewModel.stepRangeBack();
-            }
-            
-            @Override
-            public void onForwardPressed()
-            {
-                mViewModel.stepRangeForward();
-            }
-        };
+        mRangeSelectorController =
+                new RangeSelectorController(mRoot.findViewById(R.id.stats_durations_range_selector))
+                {
+                    @Override
+                    public int getMenuId() { return R.menu.stats_durations_popup_menu; }
+                    
+                    @Override
+                    public void onBackPressed()
+                    {
+                        mViewModel.stepRangeBack();
+                    }
+                    
+                    @Override
+                    public void onForwardPressed()
+                    {
+                        mViewModel.stepRangeForward();
+                    }
+                    
+                    @Override
+                    public void onPopupMenuInflated(Menu popupMenu)
+                    {
+                        MenuItem previouslyChecked = popupMenu.findItem(
+                                getResolutionMenuItemId(mViewModel.getRangeDistance()));
+                        previouslyChecked.setChecked(true);
+                    }
+                    
+                    @Override
+                    public boolean onPopupMenuItemClicked(MenuItem item)
+                    {
+                        switch (item.getItemId()) {
+                        case R.id.stats_durations_resolution_10:
+                            item.setChecked(true);
+                            mViewModel.setRangeDistance(10);
+                            return true;
+                        case R.id.stats_durations_resolution_50:
+                            item.setChecked(true);
+                            mViewModel.setRangeDistance(50);
+                            return true;
+                        case R.id.stats_durations_resolution_100:
+                            item.setChecked(true);
+                            mViewModel.setRangeDistance(100);
+                            return true;
+                        default:
+                            return false;
+                        }
+                    }
+                };
         
         mViewModel.getRangeText().observe(lifecycleOwner, mRangeSelectorController::setText);
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
 
-    private XYMultipleSeriesRenderer createMultipleSeriesRenderer()
+    // REFACTOR [21-05-15 12:47AM] -- a lot of this duplicates the intervals chart renderer
+    //  setup in IntervalsChartParamsFactory - these should be consistent with each other.
+    private XYMultipleSeriesRenderer createMultipleSeriesRenderer(double maxDataY)
     {
         final int TWO_Y_AXES = 2;
-        XYMultipleSeriesRenderer multipleSeriesRenderer = new XYMultipleSeriesRenderer(TWO_Y_AXES);
-        multipleSeriesRenderer.addSeriesRenderer(createDurationsSeriesRenderer());
-        multipleSeriesRenderer.addSeriesRenderer(createRatingsSeriesRenderer());
+        XYMultipleSeriesRenderer renderer = new XYMultipleSeriesRenderer(TWO_Y_AXES);
         
         // Y axis
         // -----------------------------------------------------
-        multipleSeriesRenderer.setYLabelsPadding(50);
-        multipleSeriesRenderer.setShowCustomTextGridY(true);
-        multipleSeriesRenderer.setYLabels(0);
+        renderer.setYLabelsPadding(15);
+        renderer.setYLabels(0);
         
         // left y axis (durations)
-        // REFACTOR [21-05-15 2:01PM] -- hardcoded string.
-        multipleSeriesRenderer.setYTitle("Duration", LEFT_Y_AXIS);
-        multipleSeriesRenderer.setYAxisAlign(Paint.Align.LEFT, LEFT_Y_AXIS);
-        multipleSeriesRenderer.setYAxisMin(0, LEFT_Y_AXIS);
+        renderer.setYAxisAlign(Paint.Align.LEFT, LEFT_Y_AXIS);
+        renderer.setYLabelsAlign(Paint.Align.RIGHT, LEFT_Y_AXIS);
+        renderer.setYAxisMin(0, LEFT_Y_AXIS);
+        // the chart max Y is the nearest full hour greater than the data
+        double maxY = Math.ceil(maxDataY);
+        renderer.setYAxisMax(maxY, LEFT_Y_AXIS);
+        for (int i = 0; i < (int) maxY; i++) {
+            renderer.addYTextLabel(i + 1,
+                                   StatsFormatting.formatDurationsYLabel(i + 1),
+                                   LEFT_Y_AXIS);
+        }
         
         // right y axis (ratings)
-        // REFACTOR [21-05-15 2:01PM] -- hardcoded string.
-        multipleSeriesRenderer.setYTitle("Rating", RIGHT_Y_AXIS);
-        multipleSeriesRenderer.setYAxisAlign(Paint.Align.RIGHT, RIGHT_Y_AXIS);
-        multipleSeriesRenderer.setYLabelsAlign(Paint.Align.RIGHT, RIGHT_Y_AXIS);
-        
-        multipleSeriesRenderer.setYLabelsColor(1, Color.RED);
-        multipleSeriesRenderer.setYAxisMax(6.0, RIGHT_Y_AXIS);
-        
+        renderer.setYAxisAlign(Paint.Align.RIGHT, RIGHT_Y_AXIS);
+        renderer.setYLabelsAlign(Paint.Align.LEFT, RIGHT_Y_AXIS);
+        renderer.setYAxisMin(0.0, RIGHT_Y_AXIS);
+        renderer.setYAxisMax(6.0, RIGHT_Y_AXIS);
         for (int i = 0; i < 5; i++) {
-            multipleSeriesRenderer.addYTextLabel(i + 1, Integer.toString(i + 1), RIGHT_Y_AXIS);
+            // HACK [21-06-7 8:59PM] -- These spaces in 'text' are to compensate for the y labels
+            //  padding
+            //  set above. There's definitely a better way to do this.
+            renderer.addYTextLabel(i + 1, "    " + (i + 1), RIGHT_Y_AXIS);
         }
-//            multipleSeriesRenderer.setShowLabels(true);
-        
         
         // X axis
         // -----------------------------------------------------
-        multipleSeriesRenderer.setBarSpacing(0.1);
+        renderer.setXLabels(0);
+        renderer.setBarSpacing(0.1);
         // this is so that the bars at the far edges of the chart are not cut off
-        multipleSeriesRenderer.setXAxisMin(-0.5f);
-        multipleSeriesRenderer.setXAxisMax(mViewModel.getRangeDistance() - 0.5f);
+        renderer.setXAxisMin(-0.5f);
+        renderer.setXAxisMax(mViewModel.getRangeDistance() - 0.5f);
         
         // misc
         // -----------------------------------------------------
-        // REFACTOR [21-05-15 12:47AM] -- a lot of this duplicates the intervals chart renderer
-        //  setup in SleepIntervalsRendererHelper - these should be consistent with each other.
-        multipleSeriesRenderer.setLabelsTextSize(30);
-        multipleSeriesRenderer.setAxisTitleTextSize(50);
+        renderer.setPanEnabled(false);
+        renderer.setShowLegend(false);
+        renderer.setMargins(new int[] {35, 65, 0, 45}); // top, left, bottom, right
         
-        multipleSeriesRenderer.setPanEnabled(false);
         
-        multipleSeriesRenderer.setMargins(new int[] {35, 100, 0, 100}); // top, left, bottom, right
-        multipleSeriesRenderer.setShowLegend(false);
+        // REFACTOR [21-06-7 8:00PM] -- This styling duplicates the intervals chart styling.
+        // styling
+        // -----------------------------------------------------
+        // colours
+        renderer.setMarginsColor(mAppColors.colorPrimarySurface);
+        renderer.setBackgroundColor(mAppColors.appColorBackground);
+        renderer.setApplyBackgroundColor(true);
+        renderer.setAxesColor(mAppColors.colorSecondary);
+        renderer.setXLabelsColor(mAppColors.appColorOnPrimarySurface2);
         
-        // hide black background
-        multipleSeriesRenderer.setMarginsColor(Color.argb(0xff, 0xff, 0xff, 0xff));
+        renderer.setYLabelsColor(RIGHT_Y_AXIS, mAppColors.appColorOnPrimarySurface2);
+        renderer.setYLabelsColor(LEFT_Y_AXIS, mAppColors.appColorOnPrimarySurface2);
         
-        multipleSeriesRenderer.setLabelsColor(Color.BLACK);
-        multipleSeriesRenderer.setAxesColor(Color.BLACK);
+        // text sizes
+        renderer.setLabelsTextSize(30);
+        renderer.setAxisTitleTextSize(40);
         
-        return multipleSeriesRenderer;
+        return renderer;
     }
     
     private XYSeriesRenderer createDurationsSeriesRenderer()
     {
         XYSeriesRenderer renderer = new XYSeriesRenderer();
-        renderer.setColor(Color.BLUE);
+        renderer.setColor(mAppColors.appColorComplementary);
         return renderer;
     }
     
     private XYSeriesRenderer createRatingsSeriesRenderer()
     {
         XYSeriesRenderer renderer = new XYSeriesRenderer();
-        renderer.setColor(Color.RED);
-//            renderer.setFillPoints(true);
+        renderer.setColor(mAppColors.colorSecondary);
         renderer.setDisplayBoundingPoints(true);
         renderer.setLineWidth(6);
         renderer.setPointStyle(PointStyle.CIRCLE);
-        renderer.setPointStrokeWidth(30);
-//            renderer.setDisplayChartValues(true);
-//            renderer.setChartValuesTextSize(40);
-//            renderer.setDisplayChartValuesDistance(50);
-//            renderer.setChartValuesSpacing(40);
-//            renderer.setChartValuesFormat(new DecimalFormat("#0.0"));
+        renderer.setPointStrokeWidth(20);
         return renderer;
     }
     
@@ -235,12 +257,8 @@ public class DurationsChartController
     
     private void displayNoDataMessage()
     {
-        // TODO [21-05-17 3:41PM] -- this should be from xml ideally.
-        TextView noDataMessage = new TextView(mRoot.getContext());
-        // REFACTOR [21-05-17 3:42PM] -- hardcoded string.
-        noDataMessage.setText("No Data");
-        mChartLayout.removeAllViews();
-        mChartLayout.addView(noDataMessage);
+        mChartGroup.setVisibility(View.GONE);
+        mNoDataMessage.setVisibility(View.VISIBLE);
     }
     
     /**
@@ -248,88 +266,103 @@ public class DurationsChartController
      */
     private void updateChartWithData(List<DurationsChartViewModel.DataPoint> dataSet)
     {
-        MutableLiveData<ChartParams> chartParams = new MutableLiveData<>();
+        LiveData<CombinedChartViewFactory.Params> chartParams =
+                mParamsAsyncFactory.createAsync(() -> createParams(dataSet));
         
-        LiveData<View> chartView = Transformations.map(
-                chartParams,
-                params -> ChartFactory.getCombinedXYChartView(
-                        mRoot.getContext(),
-                        params.dataset,
-                        params.renderer,
-                        params.types));
-        
-        LiveDataFuture.getValue(chartView, mLifeCycleOwner, view -> {
+        // REFACTOR [21-06-7 3:36PM] -- This should be injected.
+        CombinedChartViewFactory chartViewFactory = new CombinedChartViewFactory();
+        LiveDataFuture.getValue(chartParams, mLifeCycleOwner, params -> {
+            View chartView = chartViewFactory.createFrom(mContext, params);
+            
             mChartLayout.removeAllViews();
-            mChartLayout.addView(view);
-        });
-        
-        // create the params for the new chart view
-        mExecutor.execute(() -> {
-            // REFACTOR [21-05-14 11:28PM] -- hardcoded strings.
-            XYSeries durationSeries = new XYSeries("Sleep Duration", LEFT_Y_AXIS);
-            XYSeries ratingSeries = new XYSeries("Sleep Rating", RIGHT_Y_AXIS);
+            mChartLayout.addView(chartView);
             
-            int distance = mViewModel.getRangeDistance();
-            for (int i = 0; i < dataSet.size(); i++) {
-                DurationsChartViewModel.DataPoint dataPoint = dataSet.get(i);
-                
-                // this makes the data appear from right to left
-                float chartPosition = distance - i - 1;
-                
-                durationSeries.add(chartPosition, dataPoint.sleepDurationHours);
-                ratingSeries.add(chartPosition, dataPoint.sleepRating);
-            }
-            
-            XYMultipleSeriesDataset multipleSeriesDataset = new XYMultipleSeriesDataset();
-            XYMultipleSeriesRenderer multipleSeriesRenderer = createMultipleSeriesRenderer();
-            
-            // set up the X labels (one at each end of the chart)
-            if (!dataSet.isEmpty()) {
-                // REFACTOR [21-05-15 5:50PM] -- it would be better if this was in
-                //  createMultipleSeriesRenderer()
-                //  as well.
-                multipleSeriesRenderer.setXLabels(0);
-                // The first datapoint label is added to the right side of the chart, and the last
-                // datapoint is added to the left side.
-                multipleSeriesRenderer.addXTextLabel(distance - 1, dataSet.get(0).label);
-                if (dataSet.size() > 1) {
-                    multipleSeriesRenderer.addXTextLabel(distance - dataSet.size(),
-                                                         dataSet.get(dataSet.size() - 1).label);
-                }
-            }
-            
-            // first add the duration, then the rating, so that the rating is overlaid on top
-            multipleSeriesDataset.addSeries(durationSeries);
-            multipleSeriesDataset.addSeries(ratingSeries);
-            
-            chartParams.postValue(new ChartParams(
-                    multipleSeriesRenderer,
-                    multipleSeriesDataset,
-                    new CombinedXYChart.XYCombinedChartDef[] {
-                            new CombinedXYChart.XYCombinedChartDef(BarChart.TYPE, 0),
-                            new CombinedXYChart.XYCombinedChartDef(LineChart.TYPE, 1)
-                    }));
+            mChartGroup.setVisibility(View.VISIBLE);
+            mNoDataMessage.setVisibility(View.GONE);
         });
     }
     
-//*********************************************************
-// private helpers
-//*********************************************************
-
-    private static class ChartParams
+    private CombinedChartViewFactory.Params createParams(List<DurationsChartViewModel.DataPoint> dataSet)
     {
-        XYMultipleSeriesRenderer renderer;
-        XYMultipleSeriesDataset dataset;
-        CombinedXYChart.XYCombinedChartDef[] types;
+        // REFACTOR [21-05-14 11:28PM] -- hardcoded strings.
+        XYSeries durationSeries = new XYSeries("Sleep Duration", LEFT_Y_AXIS);
         
-        public ChartParams(
-                XYMultipleSeriesRenderer renderer,
-                XYMultipleSeriesDataset dataset,
-                CombinedXYChart.XYCombinedChartDef[] types)
-        {
-            this.renderer = renderer;
-            this.dataset = dataset;
-            this.types = types;
+        // add the durations data
+        int distance = mViewModel.getRangeDistance();
+        for (int i = 0; i < dataSet.size(); i++) {
+            DurationsChartViewModel.DataPoint dataPoint = dataSet.get(i);
+            
+            // this makes the data appear from right to left
+            float chartPosition = distance - i - 1;
+            
+            durationSeries.add(chartPosition, dataPoint.sleepDurationHours);
         }
+        
+        // add the ratings data
+        // (if the ratings data is 0, break the line)
+        // OPTIMIZE [21-06-8 3:10PM] -- I could combine this loop with the above loop, though I
+        //  felt combining them would reduce readability.
+        List<XYSeries> ratingSeriesList = new ArrayList<>();
+        XYSeries currentRatingSeries = null;
+        boolean inRatingLine = false;
+        for (int i = 0; i < dataSet.size(); i++) {
+            // this makes the data appear from right to left
+            float chartPosition = distance - i - 1;
+            
+            DurationsChartViewModel.DataPoint dataPoint = dataSet.get(i);
+            
+            // transitioning into a rating line
+            if (!inRatingLine && dataPoint.sleepRating > 0) {
+                currentRatingSeries = new XYSeries("Sleep Rating", RIGHT_Y_AXIS);
+                ratingSeriesList.add(currentRatingSeries);
+                currentRatingSeries.add(chartPosition, dataPoint.sleepRating);
+                inRatingLine = true;
+            } else if (inRatingLine) {
+                // transitioning out of a rating line
+                if (dataPoint.sleepRating == 0) {
+                    inRatingLine = false;
+                }
+                // in a rating line
+                else {
+                    currentRatingSeries.add(chartPosition, dataPoint.sleepRating);
+                }
+            }
+        }
+        
+        CombinedChartViewFactory.Params params = new CombinedChartViewFactory.Params(
+                createMultipleSeriesRenderer(durationSeries.getMaxY()),
+                new XYMultipleSeriesDataset(),
+                new ArrayList<>());
+        
+        // set up the X labels (one at each end of the chart)
+        if (!dataSet.isEmpty()) {
+            // REFACTOR [21-05-15 5:50PM] -- it would be better if this was in
+            //  createMultipleSeriesRenderer() as well.
+            // The first data point label is added to the right side of the chart, and the last
+            // data point is added to the left side.
+            params.renderer.addXTextLabel(distance - 1, dataSet.get(0).label);
+            if (dataSet.size() > 1) {
+                params.renderer.addXTextLabel(distance - dataSet.size(),
+                                              dataSet.get(dataSet.size() - 1).label);
+            }
+        }
+        
+        // add durations to params
+        params.dataSet.addSeries(durationSeries);
+        params.renderer.addSeriesRenderer(createDurationsSeriesRenderer());
+        params.types.add(new CombinedXYChart.XYCombinedChartDef(BarChart.TYPE, 0));
+        
+        // add ratings to params
+        XYSeriesRenderer ratingSeriesRenderer = createRatingsSeriesRenderer();
+        int[] ratingSeriesIndices = new int[ratingSeriesList.size()];
+        for (int i = 0; i < ratingSeriesList.size(); i++) {
+            params.dataSet.addSeries(ratingSeriesList.get(i));
+            params.renderer.addSeriesRenderer(ratingSeriesRenderer);
+            ratingSeriesIndices[i] = i + 1; // +1 since the durations bar chart is the first series
+        }
+        params.types.add(new CombinedXYChart.XYCombinedChartDef(LineChart.TYPE,
+                                                                ratingSeriesIndices));
+        
+        return params;
     }
 }

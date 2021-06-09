@@ -11,11 +11,13 @@ import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
@@ -24,6 +26,26 @@ public class SleepIntervalsDataSetTests
 //*********************************************************
 // api
 //*********************************************************
+    
+    @Test
+    public void isEmpty_returnsTrueIfDataSetIsEmpty()
+    {
+        SleepIntervalsDataSet dataSet = new SleepIntervalsDataSet.Generator().generateFromConfig(
+                new ArrayList<>(), // no sleep sessions means empty data set
+                createArbitraryConfig());
+        
+        assertThat(dataSet.isEmpty(), is(true));
+    }
+    
+    private SleepIntervalsDataSet.Config createArbitraryConfig()
+    {
+        return new SleepIntervalsDataSet.Config(
+                new DateRange(
+                        new GregorianCalendar(2021, 2, 20).getTime(),
+                        new GregorianCalendar(2021, 2, 22).getTime()),
+                1000,
+                false);
+    }
 
     // clarifying AChartEngine behaviour for myself
     @Test
@@ -57,33 +79,32 @@ public class SleepIntervalsDataSetTests
     {
         // setup test data
         TimeUtils timeUtils = new TimeUtils();
-        // 1 hr over into 02/20
-        GregorianCalendar start1 = new GregorianCalendar(2021, 1, 19, 23, 0);
-        long duration1 = timeUtils.hoursToMillis(2);
-        // 3 hrs in 02/21
-        GregorianCalendar start2 = new GregorianCalendar(2021, 1, 21, 1, 0);
-        long duration2 = timeUtils.hoursToMillis(3);
-        // 1 hr in 02/21
-        GregorianCalendar start3 = new GregorianCalendar(2021, 1, 21, 5, 0);
-        long duration3 = timeUtils.hoursToMillis(1);
         
+        DateRange dateRange = new DateRange(
+                new GregorianCalendar(2021, 2, 20).getTime(),
+                new GregorianCalendar(2021, 2, 22).getTime());
+        
+        // 1 hr over into 02/20
+        GregorianCalendar start1 = new GregorianCalendar(2021, 2, 19, 23, 0);
         SleepSession sleepSession1 = TestUtils.ArbitraryData.getSleepSession();
         sleepSession1.setStart(start1.getTime());
-        sleepSession1.setDurationMillis(duration1);
+        sleepSession1.setDurationMillis(timeUtils.hoursToMillis(2));
         
+        // 3 hrs in 02/21
+        GregorianCalendar start2 = new GregorianCalendar(2021, 2, 21, 1, 0);
         SleepSession sleepSession2 = TestUtils.ArbitraryData.getSleepSession();
         sleepSession2.setStart(start2.getTime());
-        sleepSession2.setDurationMillis(duration2);
+        sleepSession2.setDurationMillis(timeUtils.hoursToMillis(3));
         
+        // 1 hr in 02/21, later in the day
+        GregorianCalendar start3 = new GregorianCalendar(2021, 2, 21, 5, 0);
         SleepSession sleepSession3 = TestUtils.ArbitraryData.getSleepSession();
         sleepSession3.setStart(start3.getTime());
-        sleepSession3.setDurationMillis(duration3);
+        sleepSession3.setDurationMillis( timeUtils.hoursToMillis(1));
         
         SleepIntervalsDataSet.Config config = new SleepIntervalsDataSet.Config(
-                new DateRange(
-                        new GregorianCalendar(2021, 2, 20).getTime(),
-                        new GregorianCalendar(2021, 2, 22).getTime()),
-                1000,
+                dateRange,
+                1000, // arbitrary offset, just to test this behaviour
                 false);
         
         List<SleepSession> sleepSessions = Arrays.asList(
@@ -91,14 +112,15 @@ public class SleepIntervalsDataSetTests
                 sleepSession2,
                 sleepSession3);
         
-        SleepIntervalsDataSet.Generator generator = new SleepIntervalsDataSet.Generator();
-        
         // SUT
+        SleepIntervalsDataSet.Generator generator = new SleepIntervalsDataSet.Generator();
         SleepIntervalsDataSet sleepIntervals = generator.generateFromConfig(sleepSessions, config);
-        XYMultipleSeriesDataset dataSet = sleepIntervals.getDataSet();
         
         // verifying expected point data
-        //
+        assertThat(sleepIntervals.isEmpty(), is(false));
+    
+        XYMultipleSeriesDataset dataSet = sleepIntervals.getDataSet();
+        
         //           02/20                  02/21
         // series 1: [(1, 0), (1, <1hr>),   (2, <1hr>),  (2, <4hrs>)]
         // series 2: [(1,0),  (1,0),        (2, <5hrs>), (2, <6hr>)]
@@ -106,26 +128,29 @@ public class SleepIntervalsDataSetTests
                 // series 1
                 {
                         {1.0, 0},
-                        {1.0, (double) timeUtils.hoursToMillis(1)},
+                        {1.0, 1.0},
                         
-                        {2.0, (double) timeUtils.hoursToMillis(1)},
-                        {2.0, (double) timeUtils.hoursToMillis(4)}
+                        {2.0, 1.0},
+                        {2.0, 4.0}
                 },
                 // series 2
                 {
                         {1.0, 0},
                         {1.0, 0},
                         
-                        {2.0, (double) timeUtils.hoursToMillis(5)},
-                        {2.0, (double) timeUtils.hoursToMillis(6)}
+                        {2.0, 5.0},
+                        {2.0, 6.0}
                 }
         };
         
+        assertThat(dataSet.getSeriesCount(), is(equalTo(expected.length)));
+        
+        double errorThreshold = 0.001;
         for (int seriesIdx = 0; seriesIdx < dataSet.getSeriesCount(); seriesIdx++) {
             XYSeries series = dataSet.getSeriesAt(seriesIdx);
             for (int pointIdx = 0; pointIdx < series.getItemCount(); pointIdx++) {
-                assertThat(series.getX(pointIdx), is(equalTo(expected[seriesIdx][pointIdx][0])));
-                assertThat(series.getY(pointIdx), is(equalTo(expected[seriesIdx][pointIdx][1])));
+                assertThat(series.getX(pointIdx), is(closeTo(expected[seriesIdx][pointIdx][0], errorThreshold)));
+                assertThat(series.getY(pointIdx), is(closeTo(expected[seriesIdx][pointIdx][1], errorThreshold)));
             }
         }
     }

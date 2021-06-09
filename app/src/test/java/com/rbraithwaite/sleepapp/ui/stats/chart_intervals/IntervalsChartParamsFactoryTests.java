@@ -1,8 +1,13 @@
 package com.rbraithwaite.sleepapp.ui.stats.chart_intervals;
 
+import android.os.Looper;
+
+import androidx.lifecycle.LiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.rbraithwaite.sleepapp.ui.stats.StatsFormatting;
+import com.rbraithwaite.sleepapp.test_utils.TestUtils;
+import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.TEMP.IntervalsChartParamsFactory;
+import com.rbraithwaite.sleepapp.ui.stats.common.CombinedChartViewFactory;
 
 import org.achartengine.model.RangeCategorySeries;
 import org.achartengine.model.XYMultipleSeriesDataset;
@@ -22,15 +27,16 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(AndroidJUnit4.class)
-public class SleepIntervalsRendererHelperTests
+public class IntervalsChartParamsFactoryTests
 {
 //*********************************************************
 // package properties
 //*********************************************************
 
-    SleepIntervalsRendererHelper rendererHelper;
+    IntervalsChartParamsFactory paramsFactory;
 
 //*********************************************************
 // api
@@ -39,21 +45,23 @@ public class SleepIntervalsRendererHelperTests
     @Before
     public void setup()
     {
-        rendererHelper = new SleepIntervalsRendererHelper();
+        paramsFactory = new IntervalsChartParamsFactory(
+                new TestUtils.SynchronizedExecutor(),
+                TestUtils.getContext());
     }
     
     @After
     public void teardown()
     {
-        rendererHelper = null;
+        paramsFactory = null;
     }
     
     // AChartEngine integration test
     @Test
-    public void createRangeRenderer_returnsCorrectLabels()
+    public void createRangeParams_returnsCorrectLabels()
     {
         // set up
-        int offsetMillis = -1 * (1000 * 60 * 60) * 4;
+        int offsetMillis = -1 * (1000 * 60 * 60) * 4; // -4 hrs
         GregorianCalendar date = new GregorianCalendar(2021, 2, 4);
         DateRange dateRange = DateRange.asWeekOf(date.getTime(), offsetMillis);
         SleepIntervalsDataSet.Config config = new SleepIntervalsDataSet.Config(
@@ -64,17 +72,17 @@ public class SleepIntervalsRendererHelperTests
         SleepIntervalsDataSet mockDataSet = setupMockDataSet(config);
         
         // SUT
-        XYMultipleSeriesRenderer renderer = rendererHelper.createRangeRenderer(mockDataSet);
+        LiveData<CombinedChartViewFactory.Params> params =
+                paramsFactory.createRangeParams(mockDataSet);
+        
+        TestUtils.activateLocalLiveData(params);
+        shadowOf(Looper.getMainLooper()).idle();
+        XYMultipleSeriesRenderer renderer = params.getValue().renderer;
         
         // verify
         // Y labels
-        Double[] yTextLabelLocations = renderer.getYTextLabelLocations();
-        assertThat(yTextLabelLocations.length, is(equalTo(13)));
-        for (double location : yTextLabelLocations) {
-            // -1 because invert is true above ^^^
-            assertThat(renderer.getYTextLabel(location),
-                       is(equalTo(StatsFormatting.formatIntervalsYLabel(-1 * (int) location))));
-        }
+        assertYLabelsAreCorrect(renderer);
+        
         // X labels
         Double[] xTextLabelLocations = renderer.getXTextLabelLocations();
         // REFACTOR [21-03-4 9:20PM] -- hardcoded formatting here.
@@ -102,19 +110,17 @@ public class SleepIntervalsRendererHelperTests
         SleepIntervalsDataSet mockDataSet = setupMockDataSet(config);
         
         // SUT
-        XYMultipleSeriesRenderer renderer = rendererHelper.createMonthRenderer(
-                mockDataSet,
-                date.get(Calendar.MONTH));
+        LiveData<CombinedChartViewFactory.Params> params = paramsFactory.createMonthParams(
+                mockDataSet, date.get(Calendar.MONTH));
+        
+        TestUtils.activateLocalLiveData(params);
+        shadowOf(Looper.getMainLooper()).idle();
+        XYMultipleSeriesRenderer renderer = params.getValue().renderer;
         
         // verify
         // Y labels
-        Double[] yTextLabelLocations = renderer.getYTextLabelLocations();
-        assertThat(yTextLabelLocations.length, is(equalTo(13)));
-        for (double location : yTextLabelLocations) {
-            // -1 because invert is true above ^^^
-            assertThat(renderer.getYTextLabel(location),
-                       is(equalTo(StatsFormatting.formatIntervalsYLabel(-1 * (int) location))));
-        }
+        assertYLabelsAreCorrect(renderer);
+        
         // X labels
         Double[] xTextLabelLocations = renderer.getXTextLabelLocations();
         // REFACTOR [21-03-4 9:20PM] -- hardcoded formatting here.
@@ -147,19 +153,17 @@ public class SleepIntervalsRendererHelperTests
         SleepIntervalsDataSet mockDataSet = setupMockDataSet(config);
         
         // SUT
-        XYMultipleSeriesRenderer renderer = rendererHelper.createYearRenderer(
-                mockDataSet,
-                date.get(Calendar.YEAR));
+        LiveData<CombinedChartViewFactory.Params> params = paramsFactory.createYearParams(
+                mockDataSet, date.get(Calendar.YEAR));
+        
+        TestUtils.activateLocalLiveData(params);
+        shadowOf(Looper.getMainLooper()).idle();
+        XYMultipleSeriesRenderer renderer = params.getValue().renderer;
         
         // verify
         // Y labels
-        Double[] yTextLabelLocations = renderer.getYTextLabelLocations();
-        assertThat(yTextLabelLocations.length, is(equalTo(13)));
-        for (double location : yTextLabelLocations) {
-            // -1 because invert is true above ^^^
-            assertThat(renderer.getYTextLabel(location),
-                       is(equalTo(StatsFormatting.formatIntervalsYLabel(-1 * (int) location))));
-        }
+        assertYLabelsAreCorrect(renderer);
+        
         // X labels
         Double[] xTextLabelLocations = renderer.getXTextLabelLocations();
         // REFACTOR [21-03-4 9:20PM] -- hardcoded formatting here.
@@ -181,10 +185,34 @@ public class SleepIntervalsRendererHelperTests
             assertThat(renderer.getXTextLabel(location), is(equalTo(expected.get(location))));
         }
     }
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
+
+    private void assertYLabelsAreCorrect(XYMultipleSeriesRenderer renderer)
+    {
+        Object[][] expectedYLabels = {
+                {"8pm", 0.0},
+                {"10pm", -2.0},
+                {"12am", -4.0},
+                {"2am", -6.0},
+                {"4am", -8.0},
+                {"6am", -10.0},
+                {"8am", -12.0},
+                {"10am", -14.0},
+                {"12pm", -16.0},
+                {"2pm", -18.0},
+                {"4pm", -20.0},
+                {"6pm", -22.0},
+                {"8pm", -24.0},
+        };
+        for (Object[] expectedYLabelData : expectedYLabels) {
+            String yLabel = (String) expectedYLabelData[0];
+            double yLabelLocation = (double) expectedYLabelData[1];
+            assertThat(renderer.getYTextLabel(yLabelLocation), is(equalTo(yLabel)));
+        }
+    }
 
     private SleepIntervalsDataSet setupMockDataSet(SleepIntervalsDataSet.Config config)
     {

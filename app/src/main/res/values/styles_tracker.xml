@@ -124,7 +124,7 @@
 
     <style name="AppTextAppearance.TrackerTitle">
         <item name="android:textColor">?attr/trackerTitleColor</item>
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">@dimen/appTitleTextSize</item>
     </style>
 
     <style name="AppTextAppearance.TrackerGoalValue">

@@ -81,6 +81,9 @@ public abstract class SleepSessionDao
             int offset,
             int count);
     
+    @Query("SELECT COUNT(*) FROM " + SleepSessionContract.TABLE_NAME)
+    public abstract LiveData<Integer> getTotalSleepSessionCount();
+    
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     protected abstract void addTagsToSleepSession(List<SleepSessionTagJunction> junctions);
     

@@ -75,6 +75,21 @@ public class SleepSessionDaoTests
     }
     
     @Test
+    public void getTotalSleepSessionCount_returnsCorrectCount()
+    {
+        LiveData<Integer> count = sleepSessionDao.getTotalSleepSessionCount();
+        TestUtils.InstrumentationLiveDataSynchronizer<Integer> synchronizer =
+                new TestUtils.InstrumentationLiveDataSynchronizer<>(count);
+        
+        assertThat(count.getValue(), is(equalTo(0)));
+        
+        sleepSessionDao.addSleepSession(TestUtils.ArbitraryData.getSleepSessionEntity());
+        
+        synchronizer.sync();
+        assertThat(count.getValue(), is(equalTo(1)));
+    }
+    
+    @Test
     public void getLatestSleepSessionsFromOffset_returnsCorrectSessions()
     {
         // add 3 sleep sessions to the db

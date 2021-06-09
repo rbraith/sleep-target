@@ -26,4 +26,11 @@
         <attr name="tagSelectorListAddTagButtonStyle" format="reference"/>
         <attr name="tagSelectorListAddTagEditTextStyle" format="reference"/>
     </declare-styleable>
+
+    <declare-styleable name="VerticalTextView">
+        <attr name="direction" format="enum">
+            <enum name="downwards" value="0"/>
+            <enum name="upwards" value="1"/>
+        </attr>
+    </declare-styleable>
 </resources>

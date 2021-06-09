@@ -7,7 +7,6 @@ import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.core.models.Mood;
-import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDurationGoalEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalEntity;
@@ -64,7 +63,7 @@ public class DevToolsFragmentViewModel
             "But you couldn’t, you didn’t, and now you’re paying the price, you goddamn idiot. I " +
             "will shit fury all over you and you will drown in it. You’re fucking dead, kiddo. ",
     };
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -167,7 +166,7 @@ public class DevToolsFragmentViewModel
             two_days_ago.add(Calendar.DAY_OF_MONTH, -1);
             
             TimeUtils timeUtils = new TimeUtils();
-            int durationGoalMillis = (int)timeUtils.hoursToMillis(sleepDurationGoal);
+            int durationGoalMillis = (int) timeUtils.hoursToMillis(sleepDurationGoal);
             
             SleepSessionEntity bothGoalsSuccess = new SleepSessionEntity(
                     today.getTime(),
@@ -175,7 +174,8 @@ public class DevToolsFragmentViewModel
             
             SleepSessionEntity wakeTimeGoalSuccess = new SleepSessionEntity(
                     // move the start forward so the duration goal is missed
-                    timeUtils.addDurationToDate(yesterday.getTime(), (int)timeUtils.hoursToMillis(2)),
+                    timeUtils.addDurationToDate(yesterday.getTime(),
+                                                (int) timeUtils.hoursToMillis(2)),
                     timeUtils.addDurationToDate(yesterday.getTime(), durationGoalMillis));
             
             // set this back so that the wake time goal is missed
@@ -237,7 +237,7 @@ public class DevToolsFragmentViewModel
     
     private float randomRating(Random rand)
     {
-        return rand.nextFloat() * 5f;
+        return (float) Math.floor(rand.nextFloat() * 5f);
     }
     
     private Date randomStartTime(

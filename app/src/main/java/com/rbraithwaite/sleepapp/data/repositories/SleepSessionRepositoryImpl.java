@@ -29,7 +29,7 @@ public class SleepSessionRepositoryImpl
 
     private SleepSessionDao mSleepSessionDao;
     private Executor mExecutor;
-    
+
 //*********************************************************
 // private constants
 //*********************************************************
@@ -48,7 +48,7 @@ public class SleepSessionRepositoryImpl
         mSleepSessionDao = sleepSessionDao;
         mExecutor = executor;
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -146,7 +146,13 @@ public class SleepSessionRepositoryImpl
                 mSleepSessionDao.getLatestSleepSessionsFromOffset(offset, count),
                 ConvertSleepSession::fromEntities);
     }
-
+    
+    @Override
+    public LiveData<Integer> getTotalSleepSessionCount()
+    {
+        return mSleepSessionDao.getTotalSleepSessionCount();
+    }
+    
 //*********************************************************
 // private methods
 //*********************************************************

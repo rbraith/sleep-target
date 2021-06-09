@@ -10,8 +10,12 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 
 import com.rbraithwaite.sleepapp.R;
+import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.TEMP.IntervalsChartParamsFactory;
+import com.rbraithwaite.sleepapp.ui.stats.common.CombinedChartViewFactory;
 import com.rbraithwaite.sleepapp.ui.stats.common.RangeSelectorController;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
+
+import java.util.concurrent.Executor;
 
 import dagger.hilt.InstallIn;
 import dagger.hilt.android.EntryPointAccessors;
@@ -24,18 +28,12 @@ public class IntervalsChartController
 //*********************************************************
 
     private View mRoot;
-    private FrameLayout mLayout;
+    private Context mContext;
     private IntervalsChartViewModel mViewModel;
     
     private RangeSelectorController mIntervalsRangeController;
     private EntryPoint mEntryPoint;
 
-//*********************************************************
-// package properties
-//*********************************************************
-
-    SleepIntervalsChartFactory mSleepIntervalsChartFactory;
-    
 //*********************************************************
 // package helpers
 //*********************************************************
@@ -44,9 +42,9 @@ public class IntervalsChartController
     @InstallIn(ApplicationComponent.class)
     interface EntryPoint
     {
-        SleepIntervalsChartFactory sleepIntervalsChartFactory();
+        Executor provideExecutor();
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -57,48 +55,75 @@ public class IntervalsChartController
             LifecycleOwner lifecycleOwner)
     {
         mRoot = root;
-        mLayout = root.findViewById(R.id.stats_intervals_layout);
+        mContext = mRoot.getContext();
+        FrameLayout layout = mRoot.findViewById(R.id.stats_intervals_layout);
+        View intervalsTimePeriodSelector =
+                mRoot.findViewById(R.id.stats_intervals_time_period_selector);
+        View noDataMessage = mRoot.findViewById(R.id.stats_intervals_no_data);
         
         mViewModel = viewModel;
         
-        mSleepIntervalsChartFactory = createSleepIntervalsChartFactory();
+        viewModel.hasAnyData().observe(
+                lifecycleOwner,
+                hasAnyData -> {
+                    if (!hasAnyData) {
+                        layout.setVisibility(View.GONE);
+                        intervalsTimePeriodSelector.setVisibility(View.GONE);
+                        noDataMessage.setVisibility(View.VISIBLE);
+                        return;
+                    }
+                    
+                    layout.setVisibility(View.VISIBLE);
+                    intervalsTimePeriodSelector.setVisibility(View.VISIBLE);
+                    noDataMessage.setVisibility(View.GONE);
+                });
         
+        IntervalsChartParamsFactory paramsFactory = new IntervalsChartParamsFactory(
+                getEntryPoint().provideExecutor(), mContext);
+        // REFACTOR [21-06-7 3:36PM] -- This should be injected.
+        CombinedChartViewFactory chartViewFactory = new CombinedChartViewFactory();
         viewModel.getIntervalsDataSet().observe(
                 lifecycleOwner,
                 dataSet -> {
-                    LiveData<View> chartLiveData = null;
+                    LiveData<CombinedChartViewFactory.Params> chartParams = null;
                     switch (viewModel.getIntervalsResolution()) {
                     case WEEK:
-                        chartLiveData = mSleepIntervalsChartFactory.createRangeChartAsync(
-                                requireContext(),
-                                dataSet);
+                        chartParams = paramsFactory.createRangeParams(dataSet);
                         break;
                     case MONTH:
-                        chartLiveData = mSleepIntervalsChartFactory.createMonthChartAsync(
-                                requireContext(),
+                        chartParams = paramsFactory.createMonthParams(
                                 dataSet,
                                 viewModel.getIntervalsResolutionValue());
                         break;
                     case YEAR:
-                        chartLiveData = mSleepIntervalsChartFactory.createYearChartAsync(
-                                requireContext(),
+                        chartParams = paramsFactory.createYearParams(
                                 dataSet,
                                 viewModel.getIntervalsResolutionValue());
                         break;
                     }
-                    LiveDataFuture.getValue(chartLiveData, lifecycleOwner, chart -> {
-                        mLayout.removeAllViews();
-                        mLayout.addView(chart);
+                    LiveDataFuture.getValue(chartParams, lifecycleOwner, params -> {
+                        View chartView = chartViewFactory.createFrom(mContext, params);
+                        layout.removeAllViews();
+                        layout.addView(chartView);
                     });
                 });
-        
-        View intervalsTimePeriodSelector =
-                mRoot.findViewById(R.id.stats_intervals_time_period_selector);
         
         mIntervalsRangeController = new RangeSelectorController(intervalsTimePeriodSelector)
         {
             @Override
             public int getMenuId() { return R.menu.stats_intervals_popup_menu; }
+            
+            @Override
+            public void onBackPressed()
+            {
+                mViewModel.stepIntervalsRange(IntervalsChartViewModel.Step.BACKWARD);
+            }
+            
+            @Override
+            public void onForwardPressed()
+            {
+                mViewModel.stepIntervalsRange(IntervalsChartViewModel.Step.FORWARD);
+            }
             
             @Override
             public void onPopupMenuInflated(Menu popupMenu)
@@ -128,18 +153,6 @@ public class IntervalsChartController
                     return false;
                 }
             }
-            
-            @Override
-            public void onBackPressed()
-            {
-                mViewModel.stepIntervalsRange(IntervalsChartViewModel.Step.BACKWARD);
-            }
-            
-            @Override
-            public void onForwardPressed()
-            {
-                mViewModel.stepIntervalsRange(IntervalsChartViewModel.Step.FORWARD);
-            }
         };
         
         viewModel.getIntervalsValueText().observe(
@@ -150,11 +163,13 @@ public class IntervalsChartController
                     }
                 });
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
 
+    // REFACTOR [21-06-7 3:32PM] -- I should consider renaming this getDependencies or
+    //  getDependenciesProvider, that might be more clear.
     // REFACTOR [21-05-14 8:33PM] -- This entry point logic is duplicated in TagSelectorViewModel
     //  and elsewhere.
     private EntryPoint getEntryPoint()
@@ -164,11 +179,6 @@ public class IntervalsChartController
                     requireContext().getApplicationContext(), EntryPoint.class);
         }
         return mEntryPoint;
-    }
-    
-    private SleepIntervalsChartFactory createSleepIntervalsChartFactory()
-    {
-        return getEntryPoint().sleepIntervalsChartFactory();
     }
     
     private Context requireContext()

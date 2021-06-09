@@ -14,20 +14,34 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <include
-            android:id="@+id/stats_intervals"
-            layout="@layout/stats_chart_intervals"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/stats_intervals_card"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="match_parent"
+            android:layout_margin="8dp">
 
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="40dp" />
+            <include
+                android:id="@+id/stats_intervals"
+                layout="@layout/stats_chart_intervals"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
-        <include
-            android:id="@+id/stats_durations"
-            layout="@layout/stats_chart_durations"
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/stats_durations_card"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="match_parent"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="8dp">
+
+            <include
+                android:id="@+id/stats_durations"
+                layout="@layout/stats_chart_durations"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </androidx.cardview.widget.CardView>
     </LinearLayout>
 </ScrollView>

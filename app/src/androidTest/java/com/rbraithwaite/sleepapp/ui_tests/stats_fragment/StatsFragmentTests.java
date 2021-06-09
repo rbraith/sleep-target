@@ -4,6 +4,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
+import com.rbraithwaite.sleepapp.test_utils.data.database.DatabaseTestDriver;
 import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.ui.stats.StatsFormatting;
 import com.rbraithwaite.sleepapp.ui.stats.StatsFragment;
@@ -23,7 +24,6 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
@@ -40,6 +40,10 @@ public class StatsFragmentTests
     @Test
     public void intervalsTimePeriodResolution_updatesProperlyFromMenu()
     {
+        // add some arbitrary data, so that the chart displays
+        DatabaseTestDriver databaseDriver = new DatabaseTestDriver();
+        databaseDriver.addSleepSession(TestUtils.ArbitraryData.getSleepSession());
+        
         // GIVEN the user is on the stats screen
         // AND the resolution of the sleep intervals data viz. is set to "week"
         // REFACTOR [21-03-30 4:14PM] -- Creating the fragment generates an intervals config before
@@ -107,6 +111,10 @@ public class StatsFragmentTests
     public void intervalTimePeriodSelector_updatesRangeProperly()
     {
         // setup
+        // add some arbitrary data, so that the chart displays
+        DatabaseTestDriver databaseDriver = new DatabaseTestDriver();
+        databaseDriver.addSleepSession(TestUtils.ArbitraryData.getSleepSession());
+        
         HiltFragmentTestHelper<StatsFragment> helper =
                 HiltFragmentTestHelper.launchFragment(StatsFragment.class);
         

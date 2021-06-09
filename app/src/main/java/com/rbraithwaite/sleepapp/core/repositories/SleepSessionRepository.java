@@ -103,4 +103,9 @@ public interface SleepSessionRepository
      * @return The latest 'count' sleep sessions from 'offset'.
      */
     LiveData<List<SleepSession>> getLatestSleepSessionsFromOffset(int offset, int count);
+    
+    /**
+     * @return The total number of sleep sessions.
+     */
+    LiveData<Integer> getTotalSleepSessionCount();
 }

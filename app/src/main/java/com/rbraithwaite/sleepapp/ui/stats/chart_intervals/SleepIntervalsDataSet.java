@@ -73,7 +73,6 @@ public class SleepIntervalsDataSet
     //  maybe extract this.
     public static class Generator
     {
-        private static int INVALID_KEY = -1;
         TimeUtils mTimeUtils;
         
         @Inject
@@ -81,7 +80,6 @@ public class SleepIntervalsDataSet
         {
             mTimeUtils = createTimeUtils();
         }
-
 
         
         /**
@@ -106,10 +104,11 @@ public class SleepIntervalsDataSet
         {
             SleepIntervalsDataSet dataSet = new SleepIntervalsDataSet();
             dataSet.mConfig = config;
-            dataSet.mDataSet = convertBucketsToDataSet(splitSleepSessionRangeToBuckets(
-                    sleepSessions,
-                    config.dateRange,
-                    config.invert));
+            dataSet.mDataSet = convertBucketsToDataSet(
+                    splitSleepSessionRangeToBuckets(
+                            sleepSessions,
+                            config.dateRange),
+                    config.invert);
             
             return dataSet;
         }
@@ -134,7 +133,7 @@ public class SleepIntervalsDataSet
          * A tree map is returned to ensure that the keys remain sorted in ascending order.
          * </p>
          */
-        private TreeMap<Long, List<IntervalDataPoint>> createMapWithEmptyBuckets(DateRange range)
+        private TreeMap<Long, List<IntervalDataPoint>> createEmptyDayBucketsFrom(DateRange range)
         {
             TreeMap<Long, List<IntervalDataPoint>> dataPointBuckets = new TreeMap<>();
             long key = range.getStart().getTime();
@@ -146,12 +145,11 @@ public class SleepIntervalsDataSet
             return dataPointBuckets;
         }
         
-        private boolean keyIsInRange(long key, DateRange range)
+        private IntervalDataPoint toAbsoluteInterval(SleepSession sleepSession)
         {
-            if (key == INVALID_KEY) {
-                return false;
-            }
-            return (key >= range.getStart().getTime() && key <= range.getEnd().getTime());
+            return new IntervalDataPoint(
+                    sleepSession.getStart().getTime(),
+                    sleepSession.getEnd().getTime());
         }
         
         /**
@@ -163,99 +161,82 @@ public class SleepIntervalsDataSet
          *
          * @param sleepSessions The sleep sessions to put into buckets
          * @param range         The range with which to define the buckets
-         * @param invert        Whether or not the sign of the data should be inverted. Used for
-         *                      displaying downwards bar charts.
          *
          * @return The sleep sessions converted to data points and placed into buckets
          */
         private Map<Long, List<IntervalDataPoint>> splitSleepSessionRangeToBuckets(
                 List<SleepSession> sleepSessions,
-                DateRange range,
-                boolean invert)
+                DateRange range)
         {
-            // the keys are based on range.getStart()
-            long relKeyTime = mTimeUtils.getTimeOfDay(range.getStart());
-            
-            TreeMap<Long, List<IntervalDataPoint>> dataPointBuckets =
-                    createMapWithEmptyBuckets(range);
-            
-            // this is used to split up sleep sessions which extend past their 24hr buckets
-            long relNextKeyTime =
-                    relKeyTime + TimeUtils.MILLIS_24_HOURS; // (rel)ative to the 24hr clock
+            TreeMap<Long, List<IntervalDataPoint>> dayBuckets =
+                    createEmptyDayBucketsFrom(range);
             
             for (SleepSession sleepSession : sleepSessions) {
-                long key = getKeyForSession(sleepSession.getStart().getTime(), dataPointBuckets);
-                long relStartTime = mTimeUtils.getTimeOfDay(sleepSession.getStart());
+                IntervalDataPoint absInterval = toAbsoluteInterval(sleepSession);
+                absInterval.clipTo(range);
                 
-                // If the relative session start time is less than the relative key time, you
-                // need to
-                // offset the data by 24hrs in order for it to display properly. This is because
-                // when the range does not start at midnight, one 24hr buckets will contain time
-                // from
-                // 2 different days, and you must select the right day to display the data
-                // relative to
-                // (eg 0400 or 2800).
-                long offset = relStartTime < relKeyTime ? TimeUtils.MILLIS_24_HOURS : 0;
+                Long intervalKey = getDayBucketKey(absInterval, dayBuckets);
+                if (intervalKey == null) {
+                    // TODO [21-06-4 7:03PM] -- raise an exception here?
+                    //  This means there was no key <= the interval start, which should be
+                    //  impossible since the interval is clipped...
+                }
                 
-                int sign = invert ? -1 : 1;
+                IntervalDataPoint relInterval = absInterval.relativeTo(intervalKey);
                 
-                long remainingDuration = sleepSession.getDurationMillis();
-                while (true) {
-                    long relEndTime = relStartTime + remainingDuration;
-                    if (relEndTime > relNextKeyTime) {
-                        // If the remaining duration extends past the next key, then
-                        // keep looping
-                        remainingDuration = relEndTime - relNextKeyTime;
-                        relEndTime = relNextKeyTime;
-                        // The first sleep session segment might occur before the range start, or
-                        // the last sleep session segment might occur after range end, this check
-                        // effectively prunes these segments
-                        if (keyIsInRange(key, range)) {
-                            dataPointBuckets.get(key).add(new IntervalDataPoint(
-                                    sign * mTimeUtils.millisToHours(relStartTime + offset),
-                                    sign * mTimeUtils.millisToHours(relEndTime + offset)));
-                        }
-                        
-                        // setup next loop
-                        relStartTime = relKeyTime;
-                        key += TimeUtils.MILLIS_24_HOURS;
-                    } else {
-                        // otherwise just add the data point
-                        if (keyIsInRange(key, range)) {
-                            dataPointBuckets.get(key).add(new IntervalDataPoint(
-                                    sign * mTimeUtils.millisToHours(relStartTime + offset),
-                                    sign * mTimeUtils.millisToHours(relEndTime + offset)));
-                        }
-                        break;
-                    }
+                long availableTimeInDay = TimeUtils.MILLIS_24_HOURS - relInterval.startTime;
+                
+                if (relInterval.getDuration() <= availableTimeInDay) {
+                    // the interval fits within the 24 hr bucket, no need to split it up
+                    dayBuckets.get(intervalKey).add(relInterval);
+                    continue;
+                }
+                // the interval doesn't fit it the 24 hr bucket and needs to be split
+                while (relInterval.getDuration() > availableTimeInDay) {
+                    long newEndTime = relInterval.startTime + availableTimeInDay;
+                    IntervalDataPoint remainingInterval = new IntervalDataPoint(
+                            0, relInterval.endTime - newEndTime);
+                    
+                    relInterval.endTime = newEndTime;
+                    dayBuckets.get(intervalKey).add(relInterval);
+                    
+                    // reset for next iter
+                    availableTimeInDay = TimeUtils.MILLIS_24_HOURS;
+                    relInterval = remainingInterval;
+                    intervalKey += TimeUtils.MILLIS_24_HOURS;
+                }
+                // add last split part
+                if (relInterval.getDuration() > 0) {
+                    dayBuckets.get(intervalKey).add(relInterval);
                 }
             }
-            return dataPointBuckets;
+            return dayBuckets;
         }
         
         /**
-         * The key returned is the largest one in the map that is less than sessionStartTime.
+         * The key returned is the largest one in the map that is less than the interval start.
          */
-        private long getKeyForSession(
-                long sessionStartTime,
+        private Long getDayBucketKey(
+                IntervalDataPoint interval,
                 TreeMap<Long, List<IntervalDataPoint>> buckets)
         {
-            Long key = buckets.floorKey(sessionStartTime);
-            return key == null ? INVALID_KEY : key;
+            return buckets.floorKey(interval.startTime);
         }
         
         // TODO [21-02-21 3:35PM] what do i do about overlapping sleep sessions? - i should probably
         //  prevent them from being possible to create in the first place.
         private XYMultipleSeriesDataset convertBucketsToDataSet(
-                Map<Long, List<IntervalDataPoint>> dataPointBuckets)
+                Map<Long, List<IntervalDataPoint>> dayBuckets,
+                boolean invert)
         {
-            final int BUCKET_COUNT = dataPointBuckets.size();
+            final int BUCKET_COUNT = dayBuckets.size();
             int emptyBuckets;
+            int sign = invert ? -1 : 1;
             XYMultipleSeriesDataset dataSet = new XYMultipleSeriesDataset();
             while (true) {
                 emptyBuckets = 0;
                 RangeCategorySeries series = new RangeCategorySeries("Interval");
-                for (Map.Entry<Long, List<IntervalDataPoint>> entry : dataPointBuckets.entrySet()) {
+                for (Map.Entry<Long, List<IntervalDataPoint>> entry : dayBuckets.entrySet()) {
                     List<IntervalDataPoint> bucket = entry.getValue();
                     if (bucket.isEmpty()) {
                         emptyBuckets++;
@@ -265,8 +246,10 @@ public class SleepIntervalsDataSet
                         // add filler data
                         series.add(0, 0);
                     } else {
-                        IntervalDataPoint dataPoint = bucket.remove(0);
-                        series.add(dataPoint.startTime, dataPoint.endTime);
+                        IntervalDataPoint interval = bucket.remove(0);
+                        series.add(
+                                sign * mTimeUtils.millisToHours(interval.startTime),
+                                sign * mTimeUtils.millisToHours(interval.endTime));
                     }
                 }
                 dataSet.addSeries(series.toXYSeries());
@@ -297,6 +280,12 @@ public class SleepIntervalsDataSet
     {
         return mConfig;
     }
+    
+    public boolean isEmpty()
+    {
+        return mDataSet == null ||
+               mDataSet.getSeriesCount() == 0;
+    }
 
 
 //*********************************************************
@@ -305,13 +294,49 @@ public class SleepIntervalsDataSet
 
     private static class IntervalDataPoint
     {
-        double startTime;
-        double endTime;
+        long startTime;
+        long endTime;
         
-        public IntervalDataPoint(double startTime, double endTime)
+        public IntervalDataPoint(long startTime, long endTime)
         {
             this.startTime = startTime;
             this.endTime = endTime;
+        }
+        
+        public void clipTo(DateRange dateRange)
+        {
+            if (this.startsBefore(dateRange)) {
+                this.startTime = dateRange.getStart().getTime();
+            }
+            if (this.endsAfter(dateRange)) {
+                this.endTime = dateRange.getEnd().getTime();
+            }
+        }
+        
+        public boolean startsBefore(DateRange dateRange)
+        {
+            return this.startTime < dateRange.getStart().getTime();
+        }
+        
+        public boolean endsAfter(DateRange dateRange)
+        {
+            return this.endTime > dateRange.getEnd().getTime();
+        }
+        
+        /**
+         * Assumes this interval currently has absolute times. This will return this interval, but
+         * now relative to the provided absolute time.
+         */
+        public IntervalDataPoint relativeTo(long absDatetimeMillis)
+        {
+            return new IntervalDataPoint(
+                    this.startTime - absDatetimeMillis,
+                    this.endTime - absDatetimeMillis);
+        }
+        
+        public long getDuration()
+        {
+            return this.endTime - this.startTime;
         }
     }
 }

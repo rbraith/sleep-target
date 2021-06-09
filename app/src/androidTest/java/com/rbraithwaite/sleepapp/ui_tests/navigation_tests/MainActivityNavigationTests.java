@@ -48,7 +48,7 @@ public class MainActivityNavigationTests
         onView(withId(R.id.nav_sleepstats)).perform(click());
         
         // THEN the stats screen is displayed
-        onView(withId(R.id.stats_intervals_layout)).check(matches(isDisplayed()));
+        onView(withId(R.id.stats_durations_card)).check(matches(isDisplayed()));
         // AND the bottomnav remains visible
         UITestUtils.checkBottomNavIsDisplayed(true);
     }
@@ -100,8 +100,9 @@ public class MainActivityNavigationTests
         SessionDetailsFragmentTestUtils.onStartTimeTextView().check(matches(not(withText(""))));
         SessionDetailsFragmentTestUtils.onEndTimeTextView().check(matches(not(withText(""))));
         
-        onView(withId(R.id.session_details_duration)).check(matches(withText(new DurationFormatter().formatDurationMillis(
-                0))));
+        onView(withId(R.id.session_details_duration)).check(matches(withText(new DurationFormatter()
+                                                                                     .formatDurationMillis(
+                                                                                             0))));
     }
     
     @Test

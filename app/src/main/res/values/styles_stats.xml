@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="StatsNoDataMessage" parent="Widget.AppCompat.TextView">
+        <item name="android:textColor">?attr/appColorOnPrimarySurface2</item>
+        <item name="android:textSize">22sp</item>
+    </style>
+
+    <style name="StatsSectionTitle" parent="Widget.AppCompat.TextView">
+        <item name="android:textColor">?attr/colorSecondary</item>
+        <item name="android:textSize">@dimen/appTitleTextSize</item>
+    </style>
+
+    <style name="StatsRangeSelectorButton" parent="Widget.AppCompat.ImageButton">
+        <item name="backgroundTint">?attr/colorSecondary</item>
+        <item name="android:textColor">?attr/colorOnSecondary</item>
+        <item name="tint">?attr/colorOnSecondary</item>
+    </style>
+
+    <style name="StatsRangeSelectorValueText" parent="StatsSectionTitle"/>
+
+    <style name="StatsYAxisTitle" parent="Widget.AppCompat.TextView">
+        <item name="android:textColor">?attr/colorOnPrimarySurface</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+</resources>

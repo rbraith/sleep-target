@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="RangeSelectorComponent">
+        <attr name="rangeSelectorBackButtonStyle" format="reference"/>
+        <attr name="rangeSelectorForwardButtonStyle" format="reference"/>
+        <attr name="rangeSelectorMoreButtonStyle" format="reference"/>
+        <attr name="rangeSelectorValueTextStyle" format="reference"/>
+    </declare-styleable>
+</resources>
