@@ -11,6 +11,7 @@ import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDurationGoalEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
+import com.rbraithwaite.sleepapp.ui.common.mood_selector.TEMP.MoodView;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import java.util.Calendar;
@@ -40,6 +41,7 @@ public class DevToolsFragmentViewModel
     
     private static final long RANDOM_SEED = 123456L;
     
+    // TODO [21-06-14 2:15AM] -- I wonder if the unicode formatting problem is due to these characters: ’.
     private static final String[] mAdditionalCommentsPool = {
             "What the fuck did you just fucking say about me, you little bitch?",
             "I’ll have you know I graduated top of my class in the Navy Seals, and I’ve been " +
@@ -227,7 +229,7 @@ public class DevToolsFragmentViewModel
     
     private int randomMoodIndex(Random rand)
     {
-        return rand.nextInt(Mood.Type.values().length);
+        return rand.nextInt(MoodView.getMoodCount());
     }
     
     private String randomComments(Random rand)

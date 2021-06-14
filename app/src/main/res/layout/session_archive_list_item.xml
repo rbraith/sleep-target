@@ -95,7 +95,11 @@
             android:layout_marginTop="16dp"
             app:layout_constraintStart_toEndOf="@+id/session_archive_list_item_comment_icon"
             app:layout_constraintTop_toTopOf="parent">
-
+            <com.rbraithwaite.sleepapp.ui.common.mood_selector.TEMP.MoodView
+                android:id="@+id/session_archive_list_item_mood"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:tint="?attr/colorPrimary"/>
         </FrameLayout>
 
         <LinearLayout

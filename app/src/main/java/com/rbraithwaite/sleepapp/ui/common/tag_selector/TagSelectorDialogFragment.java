@@ -27,7 +27,7 @@ public class TagSelectorDialogFragment
     private TagSelectorViewModel mViewModel;
     
     private int mThemeId;
-    
+
 //*********************************************************
 // public constants
 //*********************************************************
@@ -42,12 +42,14 @@ public class TagSelectorDialogFragment
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState)
     {
+        // TODO [21-06-14 12:34AM] -- the theme should also be applied to the builder.
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setView(initTagRecycler())
                 .setPositiveButton(R.string.close, null);
         
         return builder.create();
     }
+
 
 //*********************************************************
 // api

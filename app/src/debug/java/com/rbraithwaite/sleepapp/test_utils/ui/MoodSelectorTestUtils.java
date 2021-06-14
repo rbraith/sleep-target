@@ -2,6 +2,8 @@ package com.rbraithwaite.sleepapp.test_utils.ui;
 
 import android.view.View;
 
+import androidx.test.espresso.contrib.RecyclerViewActions;
+
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodDialogFragment;
@@ -34,7 +36,8 @@ public class MoodSelectorTestUtils
         onView(allOf(withParent(moodSelector),
                      withId(R.id.mood_selector_add_btn))).perform(click());
         
-        onView(withTagValue(tagValue(MoodDialogFragment.formatMoodTag(moodIndex)))).perform(click());
+        onView(withTagValue(tagValue(MoodDialogFragment.RECYCLER_TAG))).perform(
+                RecyclerViewActions.actionOnItemAtPosition(moodIndex, click()));
         DialogTestUtils.pressPositiveButton();
     }
     

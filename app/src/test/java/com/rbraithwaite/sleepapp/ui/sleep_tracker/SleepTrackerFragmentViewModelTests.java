@@ -150,7 +150,7 @@ public class SleepTrackerFragmentViewModelTests
                         Mood.fromIndex(1),
                         Arrays.asList(1, 2),
                         new TimeUtils())));
-        
+
         List<TagUiData> tags = Arrays.asList(
                 new TagUiData(3, "meh"),
                 new TagUiData(4, "meh"));
@@ -158,17 +158,17 @@ public class SleepTrackerFragmentViewModelTests
                 .map(tagUiData -> tagUiData.tagId)
                 .collect(Collectors.toList());
         viewModel.setLocalSelectedTags(tags);
-        
+
         String expectedComment = "local comment";
         viewModel.setLocalAdditionalComments(expectedComment);
-        
-        MoodUiData expectedMood = new MoodUiData(MoodUiData.Type.MOOD_8);
+
+        MoodUiData expectedMood = new MoodUiData(7);
         viewModel.setLocalMood(expectedMood);
-        
+
         // SUT
         viewModel.stopSleepSession();
         CurrentSessionUiData uiData = viewModel.getStoppedSessionData();
-        
+
         // verify
         assertThat(uiData.mood, is(equalTo(expectedMood)));
         assertThat(uiData.additionalComments, is(equalTo(expectedComment)));
@@ -241,16 +241,16 @@ public class SleepTrackerFragmentViewModelTests
     public void clearLocalMood_clearsMood()
     {
         CurrentSession testCurrentSession = TestUtils.ArbitraryData.getCurrentSession();
-        testCurrentSession.setMood(new Mood(Mood.Type.MOOD_2));
+        testCurrentSession.setMood(new Mood(1));
         when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(
                 new MutableLiveData<>(testCurrentSession));
-        
-        viewModel.setLocalMood(new MoodUiData(MoodUiData.Type.MOOD_1));
+
+        viewModel.setLocalMood(new MoodUiData(0));
         // SUT
         viewModel.clearLocalMood();
-        
+
         viewModel.persistLocalValues();
-        
+
         assertOnPersistingCurrentSession(currentSession -> {
             assertThat(currentSession.getMood(), is(nullValue()));
         });
@@ -264,14 +264,14 @@ public class SleepTrackerFragmentViewModelTests
                 new MutableLiveData<>(new CurrentSession(
                         null,
                         null,
-                        new Mood(Mood.Type.MOOD_1),
+                        new Mood(0),
                         null,
                         new TimeUtils())));
-        
+
         LiveData<MoodUiData> moodUiData = viewModel.getPersistedMood();
-        
+
         TestUtils.activateLocalLiveData(moodUiData);
-        assertThat(moodUiData.getValue().type, is(equalTo(MoodUiData.Type.MOOD_1)));
+        assertThat(moodUiData.getValue().asIndex(), is(equalTo(0)));
     }
     
     @Test
@@ -279,23 +279,23 @@ public class SleepTrackerFragmentViewModelTests
     {
         Date expectedStart = TestUtils.ArbitraryData.getDate();
         String expectedComments = "test";
-        MoodUiData expectedMood = new MoodUiData(MoodUiData.Type.MOOD_2);
+        MoodUiData expectedMood = new MoodUiData(1);
         List<TagUiData> expectedSelectedTags = Arrays.asList(
                 new TagUiData(3, "what"));
-        
+
         when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(
                 new MutableLiveData<>(new CurrentSession(expectedStart, new TimeUtils())));
-        
+
         viewModel.setLocalAdditionalComments(expectedComments);
         viewModel.setLocalMood(expectedMood);
         viewModel.setLocalSelectedTags(expectedSelectedTags);
-        
+
         viewModel.persistLocalValues();
-        
+
         assertOnPersistingCurrentSession(currentSession -> {
             assertThat(currentSession.getStart(), is(equalTo(expectedStart)));
             assertThat(currentSession.getAdditionalComments(), is(equalTo(expectedComments)));
-            assertThat(currentSession.getMood().getType(), is(equalTo(Mood.Type.MOOD_2)));
+            assertThat(currentSession.getMood().asIndex(), is(1));
             assertThat(currentSession.getSelectedTagIds(), is(equalTo(
                     expectedSelectedTags.stream()
                             .map(tagUiData -> tagUiData.tagId)

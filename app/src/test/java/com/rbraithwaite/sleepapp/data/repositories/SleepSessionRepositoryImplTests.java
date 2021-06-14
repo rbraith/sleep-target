@@ -175,7 +175,7 @@ public class SleepSessionRepositoryImplTests
         
         assertThat_NewSleepSession_equalTo_SleepSessionEntity(newSleepSession, entity);
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -188,7 +188,7 @@ public class SleepSessionRepositoryImplTests
         assertThat(entity.endTime, is(equalTo(newSleepSession.end)));
         assertThat(entity.duration, is(equalTo(newSleepSession.durationMillis)));
         assertThat(entity.additionalComments, is(equalTo(newSleepSession.additionalComments)));
-        assertThat(entity.moodIndex, is(equalTo(newSleepSession.mood.toIndex())));
+        assertThat(entity.moodIndex, is(equalTo(newSleepSession.mood.asIndex())));
         assertThat(entity.rating, is(equalTo(newSleepSession.rating)));
     }
 }

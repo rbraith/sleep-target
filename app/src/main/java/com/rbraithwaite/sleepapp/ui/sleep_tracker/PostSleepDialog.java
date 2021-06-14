@@ -2,7 +2,7 @@ package com.rbraithwaite.sleepapp.ui.sleep_tracker;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.graphics.Color;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -16,10 +16,9 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.DialogFragment;
 
 import com.rbraithwaite.sleepapp.R;
+import com.rbraithwaite.sleepapp.ui.UiUtils;
 import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
-import com.rbraithwaite.sleepapp.ui.common.mood_selector.EmojiMoodViewFactory;
-import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodSelectorController;
-import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodViewFactory;
+import com.rbraithwaite.sleepapp.ui.common.mood_selector.TEMP.MoodView;
 import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagScrollController;
 import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagUiData;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.PostSleepData;
@@ -58,7 +57,7 @@ public class PostSleepDialog
 
     ConstraintLayout mRoot;
     RatingBar mRatingBar;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -72,7 +71,7 @@ public class PostSleepDialog
     {
         void onDiscardSession();
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -126,7 +125,7 @@ public class PostSleepDialog
         
         return alertDialog;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -163,16 +162,7 @@ public class PostSleepDialog
     {
         return mTagScrollController;
     }
-    
-//*********************************************************
-// protected api
-//*********************************************************
 
-    protected MoodViewFactory createMoodViewFactory()
-    {
-        return new EmojiMoodViewFactory();
-    }
-    
 //*********************************************************
 // private methods
 //*********************************************************
@@ -225,10 +215,7 @@ public class PostSleepDialog
         FrameLayout moodFrame = dialogRoot.findViewById(R.id.postsleep_mood_frame);
         
         if (mood != null) {
-            moodFrame.addView(createMoodViewFactory().createView(
-                    mViewModel.getMood(),
-                    requireContext(),
-                    MoodSelectorController.MOOD_DISPLAY_SCALE));
+            moodFrame.addView(createMoodView(mood));
         } else {
             TextView noMoodMessage = new TextView(
                     mRoot.getContext(),
@@ -236,6 +223,27 @@ public class PostSleepDialog
                     R.attr.trackerPostDialogNullDataMessageStyle);
             noMoodMessage.setText(R.string.postsleepdialog_nomood);
             moodFrame.addView(noMoodMessage);
+        }
+    }
+    
+    private MoodView createMoodView(MoodUiData mood)
+    {
+        MoodView moodView = new MoodView(requireContext());
+        moodView.setMood(mood.asIndex());
+        moodView.setMoodColor(getMoodColor());
+        // REFACTOR [21-06-13 2:29AM] -- hardcoded size.
+        UiUtils.initViewMarginLayoutParams(moodView, new UiUtils.SizeDp(40));
+        return moodView;
+    }
+    
+    private int getMoodColor()
+    {
+        // REFACTOR [21-06-13 2:23AM] -- This color is shared w/ the mood selector.
+        TypedArray ta = requireContext().obtainStyledAttributes(new int[] {R.attr.colorSecondary});
+        try {
+            return ta.getColor(0, -1);
+        } finally {
+            ta.recycle();
         }
     }
     

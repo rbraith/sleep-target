@@ -41,7 +41,7 @@ public class SleepTrackerFragment
 //*********************************************************
 // private properties
 //*********************************************************
-    
+
     private EditText mAdditionalComments;
     
     private MoodSelectorController mMoodSelectorController;
@@ -49,7 +49,7 @@ public class SleepTrackerFragment
     
     private TagSelectorController mTagSelectorController;
     private TagSelectorViewModel mTagSelectorViewModel;
-    
+
 //*********************************************************
 // public constants
 //*********************************************************
@@ -57,7 +57,7 @@ public class SleepTrackerFragment
     public static final String POST_SLEEP_DIALOG = "PostSleepDialog";
     
     public static final String POST_SLEEP_DISCARD_DIALOG = "PostSleepDiscardDialog";
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -66,7 +66,7 @@ public class SleepTrackerFragment
     {
         setHasOptionsMenu(true);
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -136,7 +136,7 @@ public class SleepTrackerFragment
     {
         return super.getViewModel();
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -150,7 +150,7 @@ public class SleepTrackerFragment
     {
         return mTagSelectorViewModel;
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -203,7 +203,6 @@ public class SleepTrackerFragment
         mMoodSelectorController = new MoodSelectorController(
                 fragmentRoot.findViewById(R.id.more_context_mood),
                 mMoodSelectorViewModel,
-                requireContext(),
                 getViewLifecycleOwner(),
                 getChildFragmentManager());
         // REFACTOR [21-04-12 2:52AM] -- Like with the tag selector, these callbacks should come
@@ -216,14 +215,14 @@ public class SleepTrackerFragment
             {
                 getViewModel().setLocalMood(newMood);
             }
-
+            
             @Override
             public void onMoodDeleted()
             {
                 getViewModel().clearLocalMood();
             }
         });
-
+        
         // initialize the mood selector's selected mood
         LiveDataFuture.getValue(
                 getViewModel().getPersistedMood(),
@@ -286,8 +285,10 @@ public class SleepTrackerFragment
         
         // sleep duration goal
         View sleepDurationGoalCard = fragmentRoot.findViewById(R.id.tracker_duration_goal_card);
-        final TextView sleepDurationGoalTitle = sleepDurationGoalCard.findViewById(R.id.tracker_goal_title);
-        final TextView sleepDurationGoalValue = sleepDurationGoalCard.findViewById(R.id.tracker_goal_value);
+        final TextView sleepDurationGoalTitle =
+                sleepDurationGoalCard.findViewById(R.id.tracker_goal_title);
+        final TextView sleepDurationGoalValue =
+                sleepDurationGoalCard.findViewById(R.id.tracker_goal_value);
         
         sleepDurationGoalTitle.setText(R.string.tracker_goal_duration_title);
         

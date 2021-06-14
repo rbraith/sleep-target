@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
+
 /**
  * These are instrumented tests which exercise multiple components of the app in a single test.
  */
@@ -23,7 +24,7 @@ public class SleepAppTests
 //*********************************************************
 
     private ApplicationTestDriver app;
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -52,7 +53,8 @@ public class SleepAppTests
     }
     
     // TODO [21-05-14 2:02PM] -- make this test coarser - check that all session properties are
-    //  updated properly when they are edited.
+    //  updated properly when they are edited - like recordSpecificSession, use a SleepSession
+    //  to edit the details, then the same SleepSession for the assertion.
     @Test
     public void editedRatingIsUpdateInArchive()
     {

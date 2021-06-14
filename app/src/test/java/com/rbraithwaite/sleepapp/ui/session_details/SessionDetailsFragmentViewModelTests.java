@@ -128,7 +128,7 @@ public class SessionDetailsFragmentViewModelTests
         
         assertThat(viewModel.getMood(), is(equalTo(ConvertMood.toUiData(initialData.getMood()))));
         
-        MoodUiData expected = new MoodUiData(MoodUiData.Type.MOOD_4);
+        MoodUiData expected = new MoodUiData(3);
         viewModel.setMood(expected);
         
         assertThat(viewModel.getMood(), is(equalTo(expected)));

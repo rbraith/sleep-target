@@ -1,44 +1,25 @@
 package com.rbraithwaite.sleepapp.core.models;
 
-import java.util.Arrays;
-
 public class Mood
 {
 //*********************************************************
 // private properties
 //*********************************************************
 
-    private Type type;
-
-//*********************************************************
-// public helpers
-//*********************************************************
-
-    public enum Type
-    {
-        MOOD_1,
-        MOOD_2,
-        MOOD_3,
-        MOOD_4,
-        MOOD_5,
-        MOOD_6,
-        MOOD_7,
-        MOOD_8,
-        MOOD_9,
-        MOOD_10,
-        MOOD_11,
-        MOOD_12
-    }
-
+    private Integer mMoodIndex;
+    
 //*********************************************************
 // constructors
 //*********************************************************
 
-    public Mood(Type type)
+    // SMELL [21-06-11 11:03PM] -- Right now Mood is just a wrapper around the index. I left it
+    //  this way in order to not break interfaces that use Mood, and to allow for possible
+    //  future expansion of functionality. See also ui.common.data.MoodUiData.MoodUiData(int).
+    public Mood(Integer moodIndex)
     {
-        this.type = type;
+        mMoodIndex = moodIndex;
     }
-
+    
 //*********************************************************
 // overrides
 //*********************************************************
@@ -46,7 +27,7 @@ public class Mood
     @Override
     public int hashCode()
     {
-        return type.hashCode();
+        return mMoodIndex.hashCode();
     }
     
     @Override
@@ -57,32 +38,26 @@ public class Mood
         
         Mood mood = (Mood) o;
         
-        return type == mood.type;
+        return (mMoodIndex == null && mood.mMoodIndex == null) ||
+               mMoodIndex.equals(mood.mMoodIndex);
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
 
-    public static Mood fromIndex(Integer typeIndex)
+    // REFACTOR [21-06-11 11:07PM] -- legacy method - replace this with Mood(moodIndex).
+    @Deprecated
+    public static Mood fromIndex(Integer moodIndex)
     {
-        // TODO [21-04-3 1:52AM] -- handle out of bounds indices (return null?)
-        if (typeIndex == null) {
-            return null;
-        }
-        return new Mood(Type.values()[typeIndex]);
-    }
-    
-    public Type getType()
-    {
-        return type;
+        return new Mood(moodIndex);
     }
     
     /**
      * Returns the index of the Type of this mood.
      */
-    public int toIndex()
+    public Integer asIndex()
     {
-        return Arrays.asList(Type.values()).indexOf(type);
+        return mMoodIndex;
     }
 }

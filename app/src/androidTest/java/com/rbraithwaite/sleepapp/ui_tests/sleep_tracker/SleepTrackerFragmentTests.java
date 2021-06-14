@@ -49,10 +49,18 @@ public class SleepTrackerFragmentTests
     
     // TODO [21-04-19 5:39PM] tag selector tests missing from more context tests below:
     //  - tag editing functionality.
+    
+//*********************************************************
+// package properties
+//*********************************************************
 
     SleepTrackerTestDriver sleepTracker;
     DatabaseTestDriver database;
     
+//*********************************************************
+// api
+//*********************************************************
+
     @Before
     public void setup()
     {
@@ -95,10 +103,6 @@ public class SleepTrackerFragmentTests
         
         sleepTracker.assertThat.detailsAreCleared();
     }
-    
-//*********************************************************
-// api
-//*********************************************************
 
     @Test
     public void postSleepDialogOpensWithCorrectValues()

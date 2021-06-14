@@ -22,8 +22,7 @@ import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
 import com.google.android.material.textview.MaterialTextView;
 import com.rbraithwaite.sleepapp.R;
-import com.rbraithwaite.sleepapp.ui.common.mood_selector.EmojiMoodViewFactory;
-import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodViewFactory;
+import com.rbraithwaite.sleepapp.ui.common.mood_selector.TEMP.MoodView;
 import com.rbraithwaite.sleepapp.ui.session_archive.data.SessionArchiveListItem;
 import com.rbraithwaite.sleepapp.utils.CommonUtils;
 import com.rbraithwaite.sleepapp.utils.SingleObserver;
@@ -51,11 +50,8 @@ public class SessionArchiveRecyclerViewAdapter
     
     private OnListItemClickListener mOnListItemClickListener;
     
-    private MoodViewFactory mMoodViewFactory;
-    
-    
     private MaterialShapeDrawable mTagBackground;
-    
+
 //*********************************************************
 // private constants
 //*********************************************************
@@ -84,6 +80,7 @@ public class SessionArchiveRecyclerViewAdapter
         TextView duration;
         ImageView additionalCommentsIcon;
         FrameLayout moodFrame;
+        MoodView mood;
         LinearLayout tagsFrame;
         // SMELL [21-04-21 8:49PM] -- These explicitly enumerated sub-views don't feel like a great
         //  solution - take a closer look at this system.
@@ -106,6 +103,7 @@ public class SessionArchiveRecyclerViewAdapter
             this.additionalCommentsIcon =
                     itemView.findViewById(R.id.session_archive_list_item_comment_icon);
             this.moodFrame = itemView.findViewById(R.id.session_archive_list_item_mood_frame);
+            this.mood = itemView.findViewById(R.id.session_archive_list_item_mood);
             this.tagsFrame = itemView.findViewById(R.id.session_archive_list_item_tags);
             this.tagsLineOne = this.tagsFrame.findViewById(R.id.tags_line_one);
             this.tagsLineTwo = this.tagsFrame.findViewById(R.id.tags_line_two);
@@ -136,8 +134,6 @@ public class SessionArchiveRecyclerViewAdapter
         mContextProvider = contextProvider;
         mOnListItemClickListener = onListItemClickListener;
         
-        mMoodViewFactory = createMoodViewFactory();
-        
         // SMELL [21-03-24 10:39PM] consider a different solution for displayed the sessions
         //  - do some research on conventional patterns.
         mViewModel.getAllSleepSessionIds().observe(
@@ -147,7 +143,7 @@ public class SessionArchiveRecyclerViewAdapter
                     notifyDataSetChanged();
                 });
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -174,7 +170,7 @@ public class SessionArchiveRecyclerViewAdapter
         //  ehhhh maybe don't do this..... since bindToViewModel calls notifyItemChanged
         bindToViewModel(holder, position);
     }
-
+    
     @Override
     public int getItemCount()
     {
@@ -186,15 +182,6 @@ public class SessionArchiveRecyclerViewAdapter
         return itemCount;
     }
 
-//*********************************************************
-// protected api
-//*********************************************************
-
-    protected MoodViewFactory createMoodViewFactory()
-    {
-        return new EmojiMoodViewFactory();
-    }
-    
 //*********************************************************
 // private methods
 //*********************************************************
@@ -230,13 +217,16 @@ public class SessionArchiveRecyclerViewAdapter
                             sessionArchiveListItem.hasAdditionalComments ?
                                     View.VISIBLE : View.GONE);
                     
-                    if (sessionArchiveListItem.mood != null) {
+                    // TODO [21-06-13 2:46AM] -- It would be nice if it weren't possible for mood
+                    //  here to be null, so that this was just checking isSet().
+                    if (sessionArchiveListItem.mood != null &&
+                        sessionArchiveListItem.mood.isSet()) {
+                        // REFACTOR [21-06-13 3:02AM] -- This mood frame is a legacy artifact and
+                        //  needs to be removed.
                         viewHolder.moodFrame.setVisibility(View.VISIBLE);
-                        viewHolder.moodFrame.removeAllViews();
-                        viewHolder.moodFrame.addView(mMoodViewFactory.createView(
-                                sessionArchiveListItem.mood,
-                                mContextProvider.provide(),
-                                20f));
+                        viewHolder.mood.setMood(sessionArchiveListItem.mood.asIndex());
+                    } else {
+                        viewHolder.moodFrame.setVisibility(View.GONE);
                     }
                     
                     if (!sessionArchiveListItem.tags.isEmpty()) {

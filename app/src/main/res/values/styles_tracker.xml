@@ -84,7 +84,7 @@
 
     <style name="TrackerPostSleepDateStyle" parent="AppTextView">
         <item name="android:textColor">?attr/colorSecondary</item>
-        <!-- REFACTOR [21-05-27 4:56PM] - this is the same size as the subtitle, extract to
+        <!-- REFACTOR [21-05-27 4:56PM] - this is the same sizeDp as the subtitle, extract to
                 a common dimen. -->
         <item name="android:textSize">14sp</item>
     </style>

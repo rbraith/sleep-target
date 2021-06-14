@@ -152,7 +152,7 @@ public class SleepSessionRepositoryImpl
     {
         return mSleepSessionDao.getTotalSleepSessionCount();
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -164,7 +164,7 @@ public class SleepSessionRepositoryImpl
                 newSleepSession.end,
                 newSleepSession.durationMillis,
                 newSleepSession.additionalComments,
-                newSleepSession.mood == null ? null : newSleepSession.mood.toIndex(),
+                newSleepSession.mood == null ? null : newSleepSession.mood.asIndex(),
                 newSleepSession.rating);
     }
 }

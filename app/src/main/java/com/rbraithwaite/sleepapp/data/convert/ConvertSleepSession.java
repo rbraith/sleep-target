@@ -23,7 +23,7 @@ public class ConvertSleepSession
 //*********************************************************
 
     private ConvertSleepSession() {/* No instantiation */}
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -40,7 +40,7 @@ public class ConvertSleepSession
         entity.endTime = model.getEnd();
         entity.duration = model.getDurationMillis();
         entity.additionalComments = model.getAdditionalComments();
-        entity.moodIndex = model.getMood() == null ? null : model.getMood().toIndex();
+        entity.moodIndex = model.getMood() == null ? null : model.getMood().asIndex();
         entity.rating = model.getRating();
         return entity;
     }

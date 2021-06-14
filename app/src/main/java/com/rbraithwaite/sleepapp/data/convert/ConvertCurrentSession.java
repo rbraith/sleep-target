@@ -27,7 +27,7 @@ public class ConvertCurrentSession
                 currentSession.getAdditionalComments(),
                 currentSession.getMood() == null ?
                         CurrentSessionPrefsData.NO_MOOD :
-                        currentSession.getMood().toIndex(),
+                        currentSession.getMood().asIndex(),
                 currentSession.getSelectedTagIds());
     }
     

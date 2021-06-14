@@ -234,6 +234,7 @@ public class TagSelectorRecyclerAdapter
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
     {
+        // REFACTOR [21-06-11 10:12PM] -- this should be inside the VIEW_TYPE_TAG case.
         maybeInitAttributes(parent);
         
         switch (viewType) {

@@ -41,7 +41,7 @@ public class ConvertCurrentSessionTests
         
         assertThat(result.start, is(equalTo(currentSession.getStart())));
         assertThat(result.additionalComments, is(equalTo(currentSession.getAdditionalComments())));
-        assertThat(result.moodIndex, is(currentSession.getMood().toIndex()));
+        assertThat(result.moodIndex, is(currentSession.getMood().asIndex()));
         assertThat(result.selectedTagIds, is(equalTo(currentSession.getSelectedTagIds())));
     }
     
@@ -64,7 +64,7 @@ public class ConvertCurrentSessionTests
         
         assertThat(currentSession.getAdditionalComments(), is(equalTo(data.additionalComments)));
         assertThat(currentSession.getStart(), is(equalTo(data.start)));
-        assertThat(currentSession.getMood().toIndex(), is(data.moodIndex));
+        assertThat(currentSession.getMood().asIndex(), is(data.moodIndex));
         assertThat(currentSession.getSelectedTagIds(), is(equalTo(data.selectedTagIds)));
     }
 }

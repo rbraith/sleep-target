@@ -108,7 +108,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="40dp"
         android:text="Additional Comments"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/postsleep_tags_scroll" />
@@ -125,6 +125,8 @@
         android:id="@+id/postsleep_mood_frame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
         android:layout_marginTop="8dp"
         app:layout_constraintStart_toStartOf="@+id/postsleep_mood_title"
         app:layout_constraintTop_toBottomOf="@+id/postsleep_mood_title">
@@ -161,8 +163,8 @@
         style="@style/TrackerPostSleepSubtitleStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginLeft="40dp"
         android:text="Tags"
         app:layout_constraintBaseline_toBaselineOf="@+id/postsleep_mood_title"
         app:layout_constraintStart_toEndOf="@+id/postsleep_mood_barrier" />

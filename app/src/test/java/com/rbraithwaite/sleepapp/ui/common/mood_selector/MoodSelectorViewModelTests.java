@@ -23,7 +23,7 @@ public class MoodSelectorViewModelTests
     @Test
     public void constructorTest()
     {
-        MoodUiData mood = new MoodUiData(MoodUiData.Type.MOOD_1);
+        MoodUiData mood = new MoodUiData(2);
         
         MoodSelectorViewModel viewModel = new MoodSelectorViewModel(mood);
         
@@ -36,10 +36,10 @@ public class MoodSelectorViewModelTests
     @Test
     public void getMood_reflects_setMood()
     {
-        MoodUiData mood = new MoodUiData(MoodUiData.Type.MOOD_1);
+        MoodUiData mood = new MoodUiData(0);
         MoodSelectorViewModel viewModel = new MoodSelectorViewModel(mood);
         
-        MoodUiData expected = new MoodUiData(MoodUiData.Type.MOOD_2);
+        MoodUiData expected = new MoodUiData(1);
         // SUT
         viewModel.setMood(expected);
         
@@ -51,7 +51,7 @@ public class MoodSelectorViewModelTests
     @Test
     public void isMoodSet_test()
     {
-        MoodUiData mood = new MoodUiData(MoodUiData.Type.MOOD_1);
+        MoodUiData mood = new MoodUiData(0);
         MoodSelectorViewModel viewModel = new MoodSelectorViewModel(mood);
         
         assertThat(viewModel.isMoodSet(), is(true));

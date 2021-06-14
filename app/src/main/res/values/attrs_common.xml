@@ -33,4 +33,8 @@
             <enum name="upwards" value="1"/>
         </attr>
     </declare-styleable>
+
+    <declare-styleable name="MoodView">
+        <attr name="mood" format="integer"/>
+    </declare-styleable>
 </resources>

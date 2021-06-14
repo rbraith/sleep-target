@@ -317,7 +317,7 @@ public class SleepTrackerTestDriver
     public void recordSpecificSession(SleepSession sleepSession)
     {
         setAdditionalComments(sleepSession.getAdditionalComments());
-        addNewMood(sleepSession.getMood().toIndex());
+        addNewMood(sleepSession.getMood().asIndex());
         addTags(sleepSession.getTags().stream().map(Tag::getText).collect(Collectors.toList()));
         // REFACTOR [21-05-11 11:47PM] -- call this ListUtils.asIndices().
         toggleTagSelections(IntStream.range(0, sleepSession.getTags().size()).boxed().collect(
@@ -346,7 +346,7 @@ public class SleepTrackerTestDriver
             dialog.getViewModel().setRating(rating);
         });
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -392,7 +392,7 @@ public class SleepTrackerTestDriver
             }
         };
     }
-
+    
     private TagSelectorViewModel getTagSelectorViewModel()
     {
         TestUtils.DoubleRef<TagSelectorViewModel> viewModel = new TestUtils.DoubleRef<>(null);

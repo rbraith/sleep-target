@@ -20,11 +20,11 @@ public class ConvertMoodTests
     @Test
     public void toUiData_createsCorrectObj()
     {
-        Mood testMood = new Mood(Mood.Type.MOOD_1);
+        Mood testMood = new Mood(0);
         
         MoodUiData uiData = ConvertMood.toUiData(testMood);
         
-        assertThat(uiData.type, is(equalTo(MoodUiData.Type.MOOD_1)));
+        assertThat(uiData.asIndex(), is(equalTo(testMood.asIndex())));
     }
     
     @Test
@@ -42,10 +42,10 @@ public class ConvertMoodTests
     @Test
     public void fromUiData_createsCorrectObj()
     {
-        MoodUiData uiData = new MoodUiData(MoodUiData.Type.MOOD_1);
+        MoodUiData uiData = new MoodUiData(0);
         
         Mood mood = ConvertMood.fromUiData(uiData);
         
-        assertThat(mood.getType(), is(equalTo(Mood.Type.MOOD_1)));
+        assertThat(mood.asIndex(), is(equalTo(uiData.asIndex())));
     }
 }

@@ -50,7 +50,7 @@ public class SessionDetailsTestDriver
 //*********************************************************
 
     public final Assertions assertThat;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -94,7 +94,7 @@ public class SessionDetailsTestDriver
         
         public void moodMatches(Mood mood)
         {
-            mOwningSessionDetails.mMoodSelector.assertThat.selectedMoodMatches(mood.toIndex());
+            mOwningSessionDetails.mMoodSelector.assertThat.selectedMoodMatches(mood.asIndex());
         }
         
         public void additionalCommentsMatch(String additionalComments)
@@ -174,7 +174,8 @@ public class SessionDetailsTestDriver
         
         private ViewInteraction onEndDate()
         {
-            return onView(allOf(withParent(withId(R.id.session_details_end_time)), withId(R.id.date)));
+            return onView(allOf(withParent(withId(R.id.session_details_end_time)),
+                                withId(R.id.date)));
         }
         
         private ViewInteraction onStartTimeOfDay()
@@ -185,10 +186,11 @@ public class SessionDetailsTestDriver
         
         private ViewInteraction onEndTimeOfDay()
         {
-            return onView(allOf(withParent(withId(R.id.session_details_end_time)), withId(R.id.time)));
+            return onView(allOf(withParent(withId(R.id.session_details_end_time)),
+                                withId(R.id.time)));
         }
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -197,7 +199,7 @@ public class SessionDetailsTestDriver
     {
         assertThat = new Assertions(this);
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -240,7 +242,7 @@ public class SessionDetailsTestDriver
         }
         onView(withId(R.id.session_data_action_positive)).perform(click());
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

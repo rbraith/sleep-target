@@ -344,7 +344,6 @@ public class SessionDetailsFragment
                 // There isn't a need to observe this value, as the mood selector will
                 // handle its own UI updates.
                 mMoodSelectorViewModel,
-                requireContext(),
                 getViewLifecycleOwner(),
                 getChildFragmentManager());
         

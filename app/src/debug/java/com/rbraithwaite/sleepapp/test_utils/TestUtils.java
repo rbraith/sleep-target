@@ -135,7 +135,7 @@ public class TestUtils
                     "start",
                     "end",
                     "duration",
-                    new MoodUiData(MoodUiData.Type.MOOD_4),
+                    new MoodUiData(3),
                     "comments",
                     Arrays.asList(1, 2, 3));
         }

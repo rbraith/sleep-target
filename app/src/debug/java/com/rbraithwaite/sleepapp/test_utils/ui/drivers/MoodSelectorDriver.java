@@ -2,6 +2,8 @@ package com.rbraithwaite.sleepapp.test_utils.ui.drivers;
 
 import android.view.View;
 
+import androidx.test.espresso.contrib.RecyclerViewActions;
+
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
@@ -38,7 +40,7 @@ public class MoodSelectorDriver
 //*********************************************************
 
     public final Assertions assertThat;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -65,7 +67,7 @@ public class MoodSelectorDriver
             assertThat(mood.asIndex(), is(equalTo(expectedMoodIndex)));
         }
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -76,7 +78,7 @@ public class MoodSelectorDriver
         mViewModel = viewModel;
         assertThat = new Assertions(this);
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -87,14 +89,15 @@ public class MoodSelectorDriver
         selectMoodInDialog(moodIndex);
         DialogTestUtils.pressPositiveButton();
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
 
     private void selectMoodInDialog(int moodIndex)
     {
-        onView(withTagValue(tagValue(MoodDialogFragment.formatMoodTag(moodIndex)))).perform(click());
+        onView(withTagValue(tagValue(MoodDialogFragment.RECYCLER_TAG))).perform(
+                RecyclerViewActions.actionOnItemAtPosition(moodIndex, click()));
     }
     
     private void openMoodDialog()
