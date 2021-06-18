@@ -16,11 +16,11 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.DialogFragment;
 
 import com.rbraithwaite.sleepapp.R;
-import com.rbraithwaite.sleepapp.ui.UiUtils;
+import com.rbraithwaite.sleepapp.ui.utils.UiUtils;
 import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
-import com.rbraithwaite.sleepapp.ui.common.mood_selector.TEMP.MoodView;
-import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagScrollController;
-import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagUiData;
+import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.TEMP.MoodView;
+import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagScrollController;
+import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagUiData;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.PostSleepData;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
 

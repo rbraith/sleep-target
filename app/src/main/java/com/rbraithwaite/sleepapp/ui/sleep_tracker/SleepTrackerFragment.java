@@ -24,10 +24,10 @@ import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
 import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.common.dialog.AlertDialogFragment;
-import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodSelectorController;
-import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodSelectorViewModel;
-import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagSelectorController;
-import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagSelectorViewModel;
+import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.MoodSelectorController;
+import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.MoodSelectorViewModel;
+import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorController;
+import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorViewModel;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.CurrentSessionUiData;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.PostSleepData;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
@@ -126,15 +126,9 @@ public class SleepTrackerFragment
     }
     
     @Override
-    protected boolean getBottomNavVisibility() { return true; }
-    
-    @Override
-    protected Class<SleepTrackerFragmentViewModel> getViewModelClass() { return SleepTrackerFragmentViewModel.class; }
-    
-    @Override
-    public SleepTrackerFragmentViewModel getViewModel()
+    protected Properties<SleepTrackerFragmentViewModel> initProperties()
     {
-        return super.getViewModel();
+        return new Properties<>(true, SleepTrackerFragmentViewModel.class);
     }
 
 //*********************************************************
@@ -274,6 +268,7 @@ public class SleepTrackerFragment
                 getViewLifecycleOwner(),
                 wakeTimeGoalText -> {
                     if (wakeTimeGoalText == null) {
+                        // REFACTOR [21-06-16 7:10PM] create a visibility group for these views?
                         wakeTimeGoalTitle.setVisibility(View.GONE);
                         wakeTimeGoalValue.setVisibility(View.GONE);
                     } else {
@@ -296,6 +291,7 @@ public class SleepTrackerFragment
                 getViewLifecycleOwner(),
                 sleepDurationGoalText -> {
                     if (sleepDurationGoalText == null) {
+                        // REFACTOR [21-06-16 7:11PM] create a visibility group for these views?
                         sleepDurationGoalTitle.setVisibility(View.GONE);
                         sleepDurationGoalValue.setVisibility(View.GONE);
                     } else {
@@ -320,6 +316,7 @@ public class SleepTrackerFragment
                 getViewLifecycleOwner(),
                 inSleepSession -> {
                     if (inSleepSession) {
+                        // REFACTOR [21-06-16 7:12PM] create a visibility group for these views?
                         startedText.setVisibility(View.VISIBLE);
                         sessionStartTime.setVisibility(View.VISIBLE);
                     } else {
@@ -347,6 +344,8 @@ public class SleepTrackerFragment
     {
         final Button sleepTrackerButton = fragmentRoot.findViewById(R.id.sleep_tracker_button);
         
+        // REFACTOR [21-06-16 7:13PM] this logic could be in the viewmodel - it could return
+        //  the string to set.
         getViewModel().inSleepSession()
                 .observe(getViewLifecycleOwner(), inSleepSession -> {
                     if (inSleepSession) {
@@ -389,32 +388,35 @@ public class SleepTrackerFragment
         PostSleepDialog dialog = PostSleepDialog.createInstance(
                 dialogViewModel,
                 viewModel::keepStoppedSession,
-                () -> {
-                    AlertDialogFragment discardDialog =
-                            AlertDialogFragment.createInstance(() -> {
-                                AlertDialog.Builder builder =
-                                        new AlertDialog.Builder(requireContext());
-                                builder.setTitle(R.string.postsleep_discard_title)
-                                        .setMessage(R.string.postsleep_discard_warning)
-                                        // If the user cancels the discard, show the post sleep
-                                        // dialog again
-                                        .setNegativeButton(R.string.cancel,
-                                                           ((dialog1, which) -> displayPostSleepDialog(
-                                                                   viewModel.getPostSleepData(),
-                                                                   currentSessionUiData)))
-                                        .setPositiveButton(R.string.discard,
-                                                           (dialog1, which) -> viewModel.discardSleepSession());
-                                
-                                AlertDialog alertDialog = builder.create();
-                                // This dialog can't be cancelled by clicking outside since this is
-                                // a kind of "point of no return" - the user must now either record
-                                // the session to the archive or discard it.
-                                alertDialog.setCanceledOnTouchOutside(false);
-                                return alertDialog;
-                            });
-                    discardDialog.show(getChildFragmentManager(), POST_SLEEP_DISCARD_DIALOG);
-                });
+                () -> displaySessionDiscardDialog(currentSessionUiData));
         dialog.show(getChildFragmentManager(), POST_SLEEP_DIALOG);
+    }
+    
+    private void displaySessionDiscardDialog(CurrentSessionUiData currentSessionUiData)
+    {
+        AlertDialogFragment discardDialog =
+                AlertDialogFragment.createInstance(() -> {
+                    AlertDialog.Builder builder =
+                            new AlertDialog.Builder(requireContext());
+                    builder.setTitle(R.string.postsleep_discard_title)
+                            .setMessage(R.string.postsleep_discard_warning)
+                            // If the user cancels the discard, show the post sleep
+                            // dialog again
+                            .setNegativeButton(R.string.cancel,
+                                               ((dialog1, which) -> displayPostSleepDialog(
+                                                       getViewModel().getPostSleepData(),
+                                                       currentSessionUiData)))
+                            .setPositiveButton(R.string.discard,
+                                               (dialog1, which) -> getViewModel().discardSleepSession());
+                
+                    AlertDialog alertDialog = builder.create();
+                    // This dialog can't be cancelled by clicking outside since this is
+                    // a kind of "point of no return" - the user must now either record
+                    // the session to the archive or discard it.
+                    alertDialog.setCanceledOnTouchOutside(false);
+                    return alertDialog;
+                });
+        discardDialog.show(getChildFragmentManager(), POST_SLEEP_DISCARD_DIALOG);
     }
     
     // REFACTOR [20-11-15 1:55AM] -- should extract this as a general utility.

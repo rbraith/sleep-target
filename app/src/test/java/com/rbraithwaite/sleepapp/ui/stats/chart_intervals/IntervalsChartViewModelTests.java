@@ -41,7 +41,7 @@ public class IntervalsChartViewModelTests
 
     IntervalsChartViewModel viewModel;
     SleepSessionRepository mockSleepSessionRepository;
-    SleepIntervalsDataSet.Generator mockSleepIntervalsDataSetGenerator;
+    IntervalsDataSet.Generator mockSleepIntervalsDataSetGenerator;
     Executor executor;
 
 //*********************************************************
@@ -52,7 +52,7 @@ public class IntervalsChartViewModelTests
     public void setup()
     {
         mockSleepSessionRepository = mock(SleepSessionRepository.class);
-        mockSleepIntervalsDataSetGenerator = mock(SleepIntervalsDataSet.Generator.class);
+        mockSleepIntervalsDataSetGenerator = mock(IntervalsDataSet.Generator.class);
         executor = new TestUtils.SynchronizedExecutor();
         viewModel = new IntervalsChartViewModel(
                 mockSleepSessionRepository,
@@ -85,8 +85,7 @@ public class IntervalsChartViewModelTests
     public void hasAnyData_returnsTrueWhenThereIsData()
     {
         when(mockSleepSessionRepository.getTotalSleepSessionCount()).thenReturn((
-                                                                                        new MutableLiveData<>(
-                                                                                                1)));
+                new MutableLiveData<>(1)));
         
         LiveData<Boolean> hasAnyData = viewModel.hasAnyData();
         TestUtils.activateLocalLiveData(hasAnyData);
@@ -98,15 +97,15 @@ public class IntervalsChartViewModelTests
     public void getIntervalsResolution_returns_WEEK_byDefault()
     {
         assertThat(viewModel.getIntervalsResolution(),
-                   is(equalTo(IntervalsChartViewModel.Resolution.WEEK)));
+                   is(equalTo(IntervalsDataSet.Resolution.WEEK)));
     }
     
     @Test
     public void getIntervalsResolution_reflects_setIntervalsResolution()
     {
-        viewModel.setIntervalsResolution(IntervalsChartViewModel.Resolution.MONTH);
+        viewModel.setIntervalsResolution(IntervalsDataSet.Resolution.MONTH);
         assertThat(viewModel.getIntervalsResolution(),
-                   is(equalTo(IntervalsChartViewModel.Resolution.MONTH)));
+                   is(equalTo(IntervalsDataSet.Resolution.MONTH)));
     }
     
     @Test
@@ -114,17 +113,17 @@ public class IntervalsChartViewModelTests
     {
         avoidIntervalsDataSetNullPointer();
         
-        LiveData<SleepIntervalsDataSet> intervalsDataSet = viewModel.getIntervalsDataSet();
+        LiveData<IntervalsDataSet> intervalsDataSet = viewModel.getIntervalsDataSet();
         TestUtils.activateLocalLiveData(intervalsDataSet);
         
-        viewModel.setIntervalsResolution(IntervalsChartViewModel.Resolution.MONTH);
+        viewModel.setIntervalsResolution(IntervalsDataSet.Resolution.MONTH);
         
         // These are called twice: first from the activation of the LiveData, then again when
         // the resolution changes.
         verify(mockSleepSessionRepository, times(2))
                 .getSleepSessionsInRange(any(Date.class), any(Date.class));
         verify(mockSleepIntervalsDataSetGenerator, times(2))
-                .generateFromConfig(anyList(), any(SleepIntervalsDataSet.Config.class));
+                .generateFromConfig(anyList(), any(IntervalsDataSet.Config.class));
     }
     
     @Test
@@ -132,14 +131,15 @@ public class IntervalsChartViewModelTests
     {
         avoidIntervalsDataSetNullPointer();
         
-        LiveData<SleepIntervalsDataSet> intervalsDataSet = viewModel.getIntervalsDataSet();
+        LiveData<IntervalsDataSet> intervalsDataSet = viewModel.getIntervalsDataSet();
         TestUtils.activateLocalLiveData(intervalsDataSet);
         
         // SUT
-        SleepIntervalsDataSet.Config testConfig = new SleepIntervalsDataSet.Config(
+        IntervalsDataSet.Config testConfig = new IntervalsDataSet.Config(
                 TestUtils.ArbitraryData.getDateRange(),
                 12345,
-                false);
+                false,
+                IntervalsDataSet.Resolution.WEEK);
         viewModel.configureIntervalsDataSet(testConfig);
         shadowOf(Looper.getMainLooper()).idle();
         
@@ -165,7 +165,7 @@ public class IntervalsChartViewModelTests
         };
         viewModel.setTimeUtils(stubTimeUtils);
         
-        SleepIntervalsDataSet.Config config1 = viewModel.getIntervalsDataSetConfig();
+        IntervalsDataSet.Config config1 = viewModel.getIntervalsDataSetConfig();
         long start1 = config1.dateRange.getStart().getTime();
         int diffDays1 = config1.dateRange.getDifferenceInDays();
         
@@ -173,7 +173,7 @@ public class IntervalsChartViewModelTests
         viewModel.stepIntervalsRange(IntervalsChartViewModel.Step.FORWARD);
         
         // verify
-        SleepIntervalsDataSet.Config config2 = viewModel.getIntervalsDataSetConfig();
+        IntervalsDataSet.Config config2 = viewModel.getIntervalsDataSetConfig();
         long start2 = config2.dateRange.getStart().getTime();
         int diffDays2 = config2.dateRange.getDifferenceInDays();
         assertThat(
@@ -186,7 +186,7 @@ public class IntervalsChartViewModelTests
         viewModel.stepIntervalsRange(IntervalsChartViewModel.Step.BACKWARD);
         
         // verify
-        SleepIntervalsDataSet.Config config3 = viewModel.getIntervalsDataSetConfig();
+        IntervalsDataSet.Config config3 = viewModel.getIntervalsDataSetConfig();
         assertThat(config1, is(equalTo(config3)));
     }
 

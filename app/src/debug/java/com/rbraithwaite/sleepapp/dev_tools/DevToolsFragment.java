@@ -22,17 +22,12 @@ public class DevToolsFragment
 //*********************************************************
 // overrides
 //*********************************************************
-
-    @Override
-    protected boolean getBottomNavVisibility()
-    {
-        return false;
-    }
+    
     
     @Override
-    protected Class<DevToolsFragmentViewModel> getViewModelClass()
+    protected Properties<DevToolsFragmentViewModel> initProperties()
     {
-        return DevToolsFragmentViewModel.class;
+        return new Properties<>(false, DevToolsFragmentViewModel.class);
     }
     
     @Nullable

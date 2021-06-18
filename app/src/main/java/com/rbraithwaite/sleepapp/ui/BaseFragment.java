@@ -25,20 +25,41 @@ public abstract class BaseFragment<V extends ViewModel>
 //*********************************************************
 // abstract
 //*********************************************************
-
-    protected abstract boolean getBottomNavVisibility();
     
-    protected abstract Class<V> getViewModelClass();
+    protected static class Properties<V extends ViewModel>
+    {
+        public final boolean isBottomNavVisible;
+        public final Class<V> viewModelClass;
+    
+        public Properties(boolean isBottomNavVisible, Class<V> viewModelClass)
+        {
+            this.isBottomNavVisible = isBottomNavVisible;
+            this.viewModelClass = viewModelClass;
+        }
+    }
+    
+    private Properties<V> mProperties;
+    
+    protected abstract Properties<V> initProperties();
 
 //*********************************************************
 // overrides
 //*********************************************************
-
+    
+    
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        mProperties = initProperties();
+    }
+    
+    // TODO [21-06-18 1:16AM] -- onActivityCreated is deprecated, find an alternative.
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState)
     {
         super.onActivityCreated(savedInstanceState);
-        setMainActivityBottomNavVisibility(getBottomNavVisibility());
+        setMainActivityBottomNavVisibility(mProperties.isBottomNavVisible);
     }
 
 //*********************************************************
@@ -67,11 +88,11 @@ public abstract class BaseFragment<V extends ViewModel>
 // protected api
 //*********************************************************
 
-    protected V getViewModel()
+    public V getViewModel()
     {
         if (mViewModel == null) {
             // REFACTOR [20-12-23 1:57AM] -- should the ViewModelStoreOwner be the fragment instead?
-            mViewModel = new ViewModelProvider(requireActivity()).get(getViewModelClass());
+            mViewModel = new ViewModelProvider(requireActivity()).get(mProperties.viewModelClass);
         }
         return mViewModel;
     }

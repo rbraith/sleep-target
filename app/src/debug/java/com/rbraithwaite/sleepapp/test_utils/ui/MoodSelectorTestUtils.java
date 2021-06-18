@@ -6,7 +6,7 @@ import androidx.test.espresso.contrib.RecyclerViewActions;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
-import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodDialogFragment;
+import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.MoodDialogFragment;
 
 import org.hamcrest.Matcher;
 

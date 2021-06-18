@@ -1,8 +1,10 @@
 package com.rbraithwaite.sleepapp.ui.stats.chart_durations;
 
+import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
+import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
@@ -13,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class DurationsChartViewModel
+public class DurationsChartViewModel extends ViewModel
 {
 //*********************************************************
 // private properties
@@ -55,6 +57,7 @@ public class DurationsChartViewModel
 // constructors
 //*********************************************************
 
+    @ViewModelInject
     public DurationsChartViewModel(SleepSessionRepository sleepSessionRepository)
     {
         mSleepSessionRepository = sleepSessionRepository;

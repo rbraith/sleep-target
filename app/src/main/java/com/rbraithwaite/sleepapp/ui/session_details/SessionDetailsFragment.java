@@ -21,10 +21,10 @@ import com.google.android.material.snackbar.Snackbar;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
 import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
-import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodSelectorController;
-import com.rbraithwaite.sleepapp.ui.common.mood_selector.MoodSelectorViewModel;
-import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagSelectorController;
-import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagSelectorViewModel;
+import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.MoodSelectorController;
+import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.MoodSelectorViewModel;
+import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorController;
+import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorViewModel;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragmentDirections;
 import com.rbraithwaite.sleepapp.ui.session_details.controllers.DateTimeController;
 import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
@@ -245,15 +245,9 @@ public class SessionDetailsFragment
     }
     
     @Override
-    protected boolean getBottomNavVisibility() { return false; }
-    
-    @Override
-    protected Class<SessionDetailsFragmentViewModel> getViewModelClass() { return SessionDetailsFragmentViewModel.class; }
-    
-    @Override
-    public SessionDetailsFragmentViewModel getViewModel()
+    protected Properties<SessionDetailsFragmentViewModel> initProperties()
     {
-        return super.getViewModel();
+        return new Properties<>(false, SessionDetailsFragmentViewModel.class);
     }
 
 //*********************************************************
@@ -402,6 +396,8 @@ public class SessionDetailsFragment
         getViewModel().getSessionDurationText().observe(
                 getViewLifecycleOwner(),
                 newSessionDurationText -> {
+                    // REFACTOR [21-06-16 10:31PM] this setting to "" logic should just be
+                    //  in the view model, and this value shouldn't be nullable.
                     if (newSessionDurationText == null) {
                         sessionDurationText.setText("");
                     } else {
@@ -410,6 +406,8 @@ public class SessionDetailsFragment
                 });
     }
     
+    // TODO [21-06-16 10:33PM] does it make sense to parameterize the formatting of
+    //  the datetime views like this?
     private DateTimeController.Formatter createDateTimeFormatter()
     {
         return new DateTimeController.Formatter()
@@ -518,6 +516,7 @@ public class SessionDetailsFragment
                 getChildFragmentManager());
     }
     
+    // REFACTOR [21-06-16 10:34PM] this should be extracted somewhere as a common utility.
     private void displayErrorSnackbar(int messageId)
     {
         Snackbar.make(getView(), messageId, Snackbar.LENGTH_SHORT).show();

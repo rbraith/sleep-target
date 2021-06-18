@@ -1,6 +1,6 @@
 package com.rbraithwaite.sleepapp.ui.sleep_tracker;
 
-import com.rbraithwaite.sleepapp.ui.format.CommonFormatting;
+import com.rbraithwaite.sleepapp.ui.common.CommonFormatting;
 
 import java.util.Date;
 

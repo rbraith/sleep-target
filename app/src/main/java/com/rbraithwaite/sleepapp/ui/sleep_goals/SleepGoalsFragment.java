@@ -72,10 +72,10 @@ public class SleepGoalsFragment
     }
     
     @Override
-    protected boolean getBottomNavVisibility() { return true; }
-    
-    @Override
-    protected Class<SleepGoalsFragmentViewModel> getViewModelClass() { return SleepGoalsFragmentViewModel.class; }
+    protected Properties<SleepGoalsFragmentViewModel> initProperties()
+    {
+        return new Properties<>(true, SleepGoalsFragmentViewModel.class);
+    }
 
 //*********************************************************
 // private methods
@@ -90,6 +90,9 @@ public class SleepGoalsFragment
         streakCalendarFrame.addView(streakCalendar.getView());
         
         SleepGoalsFragmentViewModel viewModel = getViewModel();
+        // REFACTOR [21-06-16 7:21PM] the viewmodel should directly pass the data needed,
+        //  In this case a List of maybe some SucceededGoalDate data classes, w/ the date & which
+        //  goals succeeded.
         LiveData<List<List<Date>>> succeededGoalDates = LiveDataUtils.merge(
                 viewModel.getSucceededWakeTimeGoalDates(),
                 viewModel.getSucceededSleepDurationGoalDates(),
@@ -125,8 +128,10 @@ public class SleepGoalsFragment
         getViewModel().hasWakeTime().observe(
                 getViewLifecycleOwner(),
                 hasWakeTime -> {
+                    // REFACTOR [21-06-16 7:23PM] hasWakeTime shouldn't be nullable.
                     if (hasWakeTime != null) {
                         if (hasWakeTime) {
+                            // REFACTOR [21-06-16 7:25PM] call it setWakeTimeGoalIsDisplayed.
                             wakeTimeLayout.setVisibility(View.VISIBLE);
                             buttonAddNewWakeTime.setVisibility(View.GONE);
                         } else {
@@ -152,9 +157,9 @@ public class SleepGoalsFragment
         getViewModel().hasSleepDurationGoal().observe(
                 getViewLifecycleOwner(),
                 hasSleepDurationGoal -> {
+                    // REFACTOR [21-06-16 7:24PM] hasSleepDurationGoal shouldn't be nullable.
                     if (hasSleepDurationGoal != null) {
-                        // REFACTOR [21-01-29 2:47AM] -- consider making this:
-                        //  toggleSleepDurationGoalDisplay(bool, view, view).
+                        // REFACTOR [21-06-16 7:25PM] call it setSleepDurationGoalIsDisplayed.
                         if (hasSleepDurationGoal) {
                             sleepDurationGoalLayout.setVisibility(View.VISIBLE);
                             buttonAddNewSleepDuration.setVisibility(View.GONE);
@@ -172,9 +177,7 @@ public class SleepGoalsFragment
     {
         final TextView valueText =
                 sleepDurationGoalLayout.findViewById(R.id.duration_value);
-        getViewModel().getSleepDurationGoalText().observe(
-                getViewLifecycleOwner(),
-                sleepDurationGoalText -> valueText.setText(sleepDurationGoalText));
+        getViewModel().getSleepDurationGoalText().observe(getViewLifecycleOwner(), valueText::setText);
         
         Button editButton = sleepDurationGoalLayout.findViewById(R.id.duration_edit_btn);
         editButton.setOnClickListener(v -> LiveDataFuture.getValue(
@@ -194,6 +197,7 @@ public class SleepGoalsFragment
                 getViewLifecycleOwner(),
                 wakeTimeValue::setText);
         Button wakeTimeEditButton = wakeTimeLayout.findViewById(R.id.waketime_edit_btn);
+        // REFACTOR [21-06-16 7:26PM] I might prefer to call this LiveDataUtils.getFuture().
         wakeTimeEditButton.setOnClickListener(v -> LiveDataFuture.getValue(
                 getViewModel().getWakeTimeGoalDateMillis(),
                 getViewLifecycleOwner(),

@@ -1,5 +1,7 @@
 package com.rbraithwaite.sleepapp.utils;
 
+import com.rbraithwaite.sleepapp.ui.stats.common.RangeSelectorComponent;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -104,5 +106,21 @@ public class TimeUtils
         cal.setTime(date);
         cal.add(Calendar.MILLISECOND, durationMillis);
         return cal.getTime();
+    }
+    
+    // TEST NEEDED [21-06-18 12:58AM] -- .
+    public int monthOf(Date date)
+    {
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTime(date);
+        return cal.get(Calendar.MONTH);
+    }
+    
+    // TEST NEEDED [21-06-18 12:58AM] -- .
+    public int yearOf(Date date)
+    {
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTime(date);
+        return cal.get(Calendar.YEAR);
     }
 }

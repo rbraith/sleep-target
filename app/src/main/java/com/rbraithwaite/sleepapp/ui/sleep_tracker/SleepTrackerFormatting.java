@@ -2,7 +2,7 @@ package com.rbraithwaite.sleepapp.ui.sleep_tracker;
 
 import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
 import com.rbraithwaite.sleepapp.core.models.WakeTimeGoal;
-import com.rbraithwaite.sleepapp.ui.format.CommonFormatting;
+import com.rbraithwaite.sleepapp.ui.common.CommonFormatting;
 import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 
 public class SleepTrackerFormatting

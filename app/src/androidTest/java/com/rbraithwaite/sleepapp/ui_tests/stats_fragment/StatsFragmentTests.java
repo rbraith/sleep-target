@@ -10,7 +10,7 @@ import com.rbraithwaite.sleepapp.ui.stats.StatsFormatting;
 import com.rbraithwaite.sleepapp.ui.stats.StatsFragment;
 import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.DateRange;
 import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.IntervalsChartViewModel;
-import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.SleepIntervalsDataSet;
+import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.IntervalsDataSet;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import org.junit.Test;
@@ -61,18 +61,19 @@ public class StatsFragmentTests
             }
         };
         
-        final SleepIntervalsDataSet.Config config = new SleepIntervalsDataSet.Config(
+        final IntervalsDataSet.Config config = new IntervalsDataSet.Config(
                 DateRange.asWeekOf(date.getTime()),
                 (int) stubTimeUtils.hoursToMillis(IntervalsChartViewModel.DEFAULT_INTERVALS_OFFSET_HOURS),
-                IntervalsChartViewModel.DEFAULT_INTERVALS_INVERT);
+                IntervalsChartViewModel.DEFAULT_INTERVALS_INVERT,
+                IntervalsDataSet.Resolution.WEEK);
         
         helper.performSyncedFragmentAction(fragment -> {
-            fragment.getViewModel().getIntervalsChartViewModel().setTimeUtils(stubTimeUtils);
-            fragment.getViewModel().getIntervalsChartViewModel().setIntervalsDataSetConfig(config);
+            fragment.getIntervalsChartViewModel().setTimeUtils(stubTimeUtils);
+            fragment.getIntervalsChartViewModel().setIntervalsDataSetConfig(config);
         });
         
         // WHEN the user changes the resolution to "month"
-        StatsFragmentTestUtils.changeIntervalsResolution(IntervalsChartViewModel.Resolution.MONTH);
+        StatsFragmentTestUtils.changeIntervalsResolution(IntervalsDataSet.Resolution.MONTH);
         
         // THEN the time period text updates
         StatsFragmentTestUtils.checkIntervalsTextMatches(
@@ -81,8 +82,7 @@ public class StatsFragmentTests
         helper.performSyncedFragmentAction(fragment -> assertThat(
                 DateRange.asMonthOf(date.getTime(), stubTimeUtils.hoursToMillis(
                         IntervalsChartViewModel.DEFAULT_INTERVALS_OFFSET_HOURS)),
-                is(equalTo(fragment.getViewModel()
-                                   .getIntervalsChartViewModel()
+                is(equalTo(fragment.getIntervalsChartViewModel()
                                    .getIntervalsDateRange()))));
     }
     
@@ -94,7 +94,7 @@ public class StatsFragmentTests
         
         final TestUtils.DoubleRef<DateRange> testDateRange = new TestUtils.DoubleRef<>(null);
         helper.performSyncedFragmentAction(fragment -> testDateRange.ref =
-                fragment.getViewModel().getIntervalsChartViewModel().getIntervalsDateRange());
+                fragment.getIntervalsChartViewModel().getIntervalsDateRange());
         
         // add 1 day, for mon-sun instead of sun-sun
         GregorianCalendar cal = new GregorianCalendar();
@@ -149,20 +149,20 @@ public class StatsFragmentTests
                         IntervalsChartViewModel.DEFAULT_INTERVALS_OFFSET_HOURS));
         
         helper.performSyncedFragmentAction(fragment -> assertThat(
-                fragment.getViewModel().getIntervalsChartViewModel().getIntervalsDateRange(),
+                fragment.getIntervalsChartViewModel().getIntervalsDateRange(),
                 is(equalTo(testDateRange))));
         
         // SUT - exercising the time period selectors
         StatsFragmentTestUtils.pressIntervalsRangeBack();
         
         helper.performSyncedFragmentAction(fragment -> assertThat(
-                fragment.getViewModel().getIntervalsChartViewModel().getIntervalsDateRange(),
+                fragment.getIntervalsChartViewModel().getIntervalsDateRange(),
                 is(equalTo(testDateRange.offsetDays(-7)))));
         
         StatsFragmentTestUtils.pressIntervalsRangeForward();
         
         helper.performSyncedFragmentAction(fragment -> assertThat(
-                fragment.getViewModel().getIntervalsChartViewModel().getIntervalsDateRange(),
+                fragment.getIntervalsChartViewModel().getIntervalsDateRange(),
                 is(equalTo(testDateRange.offsetDays(7)))));
     }
 }

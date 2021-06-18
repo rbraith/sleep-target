@@ -63,10 +63,10 @@ public class SessionArchiveFragment
     }
     
     @Override
-    protected boolean getBottomNavVisibility() { return true; }
-    
-    @Override
-    protected Class<SessionArchiveFragmentViewModel> getViewModelClass() { return SessionArchiveFragmentViewModel.class; }
+    protected Properties<SessionArchiveFragmentViewModel> initProperties()
+    {
+        return new Properties<>(true, SessionArchiveFragmentViewModel.class);
+    }
 
 //*********************************************************
 // api
@@ -171,29 +171,36 @@ public class SessionArchiveFragment
                             final SessionDetailsFragment fragment,
                             final SleepSessionWrapper result)
                     {
-                        AlertDialogFragment deleteDialog = DialogUtils.createDeleteDialog(
-                                requireContext(),
-                                R.string.session_archive_delete_dialog_title,
-                                R.string.session_archive_delete_dialog_message,
-                                (dialog, which) -> {
-                                    // this is alright since SessionArchiveFragment's
-                                    // view model is lifecycle-owned by the activity
-                                    int deletedId =
-                                            getViewModel().deleteSession(result);
-                                    Snackbar.make(
-                                            fragment.getView(),
-                                            "Deleted session #" + deletedId,
-                                            Snackbar.LENGTH_SHORT)
-                                            .show();
-                                    fragment.completed();
-                                });
-                        
-                        deleteDialog.show(fragment.getChildFragmentManager(),
-                                          SESSION_DELETE_DIALOG);
+                        displayDeleteSessionDialog(fragment, result);
                     }
                 });
         return SessionArchiveFragmentDirections.actionSessionArchiveToSessionData(
                 argsBuilder.build());
+    }
+    
+    private void displayDeleteSessionDialog(
+            SessionDetailsFragment fragment,
+            SleepSessionWrapper result)
+    {
+        AlertDialogFragment deleteDialog = DialogUtils.createDeleteDialog(
+                requireContext(),
+                R.string.session_archive_delete_dialog_title,
+                R.string.session_archive_delete_dialog_message,
+                (dialog, which) -> {
+                    // this is alright since SessionArchiveFragment's
+                    // view model is lifecycle-owned by the activity
+                    int deletedId =
+                            getViewModel().deleteSession(result);
+                    Snackbar.make(
+                            fragment.getView(),
+                            "Deleted session #" + deletedId,
+                            Snackbar.LENGTH_SHORT)
+                            .show();
+                    fragment.completed();
+                });
+    
+        deleteDialog.show(fragment.getChildFragmentManager(),
+                          SESSION_DELETE_DIALOG);
     }
     
     private void initRecyclerView(@NonNull View fragmentRoot)

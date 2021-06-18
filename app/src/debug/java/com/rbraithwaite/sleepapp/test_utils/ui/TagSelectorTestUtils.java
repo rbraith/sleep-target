@@ -4,8 +4,8 @@ import androidx.test.espresso.contrib.RecyclerViewActions;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
-import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagScrollController;
-import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagSelectorDialogFragment;
+import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagScrollController;
+import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorDialogFragment;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;

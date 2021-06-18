@@ -2,7 +2,7 @@ package com.rbraithwaite.sleepapp.ui.session_details;
 
 import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
 import com.rbraithwaite.sleepapp.ui.Constants;
-import com.rbraithwaite.sleepapp.ui.format.CommonFormatting;
+import com.rbraithwaite.sleepapp.ui.common.CommonFormatting;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;

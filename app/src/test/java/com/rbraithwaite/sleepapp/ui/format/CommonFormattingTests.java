@@ -1,6 +1,7 @@
 package com.rbraithwaite.sleepapp.ui.format;
 
 import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
+import com.rbraithwaite.sleepapp.ui.common.CommonFormatting;
 
 import org.junit.Test;
 

@@ -1,7 +1,7 @@
 package com.rbraithwaite.sleepapp.test_utils;
 
 import com.rbraithwaite.sleepapp.core.models.Tag;
-import com.rbraithwaite.sleepapp.ui.common.tag_selector.TagUiData;
+import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagUiData;
 
 public class TestEqualities
 {

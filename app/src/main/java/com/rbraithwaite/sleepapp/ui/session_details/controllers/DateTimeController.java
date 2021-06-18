@@ -73,6 +73,8 @@ public class DateTimeController
 
     public DateTimeController(
             String title,
+            // REFACTOR [21-06-16 10:35PM] instead of passing the initial data, a view
+            //  model should be passed.
             GregorianCalendar initialData,
             View root,
             Formatter formatter,
@@ -169,10 +171,9 @@ public class DateTimeController
                     datePicker.setArguments(DatePickerFragment.createArguments(
                             date.year, date.month, date.dayOfMonth));
                     datePicker.setOnDateSetListener((view, year, month, dayOfMonth) -> {
-                        if (mCallbacks != null) {
-                            if (!mCallbacks.beforeSetDate(year, month, dayOfMonth)) {
-                                return;
-                            }
+                        if (mCallbacks != null &&
+                            !mCallbacks.beforeSetDate(year, month, dayOfMonth)) {
+                            return;
                         }
                         mViewModel.setDate(year, month, dayOfMonth);
                     });
@@ -187,13 +188,17 @@ public class DateTimeController
                 mLifecycleOwner,
                 timeOfDay -> {
                     TimePickerFragment timePicker = new TimePickerFragment();
+                    // REFACTOR [21-06-16 10:36PM] it would be better to have like a
+                    //  setArgs(hour, minute) method, or a createInstance() static method
+                    //  setArguments is only relevent when the framework is creating the
+                    //  fragment (in these cases I *would* need a createArguments method, but
+                    //  not in this case).
                     timePicker.setArguments(TimePickerFragment.createArguments(
                             timeOfDay.hourOfDay, timeOfDay.minute));
                     timePicker.setOnTimeSetListener((view, hourOfDay, minute) -> {
-                        if (mCallbacks != null) {
-                            if (!mCallbacks.beforeSetTimeOfDay(hourOfDay, minute)) {
-                                return;
-                            }
+                        if (mCallbacks != null &&
+                            !mCallbacks.beforeSetTimeOfDay(hourOfDay, minute)) {
+                            return;
                         }
                         mViewModel.setTimeOfDay(hourOfDay, minute);
                     });

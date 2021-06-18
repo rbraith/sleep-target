@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    tools:parentTag="android.widget.LinearLayout">
 
     <TextView
         android:id="@+id/stats_intervals_title"
@@ -38,4 +39,4 @@
         android:layout_marginBottom="32dp"
         android:gravity="center"
         android:text="No data" />
-</LinearLayout>
+</merge>

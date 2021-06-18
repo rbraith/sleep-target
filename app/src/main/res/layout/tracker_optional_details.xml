@@ -38,7 +38,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tracker_tags_mood_barrier" />
 
-    <com.rbraithwaite.sleepapp.ui.common.mood_selector.TEMP.MoodSelectorComponent
+    <com.rbraithwaite.sleepapp.ui.common.views.mood_selector.TEMP.MoodSelectorComponent
         android:id="@+id/more_context_mood"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -49,7 +49,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/more_context_title" />
 
-    <com.rbraithwaite.sleepapp.ui.common.tag_selector.TEMP.TagSelectorComponent
+    <com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TEMP.TagSelectorComponent
         android:id="@+id/more_context_tags"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

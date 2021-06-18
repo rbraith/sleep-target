@@ -5,6 +5,8 @@ import com.rbraithwaite.sleepapp.ui.Constants;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
+// REFACTOR [21-06-18 1:30AM] get rid of this class.
+@Deprecated
 public class DurationFormatter
 {
 //*********************************************************

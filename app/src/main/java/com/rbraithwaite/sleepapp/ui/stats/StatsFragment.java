@@ -7,15 +7,14 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
-import com.rbraithwaite.sleepapp.ui.stats.chart_durations.DurationsChartController;
-import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.IntervalsChartController;
-
-import java.util.concurrent.Executor;
-
-import javax.inject.Inject;
+import com.rbraithwaite.sleepapp.ui.stats.chart_durations.DurationsChartComponent;
+import com.rbraithwaite.sleepapp.ui.stats.chart_durations.DurationsChartViewModel;
+import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.IntervalsChartViewModel;
+import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.IntervalsChartComponent;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -26,17 +25,9 @@ public class StatsFragment
 //*********************************************************
 // private properties
 //*********************************************************
-
-    private IntervalsChartController mIntervalsChart;
     
-    private DurationsChartController mDurationsChart;
-    
-//*********************************************************
-// package properties
-//*********************************************************
-
-    @Inject
-    Executor mExecutor;
+    private DurationsChartComponent mDurationsChart;
+    private IntervalsChartComponent mIntervalsChart;
     
 //*********************************************************
 // overrides
@@ -55,35 +46,26 @@ public class StatsFragment
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState)
     {
-        mIntervalsChart = new IntervalsChartController(
-                view.findViewById(R.id.stats_intervals),
-                getViewModel().getIntervalsChartViewModel(),
-                getViewLifecycleOwner());
+        mIntervalsChart = view.findViewById(R.id.stats_intervals);
+        mIntervalsChart.bindToViewModel(getIntervalsChartViewModel(), getViewLifecycleOwner());
         
-        mDurationsChart = new DurationsChartController(
-                view.findViewById(R.id.stats_durations),
-                getViewModel().getDurationsChartViewModel(),
-                getViewLifecycleOwner(),
-                mExecutor);
+        mDurationsChart = view.findViewById(R.id.stats_durations);
+        mDurationsChart.bindToViewModel(getDurationsChartViewModel(), getViewLifecycleOwner());
+    }
+    
+    public IntervalsChartViewModel getIntervalsChartViewModel()
+    {
+        return new ViewModelProvider(this).get(IntervalsChartViewModel.class);
+    }
+    
+    private DurationsChartViewModel getDurationsChartViewModel()
+    {
+        return new ViewModelProvider(this).get(DurationsChartViewModel.class);
     }
     
     @Override
-    protected boolean getBottomNavVisibility()
+    protected Properties<StatsFragmentViewModel> initProperties()
     {
-        return true;
-    }
-    
-    @Override
-    protected Class<StatsFragmentViewModel> getViewModelClass()
-    {
-        return StatsFragmentViewModel.class;
-    }
-    
-    // REFACTOR [21-03-4 11:43PM] -- maybe just make BaseFragment.getViewModel() public?
-    // Using this for tests
-    @Override
-    public StatsFragmentViewModel getViewModel()
-    {
-        return super.getViewModel();
+        return new Properties<>(true, StatsFragmentViewModel.class);
     }
 }

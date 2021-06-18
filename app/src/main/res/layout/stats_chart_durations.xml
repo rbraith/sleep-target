@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/linearLayout"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
     <TextView
         android:id="@+id/stats_durations_title"
@@ -54,7 +54,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/stats_durations_range_selector" />
 
-    <com.rbraithwaite.sleepapp.ui.common.VerticalTextView
+    <com.rbraithwaite.sleepapp.ui.common.views.VerticalTextView
         android:id="@+id/stats_durations_durations_axis_title"
         style="@style/StatsYAxisTitle"
         android:layout_width="wrap_content"
@@ -66,7 +66,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/stats_durations_title" />
 
-    <com.rbraithwaite.sleepapp.ui.common.VerticalTextView
+    <com.rbraithwaite.sleepapp.ui.common.views.VerticalTextView
         android:id="@+id/stats_durations_ratings_axis_title"
         style="@style/StatsYAxisTitle"
         android:layout_width="wrap_content"
@@ -84,4 +84,4 @@
         android:layout_height="wrap_content"
         app:constraint_referenced_ids="stats_durations_layout,stats_durations_range_selector,stats_durations_durations_axis_title,stats_durations_ratings_axis_title" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</merge>

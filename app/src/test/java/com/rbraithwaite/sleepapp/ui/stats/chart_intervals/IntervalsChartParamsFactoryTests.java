@@ -6,7 +6,6 @@ import androidx.lifecycle.LiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
-import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.TEMP.IntervalsChartParamsFactory;
 import com.rbraithwaite.sleepapp.ui.stats.common.CombinedChartViewFactory;
 
 import org.achartengine.model.RangeCategorySeries;
@@ -64,12 +63,13 @@ public class IntervalsChartParamsFactoryTests
         int offsetMillis = -1 * (1000 * 60 * 60) * 4; // -4 hrs
         GregorianCalendar date = new GregorianCalendar(2021, 2, 4);
         DateRange dateRange = DateRange.asWeekOf(date.getTime(), offsetMillis);
-        SleepIntervalsDataSet.Config config = new SleepIntervalsDataSet.Config(
+        IntervalsDataSet.Config config = new IntervalsDataSet.Config(
                 dateRange,
                 offsetMillis,
-                true);
+                true,
+                IntervalsDataSet.Resolution.WEEK);
         
-        SleepIntervalsDataSet mockDataSet = setupMockDataSet(config);
+        IntervalsDataSet mockDataSet = setupDataSet(config);
         
         // SUT
         LiveData<CombinedChartViewFactory.Params> params =
@@ -102,12 +102,13 @@ public class IntervalsChartParamsFactoryTests
         int offsetMillis = -1 * (1000 * 60 * 60) * 4;
         GregorianCalendar date = new GregorianCalendar(2021, 2, 4);
         DateRange dateRange = DateRange.asMonthOf(date.getTime(), offsetMillis);
-        SleepIntervalsDataSet.Config config = new SleepIntervalsDataSet.Config(
+        IntervalsDataSet.Config config = new IntervalsDataSet.Config(
                 dateRange,
                 offsetMillis,
-                true);
+                true,
+                IntervalsDataSet.Resolution.MONTH);
         
-        SleepIntervalsDataSet mockDataSet = setupMockDataSet(config);
+        IntervalsDataSet mockDataSet = setupDataSet(config);
         
         // SUT
         LiveData<CombinedChartViewFactory.Params> params = paramsFactory.createMonthParams(
@@ -145,12 +146,13 @@ public class IntervalsChartParamsFactoryTests
         int offsetMillis = -1 * (1000 * 60 * 60) * 4;
         GregorianCalendar date = new GregorianCalendar(2021, 2, 4);
         DateRange dateRange = DateRange.asYearOf(date.getTime(), offsetMillis);
-        SleepIntervalsDataSet.Config config = new SleepIntervalsDataSet.Config(
+        IntervalsDataSet.Config config = new IntervalsDataSet.Config(
                 dateRange,
                 offsetMillis,
-                true);
+                true,
+                IntervalsDataSet.Resolution.YEAR);
         
-        SleepIntervalsDataSet mockDataSet = setupMockDataSet(config);
+        IntervalsDataSet mockDataSet = setupDataSet(config);
         
         // SUT
         LiveData<CombinedChartViewFactory.Params> params = paramsFactory.createYearParams(
@@ -214,17 +216,17 @@ public class IntervalsChartParamsFactoryTests
         }
     }
 
-    private SleepIntervalsDataSet setupMockDataSet(SleepIntervalsDataSet.Config config)
+    private IntervalsDataSet setupDataSet(IntervalsDataSet.Config config)
     {
-        SleepIntervalsDataSet mockDataSet = mock(SleepIntervalsDataSet.class);
+        IntervalsDataSet intervalsDataSet = new IntervalsDataSet();
         
         RangeCategorySeries series = new RangeCategorySeries("test");
         series.add(-1.2, -3.4);
         XYMultipleSeriesDataset dataSet = new XYMultipleSeriesDataset();
         dataSet.addSeries(series.toXYSeries());
-        when(mockDataSet.getConfig()).thenReturn(config);
-        when(mockDataSet.getDataSet()).thenReturn(dataSet);
+        intervalsDataSet.config = config;
+        intervalsDataSet.dataSet = dataSet;
         
-        return mockDataSet;
+        return intervalsDataSet;
     }
 }

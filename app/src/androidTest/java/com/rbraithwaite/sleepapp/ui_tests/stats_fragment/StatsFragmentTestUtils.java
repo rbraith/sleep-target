@@ -2,6 +2,7 @@ package com.rbraithwaite.sleepapp.ui_tests.stats_fragment;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.IntervalsChartViewModel;
+import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.IntervalsDataSet;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -33,7 +34,7 @@ public class StatsFragmentTestUtils
                 withText(text)));
     }
     
-    public static void changeIntervalsResolution(IntervalsChartViewModel.Resolution resolution)
+    public static void changeIntervalsResolution(IntervalsDataSet.Resolution resolution)
     {
         onView(allOf(
                 withId(R.id.stats_range_selector_more),

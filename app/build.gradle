@@ -76,6 +76,14 @@ android {
             java.srcDir sharedTestDir
         }
     }
+
+    // TODO [21-06-16 11:54PM] -- maybe reconsider re-implementing ViewBinding, but it doesn't work
+    //  very well with my current xml file/id naming scheme (I would probably need to remove
+    //  most of the organizing prefixes from the names).
+//    buildFeatures {
+//        // ViewBinding
+//        viewBinding true
+//    }
 }
 
 dependencies {

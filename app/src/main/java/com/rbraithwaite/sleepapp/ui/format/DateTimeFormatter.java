@@ -6,8 +6,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+// REFACTOR [21-06-18 1:29AM] get rid of this class.
 // TODO [20-11-27 1:32AM] -- consider using android's DateUtils instead? (just discovered this)
 //  https://developer.android.com/reference/android/text/format/DateUtils.
+@Deprecated
 public class DateTimeFormatter
 {
 //*********************************************************

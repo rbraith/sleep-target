@@ -1,7 +1,7 @@
 package com.rbraithwaite.sleepapp.ui.sleep_goals;
 
 import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
-import com.rbraithwaite.sleepapp.ui.format.CommonFormatting;
+import com.rbraithwaite.sleepapp.ui.common.CommonFormatting;
 
 public class SleepGoalsFormatting
 {
