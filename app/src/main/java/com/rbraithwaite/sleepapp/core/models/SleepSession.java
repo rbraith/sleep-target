@@ -152,7 +152,7 @@ public class SleepSession
         // REFACTOR [21-05-10 10:01PM] -- this should be ctor injected instead probably.
         mTimeUtils = createTimeUtils();
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -186,7 +186,7 @@ public class SleepSession
         if (!Objects.equals(mMood, that.mMood)) { return false; }
         return mTags.equals(that.mTags);
     }
-
+    
     @NonNull
     @Override
     public String toString()

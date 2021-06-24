@@ -33,7 +33,7 @@ public class SleepSessionWithTags
             )
     )
     public List<TagEntity> tags;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************

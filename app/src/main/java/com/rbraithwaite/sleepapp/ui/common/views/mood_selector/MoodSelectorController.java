@@ -10,9 +10,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.rbraithwaite.sleepapp.R;
-import com.rbraithwaite.sleepapp.ui.utils.UiUtils;
 import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.TEMP.MoodView;
+import com.rbraithwaite.sleepapp.ui.utils.UiUtils;
 
 public class MoodSelectorController
 {
@@ -39,7 +39,7 @@ public class MoodSelectorController
     private static final String DIALOG_TAG = "MoodSelectorController_dialog";
     
     private static final int NO_ROOT_THEME_ID = -1;
-    
+
 //*********************************************************
 // public constants
 //*********************************************************
@@ -95,7 +95,7 @@ public class MoodSelectorController
     {
         mCallbacks = callbacks;
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

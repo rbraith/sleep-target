@@ -10,7 +10,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -21,6 +20,10 @@ import static org.robolectric.Shadows.shadowOf;
 @RunWith(AndroidJUnit4.class)
 public class ListTrackingLiveDataTests
 {
+//*********************************************************
+// api
+//*********************************************************
+
     @Test
     public void add_updatesWithCorrectData()
     {
@@ -65,12 +68,12 @@ public class ListTrackingLiveDataTests
         testList.add("test");
         ListTrackingLiveData<String> listTracking = new ListTrackingLiveData<>(testList);
         TestUtils.activateLocalLiveData(listTracking);
-    
+
         // SUT
         String expected = "updated";
         listTracking.set(0, expected);
         shadowOf(Looper.getMainLooper()).idle(); // since postValue is used
-    
+
         ListTrackingData<String> data = listTracking.getValue();
         assertThat(data.list.size(), is(1));
         assertThat(data.list.get(0), is(equalTo(expected)));

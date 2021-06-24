@@ -18,8 +18,6 @@ import com.rbraithwaite.sleepapp.test_utils.data.MockRepositoryUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.assertion_utils.AssertOn;
 import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagUiData;
-import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
-import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFormatting;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.CurrentSessionUiData;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.PostSleepData;
@@ -65,7 +63,6 @@ public class SleepTrackerFragmentViewModelTests
     private SleepSessionRepository mockSleepSessionRepository;
     private CurrentSessionRepository mockCurrentSessionRepository;
     private CurrentGoalsRepository mockCurrentGoalsRepository;
-    private DateTimeFormatter dateTimeFormatter;
     
     // TODO [20-11-18 8:23PM] -- try replacing uses of livedata synchronizers (TestUtils) with
     //  InstantTaskExecutorRule
@@ -89,13 +86,10 @@ public class SleepTrackerFragmentViewModelTests
         mockSleepSessionRepository = mock(SleepSessionRepository.class);
         mockCurrentSessionRepository = mock(CurrentSessionRepository.class);
         mockCurrentGoalsRepository = mock(CurrentGoalsRepository.class);
-        // REFACTOR [21-01-11 10:36PM] -- I need to be mocking DateTimeFormatter.
-        dateTimeFormatter = new DateTimeFormatter();
         viewModel = new SleepTrackerFragmentViewModel(
                 mockSleepSessionRepository,
                 mockCurrentSessionRepository,
-                mockCurrentGoalsRepository,
-                dateTimeFormatter);
+                mockCurrentGoalsRepository);
     }
     
     @After
@@ -150,7 +144,7 @@ public class SleepTrackerFragmentViewModelTests
                         Mood.fromIndex(1),
                         Arrays.asList(1, 2),
                         new TimeUtils())));
-
+        
         List<TagUiData> tags = Arrays.asList(
                 new TagUiData(3, "meh"),
                 new TagUiData(4, "meh"));
@@ -158,17 +152,17 @@ public class SleepTrackerFragmentViewModelTests
                 .map(tagUiData -> tagUiData.tagId)
                 .collect(Collectors.toList());
         viewModel.setLocalSelectedTags(tags);
-
+        
         String expectedComment = "local comment";
         viewModel.setLocalAdditionalComments(expectedComment);
-
+        
         MoodUiData expectedMood = new MoodUiData(7);
         viewModel.setLocalMood(expectedMood);
-
+        
         // SUT
         viewModel.stopSleepSession();
         CurrentSessionUiData uiData = viewModel.getStoppedSessionData();
-
+        
         // verify
         assertThat(uiData.mood, is(equalTo(expectedMood)));
         assertThat(uiData.additionalComments, is(equalTo(expectedComment)));
@@ -244,13 +238,13 @@ public class SleepTrackerFragmentViewModelTests
         testCurrentSession.setMood(new Mood(1));
         when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(
                 new MutableLiveData<>(testCurrentSession));
-
+        
         viewModel.setLocalMood(new MoodUiData(0));
         // SUT
         viewModel.clearLocalMood();
-
+        
         viewModel.persistLocalValues();
-
+        
         assertOnPersistingCurrentSession(currentSession -> {
             assertThat(currentSession.getMood(), is(nullValue()));
         });
@@ -267,9 +261,9 @@ public class SleepTrackerFragmentViewModelTests
                         new Mood(0),
                         null,
                         new TimeUtils())));
-
+        
         LiveData<MoodUiData> moodUiData = viewModel.getPersistedMood();
-
+        
         TestUtils.activateLocalLiveData(moodUiData);
         assertThat(moodUiData.getValue().asIndex(), is(equalTo(0)));
     }
@@ -282,16 +276,16 @@ public class SleepTrackerFragmentViewModelTests
         MoodUiData expectedMood = new MoodUiData(1);
         List<TagUiData> expectedSelectedTags = Arrays.asList(
                 new TagUiData(3, "what"));
-
+        
         when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(
                 new MutableLiveData<>(new CurrentSession(expectedStart, new TimeUtils())));
-
+        
         viewModel.setLocalAdditionalComments(expectedComments);
         viewModel.setLocalMood(expectedMood);
         viewModel.setLocalSelectedTags(expectedSelectedTags);
-
+        
         viewModel.persistLocalValues();
-
+        
         assertOnPersistingCurrentSession(currentSession -> {
             assertThat(currentSession.getStart(), is(equalTo(expectedStart)));
             assertThat(currentSession.getAdditionalComments(), is(equalTo(expectedComments)));
@@ -327,7 +321,7 @@ public class SleepTrackerFragmentViewModelTests
         
         TestUtils.activateLocalLiveData(wakeTime);
         assertThat(wakeTime.getValue(),
-                   is(equalTo(dateTimeFormatter.formatTimeOfDay(model.asDate()))));
+                   is(equalTo(SleepTrackerFormatting.formatWakeTimeGoal(model))));
     }
     
     @Test
@@ -337,7 +331,7 @@ public class SleepTrackerFragmentViewModelTests
         when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(
                 new MutableLiveData<>(new CurrentSession(testDate, new TimeUtils())));
         
-        String expected = dateTimeFormatter.formatFullDate(testDate);
+        String expected = SleepTrackerFormatting.formatSessionStartTime(testDate);
         
         LiveData<String> testStartTime = viewModel.getSessionStartTime();
         
@@ -360,7 +354,7 @@ public class SleepTrackerFragmentViewModelTests
     @Test
     public void getCurrentSessionDuration_isZeroWhenNoSession()
     {
-        String expected = new DurationFormatter().formatDurationMillis(0);
+        String expected = SleepTrackerFormatting.formatDuration(0);
         
         when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(
                 new MutableLiveData<>(new CurrentSession(null)));
@@ -417,7 +411,7 @@ public class SleepTrackerFragmentViewModelTests
         // assert current session duration reflects state of being in a session
         currentSessionDurationSynchronizer.sync();
         assertThat(currentSessionDuration.getValue(),
-                   is(not(equalTo(new DurationFormatter().formatDurationMillis(0)))));
+                   is(not(equalTo(SleepTrackerFormatting.formatDuration(0)))));
     }
     
     @Test
@@ -512,7 +506,7 @@ public class SleepTrackerFragmentViewModelTests
             //  the view model.
         });
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

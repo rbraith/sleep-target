@@ -11,8 +11,13 @@ import com.rbraithwaite.sleepapp.R;
 
 // REFACTOR [21-05-24 3:17AM] -- move MoodSelectorController functionality into here, move this
 //  out of TEMP package and delete that package.
-public class MoodSelectorComponent extends ConstraintLayout
+public class MoodSelectorComponent
+        extends ConstraintLayout
 {
+//*********************************************************
+// constructors
+//*********************************************************
+
     public MoodSelectorComponent(@NonNull Context context)
     {
         super(context);
@@ -45,6 +50,10 @@ public class MoodSelectorComponent extends ConstraintLayout
         initComponent(context);
     }
     
+//*********************************************************
+// private methods
+//*********************************************************
+
     private void initComponent(Context context)
     {
         inflate(context, R.layout.mood_selector, this);

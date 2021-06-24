@@ -17,15 +17,25 @@ import static org.hamcrest.Matchers.is;
 @RunWith(AndroidJUnit4.class)
 public class DateTimeViewModelTests
 {
+//*********************************************************
+// private properties
+//*********************************************************
+
     private DateTimeViewModel viewModel;
     
+//*********************************************************
+// api
+//*********************************************************
+
     @Before
-    public void setup() {
+    public void setup()
+    {
         viewModel = new DateTimeViewModel();
     }
     
     @After
-    public void teardown() {
+    public void teardown()
+    {
         viewModel = null;
     }
     
@@ -59,7 +69,7 @@ public class DateTimeViewModelTests
         LiveData<String> timeOfDayText = viewModel.getTimeOfDayText();
         TestUtils.activateLocalLiveData(timeOfDay);
         TestUtils.activateLocalLiveData(timeOfDayText);
-    
+
         viewModel.setFormatter(createFormatter());
         
         int expectedHourOfDay = 23;
@@ -72,15 +82,20 @@ public class DateTimeViewModelTests
         assertThat(timeOfDayText.getValue(), is(equalTo("23 45")));
     }
     
+//*********************************************************
+// private methods
+//*********************************************************
+
     private DateTimeViewModel.Formatter createFormatter()
     {
-        return new DateTimeViewModel.Formatter() {
+        return new DateTimeViewModel.Formatter()
+        {
             @Override
             public String formatTimeOfDay(int hourOfDay, int minute)
             {
                 return String.format("%d %d", hourOfDay, minute);
             }
-    
+
             @Override
             public String formatDate(int year, int month, int dayOfMonth)
             {

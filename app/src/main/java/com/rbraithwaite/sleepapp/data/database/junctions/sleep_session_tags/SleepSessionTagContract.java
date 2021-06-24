@@ -7,7 +7,7 @@ public class SleepSessionTagContract
 //*********************************************************
 
     public static final String TABLE_NAME = "sleep_session_tags";
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -17,7 +17,7 @@ public class SleepSessionTagContract
         public static final String TAG_ID = "tag_id";
         public static final String SESSION_ID = "session_id";
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************

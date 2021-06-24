@@ -31,7 +31,7 @@ public class BackgroundDecorator
 
     private final Drawable mBackgroundDrawable;
     private final int mTextColor;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -42,7 +42,7 @@ public class BackgroundDecorator
         mTextColor = textColor;
         mDates = new HashSet<>();
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -59,7 +59,7 @@ public class BackgroundDecorator
         view.setBackgroundDrawable(mBackgroundDrawable);
         view.addSpan(new ForegroundColorSpan(mTextColor));
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************

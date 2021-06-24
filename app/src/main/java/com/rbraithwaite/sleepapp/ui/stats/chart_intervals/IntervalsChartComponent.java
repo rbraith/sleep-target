@@ -14,9 +14,6 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 
 import com.rbraithwaite.sleepapp.R;
-import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.IntervalsChartParamsFactory;
-import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.IntervalsChartViewModel;
-import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.IntervalsDataSet;
 import com.rbraithwaite.sleepapp.ui.stats.common.CombinedChartViewFactory;
 import com.rbraithwaite.sleepapp.ui.stats.common.RangeSelectorComponent;
 import com.rbraithwaite.sleepapp.utils.CommonUtils;
@@ -29,8 +26,13 @@ import javax.inject.Inject;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class IntervalsChartComponent extends LinearLayout
+public class IntervalsChartComponent
+        extends LinearLayout
 {
+//*********************************************************
+// private properties
+//*********************************************************
+
     private TextView mTitle;
     private FrameLayout mChartLayout;
     private RangeSelectorComponent mTimePeriodSelector;
@@ -39,11 +41,20 @@ public class IntervalsChartComponent extends LinearLayout
     // REFACTOR [21-06-18 12:24AM] -- This init value should derive from the view model's default
     //  resolution.
     private int mCheckedMenuItemId = R.id.stats_intervals_resolution_week;
-    
+    private IntervalsChartParamsFactory mChartParamsFactory;
+    private CombinedChartViewFactory mChartViewFactory;
+
+//*********************************************************
+// package properties
+//*********************************************************
+
     @Inject
     Executor mExecutor;
-    private IntervalsChartParamsFactory mChartParamsFactory;
     
+//*********************************************************
+// constructors
+//*********************************************************
+
     public IntervalsChartComponent(Context context)
     {
         super(context);
@@ -66,6 +77,24 @@ public class IntervalsChartComponent extends LinearLayout
         initComponent(context);
     }
     
+//*********************************************************
+// api
+//*********************************************************
+
+    public void bindToViewModel(IntervalsChartViewModel viewModel, LifecycleOwner lifecycleOwner)
+    {
+        // IDEA [21-06-17 1:52AM] -- in the future, I can store references to these observers, so
+        //  that I can unbind (to maybe then rebind with a new view model).
+        viewModel.hasAnyData().observe(lifecycleOwner, this::observeHasAnyData);
+        viewModel.getIntervalsDataSet().observe(lifecycleOwner, this::observeDataSet);
+        viewModel.getIntervalsValueText().observe(lifecycleOwner, this::observeValueText);
+        mTimePeriodSelector.setCallbacks(createViewModelTimePeriodCallbacks(viewModel));
+    }
+    
+//*********************************************************
+// private methods
+//*********************************************************
+
     private void setChartData(IntervalsDataSet dataSet)
     {
         LiveData<CombinedChartViewFactory.Params> chartParams = null;
@@ -96,50 +125,41 @@ public class IntervalsChartComponent extends LinearLayout
         });
     }
     
-    public void bindToViewModel(IntervalsChartViewModel viewModel, LifecycleOwner lifecycleOwner)
-    {
-        // IDEA [21-06-17 1:52AM] -- in the future, I can store references to these observers, so
-        //  that I can unbind (to maybe then rebind with a new view model).
-        viewModel.hasAnyData().observe(lifecycleOwner, this::observeHasAnyData);
-        viewModel.getIntervalsDataSet().observe(lifecycleOwner, this::observeDataSet);
-        viewModel.getIntervalsValueText().observe(lifecycleOwner, this::observeValueText);
-        mTimePeriodSelector.setCallbacks(createViewModelTimePeriodCallbacks(viewModel));
-    }
-    
     private RangeSelectorComponent.Callbacks createViewModelTimePeriodCallbacks(
             IntervalsChartViewModel viewModel)
     {
-        return new RangeSelectorComponent.Callbacks() {
+        return new RangeSelectorComponent.Callbacks()
+        {
             @Override
             public int getMenuId()
             {
                 return R.menu.stats_intervals_popup_menu;
             }
-    
+            
             @Override
             public void onBackPressed()
             {
                 viewModel.stepIntervalsRange(IntervalsChartViewModel.Step.BACKWARD);
             }
-    
+            
             @Override
             public void onForwardPressed()
             {
                 viewModel.stepIntervalsRange(IntervalsChartViewModel.Step.FORWARD);
             }
-    
+            
             @Override
             public void onPopupMenuInflated(Menu popupMenu)
             {
                 MenuItem previouslyChecked = popupMenu.findItem(mCheckedMenuItemId);
                 previouslyChecked.setChecked(true);
             }
-    
+            
             @Override
             public boolean onPopupMenuItemClicked(MenuItem item)
             {
                 setItemChecked(item);
-        
+                
                 switch (item.getItemId()) {
                 case R.id.stats_intervals_resolution_week:
                     viewModel.setIntervalsResolution(IntervalsDataSet.Resolution.WEEK);
@@ -183,7 +203,7 @@ public class IntervalsChartComponent extends LinearLayout
         mChartLayout = findViewById(R.id.stats_intervals_layout);
         mTimePeriodSelector = findViewById(R.id.stats_intervals_time_period_selector);
         mNoDataMessage = findViewById(R.id.stats_intervals_no_data);
-    
+        
         // REFACTOR [21-06-17 1:20AM] -- I should inject this factory somehow.
         mChartParamsFactory = new IntervalsChartParamsFactory(mExecutor, getContext());
     }
@@ -193,8 +213,6 @@ public class IntervalsChartComponent extends LinearLayout
         item.setChecked(true);
         mCheckedMenuItemId = item.getItemId();
     }
-    
-    private CombinedChartViewFactory mChartViewFactory;
     
     private CombinedChartViewFactory getChartViewFactory()
     {

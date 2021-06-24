@@ -136,7 +136,7 @@ public class TagScrollController
                 null,
                 R.attr.tagSelectorNoTagsMessageStyle);
         noTagsMessage.setText(R.string.tagscroll_no_selected_tags);
-    
+
         mLayout.removeAllViews();
         mLayout.addView(noTagsMessage);
     }

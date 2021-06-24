@@ -9,8 +9,13 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.rbraithwaite.sleepapp.R;
 
-public class TagSelectorComponent extends ConstraintLayout
+public class TagSelectorComponent
+        extends ConstraintLayout
 {
+//*********************************************************
+// constructors
+//*********************************************************
+
     public TagSelectorComponent(@NonNull Context context)
     {
         super(context);
@@ -43,9 +48,14 @@ public class TagSelectorComponent extends ConstraintLayout
         initComponent(context);
     }
     
+//*********************************************************
+// private methods
+//*********************************************************
+
     // REFACTOR [21-05-25 1:38PM] -- This pattern is repeated in MoodSelectorComponent
     //  consider making a ConstraintLayoutComponent base class.
-    private void initComponent(Context context) {
+    private void initComponent(Context context)
+    {
         inflate(context, R.layout.tag_selector, this);
     }
 }

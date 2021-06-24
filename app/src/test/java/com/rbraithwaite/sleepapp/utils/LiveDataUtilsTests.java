@@ -30,7 +30,7 @@ public class LiveDataUtilsTests
                 testA,
                 testB,
                 (testAVal, testBVal) -> (testAVal.equals(testA.getValue()) &&
-                        testBVal.equals(testB.getValue())));
+                                         testBVal.equals(testB.getValue())));
         
         TestUtils.activateLocalLiveData(result);
         assertThat(result.getValue(), is(true));
@@ -41,12 +41,12 @@ public class LiveDataUtilsTests
     {
         final MutableLiveData<String> testA = new MutableLiveData<>("wassup");
         final MutableLiveData<Integer> testB = new MutableLiveData<>(123);
-    
+        
         LiveData<String> result = LiveDataUtils.merge(
                 testA,
                 testB,
                 (testAVal, testBVal) -> testAVal + testBVal);
-    
+        
         TestUtils.activateLocalLiveData(result);
         
         testA.setValue("heyhey");

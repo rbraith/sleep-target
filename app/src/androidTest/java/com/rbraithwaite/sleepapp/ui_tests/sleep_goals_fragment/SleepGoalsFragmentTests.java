@@ -6,6 +6,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
+import com.rbraithwaite.sleepapp.core.models.WakeTimeGoal;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestNavigate;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
@@ -13,9 +14,9 @@ import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DurationPickerTestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
-import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFormatting;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFragment;
+import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -178,7 +179,9 @@ public class SleepGoalsFragmentTests
         onView(withId(R.id.waketime_value)).check(matches(withText(
                 // REFACTOR [21-01-17 5:10PM] -- this should be SleepGoalFragment's
                 //  DateTimeFormatter.
-                new DateTimeFormatter().formatTimeOfDay(calendar.getTime()))));
+                SleepGoalsFormatting.formatWakeTimeGoal(new WakeTimeGoal(calendar.getTime(),
+                                                                         (int) new TimeUtils().getTimeOfDay(
+                                                                                 calendar))))));
     }
     
     @Test
@@ -212,8 +215,9 @@ public class SleepGoalsFragmentTests
         
         // THEN the newly added wake-time is displayed to the user
         onView(withId(R.id.sleep_goals_waketime)).check(matches(isDisplayed()));
-        onView(withId(R.id.waketime_value)).check(matches(withText(new DateTimeFormatter().formatTimeOfDay(
-                calendar.getTime()))));
+        onView(withId(R.id.waketime_value)).check(matches(withText(SleepGoalsFormatting.formatWakeTimeGoal(
+                new WakeTimeGoal(calendar.getTime(),
+                                 (int) new TimeUtils().getTimeOfDay(calendar))))));
     }
     
     @Test

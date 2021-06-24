@@ -5,14 +5,13 @@ import android.content.res.TypedArray;
 
 import com.rbraithwaite.sleepapp.R;
 
-// REFACTOR [21-06-5 6:13PM] -- move this somewhere else.
 public class AppColors
 {
 //*********************************************************
-// private properties
+// private constants
 //*********************************************************
 
-    private static int[] attrArray = new int[] {
+    private static final int[] attrArray = new int[] {
             R.attr.colorPrimary,
             R.attr.colorOnPrimary,
             R.attr.colorPrimaryDark,
@@ -38,7 +37,6 @@ public class AppColors
 // public properties
 //*********************************************************
 
-    public static int NOT_FOUND = -1;
     public int colorPrimary;
     public int colorOnPrimary;
     public int colorPrimaryDark;
@@ -58,13 +56,19 @@ public class AppColors
     public int appColorSurfaceFloating;
     public int appDialogTitleIconColor;
     public int appColorComplementary;
-    
+
+//*********************************************************
+// public constants
+//*********************************************************
+
+    public static final int NOT_FOUND = -1;
+
 //*********************************************************
 // constructors
 //*********************************************************
 
     private AppColors() {/* No instantiation */}
-    
+
 //*********************************************************
 // api
 //*********************************************************

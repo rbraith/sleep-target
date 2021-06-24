@@ -7,6 +7,7 @@ import androidx.lifecycle.Observer;
 // SMELL [21-04-22 11:32PM] -- This is still kind of ugly, look for a better way.
 
 
+
 /**
  * An Observer meant to facilitate observing a single LiveData at a time, in case you lose track of
  * the LiveData it was observing before. Use like this: myLiveData.observe(...MySingleObserver
@@ -20,7 +21,7 @@ public abstract class SingleObserver<T>
 //*********************************************************
 
     private LiveData<T> mLiveData;
-    
+
 //*********************************************************
 // api
 //*********************************************************

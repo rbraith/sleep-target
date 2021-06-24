@@ -31,6 +31,8 @@ public class TagSelectorRecyclerAdapter
     
     private TagSelectorViewModel mViewModel;
     private boolean mInitialized = false;
+    
+    private Attributes mAttributes;
 
 //*********************************************************
 // private constants
@@ -38,6 +40,8 @@ public class TagSelectorRecyclerAdapter
 
     private static final String TAG = "TagSelectorRecyclerAdap";
     private static final int VIEW_TYPE_TAG = 0;
+    
+    
     private static final int VIEW_TYPE_ADD_CUSTOM_BUTTON = 1;
 
 //*********************************************************
@@ -164,7 +168,7 @@ public class TagSelectorRecyclerAdapter
             }
             setEditTextActive(listItemData.beingEdited);
             mCard.setCardBackgroundColor(listItemData.selected ?
-                    mAttributes.selectedTagColor : mAttributes.unselectedTagColor);
+                                                 mAttributes.selectedTagColor : mAttributes.unselectedTagColor);
             
             mTagText.setText(listItemData.tagUiData.text);
             mTagEditText.setText(listItemData.tagUiData.text);
@@ -191,37 +195,6 @@ public class TagSelectorRecyclerAdapter
     {
         mViewModel = viewModel;
         bindViewModel(lifecycleOwner);
-    }
-    
-    private static class Attributes
-    {
-        public final int unselectedTagColor;
-        public final int selectedTagColor;
-    
-        public Attributes(int unselectedTagColor, int selectedTagColor)
-        {
-            this.unselectedTagColor = unselectedTagColor;
-            this.selectedTagColor = selectedTagColor;
-        }
-    }
-    
-    private Attributes mAttributes;
-    
-    private void maybeInitAttributes(ViewGroup parent)
-    {
-        mAttributes = CommonUtils.lazyInit(mAttributes, () -> {
-            TypedArray ta = parent.getContext().obtainStyledAttributes(R.styleable.TagSelectorDialog);
-            Attributes attributes = new Attributes(
-                    ta.getColor(R.styleable.TagSelectorDialog_tagSelectorListItemUnselectedColor, -1),
-                    ta.getColor(R.styleable.TagSelectorDialog_tagSelectorListItemSelectedColor, -1));
-            ta.recycle();
-            return attributes;
-        });
-    }
-    
-    private Attributes getAttributes()
-    {
-        return mAttributes;
     }
     
 //*********************************************************
@@ -272,7 +245,7 @@ public class TagSelectorRecyclerAdapter
         }
         return VIEW_TYPE_ADD_CUSTOM_BUTTON;
     }
-    
+
     @Override
     public int getItemCount()
     {
@@ -287,6 +260,26 @@ public class TagSelectorRecyclerAdapter
 // private methods
 //*********************************************************
 
+    private void maybeInitAttributes(ViewGroup parent)
+    {
+        mAttributes = CommonUtils.lazyInit(mAttributes, () -> {
+            TypedArray ta =
+                    parent.getContext().obtainStyledAttributes(R.styleable.TagSelectorDialog);
+            Attributes attributes = new Attributes(
+                    ta.getColor(R.styleable.TagSelectorDialog_tagSelectorListItemUnselectedColor,
+                                -1),
+                    ta.getColor(R.styleable.TagSelectorDialog_tagSelectorListItemSelectedColor,
+                                -1));
+            ta.recycle();
+            return attributes;
+        });
+    }
+    
+    private Attributes getAttributes()
+    {
+        return mAttributes;
+    }
+    
     private void bindViewModel(LifecycleOwner lifecycleOwner)
     {
         mViewModel.getLastListItemChange().observe(
@@ -337,7 +330,7 @@ public class TagSelectorRecyclerAdapter
                 lifecycleOwner,
                 this::notifyItemChanged);
     }
-    
+
     // REFACTOR [21-04-17 2:52PM] -- I could extract this as a general utility for recycler
     //  adapters.
     private View inflateLayout(int layoutId, ViewGroup parent)
@@ -366,5 +359,21 @@ public class TagSelectorRecyclerAdapter
             mViewModel.toggleTagExpansion(position);
             return true;
         });
+    }
+    
+//*********************************************************
+// private helpers
+//*********************************************************
+
+    private static class Attributes
+    {
+        public final int unselectedTagColor;
+        public final int selectedTagColor;
+        
+        public Attributes(int unselectedTagColor, int selectedTagColor)
+        {
+            this.unselectedTagColor = unselectedTagColor;
+            this.selectedTagColor = selectedTagColor;
+        }
     }
 }

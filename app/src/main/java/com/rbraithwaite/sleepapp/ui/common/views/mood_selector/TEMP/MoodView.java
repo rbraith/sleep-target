@@ -13,8 +13,19 @@ import com.rbraithwaite.sleepapp.R;
 import java.util.Arrays;
 import java.util.List;
 
-public class MoodView extends androidx.appcompat.widget.AppCompatImageView
+public class MoodView
+        extends androidx.appcompat.widget.AppCompatImageView
 {
+//*********************************************************
+// private properties
+//*********************************************************
+
+    private int mMoodColor;
+
+//*********************************************************
+// private constants
+//*********************************************************
+
     private static final List<Integer> MOOD_DRAWABLES = Arrays.asList(
             R.drawable.mood_00face00smileclosed00_111_smile,
             R.drawable.mood_00face00smileclosed01_114_smile,
@@ -104,17 +115,20 @@ public class MoodView extends androidx.appcompat.widget.AppCompatImageView
             R.drawable.mood_01other_093_robot,
             R.drawable.mood_01other_106_skull,
             R.drawable.mood_01other_117_ghost);
-    
     private static final int DEFAULT_MOOD_INDEX = 0;
     
+    // TODO [21-06-13 11:31PM] --
+    //  I should have a ctor that takes the mood index.
+    
+//*********************************************************
+// constructors
+//*********************************************************
+
     public MoodView(@NonNull Context context)
     {
         super(context);
         setMood(DEFAULT_MOOD_INDEX);
     }
-    
-    // TODO [21-06-13 11:31PM] --
-    //  I should have a ctor that takes the mood index.
     
     public MoodView(
             Context context,
@@ -123,15 +137,18 @@ public class MoodView extends androidx.appcompat.widget.AppCompatImageView
         super(context, attrs);
         TypedArray ta = context.obtainStyledAttributes(R.styleable.MoodView);
         int moodIndex;
-        try{
+        try {
             moodIndex = ta.getInt(R.styleable.MoodView_mood, DEFAULT_MOOD_INDEX);
-        }
-        finally{
+        } finally {
             ta.recycle();
         }
         setMood(moodIndex);
     }
     
+//*********************************************************
+// api
+//*********************************************************
+
     public static int getMoodCount()
     {
         return MOOD_DRAWABLES.size();
@@ -140,7 +157,7 @@ public class MoodView extends androidx.appcompat.widget.AppCompatImageView
     public void setMood(int moodIndex)
     {
         int drawableId;
-        try{
+        try {
             drawableId = MOOD_DRAWABLES.get(moodIndex);
         } catch (IndexOutOfBoundsException e) {
             // TODO [21-06-9 7:21PM] -- maybe let the client handle an invalid index instead?
@@ -149,16 +166,14 @@ public class MoodView extends androidx.appcompat.widget.AppCompatImageView
         setImageDrawable(AppCompatResources.getDrawable(getContext(), drawableId));
     }
     
-    private int mMoodColor;
+    public int getMoodColor()
+    {
+        return mMoodColor;
+    }
     
     public void setMoodColor(int color)
     {
         setColorFilter(color);
         mMoodColor = color;
-    }
-    
-    public int getMoodColor()
-    {
-        return mMoodColor;
     }
 }

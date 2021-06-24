@@ -19,7 +19,8 @@ import static com.rbraithwaite.sleepapp.ui.stats.chart_intervals.IntervalsDataSe
 import static com.rbraithwaite.sleepapp.ui.stats.chart_intervals.IntervalsDataSet.Resolution.WEEK;
 import static com.rbraithwaite.sleepapp.ui.stats.chart_intervals.IntervalsDataSet.Resolution.YEAR;
 
-public class IntervalsChartViewModel extends ViewModel
+public class IntervalsChartViewModel
+        extends ViewModel
 {
 //*********************************************************
 // private properties
@@ -51,7 +52,7 @@ public class IntervalsChartViewModel extends ViewModel
 //*********************************************************
 // public helpers
 //*********************************************************
-    
+
     public enum Step
     {
         FORWARD,
@@ -73,6 +74,7 @@ public class IntervalsChartViewModel extends ViewModel
         mExecutor = executor;
         mTimeUtils = createTimeUtils();
     }
+
 
 
 //*********************************************************

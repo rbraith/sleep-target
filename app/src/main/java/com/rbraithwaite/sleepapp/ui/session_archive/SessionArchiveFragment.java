@@ -198,7 +198,7 @@ public class SessionArchiveFragment
                             .show();
                     fragment.completed();
                 });
-    
+        
         deleteDialog.show(fragment.getChildFragmentManager(),
                           SESSION_DELETE_DIALOG);
     }

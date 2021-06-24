@@ -97,7 +97,7 @@ public abstract class SleepSessionDao
 // api
 //*********************************************************
 
-    
+
     /**
      * Adds a new sleep session and its associated tags.
      *

@@ -13,7 +13,6 @@ import com.rbraithwaite.sleepapp.ui.common.convert.ConvertMood;
 import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.ConvertTag;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagUiData;
-import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
@@ -71,9 +70,6 @@ public class SessionDetailsFragmentViewModel
     
     public LiveData<String> getSessionDurationText()
     {
-        // REFACTOR [21-03-25 12:11AM] -- This should be SessionDataFormatting.
-        final DurationFormatter formatter = new DurationFormatter();
-        
         if (mSessionDurationText == null) {
             final MediatorLiveData<String> mediatorLiveData = new MediatorLiveData<>();
             mediatorLiveData.addSource(getSleepSession(), sleepSession -> {
@@ -81,7 +77,7 @@ public class SessionDetailsFragmentViewModel
                     mediatorLiveData.setValue(null);
                 } else {
                     mediatorLiveData.setValue(
-                            formatter.formatDurationMillis(sleepSession.getDurationMillis()));
+                            SessionDetailsFormatting.formatDuration(sleepSession.getDurationMillis()));
                 }
             });
             mSessionDurationText = mediatorLiveData;
@@ -303,6 +299,7 @@ public class SessionDetailsFragmentViewModel
     {
         return new TimeUtils();
     }
+
 
 //*********************************************************
 // private methods

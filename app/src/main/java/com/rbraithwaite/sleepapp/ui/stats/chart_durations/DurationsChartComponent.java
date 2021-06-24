@@ -29,8 +29,13 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 // REFACTOR [21-06-17 11:10PM] -- A lot of stuff in here is duplicated from IntervalsChartComponent
 @AndroidEntryPoint
-public class DurationsChartComponent extends ConstraintLayout
+public class DurationsChartComponent
+        extends ConstraintLayout
 {
+//*********************************************************
+// private properties
+//*********************************************************
+
     private TextView mTitle;
     private FrameLayout mChartLayout;
     private RangeSelectorComponent mRangeSelector;
@@ -40,11 +45,19 @@ public class DurationsChartComponent extends ConstraintLayout
     // REFACTOR [21-06-18 12:25AM] -- this init value should derive from the view model's default
     //  resolution.
     private int mCheckedMenuItemId = R.id.stats_durations_resolution_10;
-    
+    private DurationsChartParamsFactory mChartParamsFactory;
+
+//*********************************************************
+// package properties
+//*********************************************************
+
     @Inject
     Executor mExecutor;
-    private DurationsChartParamsFactory mChartParamsFactory;
     
+//*********************************************************
+// constructors
+//*********************************************************
+
     public DurationsChartComponent(@NonNull Context context)
     {
         super(context);
@@ -67,41 +80,51 @@ public class DurationsChartComponent extends ConstraintLayout
         initComponent(context);
     }
     
+//*********************************************************
+// api
+//*********************************************************
+
     public void bindToViewModel(DurationsChartViewModel viewModel, LifecycleOwner lifecycleOwner)
     {
-        viewModel.getDataSet().observe(lifecycleOwner, dataSet -> observeDataSet(dataSet, viewModel));
+        viewModel.getDataSet()
+                .observe(lifecycleOwner, dataSet -> observeDataSet(dataSet, viewModel));
         viewModel.getRangeText().observe(lifecycleOwner, this::observeRangeText);
         mRangeSelector.setCallbacks(createViewModelRangeCallbacks(viewModel));
     }
     
+//*********************************************************
+// private methods
+//*********************************************************
+
     private RangeSelectorComponent.Callbacks createViewModelRangeCallbacks(DurationsChartViewModel viewModel)
     {
-        return new RangeSelectorComponent.Callbacks() {
+        return new RangeSelectorComponent.Callbacks()
+        {
             @Override
             public int getMenuId()
             {
                 return R.menu.stats_durations_popup_menu;
             }
-    
+            
             @Override
             public void onBackPressed()
             {
                 viewModel.stepRangeBack();
             }
-    
+            
             @Override
             public void onForwardPressed()
             {
                 viewModel.stepRangeForward();
             }
-    
+            
             @Override
             public void onPopupMenuInflated(Menu popupMenu)
             {
                 MenuItem previouslyChecked = popupMenu.findItem(mCheckedMenuItemId);
                 previouslyChecked.setChecked(true);
             }
-    
+            
             @Override
             public boolean onPopupMenuItemClicked(MenuItem item)
             {
@@ -135,7 +158,9 @@ public class DurationsChartComponent extends ConstraintLayout
         mRangeSelector.setRangeValueText(rangeText);
     }
     
-    private void observeDataSet(List<DurationsChartViewModel.DataPoint> dataSet,  DurationsChartViewModel viewModel)
+    private void observeDataSet(
+            List<DurationsChartViewModel.DataPoint> dataSet,
+            DurationsChartViewModel viewModel)
     {
         if (dataSet == null || dataSet.isEmpty()) {
             toggleChartDisplay(false);
@@ -147,16 +172,18 @@ public class DurationsChartComponent extends ConstraintLayout
     /**
      * Assumes the dataset is not null or empty.
      */
-    private void updateChartWithData(List<DurationsChartViewModel.DataPoint> dataSet, int rangeDistance)
+    private void updateChartWithData(
+            List<DurationsChartViewModel.DataPoint> dataSet,
+            int rangeDistance)
     {
         LiveData<CombinedChartViewFactory.Params> chartParams = mChartParamsFactory.createParams(
                 dataSet, rangeDistance);
-    
+        
         // REFACTOR [21-06-7 3:36PM] -- This should be injected.
         CombinedChartViewFactory chartViewFactory = new CombinedChartViewFactory();
         LiveDataFuture.getValue(chartParams, null, params -> {
             View chartView = chartViewFactory.createFrom(getContext(), params);
-        
+            
             mChartLayout.removeAllViews();
             mChartLayout.addView(chartView);
             
@@ -167,13 +194,13 @@ public class DurationsChartComponent extends ConstraintLayout
     private void initComponent(Context context)
     {
         inflate(context, R.layout.stats_chart_durations, this);
-    
+        
         mTitle = findViewById(R.id.stats_durations_title);
         mChartLayout = findViewById(R.id.stats_durations_layout);
         mChartGroup = findViewById(R.id.stats_durations_chart_group);
         mRangeSelector = findViewById(R.id.stats_durations_range_selector);
         mNoDataMessage = findViewById(R.id.stats_durations_no_data);
-    
+        
         // REFACTOR [21-06-17 1:20AM] -- I should inject this factory somehow.
         mChartParamsFactory = new DurationsChartParamsFactory(mExecutor, getContext());
     }

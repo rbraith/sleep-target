@@ -24,8 +24,6 @@ import java.util.Map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(AndroidJUnit4.class)
@@ -187,7 +185,7 @@ public class IntervalsChartParamsFactoryTests
             assertThat(renderer.getXTextLabel(location), is(equalTo(expected.get(location))));
         }
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -215,7 +213,7 @@ public class IntervalsChartParamsFactoryTests
             assertThat(renderer.getYTextLabel(yLabelLocation), is(equalTo(yLabel)));
         }
     }
-
+    
     private IntervalsDataSet setupDataSet(IntervalsDataSet.Config config)
     {
         IntervalsDataSet intervalsDataSet = new IntervalsDataSet();

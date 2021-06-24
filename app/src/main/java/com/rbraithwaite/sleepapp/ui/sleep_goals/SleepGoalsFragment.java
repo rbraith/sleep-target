@@ -1,6 +1,5 @@
 package com.rbraithwaite.sleepapp.ui.sleep_goals;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,12 +7,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-import android.widget.TimePicker;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
@@ -85,7 +82,8 @@ public class SleepGoalsFragment
     {
         FrameLayout streakCalendarFrame =
                 fragmentRoot.findViewById(R.id.sleep_goals_streaks_calendar_frame);
-        // use the frame context, so that the theme applied to the frame gets applied to the calendar
+        // use the frame context, so that the theme applied to the frame gets applied to the
+        // calendar
         final StreakCalendar streakCalendar = new StreakCalendar(streakCalendarFrame.getContext());
         streakCalendarFrame.addView(streakCalendar.getView());
         
@@ -96,7 +94,8 @@ public class SleepGoalsFragment
         LiveData<List<List<Date>>> succeededGoalDates = LiveDataUtils.merge(
                 viewModel.getSucceededWakeTimeGoalDates(),
                 viewModel.getSucceededSleepDurationGoalDates(),
-                (wakeTimeGoalDates, sleepDurationGoalDates) -> Arrays.asList(wakeTimeGoalDates, sleepDurationGoalDates));
+                (wakeTimeGoalDates, sleepDurationGoalDates) -> Arrays.asList(wakeTimeGoalDates,
+                                                                             sleepDurationGoalDates));
         
         // OPTIMIZE [21-03-14 10:44PM] -- right now I am using all succeeded goal dates in history -
         //  it would probably be better to only use those relevant to the currently displayed month
@@ -152,7 +151,8 @@ public class SleepGoalsFragment
         final View sleepDurationGoalLayout = fragmentRoot.findViewById(R.id.sleep_goals_duration);
         final Button buttonAddNewSleepDuration =
                 fragmentRoot.findViewById(R.id.sleep_goals_new_duration_btn);
-        buttonAddNewSleepDuration.setOnClickListener(v -> displaySleepDurationGoalPickerDialog(getViewModel().getDefaultSleepDurationGoal()));
+        buttonAddNewSleepDuration.setOnClickListener(v -> displaySleepDurationGoalPickerDialog(
+                getViewModel().getDefaultSleepDurationGoal()));
         
         getViewModel().hasSleepDurationGoal().observe(
                 getViewLifecycleOwner(),
@@ -177,7 +177,8 @@ public class SleepGoalsFragment
     {
         final TextView valueText =
                 sleepDurationGoalLayout.findViewById(R.id.duration_value);
-        getViewModel().getSleepDurationGoalText().observe(getViewLifecycleOwner(), valueText::setText);
+        getViewModel().getSleepDurationGoalText()
+                .observe(getViewLifecycleOwner(), valueText::setText);
         
         Button editButton = sleepDurationGoalLayout.findViewById(R.id.duration_edit_btn);
         editButton.setOnClickListener(v -> LiveDataFuture.getValue(
@@ -248,7 +249,9 @@ public class SleepGoalsFragment
         TimePickerFragment timePicker = new TimePickerFragment();
         timePicker.setArguments(TimePickerFragment.createArguments(cal.get(Calendar.HOUR_OF_DAY),
                                                                    cal.get(Calendar.MINUTE)));
-        timePicker.setOnTimeSetListener((view, hourOfDay, minute) -> getViewModel().setWakeTime(hourOfDay, minute));
+        timePicker.setOnTimeSetListener((view, hourOfDay, minute) -> getViewModel().setWakeTime(
+                hourOfDay,
+                minute));
         timePicker.show(getChildFragmentManager(), WAKETIME_TIME_PICKER);
     }
 }

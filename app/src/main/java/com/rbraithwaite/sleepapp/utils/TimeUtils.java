@@ -1,7 +1,5 @@
 package com.rbraithwaite.sleepapp.utils;
 
-import com.rbraithwaite.sleepapp.ui.stats.common.RangeSelectorComponent;
-
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;

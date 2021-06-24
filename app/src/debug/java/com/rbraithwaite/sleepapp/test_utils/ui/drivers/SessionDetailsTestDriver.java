@@ -12,7 +12,6 @@ import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.FragmentTestHelp
 import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.MoodSelectorViewModel;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorViewModel;
-import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_details.SessionDetailsFormatting;
 import com.rbraithwaite.sleepapp.ui.session_details.SessionDetailsFragment;
 import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
@@ -105,8 +104,7 @@ public class SessionDetailsTestDriver
         public void durationMatches(long durationMillis)
         {
             onView(withId(R.id.session_details_duration)).check(matches(withText(
-                    // REFACTOR [21-05-10 10:37PM] -- This should be SessionDetailsFormatting.
-                    new DurationFormatter().formatDurationMillis(durationMillis))));
+                    SessionDetailsFormatting.formatDuration(durationMillis))));
         }
         
         public void endDateAndTimeMatch(Date end)

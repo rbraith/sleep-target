@@ -16,22 +16,23 @@ import javax.inject.Inject;
 public class IntervalsDataSet
 {
 //*********************************************************
-// private properties
-//*********************************************************
-
-    public XYMultipleSeriesDataset dataSet;
-    public Config config;
-
-//*********************************************************
 // private constants
 //*********************************************************
 
     private static final String TAG = "SleepIntervalsDataSet";
 
 //*********************************************************
+// public properties
+//*********************************************************
+
+    public XYMultipleSeriesDataset dataSet;
+
+    public Config config;
+
+//*********************************************************
 // public helpers
 //*********************************************************
-    
+
     public enum Resolution
     {
         WEEK,
@@ -51,7 +52,7 @@ public class IntervalsDataSet
         // if the resolution is MONTH, this is the month,
         // if the resolution is YEAR, this is the year.
         public int resolutionValue;
-    
+
         public Config(
                 DateRange dateRange,
                 int offsetMillis,
@@ -60,7 +61,7 @@ public class IntervalsDataSet
         {
             this(dateRange, offsetMillis, invert, resolution, 0);
         }
-    
+
         public Config(
                 DateRange dateRange,
                 int offsetMillis,
@@ -73,7 +74,7 @@ public class IntervalsDataSet
             this.resolution = resolution;
             this.resolutionValue = resolutionValue;
         }
-    
+
         @Override
         public int hashCode()
         {
@@ -113,7 +114,8 @@ public class IntervalsDataSet
             mTimeUtils = createTimeUtils();
         }
 
-        
+
+
         /**
          * Each series X-value of the returned data set represents a 24hr window into which sleep
          * sessions are placed, with the first window beginning on config.dateRange.getStart().
@@ -151,7 +153,7 @@ public class IntervalsDataSet
         }
 
 
-        
+
         /**
          * <p>
          * Pre-populate a Map with empty "buckets" (ie lists of points) for a given range. Each
@@ -302,7 +304,7 @@ public class IntervalsDataSet
 //*********************************************************
 // api
 //*********************************************************
-    
+
     public boolean isEmpty()
     {
         return dataSet == null ||

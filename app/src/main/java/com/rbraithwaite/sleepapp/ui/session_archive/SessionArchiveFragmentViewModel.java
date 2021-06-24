@@ -9,8 +9,6 @@ import androidx.lifecycle.ViewModel;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.core.models.Tag;
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
-import com.rbraithwaite.sleepapp.di.UIDependenciesModule;
-import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.session_archive.convert.ConvertSessionArchiveListItem;
 import com.rbraithwaite.sleepapp.ui.session_archive.data.SessionArchiveListItem;
 import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
@@ -27,7 +25,6 @@ public class SessionArchiveFragmentViewModel
 //*********************************************************
 
     private SleepSessionRepository mSleepSessionRepository;
-    private DateTimeFormatter mDateTimeFormatter;
     private TimeUtils mTimeUtils;
 
 //*********************************************************
@@ -41,13 +38,9 @@ public class SessionArchiveFragmentViewModel
 //*********************************************************
 
     @ViewModelInject
-    public SessionArchiveFragmentViewModel(
-            SleepSessionRepository sleepSessionRepository,
-            // REFACTOR [21-03-24 1:47AM] this should be a SessionArchiveFormatter.
-            @UIDependenciesModule.SessionArchiveDateTimeFormatter DateTimeFormatter dateTimeFormatter)
+    public SessionArchiveFragmentViewModel(SleepSessionRepository sleepSessionRepository)
     {
         mSleepSessionRepository = sleepSessionRepository;
-        mDateTimeFormatter = dateTimeFormatter;
         mTimeUtils = createTimeUtils();
     }
 

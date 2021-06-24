@@ -13,9 +13,9 @@ import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.rbraithwaite.sleepapp.ui.utils.UiUtils;
 import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.TEMP.MoodDialogRecyclerAdapter;
+import com.rbraithwaite.sleepapp.ui.utils.UiUtils;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
@@ -36,7 +36,7 @@ public class MoodDialogFragment
     
     
     private int mThemeId = NO_THEME;
-    
+
 //*********************************************************
 // private constants
 //*********************************************************
@@ -48,7 +48,7 @@ public class MoodDialogFragment
 //*********************************************************
 
     public static final String RECYCLER_TAG = "MoodDialogRecycler";
-    
+
 
 //*********************************************************
 // public helpers
@@ -58,7 +58,7 @@ public class MoodDialogFragment
     {
         void onClick(MoodUiData selectedMood);
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -87,7 +87,7 @@ public class MoodDialogFragment
         
         return builder.create();
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -127,11 +127,12 @@ public class MoodDialogFragment
         mSelectedMood = selectedMood;
     }
 
+
 //*********************************************************
 // private methods
 //*********************************************************
 
-    
+
     /**
      * Creates a matrix of mood views.
      */

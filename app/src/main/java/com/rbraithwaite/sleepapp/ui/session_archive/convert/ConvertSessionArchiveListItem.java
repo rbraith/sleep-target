@@ -17,11 +17,13 @@ public class ConvertSessionArchiveListItem
 
     private ConvertSessionArchiveListItem() {/* No instantiation */}
 
+    // TEST NEEDED [21-05-14 5:09PM] -- update tests with rating data.
+
 //*********************************************************
 // api
 //*********************************************************
 
-    // TEST NEEDED [21-05-14 5:09PM] -- update tests with rating data.
+    
     /**
      * Converts a SleepSession to a SessionArchiveListItem.
      *
@@ -43,7 +45,7 @@ public class ConvertSessionArchiveListItem
                 convertTags(sleepSession.getTags()),
                 sleepSession.getRating());
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

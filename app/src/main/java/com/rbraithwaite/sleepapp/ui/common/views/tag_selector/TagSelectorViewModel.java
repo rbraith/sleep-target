@@ -55,7 +55,7 @@ public class TagSelectorViewModel
 //*********************************************************
 
     public static final int NO_ACTIVE_EDIT_TAG = -1;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -72,7 +72,7 @@ public class TagSelectorViewModel
             this.tagUiData = tagUiData;
         }
     }
-    
+
 //*********************************************************
 // package helpers
 //*********************************************************
@@ -83,7 +83,7 @@ public class TagSelectorViewModel
     {
         TagRepository tagRepository();
     }
-    
+
 
 //*********************************************************
 // constructors
@@ -101,7 +101,7 @@ public class TagSelectorViewModel
                     }
                 });
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -233,7 +233,7 @@ public class TagSelectorViewModel
     {
         return mSelectedTags;
     }
-    
+
 //*********************************************************
 // protected api
 //*********************************************************
@@ -242,7 +242,7 @@ public class TagSelectorViewModel
     {
         return getEntryPoint().tagRepository();
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

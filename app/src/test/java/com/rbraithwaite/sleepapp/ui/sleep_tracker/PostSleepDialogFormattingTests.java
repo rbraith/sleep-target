@@ -54,7 +54,7 @@ public class PostSleepDialogFormattingTests
                        is(equalTo(expected)));
         }
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

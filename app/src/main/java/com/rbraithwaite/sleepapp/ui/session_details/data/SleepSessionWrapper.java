@@ -12,6 +12,7 @@ import java.io.Serializable;
 //  this class & replace it.
 
 
+
 /**
  * A simple wrapper used to transport sleep session data between view models without polluting the
  * view layer (where the transportation occurs) with references to that data (the view layer should

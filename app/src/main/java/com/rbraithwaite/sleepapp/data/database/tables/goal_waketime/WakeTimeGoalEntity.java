@@ -32,7 +32,17 @@ public class WakeTimeGoalEntity
      */
     @ColumnInfo(name = WakeTimeGoalContract.Columns.GOAL)
     public int wakeTimeGoal;
+
+//*********************************************************
+// public constants
+//*********************************************************
+
+    public static final int NO_GOAL = -1;
     
+//*********************************************************
+// constructors
+//*********************************************************
+
     public WakeTimeGoalEntity(Date editTime, int wakeTimeGoal)
     {
         this.editTime = editTime;
@@ -42,10 +52,4 @@ public class WakeTimeGoalEntity
     public WakeTimeGoalEntity()
     {
     }
-    
-    //*********************************************************
-// public constants
-//*********************************************************
-
-    public static final int NO_GOAL = -1;
 }

@@ -57,7 +57,7 @@ public class StreakCalendar
         mSleepDurationGoalDates = new ArrayList<>();
         mBothGoalsDates = new ArrayList<>();
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -109,7 +109,7 @@ public class StreakCalendar
         mBothGoalsDecorator.setDates(mBothGoalsDates);
         mView.invalidateDecorators();
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

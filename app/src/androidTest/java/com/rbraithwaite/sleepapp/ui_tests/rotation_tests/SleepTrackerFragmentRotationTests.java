@@ -8,7 +8,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.HiltFragmentTestHelper;
-import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
+import com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFormatting;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFragment;
 
 import org.junit.Rule;
@@ -76,6 +76,6 @@ public class SleepTrackerFragmentRotationTests
                         isDisplayed(),
                         withText(expectedStartTimeText.ref))));
         onView(withId(R.id.sleep_tracker_session_time))
-                .check(matches(not(withText(new DurationFormatter().formatDurationMillis(0)))));
+                .check(matches(not(withText(SleepTrackerFormatting.formatDuration(0)))));
     }
 }

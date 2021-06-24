@@ -31,7 +31,7 @@ public class SleepSessionEntity
     public Integer moodIndex;
     @ColumnInfo(name = SleepSessionContract.Columns.RATING)
     public Float rating = 0f;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -58,11 +58,12 @@ public class SleepSessionEntity
     {
         this.startTime = startTime;
         this.endTime = endTime;
-        // SMELL [21-06-1 1:16AM] -- It's questionable having any logic at all in SleepSessionEntity.
+        // SMELL [21-06-1 1:16AM] -- It's questionable having any logic at all in
+        //  SleepSessionEntity.
         this.duration = endTime.getTime() - startTime.getTime();
     }
     
-    //*********************************************************
+//*********************************************************
 // overrides
 //*********************************************************
 

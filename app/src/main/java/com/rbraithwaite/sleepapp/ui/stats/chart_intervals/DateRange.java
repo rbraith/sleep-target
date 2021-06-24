@@ -73,7 +73,7 @@ public class DateRange
 // api
 //*********************************************************
 
-    
+
     /**
      * Returns a DateRange where getStart() returns Monday of the week of the provided Date, set to
      * offsetMillis and getEnd() returns the Monday of the next week, set to the same time

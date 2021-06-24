@@ -14,7 +14,7 @@ public class DateTimeViewModel
     private Formatter mFormatter;
     private MutableLiveData<Date> mDate = new MutableLiveData<>();
     private MutableLiveData<TimeOfDay> mTimeOfDay = new MutableLiveData<>();
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -50,7 +50,7 @@ public class DateTimeViewModel
             this.minute = minute;
         }
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************

@@ -8,7 +8,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.HiltFragmentTestHelper;
-import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
+import com.rbraithwaite.sleepapp.ui.session_details.SessionDetailsFormatting;
 import com.rbraithwaite.sleepapp.ui.session_details.SessionDetailsFragment;
 
 import org.junit.Test;
@@ -59,7 +59,7 @@ public class SessionDetailsFragmentRotationTests
                                        ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         
         // THEN the start date retains its updated value
-        onStartDateTextView().check(matches(withText(new DateTimeFormatter().formatDate(calendar.getTime()))));
+        onStartDateTextView().check(matches(withText(formatDate(calendar))));
     }
     
     @Test
@@ -84,8 +84,9 @@ public class SessionDetailsFragmentRotationTests
                                        ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         
         // THEN the start time retains its updated value
-        onStartTimeTextView().check(matches(withText(new DateTimeFormatter().formatTimeOfDay(
-                calendar.getTime()))));
+        onStartTimeTextView().check(matches(withText(SessionDetailsFormatting.formatTimeOfDay(
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE)))));
     }
     
     @Test
@@ -111,7 +112,7 @@ public class SessionDetailsFragmentRotationTests
                                        ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         
         // THEN the end date retains its updated value
-        onEndDateTextView().check(matches(withText(new DateTimeFormatter().formatDate(calendar.getTime()))));
+        onEndDateTextView().check(matches(withText(formatDate(calendar))));
     }
     
     @Test
@@ -136,6 +137,20 @@ public class SessionDetailsFragmentRotationTests
                                        ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         
         // THEN the end time retains its updated value
-        onEndTimeTextView().check(matches(withText(new DateTimeFormatter().formatTimeOfDay(calendar.getTime()))));
+        onEndTimeTextView().check(matches(withText(SessionDetailsFormatting.formatTimeOfDay(
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE)))));
+    }
+    
+//*********************************************************
+// private methods
+//*********************************************************
+
+    private String formatDate(GregorianCalendar calendar)
+    {
+        return SessionDetailsFormatting.formatDate(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH));
     }
 }

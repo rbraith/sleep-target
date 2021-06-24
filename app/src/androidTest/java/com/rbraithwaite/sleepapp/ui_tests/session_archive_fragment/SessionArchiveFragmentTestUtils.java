@@ -8,6 +8,10 @@ import java.util.GregorianCalendar;
 
 public class SessionArchiveFragmentTestUtils
 {
+//*********************************************************
+// constructors
+//*********************************************************
+
     private SessionArchiveFragmentTestUtils() {/* No instantiation */}
 
 //*********************************************************

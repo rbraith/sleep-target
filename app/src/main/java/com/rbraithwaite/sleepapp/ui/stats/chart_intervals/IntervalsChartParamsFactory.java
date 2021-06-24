@@ -5,8 +5,8 @@ import android.content.Context;
 import androidx.lifecycle.LiveData;
 
 import com.rbraithwaite.sleepapp.ui.stats.StatsFormatting;
-import com.rbraithwaite.sleepapp.ui.utils.AppColors;
 import com.rbraithwaite.sleepapp.ui.stats.common.CombinedChartViewFactory;
+import com.rbraithwaite.sleepapp.ui.utils.AppColors;
 import com.rbraithwaite.sleepapp.utils.AsyncUtils;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
@@ -33,7 +33,7 @@ public class IntervalsChartParamsFactory
     private AsyncUtils.AsyncFactory<CombinedChartViewFactory.Params> mParamsAsyncFactory;
     private TimeUtils mTimeUtils;
     private AppColors mAppColors;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -49,11 +49,12 @@ public class IntervalsChartParamsFactory
         mTimeUtils = createTimeUtils();
     }
 
+
 //*********************************************************
 // api
 //*********************************************************
 
-    
+
     /**
      * Create chart params for a generic ranged data set (commonly one week). The params are created
      * asynchronously.
@@ -152,7 +153,7 @@ public class IntervalsChartParamsFactory
             return params;
         });
     }
-    
+
 //*********************************************************
 // protected api
 //*********************************************************
@@ -162,11 +163,12 @@ public class IntervalsChartParamsFactory
         return new TimeUtils();
     }
 
+
 //*********************************************************
 // private methods
 //*********************************************************
 
-    
+
     /**
      * Init everything but the x-axis properties for the renderer, so that the x-axis can be
      * customized as needed.

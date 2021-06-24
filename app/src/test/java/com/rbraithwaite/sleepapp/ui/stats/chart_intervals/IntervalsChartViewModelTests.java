@@ -85,7 +85,8 @@ public class IntervalsChartViewModelTests
     public void hasAnyData_returnsTrueWhenThereIsData()
     {
         when(mockSleepSessionRepository.getTotalSleepSessionCount()).thenReturn((
-                new MutableLiveData<>(1)));
+                                                                                        new MutableLiveData<>(
+                                                                                                1)));
         
         LiveData<Boolean> hasAnyData = viewModel.hasAnyData();
         TestUtils.activateLocalLiveData(hasAnyData);

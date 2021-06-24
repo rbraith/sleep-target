@@ -141,7 +141,6 @@ public class SessionDetailsFragment
         public abstract void onAction(SessionDetailsFragment fragment, SleepSessionWrapper result);
     }
 
-
 //*********************************************************
 // constructors
 //*********************************************************
@@ -392,7 +391,8 @@ public class SessionDetailsFragment
     
     private void initSessionDuration(View fragmentRoot)
     {
-        final TextView sessionDurationText = fragmentRoot.findViewById(R.id.session_details_duration);
+        final TextView sessionDurationText =
+                fragmentRoot.findViewById(R.id.session_details_duration);
         getViewModel().getSessionDurationText().observe(
                 getViewLifecycleOwner(),
                 newSessionDurationText -> {

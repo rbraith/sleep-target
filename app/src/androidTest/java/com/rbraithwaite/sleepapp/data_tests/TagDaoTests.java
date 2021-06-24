@@ -7,7 +7,6 @@ import androidx.room.Room;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
-import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalDao;
 import com.rbraithwaite.sleepapp.data.database.tables.tag.TagDao;
 import com.rbraithwaite.sleepapp.data.database.tables.tag.TagEntity;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
@@ -32,14 +31,14 @@ public class TagDaoTests
 //*********************************************************
 // private properties
 //*********************************************************
-    
+
     private SleepAppDatabase database;
     private TagDao tagDao;
 
 //*********************************************************
 // public properties
 //*********************************************************
-    
+
     @Rule
     // protection against potentially infinitely blocked threads
     public Timeout timeout = new Timeout(10, TimeUnit.SECONDS);
@@ -47,7 +46,7 @@ public class TagDaoTests
 //*********************************************************
 // api
 //*********************************************************
-    
+
     @Before
     public void setup()
     {
@@ -80,7 +79,7 @@ public class TagDaoTests
         // SUT
         Integer[] expectedIds = {1, 2};
         LiveData<List<TagEntity>> tags = tagDao.getTagsWithIds(Arrays.asList(expectedIds));
-    
+
         TestUtils.activateInstrumentationLiveData(tags);
         assertThat(tags.getValue().size(), is(expectedIds.length));
         for (int i = 0; i < tags.getValue().size(); i++) {

@@ -17,7 +17,7 @@ import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.drivers.SessionArchiveTestDriver;
 import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
-import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
+import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFormatting;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragment;
 import com.rbraithwaite.sleepapp.ui_tests.session_details_fragment.SessionDetailsFragmentTestUtils;
 
@@ -288,10 +288,10 @@ public class SessionArchiveFragmentTests
         
         // THEN a new session is added with the correct values in the archive
         // these checks work because there will be only one list item at this point
-        // REFACTOR [21-03-26 5:24PM] -- This should be SessionArchiveFormatting.
-        DateTimeFormatter formatter = new DateTimeFormatter();
-        String expectedStartDateTimeText = formatter.formatFullDate(expectedStart.getTime());
-        String expectedEndDateTimeText = formatter.formatFullDate(expectedEnd.getTime());
+        String expectedStartDateTimeText =
+                SessionArchiveFormatting.formatFullDate(expectedStart.getTime());
+        String expectedEndDateTimeText =
+                SessionArchiveFormatting.formatFullDate(expectedEnd.getTime());
         onView(withId(R.id.session_archive_list_item_card)).check(matches(isDisplayed()));
         onView(withId(R.id.session_archive_list_item_start_VALUE)).check(matches(withText(
                 expectedStartDateTimeText)));
@@ -340,7 +340,7 @@ public class SessionArchiveFragmentTests
         // THEN that session's values are properly updated in the archive
         onView(withId(R.id.session_archive_list_item_start_VALUE))
                 .check(matches(withText(
-                        new DateTimeFormatter().formatFullDate(calendar.getTime()))));
+                        SessionArchiveFormatting.formatFullDate(calendar.getTime()))));
         onView(withId(R.id.session_archive_list_item_stop_VALUE))
                 .check(matches(withText(originalEndDateText.ref)));
     }

@@ -21,16 +21,18 @@ public abstract class BaseFragment<V extends ViewModel>
 //*********************************************************
 
     private V mViewModel;
-
-//*********************************************************
-// abstract
-//*********************************************************
     
+    private Properties<V> mProperties;
+    
+//*********************************************************
+// protected helpers
+//*********************************************************
+
     protected static class Properties<V extends ViewModel>
     {
         public final boolean isBottomNavVisible;
         public final Class<V> viewModelClass;
-    
+        
         public Properties(boolean isBottomNavVisible, Class<V> viewModelClass)
         {
             this.isBottomNavVisible = isBottomNavVisible;
@@ -38,15 +40,17 @@ public abstract class BaseFragment<V extends ViewModel>
         }
     }
     
-    private Properties<V> mProperties;
-    
+//*********************************************************
+// abstract
+//*********************************************************
+
     protected abstract Properties<V> initProperties();
 
+    
 //*********************************************************
 // overrides
 //*********************************************************
-    
-    
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState)
     {
@@ -61,6 +65,7 @@ public abstract class BaseFragment<V extends ViewModel>
         super.onActivityCreated(savedInstanceState);
         setMainActivityBottomNavVisibility(mProperties.isBottomNavVisible);
     }
+
 
 //*********************************************************
 // api
@@ -84,10 +89,6 @@ public abstract class BaseFragment<V extends ViewModel>
         }
     }
 
-//*********************************************************
-// protected api
-//*********************************************************
-
     public V getViewModel()
     {
         if (mViewModel == null) {
@@ -96,6 +97,11 @@ public abstract class BaseFragment<V extends ViewModel>
         }
         return mViewModel;
     }
+
+//*********************************************************
+// protected api
+//*********************************************************
+
     
     /**
      * This assumes that this fragment is inside MainActivity

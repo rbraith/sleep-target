@@ -15,7 +15,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class DurationsChartViewModel extends ViewModel
+public class DurationsChartViewModel
+        extends ViewModel
 {
 //*********************************************************
 // private properties
@@ -34,7 +35,7 @@ public class DurationsChartViewModel extends ViewModel
 
     public final int DEFAULT_RANGE_DISTANCE = 10;
     public final int DEFAULT_RANGE_OFFSET = 0;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -52,7 +53,7 @@ public class DurationsChartViewModel extends ViewModel
             this.label = label;
         }
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -64,7 +65,7 @@ public class DurationsChartViewModel extends ViewModel
         // REFACTOR [21-05-17 2:59PM] -- this should be injected.
         mTimeUtils = new TimeUtils();
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -136,7 +137,7 @@ public class DurationsChartViewModel extends ViewModel
         ));
         return mRangeText;
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -178,7 +179,7 @@ public class DurationsChartViewModel extends ViewModel
                     .collect(Collectors.toList());
         });
     }
-    
+
 //*********************************************************
 // private helpers
 //*********************************************************

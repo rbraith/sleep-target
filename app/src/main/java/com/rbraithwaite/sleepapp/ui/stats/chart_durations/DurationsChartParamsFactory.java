@@ -6,8 +6,8 @@ import android.graphics.Paint;
 import androidx.lifecycle.LiveData;
 
 import com.rbraithwaite.sleepapp.ui.stats.StatsFormatting;
-import com.rbraithwaite.sleepapp.ui.utils.AppColors;
 import com.rbraithwaite.sleepapp.ui.stats.common.CombinedChartViewFactory;
+import com.rbraithwaite.sleepapp.ui.utils.AppColors;
 import com.rbraithwaite.sleepapp.utils.AsyncUtils;
 
 import org.achartengine.chart.BarChart;
@@ -25,8 +25,17 @@ import java.util.concurrent.Executor;
 
 public class DurationsChartParamsFactory
 {
+//*********************************************************
+// private properties
+//*********************************************************
+
     private Executor mExecutor;
     private Context mContext;
+
+//*********************************************************
+// private constants
+//*********************************************************
+
     private final AsyncUtils.AsyncFactory<CombinedChartViewFactory.Params> mParamsAsyncFactory;
     
     private final int LEFT_Y_AXIS = 0;
@@ -34,36 +43,52 @@ public class DurationsChartParamsFactory
     
     private final AppColors mAppColors;
     
+//*********************************************************
+// constructors
+//*********************************************************
+
     public DurationsChartParamsFactory(Executor executor, Context context)
     {
         mExecutor = executor;
         mContext = context;
-    
+
         mParamsAsyncFactory = new AsyncUtils.AsyncFactory<>(executor);
-    
+
         mAppColors = AppColors.from(mContext);
     }
     
-    public LiveData<CombinedChartViewFactory.Params> createParams(List<DurationsChartViewModel.DataPoint> dataSet, int rangeDistance)
+//*********************************************************
+// api
+//*********************************************************
+
+    public LiveData<CombinedChartViewFactory.Params> createParams(
+            List<DurationsChartViewModel.DataPoint> dataSet,
+            int rangeDistance)
     {
         return mParamsAsyncFactory.createAsync(() -> _createParams(dataSet, rangeDistance));
     }
     
-    private CombinedChartViewFactory.Params _createParams(List<DurationsChartViewModel.DataPoint> dataSet, int rangeDistance)
+//*********************************************************
+// private methods
+//*********************************************************
+
+    private CombinedChartViewFactory.Params _createParams(
+            List<DurationsChartViewModel.DataPoint> dataSet,
+            int rangeDistance)
     {
         // REFACTOR [21-05-14 11:28PM] -- hardcoded strings.
         XYSeries durationSeries = new XYSeries("Sleep Duration", LEFT_Y_AXIS);
-    
+
         // add the durations data
         for (int i = 0; i < dataSet.size(); i++) {
             DurationsChartViewModel.DataPoint dataPoint = dataSet.get(i);
-        
+
             // this makes the data appear from right to left
             float chartPosition = rangeDistance - i - 1;
-        
+
             durationSeries.add(chartPosition, dataPoint.sleepDurationHours);
         }
-    
+
         // add the ratings data
         // (if the ratings data is 0, break the line)
         // OPTIMIZE [21-06-8 3:10PM] -- I could combine this loop with the above loop, though I
@@ -74,9 +99,9 @@ public class DurationsChartParamsFactory
         for (int i = 0; i < dataSet.size(); i++) {
             // this makes the data appear from right to left
             float chartPosition = rangeDistance - i - 1;
-        
+
             DurationsChartViewModel.DataPoint dataPoint = dataSet.get(i);
-        
+
             // transitioning into a rating line
             if (!inRatingLine && dataPoint.sleepRating > 0) {
                 currentRatingSeries = new XYSeries("Sleep Rating", RIGHT_Y_AXIS);
@@ -94,12 +119,12 @@ public class DurationsChartParamsFactory
                 }
             }
         }
-    
+
         CombinedChartViewFactory.Params params = new CombinedChartViewFactory.Params(
                 createMultipleSeriesRenderer(durationSeries.getMaxY(), rangeDistance),
                 new XYMultipleSeriesDataset(),
                 new ArrayList<>());
-    
+
         // set up the X labels (one at each end of the chart)
         if (!dataSet.isEmpty()) {
             // REFACTOR [21-05-15 5:50PM] -- it would be better if this was in
@@ -112,12 +137,12 @@ public class DurationsChartParamsFactory
                                               dataSet.get(dataSet.size() - 1).label);
             }
         }
-    
+
         // add durations to params
         params.dataSet.addSeries(durationSeries);
         params.renderer.addSeriesRenderer(createDurationsSeriesRenderer());
         params.types.add(new CombinedXYChart.XYCombinedChartDef(BarChart.TYPE, 0));
-    
+
         // add ratings to params
         XYSeriesRenderer ratingSeriesRenderer = createRatingsSeriesRenderer();
         int[] ratingSeriesIndices = new int[ratingSeriesList.size()];
@@ -128,13 +153,15 @@ public class DurationsChartParamsFactory
         }
         params.types.add(new CombinedXYChart.XYCombinedChartDef(LineChart.TYPE,
                                                                 ratingSeriesIndices));
-    
+
         return params;
     }
     
     // REFACTOR [21-05-15 12:47AM] -- a lot of this duplicates the intervals chart renderer
     //  setup in IntervalsChartParamsFactory - these should be consistent with each other.
-    private XYMultipleSeriesRenderer createMultipleSeriesRenderer(double maxDataY, int rangeDistance)
+    private XYMultipleSeriesRenderer createMultipleSeriesRenderer(
+            double maxDataY,
+            int rangeDistance)
     {
         final int TWO_Y_AXES = 2;
         XYMultipleSeriesRenderer renderer = new XYMultipleSeriesRenderer(TWO_Y_AXES);

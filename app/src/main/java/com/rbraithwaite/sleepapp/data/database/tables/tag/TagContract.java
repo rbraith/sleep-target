@@ -9,7 +9,7 @@ public class TagContract
 //*********************************************************
 
     public static final String TABLE_NAME = "tags";
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -19,7 +19,7 @@ public class TagContract
         public static final String ID = BaseColumns._ID;
         public static final String TAG_TEXT = "tag_text";
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************

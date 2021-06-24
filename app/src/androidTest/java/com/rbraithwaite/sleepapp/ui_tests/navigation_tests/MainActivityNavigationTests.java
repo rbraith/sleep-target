@@ -7,7 +7,7 @@ import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestNavigate;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
-import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
+import com.rbraithwaite.sleepapp.ui.session_details.SessionDetailsFormatting;
 import com.rbraithwaite.sleepapp.ui_tests.session_details_fragment.SessionDetailsFragmentTestUtils;
 
 import org.junit.Test;
@@ -100,9 +100,8 @@ public class MainActivityNavigationTests
         SessionDetailsFragmentTestUtils.onStartTimeTextView().check(matches(not(withText(""))));
         SessionDetailsFragmentTestUtils.onEndTimeTextView().check(matches(not(withText(""))));
         
-        onView(withId(R.id.session_details_duration)).check(matches(withText(new DurationFormatter()
-                                                                                     .formatDurationMillis(
-                                                                                             0))));
+        onView(withId(R.id.session_details_duration)).check(matches(withText(
+                SessionDetailsFormatting.formatDuration(0))));
     }
     
     @Test

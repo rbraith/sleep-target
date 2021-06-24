@@ -45,4 +45,9 @@ public class SessionDetailsFormatting
                 new SimpleDateFormat(Constants.STANDARD_FORMAT_DATE, Constants.STANDARD_LOCALE);
         return dateFormat.format(cal.getTime());
     }
+    
+    public static String formatDuration(long durationMillis)
+    {
+        return CommonFormatting.formatDurationMillis(durationMillis);
+    }
 }

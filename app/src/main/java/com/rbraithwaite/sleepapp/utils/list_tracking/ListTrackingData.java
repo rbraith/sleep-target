@@ -10,7 +10,7 @@ public class ListTrackingData<T>
 
     public final List<T> list;
     public final ListChange<T> lastChange;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -38,7 +38,7 @@ public class ListTrackingData<T>
             this.changeType = changeType;
         }
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************

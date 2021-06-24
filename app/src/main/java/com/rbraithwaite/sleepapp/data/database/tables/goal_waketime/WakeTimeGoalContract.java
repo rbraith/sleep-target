@@ -9,7 +9,7 @@ public class WakeTimeGoalContract
 //*********************************************************
 
     public static final String TABLE_NAME = "waketime_goal";
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -20,7 +20,7 @@ public class WakeTimeGoalContract
         public static final String EDIT_TIME = "edit_time";
         public static final String GOAL = "goal";
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************

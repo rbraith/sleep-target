@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 
 import java.util.List;
 
+
 /**
  * A form of mutable LiveData, designed to provide atomic updates about a list. In order to receive
  * atomic updates about a list (individual add, delete, & modify operations) you need to manipulate
@@ -24,7 +25,7 @@ public class ListTrackingLiveData<T>
 //*********************************************************
 
     private static final String TAG = "ListTrackingLiveData";
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -34,7 +35,7 @@ public class ListTrackingLiveData<T>
         mList = list;
         setValue(new ListTrackingData<>(mList, null));
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************

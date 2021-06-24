@@ -31,7 +31,7 @@ public class PostSleepDialogViewModel
     private Context mContext;
     private TagRepository mTagRepository;
     private PostSleepDialogViewModel.EntryPoint mEntryPoint;
-    
+
 //*********************************************************
 // package helpers
 //*********************************************************
@@ -42,7 +42,7 @@ public class PostSleepDialogViewModel
     {
         TagRepository tagRepository();
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -58,7 +58,7 @@ public class PostSleepDialogViewModel
         mPostSleepData.setValue(initialData);
         mSessionUiData = currentSessionUiData;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -110,7 +110,7 @@ public class PostSleepDialogViewModel
     {
         return mSessionUiData.start;
     }
-    
+
 //*********************************************************
 // protected api
 //*********************************************************
@@ -119,7 +119,7 @@ public class PostSleepDialogViewModel
     {
         return getEntryPoint().tagRepository();
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

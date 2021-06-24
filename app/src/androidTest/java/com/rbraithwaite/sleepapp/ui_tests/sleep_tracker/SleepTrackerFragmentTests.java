@@ -11,7 +11,6 @@ import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.drivers.SleepTrackerTestDriver;
 import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
-import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFormatting;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFragment;
 import com.rbraithwaite.sleepapp.ui_tests.sleep_goals_fragment.SleepGoalsFragmentTestUtils;
@@ -49,14 +48,14 @@ public class SleepTrackerFragmentTests
     
     // TODO [21-04-19 5:39PM] tag selector tests missing from more context tests below:
     //  - tag editing functionality.
-    
+
 //*********************************************************
 // package properties
 //*********************************************************
 
     SleepTrackerTestDriver sleepTracker;
     DatabaseTestDriver database;
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -103,7 +102,7 @@ public class SleepTrackerFragmentTests
         
         sleepTracker.assertThat.detailsAreCleared();
     }
-
+    
     @Test
     public void postSleepDialogOpensWithCorrectValues()
     {
@@ -281,9 +280,8 @@ public class SleepTrackerFragmentTests
                 HiltFragmentTestHelper.launchFragment(SleepTrackerFragment.class);
         
         // THEN the time display is zeroed out
-        DurationFormatter durationFormatter = new DurationFormatter();
         onView(withId(R.id.sleep_tracker_session_time))
-                .check(matches(withText(durationFormatter.formatDurationMillis(0))));
+                .check(matches(withText(SleepTrackerFormatting.formatDuration(0))));
     }
     
     // REFACTOR [21-05-8 4:06PM] -- use SleepTrackerDriver here.
@@ -305,8 +303,7 @@ public class SleepTrackerFragmentTests
         
         // THEN the time display reflects the current session duration
         // (just testing that it is not zero)
-        DurationFormatter durationFormatter = new DurationFormatter();
         onView(withId(R.id.sleep_tracker_session_time))
-                .check(matches(not(withText(durationFormatter.formatDurationMillis(0)))));
+                .check(matches(not(withText(SleepTrackerFormatting.formatDuration(0)))));
     }
 }

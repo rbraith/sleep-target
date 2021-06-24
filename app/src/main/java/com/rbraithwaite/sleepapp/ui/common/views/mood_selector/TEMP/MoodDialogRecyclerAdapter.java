@@ -34,7 +34,7 @@ public class MoodDialogRecyclerAdapter
 //*********************************************************
 
     public static final int NO_SELECTION = -1;
-    
+
 
 //*********************************************************
 // public helpers
@@ -56,7 +56,7 @@ public class MoodDialogRecyclerAdapter
             this.moodView = moodView;
         }
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -117,7 +117,7 @@ public class MoodDialogRecyclerAdapter
     {
         return MOOD_COUNT;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -140,7 +140,7 @@ public class MoodDialogRecyclerAdapter
     {
         mOnSelectionChangedListener = listener;
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -160,7 +160,7 @@ public class MoodDialogRecyclerAdapter
             }
         });
     }
-    
+
 //*********************************************************
 // private helpers
 //*********************************************************

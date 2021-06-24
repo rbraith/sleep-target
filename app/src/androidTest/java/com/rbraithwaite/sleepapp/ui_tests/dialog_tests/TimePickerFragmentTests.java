@@ -31,7 +31,7 @@ public class TimePickerFragmentTests
     @Rule
     // protection against potentially infinitely blocked threads
     public Timeout timeout = new Timeout(10, TimeUnit.SECONDS);
-    
+
 //*********************************************************
 // api
 //*********************************************************

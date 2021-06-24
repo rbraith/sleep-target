@@ -1,7 +1,6 @@
 package com.rbraithwaite.sleepapp.ui_tests.stats_fragment;
 
 import com.rbraithwaite.sleepapp.R;
-import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.IntervalsChartViewModel;
 import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.IntervalsDataSet;
 
 import static androidx.test.espresso.Espresso.onView;

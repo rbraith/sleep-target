@@ -11,12 +11,9 @@ import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.core.repositories.CurrentGoalsRepository;
 import com.rbraithwaite.sleepapp.core.repositories.CurrentSessionRepository;
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
-import com.rbraithwaite.sleepapp.di.UIDependenciesModule;
 import com.rbraithwaite.sleepapp.ui.common.convert.ConvertMood;
 import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagUiData;
-import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
-import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.CurrentSessionUiData;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.PostSleepData;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
@@ -41,8 +38,6 @@ public class SleepTrackerFragmentViewModel
     
     private LiveData<Boolean> mInSleepSession;
     private LiveData<String> mCurrentSleepSessionDuration;
-    
-    private DateTimeFormatter mDateTimeFormatter;
     
     private TimeUtils mTimeUtils;
     
@@ -97,14 +92,11 @@ public class SleepTrackerFragmentViewModel
     public SleepTrackerFragmentViewModel(
             SleepSessionRepository sleepSessionRepository,
             CurrentSessionRepository currentSessionRepository,
-            CurrentGoalsRepository currentGoalsRepository,
-            // REFACTOR [21-03-24 11:56PM] -- This should be SleepTrackerFormatting.
-            @UIDependenciesModule.SleepTrackerDateTimeFormatter DateTimeFormatter dateTimeFormatter)
+            CurrentGoalsRepository currentGoalsRepository)
     {
         mSleepSessionRepository = sleepSessionRepository;
         mCurrentSessionRepository = currentSessionRepository;
         mCurrentGoalsRepository = currentGoalsRepository;
-        mDateTimeFormatter = dateTimeFormatter;
         mTimeUtils = createTimeUtils();
     }
 
@@ -188,19 +180,15 @@ public class SleepTrackerFragmentViewModel
         mCurrentSleepSessionDuration = Transformations.switchMap(
                 getCurrentSession(),
                 currentSession -> {
-                    // REFACTOR [21-03-24 11:57PM] -- This should be SleepTrackerFormatting.
-                    final DurationFormatter durationFormatter = new DurationFormatter();
-                    
                     if (!currentSession.isStarted()) {
-                        return new MutableLiveData<>(durationFormatter.formatDurationMillis(
-                                0));
+                        return new MutableLiveData<>(SleepTrackerFormatting.formatDuration(0));
                     } else {
                         return new TickingLiveData<String>()
                         {
                             @Override
                             public String onTick()
                             {
-                                return durationFormatter.formatDurationMillis(
+                                return SleepTrackerFormatting.formatDuration(
                                         currentSession.getOngoingDurationMillis());
                             }
                         };
@@ -215,9 +203,7 @@ public class SleepTrackerFragmentViewModel
         return Transformations.map(
                 getCurrentSession(),
                 currentSession -> currentSession.isStarted() ?
-                        // REFACTOR [21-02-3 3:18PM] -- move this logic to
-                        //  SleepTrackerFormatting.
-                        mDateTimeFormatter.formatFullDate(currentSession.getStart()) :
+                        SleepTrackerFormatting.formatSessionStartTime(currentSession.getStart()) :
                         null);
     }
     
@@ -370,11 +356,12 @@ public class SleepTrackerFragmentViewModel
     }
 
 
+
 //*********************************************************
 // private methods
 //*********************************************************
 
-    
+
     /**
      * Sets mIsCurrentSessionStopped, and takes a current session snapshot or clears the last
      * snapshot, depending on true or false input respectively.

@@ -10,7 +10,7 @@ import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.HiltFragmentTestHelper;
-import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
+import com.rbraithwaite.sleepapp.ui.session_details.SessionDetailsFormatting;
 import com.rbraithwaite.sleepapp.ui.session_details.SessionDetailsFragment;
 import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
 
@@ -35,23 +35,31 @@ import static org.hamcrest.Matchers.not;
 @Deprecated
 public class SessionDetailsFragmentTestUtils
 {
+//*********************************************************
+// constructors
+//*********************************************************
+
     private SessionDetailsFragmentTestUtils() {/* No instantiation */}
-
-
-    public static void checkStartDateTimeDoesNotMatch(GregorianCalendar datetime)
-    {
-        DateTimeFormatter formatter = new DateTimeFormatter();
-        // REFACTOR [20-12-16 10:02PM] -- call this checkStartDateDoesNotMatch.
-        SessionDetailsFragmentTestUtils.onStartDateTextView()
-                .check(matches(not(withText(formatter.formatDate(datetime.getTime())))));
-        // REFACTOR [20-12-16 10:02PM] -- call this checkStartTimeDoesNotMatch.
-        SessionDetailsFragmentTestUtils.onStartTimeTextView()
-                .check(matches(not(withText(formatter.formatTimeOfDay(datetime.getTime())))));
-    }
+    
     
 //*********************************************************
 // api
 //*********************************************************
+
+    public static void checkStartDateTimeDoesNotMatch(GregorianCalendar datetime)
+    {
+        // REFACTOR [20-12-16 10:02PM] -- call this checkStartDateDoesNotMatch.
+        SessionDetailsFragmentTestUtils.onStartDateTextView()
+                .check(matches(not(withText(SessionDetailsFormatting.formatDate(
+                        datetime.get(Calendar.YEAR),
+                        datetime.get(Calendar.MONTH),
+                        datetime.get(Calendar.DAY_OF_MONTH))))));
+        // REFACTOR [20-12-16 10:02PM] -- call this checkStartTimeDoesNotMatch.
+        SessionDetailsFragmentTestUtils.onStartTimeTextView()
+                .check(matches(not(withText(SessionDetailsFormatting.formatTimeOfDay(
+                        datetime.get(Calendar.HOUR_OF_DAY),
+                        datetime.get(Calendar.MONTH))))));
+    }
 
     public static void pressPositive()
     {
@@ -112,7 +120,8 @@ public class SessionDetailsFragmentTestUtils
     
     public static ViewInteraction onStartDateTextView()
     {
-        return onView(allOf(withParent(withId(R.id.session_details_start_time)), withId(R.id.date)));
+        return onView(allOf(withParent(withId(R.id.session_details_start_time)),
+                            withId(R.id.date)));
     }
     
     public static ViewInteraction onEndDateTextView()
@@ -122,13 +131,18 @@ public class SessionDetailsFragmentTestUtils
     
     public static ViewInteraction onStartTimeTextView()
     {
-        return onView(allOf(withParent(withId(R.id.session_details_start_time)), withId(R.id.time)));
+        return onView(allOf(withParent(withId(R.id.session_details_start_time)),
+                            withId(R.id.time)));
     }
     
     public static ViewInteraction onEndTimeTextView()
     {
         return onView(allOf(withParent(withId(R.id.session_details_end_time)), withId(R.id.time)));
     }
+    
+//*********************************************************
+// private methods
+//*********************************************************
 
     private static void setDateTime(
             ViewInteraction date,

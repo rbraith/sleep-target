@@ -25,7 +25,7 @@ public class MoodUiData
     public MoodUiData()
     {
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -49,11 +49,12 @@ public class MoodUiData
                 (mMoodIndex != null && mMoodIndex.equals(entity.mMoodIndex)));
     }
 
+
 //*********************************************************
 // api
 //*********************************************************
 
-    
+
     /**
      * @return if isSet() is false, this returns null
      */

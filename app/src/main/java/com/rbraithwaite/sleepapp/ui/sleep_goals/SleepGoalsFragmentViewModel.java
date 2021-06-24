@@ -1,6 +1,5 @@
 package com.rbraithwaite.sleepapp.ui.sleep_goals;
 
-import androidx.arch.core.util.Function;
 import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -13,8 +12,6 @@ import com.rbraithwaite.sleepapp.core.models.WakeTimeGoal;
 import com.rbraithwaite.sleepapp.core.models.WakeTimeGoalSuccess;
 import com.rbraithwaite.sleepapp.core.repositories.CurrentGoalsRepository;
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
-import com.rbraithwaite.sleepapp.di.UIDependenciesModule;
-import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.data.SleepDurationGoalUIData;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
@@ -33,8 +30,6 @@ public class SleepGoalsFragmentViewModel
 
     private CurrentGoalsRepository mCurrentGoalsRepository;
     private LiveData<WakeTimeGoal> mWakeTimeGoalModel;
-    
-    private DateTimeFormatter mDateTimeFormatter;
     
     private LiveData<SleepDurationGoal> mSleepDurationGoalModel;
     
@@ -65,12 +60,10 @@ public class SleepGoalsFragmentViewModel
     public SleepGoalsFragmentViewModel(
             CurrentGoalsRepository currentGoalsRepository,
             SleepSessionRepository sleepSessionRepository,
-            @UIDependenciesModule.SleepGoalsDateTimeFormatter DateTimeFormatter dateTimeFormatter,
             Executor executor)
     {
         mCurrentGoalsRepository = currentGoalsRepository;
         mSleepSessionRepository = sleepSessionRepository;
-        mDateTimeFormatter = dateTimeFormatter;
         mExecutor = executor;
         mTimeUtils = createTimeUtils();
     }
@@ -91,14 +84,7 @@ public class SleepGoalsFragmentViewModel
     {
         return Transformations.map(
                 getWakeTimeGoalModel(),
-                wakeTimeGoal -> {
-                    // REFACTOR [21-02-2 9:08PM] -- put all this logic into
-                    //  SleepGoalsFormatting?
-                    if (wakeTimeGoal == null || !wakeTimeGoal.isSet()) {
-                        return null;
-                    }
-                    return mDateTimeFormatter.formatTimeOfDay(wakeTimeGoal.asDate());
-                });
+                SleepGoalsFormatting::formatWakeTimeGoal);
     }
     
     public void setWakeTime(int hourOfDay, int minute)

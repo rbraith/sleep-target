@@ -10,6 +10,7 @@ import com.prolificinteractive.materialcalendarview.DayViewDecorator;
 import com.prolificinteractive.materialcalendarview.DayViewFacade;
 
 
+
 /**
  * MaterialCalendarView decorator for disabling selection highlighting on a calendar.
  */
@@ -21,7 +22,7 @@ public class NoSelectionDecorator
 //*********************************************************
 
     private final Drawable mNoSelectDrawable;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -30,7 +31,7 @@ public class NoSelectionDecorator
     {
         mNoSelectDrawable = AppCompatResources.getDrawable(context, android.R.color.transparent);
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************

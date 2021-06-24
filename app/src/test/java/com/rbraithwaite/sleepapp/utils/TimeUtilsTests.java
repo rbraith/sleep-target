@@ -13,23 +13,28 @@ import java.util.GregorianCalendar;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 
 public class TimeUtilsTests
 {
 //*********************************************************
-// api
+// package properties
 //*********************************************************
-    
+
     TimeUtils timeUtils;
     
+//*********************************************************
+// api
+//*********************************************************
+
     @Before
-    public void setup() {
+    public void setup()
+    {
         timeUtils = new TimeUtils();
     }
     
     @After
-    public void teardown() {
+    public void teardown()
+    {
         timeUtils = null;
     }
     
@@ -40,7 +45,7 @@ public class TimeUtilsTests
         int expectedDuration = 123456;
         Date newDate = new TimeUtils().addDurationToDate(date, expectedDuration);
         
-        assertThat(newDate.getTime() - date.getTime(), is(equalTo((long)expectedDuration)));
+        assertThat(newDate.getTime() - date.getTime(), is(equalTo((long) expectedDuration)));
     }
 
     @Test
@@ -50,7 +55,7 @@ public class TimeUtilsTests
         timeUtils.setCalendarTimeOfDay(cal, 0);
         
         checkCalendarTimeOfDay(cal, 0, 0, 0, 0);
-    
+
         timeUtils.setCalendarTimeOfDay(cal, timeUtils.timeToMillis(
                 1, 2, 3, 4));
         
@@ -73,7 +78,7 @@ public class TimeUtilsTests
     {
         assertThat(timeUtils.timeToMillis(1, 2, 3, 4), is(3723004L));
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

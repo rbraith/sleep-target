@@ -8,7 +8,7 @@ public class SleepDurationGoalUIData
 
     public int hours;
     public int remainingMinutes;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************

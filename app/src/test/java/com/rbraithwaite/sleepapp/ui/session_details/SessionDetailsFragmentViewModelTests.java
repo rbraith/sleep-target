@@ -11,7 +11,6 @@ import com.rbraithwaite.sleepapp.ui.common.convert.ConvertMood;
 import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.ConvertTag;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagUiData;
-import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
@@ -473,8 +472,6 @@ public class SessionDetailsFragmentViewModelTests
         GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
         Date start = calendar.getTime(); // saving this here, as the calendar is moved to the end
         
-        DurationFormatter formatter = new DurationFormatter();
-        
         viewModel.setSessionData(new SleepSessionWrapper(
                 new SleepSession(calendar.getTime(), 0)));
         
@@ -482,7 +479,8 @@ public class SessionDetailsFragmentViewModelTests
         TestUtils.LocalLiveDataSynchronizer<String> synchronizer =
                 new TestUtils.LocalLiveDataSynchronizer<>(sessionDurationText);
         
-        assertThat(sessionDurationText.getValue(), is(equalTo(formatter.formatDurationMillis(0))));
+        assertThat(sessionDurationText.getValue(),
+                   is(equalTo(SessionDetailsFormatting.formatDuration(0))));
         
         // change end, check for duration update
         int endOffsetSeconds = 120; // 2 min
@@ -491,7 +489,7 @@ public class SessionDetailsFragmentViewModelTests
         
         synchronizer.sync();
         assertThat(sessionDurationText.getValue(),
-                   is(equalTo(formatter.formatDurationMillis(endOffsetSeconds * 1000))));
+                   is(equalTo(SessionDetailsFormatting.formatDuration(endOffsetSeconds * 1000))));
         
         // change start, check for duration update
         calendar.setTime(start);
@@ -501,7 +499,7 @@ public class SessionDetailsFragmentViewModelTests
         
         synchronizer.sync();
         assertThat(sessionDurationText.getValue(),
-                   is(equalTo(formatter.formatDurationMillis(
+                   is(equalTo(SessionDetailsFormatting.formatDuration(
                            (endOffsetSeconds - startOffsetSeconds) * 1000))));
     }
     
@@ -519,7 +517,7 @@ public class SessionDetailsFragmentViewModelTests
         LiveData<String> sessionDuration = viewModel.getSessionDurationText();
         TestUtils.activateLocalLiveData(sessionDuration);
         
-        String expected = new DurationFormatter().formatDurationMillis(testDurationMillis);
+        String expected = SessionDetailsFormatting.formatDuration(testDurationMillis);
         assertThat(sessionDuration.getValue(), is(equalTo(expected)));
     }
 

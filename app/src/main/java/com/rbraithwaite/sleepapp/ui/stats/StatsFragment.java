@@ -13,8 +13,8 @@ import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
 import com.rbraithwaite.sleepapp.ui.stats.chart_durations.DurationsChartComponent;
 import com.rbraithwaite.sleepapp.ui.stats.chart_durations.DurationsChartViewModel;
-import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.IntervalsChartViewModel;
 import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.IntervalsChartComponent;
+import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.IntervalsChartViewModel;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -25,10 +25,10 @@ public class StatsFragment
 //*********************************************************
 // private properties
 //*********************************************************
-    
+
     private DurationsChartComponent mDurationsChart;
     private IntervalsChartComponent mIntervalsChart;
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -53,19 +53,27 @@ public class StatsFragment
         mDurationsChart.bindToViewModel(getDurationsChartViewModel(), getViewLifecycleOwner());
     }
     
+    @Override
+    protected Properties<StatsFragmentViewModel> initProperties()
+    {
+        return new Properties<>(true, StatsFragmentViewModel.class);
+    }
+    
+//*********************************************************
+// api
+//*********************************************************
+
     public IntervalsChartViewModel getIntervalsChartViewModel()
     {
         return new ViewModelProvider(this).get(IntervalsChartViewModel.class);
     }
     
+//*********************************************************
+// private methods
+//*********************************************************
+
     private DurationsChartViewModel getDurationsChartViewModel()
     {
         return new ViewModelProvider(this).get(DurationsChartViewModel.class);
-    }
-    
-    @Override
-    protected Properties<StatsFragmentViewModel> initProperties()
-    {
-        return new Properties<>(true, StatsFragmentViewModel.class);
     }
 }

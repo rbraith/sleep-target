@@ -8,8 +8,6 @@ import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.core.models.Tag;
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
-import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
-import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
 import com.rbraithwaite.sleepapp.ui.session_archive.data.SessionArchiveListItem;
 import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
 
@@ -44,7 +42,6 @@ public class SessionArchiveFragmentViewModelTests
 
     SleepSessionRepository mockSleepSessionRepository;
     SessionArchiveFragmentViewModel viewModel;
-    DateTimeFormatter dateTimeFormatter;
 
 //*********************************************************
 // api
@@ -54,9 +51,7 @@ public class SessionArchiveFragmentViewModelTests
     public void setup()
     {
         mockSleepSessionRepository = mock(SleepSessionRepository.class);
-        dateTimeFormatter = new DateTimeFormatter();
-        viewModel = new SessionArchiveFragmentViewModel(
-                mockSleepSessionRepository, dateTimeFormatter);
+        viewModel = new SessionArchiveFragmentViewModel(mockSleepSessionRepository);
     }
     
     @After
@@ -64,7 +59,6 @@ public class SessionArchiveFragmentViewModelTests
     {
         viewModel = null;
         mockSleepSessionRepository = null;
-        dateTimeFormatter = null;
     }
     
     @Test
@@ -165,9 +159,9 @@ public class SessionArchiveFragmentViewModelTests
         calendar.add(Calendar.MILLISECOND, duration);
         Date end = calendar.getTime();
         
-        String expectedFormattedDuration = new DurationFormatter().formatDurationMillis(duration);
-        String expectedFormattedStartTime = dateTimeFormatter.formatFullDate(start);
-        String expectedFormattedEndTime = dateTimeFormatter.formatFullDate(end);
+        String expectedFormattedDuration = SessionArchiveFormatting.formatDuration(duration);
+        String expectedFormattedStartTime = SessionArchiveFormatting.formatFullDate(start);
+        String expectedFormattedEndTime = SessionArchiveFormatting.formatFullDate(end);
         
         SleepSession mockData = new SleepSession(
                 start,
@@ -209,7 +203,7 @@ public class SessionArchiveFragmentViewModelTests
         
         assertThat(ids.getValue(), is(equalTo(testList.getValue())));
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

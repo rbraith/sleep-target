@@ -33,7 +33,7 @@ public class DurationsChartViewModelTests
 
     DurationsChartViewModel viewModel;
     SleepSessionRepository mockSleepSessionRepository;
-    
+
 //*********************************************************
 // api
 //*********************************************************

@@ -11,27 +11,27 @@ import static org.hamcrest.Matchers.nullValue;
 
 public class SessionArchiveFormattingTests
 {
+//*********************************************************
+// api
+//*********************************************************
+
     @Test(expected = IllegalArgumentException.class)
     public void formatDuration_throwsOnNegativeInput()
     {
         SessionArchiveFormatting.formatDuration(-1);
     }
-    
-//*********************************************************
-// api
-//*********************************************************
 
-@Test
-public void formatDuration_positiveInput()
-{
-    long duration = (2 * 60 * 60 * 1000) +  // 2  hr
-                    (34 * 60 * 1000) +      // 34 min
-                    (56 * 1000);            // 56 sec
-    
-    String formattedDuration = SessionArchiveFormatting.formatDuration(duration);
-    
-    assertThat(formattedDuration, is(equalTo("2h 34m 56s")));
-}
+    @Test
+    public void formatDuration_positiveInput()
+    {
+        long duration = (2 * 60 * 60 * 1000) +  // 2  hr
+                        (34 * 60 * 1000) +      // 34 min
+                        (56 * 1000);            // 56 sec
+
+        String formattedDuration = SessionArchiveFormatting.formatDuration(duration);
+
+        assertThat(formattedDuration, is(equalTo("2h 34m 56s")));
+    }
     
     @Test
     public void formatFullDate_returnsNullOnNullInput()

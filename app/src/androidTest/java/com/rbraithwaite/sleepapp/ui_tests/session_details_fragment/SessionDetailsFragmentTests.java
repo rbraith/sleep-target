@@ -12,8 +12,7 @@ import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.drivers.SessionDetailsTestDriver;
 import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.HiltFragmentTestHelper;
-import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
-import com.rbraithwaite.sleepapp.ui.format.DurationFormatter;
+import com.rbraithwaite.sleepapp.ui.session_details.SessionDetailsFormatting;
 import com.rbraithwaite.sleepapp.ui.session_details.SessionDetailsFragment;
 import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
 
@@ -46,9 +45,17 @@ import static com.rbraithwaite.sleepapp.ui_tests.session_details_fragment.Sessio
 @RunWith(AndroidJUnit4.class)
 public class SessionDetailsFragmentTests
 {
+//*********************************************************
+// public properties
+//*********************************************************
+
     @Rule
     // protection against potentially infinitely blocked threads
     public Timeout timeout = new Timeout(10, TimeUnit.SECONDS);
+    
+//*********************************************************
+// api
+//*********************************************************
 
     @Test
     public void startTime_updatesWhenPositiveDialogIsConfirmed()
@@ -71,11 +78,11 @@ public class SessionDetailsFragmentTests
         DialogTestUtils.pressPositiveButton();
         
         // THEN the start time is updated
-        onStartTimeTextView().check(matches(withText(new DateTimeFormatter().formatTimeOfDay(
-                calendar.getTime()))));
+        onStartTimeTextView().check(matches(withText(SessionDetailsFormatting.formatTimeOfDay(
+                calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE)))));
         // AND the session duration text is updated
         onView(withId(R.id.session_details_duration))
-                .check(matches(withText(new DurationFormatter().formatDurationMillis(
+                .check(matches(withText(SessionDetailsFormatting.formatDuration(
                         originalDate.getTime() - calendar.getTime().getTime()))));
     }
     
@@ -152,8 +159,10 @@ public class SessionDetailsFragmentTests
         DialogTestUtils.pressPositiveButton();
         
         // THEN the start time is not updated
-        onStartTimeTextView().check(matches(withText(new DateTimeFormatter().formatTimeOfDay(
-                originalStartTime))));
+        calendar.setTime(originalStartTime);
+        onStartTimeTextView().check(matches(withText(SessionDetailsFormatting.formatTimeOfDay(
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE)))));
         // AND an error message is displayed
         UITestUtils.checkSnackbarIsDisplayedWithMessage(R.string.error_session_edit_start_datetime);
     }
@@ -181,11 +190,13 @@ public class SessionDetailsFragmentTests
         DialogTestUtils.pressPositiveButton();
         
         // THEN the start date text is updated
-        onStartDateTextView().check(matches(withText(new DateTimeFormatter().formatDate
-                (calendar.getTime()))));
+        onStartDateTextView().check(matches(withText(SessionDetailsFormatting.formatDate(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)))));
         // AND the session duration text is updated
         onView(withId(R.id.session_details_duration))
-                .check(matches(withText(new DurationFormatter().formatDurationMillis(
+                .check(matches(withText(SessionDetailsFormatting.formatDuration(
                         originalDate.getTime() - newDate.getTime()))));
     }
     
@@ -236,8 +247,11 @@ public class SessionDetailsFragmentTests
         DialogTestUtils.pressPositiveButton();
         
         // THEN the start date is not updated
-        onStartDateTextView().check(matches(withText(new DateTimeFormatter().formatDate(
-                originalStartDate))));
+        calendar.setTime(originalStartDate);
+        onStartDateTextView().check(matches(withText(SessionDetailsFormatting.formatDate(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)))));
         // AND an error message is displayed
         UITestUtils.checkSnackbarIsDisplayedWithMessage(R.string.error_session_edit_start_datetime);
     }
@@ -316,11 +330,13 @@ public class SessionDetailsFragmentTests
         DialogTestUtils.pressPositiveButton();
         
         // THEN the end date text is updated
-        onEndDateTextView().check(matches(withText(
-                new DateTimeFormatter().formatDate(calendar.getTime()))));
+        onEndDateTextView().check(matches(withText(SessionDetailsFormatting.formatDate(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)))));
         // AND the session duration text is updated
         onView(withId(R.id.session_details_duration))
-                .check(matches(withText(new DurationFormatter().formatDurationMillis(
+                .check(matches(withText(SessionDetailsFormatting.formatDuration(
                         newDate.getTime() - originalDate.getTime()))));
     }
     
@@ -374,15 +390,14 @@ public class SessionDetailsFragmentTests
         DialogTestUtils.pressPositiveButton();
         
         // THEN the end date is not updated
-        onEndDateTextView().check(matches(withText(new DateTimeFormatter().formatDate(
-                originalEndDate))));
+        calendar.setTime(originalEndDate);
+        onEndDateTextView().check(matches(withText(SessionDetailsFormatting.formatDate(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)))));
         // AND an error message is displayed
         UITestUtils.checkSnackbarIsDisplayedWithMessage(R.string.error_session_edit_end_datetime);
     }
-    
-//*********************************************************
-// api
-//*********************************************************
 
     @Test
     public void endTime_displaysCorrectDialogWhenPressed()
@@ -430,11 +445,12 @@ public class SessionDetailsFragmentTests
         DialogTestUtils.pressPositiveButton();
         
         // THEN the end time is updated
-        onEndTimeTextView().check(matches(withText(new DateTimeFormatter().formatTimeOfDay(
-                calendar.getTime()))));
+        onEndTimeTextView().check(matches(withText(SessionDetailsFormatting.formatTimeOfDay(
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE)))));
         // AND the session duration text is updated
         onView(withId(R.id.session_details_duration))
-                .check(matches(withText(new DurationFormatter().formatDurationMillis(
+                .check(matches(withText(SessionDetailsFormatting.formatDuration(
                         calendar.getTime().getTime() - originalDate.getTime()))));
     }
     
@@ -484,8 +500,10 @@ public class SessionDetailsFragmentTests
         DialogTestUtils.pressPositiveButton();
         
         // THEN the end time is not updated
-        onEndTimeTextView().check(matches(withText(new DateTimeFormatter().formatTimeOfDay(
-                originalEndTime))));
+        calendar.setTime(originalEndTime);
+        onEndTimeTextView().check(matches(withText(SessionDetailsFormatting.formatTimeOfDay(
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE)))));
         // AND an error message is displayed
         UITestUtils.checkSnackbarIsDisplayedWithMessage(R.string.error_session_edit_end_datetime);
     }
@@ -498,7 +516,8 @@ public class SessionDetailsFragmentTests
     {
         SleepSession sleepSession = TestUtils.ArbitraryData.getSleepSession();
         
-        SessionDetailsTestDriver sessionDetails = SessionDetailsTestDriver.startingWith(sleepSession);
+        SessionDetailsTestDriver sessionDetails =
+                SessionDetailsTestDriver.startingWith(sleepSession);
         
         sessionDetails.assertThat.displayedValuesMatch(sleepSession);
     }

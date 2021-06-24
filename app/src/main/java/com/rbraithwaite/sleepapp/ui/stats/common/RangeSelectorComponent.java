@@ -4,7 +4,6 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -15,8 +14,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.rbraithwaite.sleepapp.R;
 
-import org.w3c.dom.Text;
-
 import java.util.Optional;
 
 // REFACTOR [21-06-5 3:48PM] -- move logic from RangeSelectorController into here, then get rid
@@ -24,14 +21,27 @@ import java.util.Optional;
 public class RangeSelectorComponent
         extends ConstraintLayout
 {
+//*********************************************************
+// private properties
+//*********************************************************
+
     private ImageButton mBackButton;
     private ImageButton mForwardButton;
     private ImageButton mMoreButton;
     private TextView mRangeValue;
+    private Callbacks mCallbacks;
     
+//*********************************************************
+// public helpers
+//*********************************************************
+
     public static abstract class Callbacks
     {
         public abstract int getMenuId();
+        
+        public abstract void onBackPressed();
+        
+        public abstract void onForwardPressed();
         
         public void onPopupMenuInflated(Menu popupMenu)
         {
@@ -42,14 +52,8 @@ public class RangeSelectorComponent
         {
             return false;
         }
-        
-        public abstract void onBackPressed();
-        
-        public abstract void onForwardPressed();
     }
-    
-    private Callbacks mCallbacks;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -78,6 +82,10 @@ public class RangeSelectorComponent
         initComponent(context);
     }
     
+//*********************************************************
+// api
+//*********************************************************
+
     public void setCallbacks(Callbacks callbacks)
     {
         mCallbacks = callbacks;
@@ -88,19 +96,19 @@ public class RangeSelectorComponent
         mRangeValue.setText(text);
     }
     
-    //*********************************************************
+//*********************************************************
 // private methods
 //*********************************************************
 
     private void initComponent(Context context)
     {
         inflate(context, R.layout.stats_range_selector, this);
-    
+        
         mBackButton = findViewById(R.id.stats_range_selector_back);
         mForwardButton = findViewById(R.id.stats_range_selector_forward);
         mMoreButton = findViewById(R.id.stats_range_selector_more);
         mRangeValue = findViewById(R.id.stats_range_selector_value);
-    
+        
         mBackButton.setOnClickListener(v -> getOptionalCallbacks().ifPresent(Callbacks::onBackPressed));
         mForwardButton.setOnClickListener(v -> getOptionalCallbacks().ifPresent(Callbacks::onForwardPressed));
         mMoreButton.setOnClickListener(v -> getOptionalCallbacks().ifPresent(callbacks -> {

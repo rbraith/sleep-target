@@ -408,7 +408,7 @@ public class SleepTrackerFragment
                                                        currentSessionUiData)))
                             .setPositiveButton(R.string.discard,
                                                (dialog1, which) -> getViewModel().discardSleepSession());
-                
+
                     AlertDialog alertDialog = builder.create();
                     // This dialog can't be cancelled by clicking outside since this is
                     // a kind of "point of no return" - the user must now either record

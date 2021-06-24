@@ -12,7 +12,6 @@ import com.rbraithwaite.sleepapp.core.models.WakeTimeGoal;
 import com.rbraithwaite.sleepapp.core.repositories.CurrentGoalsRepository;
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
-import com.rbraithwaite.sleepapp.ui.format.DateTimeFormatter;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.data.SleepDurationGoalUIData;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
@@ -49,7 +48,6 @@ public class SleepGoalsFragmentViewModelTests
     SleepGoalsFragmentViewModel viewModel;
     CurrentGoalsRepository mockCurrentGoalsRepository;
     SleepSessionRepository mockSleepSessionRepository;
-    DateTimeFormatter dateTimeFormatter;
 
 //*********************************************************
 // api
@@ -60,12 +58,9 @@ public class SleepGoalsFragmentViewModelTests
     {
         mockCurrentGoalsRepository = mock(CurrentGoalsRepository.class);
         mockSleepSessionRepository = mock(SleepSessionRepository.class);
-        // REFACTOR [21-01-11 10:36PM] -- I need to be mocking DateTimeFormatter.
-        dateTimeFormatter = new DateTimeFormatter();
         viewModel = new SleepGoalsFragmentViewModel(
                 mockCurrentGoalsRepository,
                 mockSleepSessionRepository,
-                dateTimeFormatter,
                 new TestUtils.SynchronizedExecutor());
     }
     
@@ -75,7 +70,6 @@ public class SleepGoalsFragmentViewModelTests
         viewModel = null;
         mockCurrentGoalsRepository = null;
         mockSleepSessionRepository = null;
-        dateTimeFormatter = null;
     }
     
     @Test
@@ -373,7 +367,7 @@ public class SleepGoalsFragmentViewModelTests
         TestUtils.activateLocalLiveData(wakeTimeText);
         
         assertThat(wakeTimeText.getValue(),
-                   is(equalTo(dateTimeFormatter.formatTimeOfDay(expectedWakeTime.asDate()))));
+                   is(equalTo(SleepGoalsFormatting.formatWakeTimeGoal(expectedWakeTime))));
     }
     
     @Test

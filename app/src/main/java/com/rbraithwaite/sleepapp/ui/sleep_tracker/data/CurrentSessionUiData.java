@@ -16,7 +16,7 @@ public class CurrentSessionUiData
     public MoodUiData mood;
     public String additionalComments;
     public List<Integer> tagIds;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************

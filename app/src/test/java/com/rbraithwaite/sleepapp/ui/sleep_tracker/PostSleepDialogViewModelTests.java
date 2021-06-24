@@ -34,7 +34,7 @@ public class PostSleepDialogViewModelTests
 //*********************************************************
 
     TagRepository mockTagRepository;
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -143,7 +143,7 @@ public class PostSleepDialogViewModelTests
             assertThat(TestEqualities.TagUiData_equals_Tag(uiData, expectedTag), is(true));
         }
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

@@ -8,6 +8,10 @@ import java.util.Date;
 
 public class SessionArchiveFormatting
 {
+//*********************************************************
+// api
+//*********************************************************
+
     public static String formatFullDate(Date date)
     {
         // REFACTOR [21-03-31 2:26AM] -- make this CommonFormatting.formatFullDate.
@@ -16,7 +20,8 @@ public class SessionArchiveFormatting
         }
         
         SimpleDateFormat fullDateFormat =
-                new SimpleDateFormat(Constants.STANDARD_FORMAT_FULL_DATE, Constants.STANDARD_LOCALE);
+                new SimpleDateFormat(Constants.STANDARD_FORMAT_FULL_DATE,
+                                     Constants.STANDARD_LOCALE);
         
         return fullDateFormat.format(date);
     }
