@@ -20,7 +20,7 @@ import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.TEMP.MoodView;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagScrollController;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagUiData;
-import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.PostSleepData;
+import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.StoppedSessionData;
 import com.rbraithwaite.sleepapp.ui.utils.UiUtils;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
 
@@ -64,7 +64,7 @@ public class PostSleepDialog
 
     public interface OnKeepSessionListener
     {
-        void onKeepSession(PostSleepData postSleepData);
+        void onKeepSession(StoppedSessionData stoppedSession);
     }
     
     public interface OnDiscardSessionListener
@@ -104,8 +104,7 @@ public class PostSleepDialog
                         //  work to init the value.
                         //  There are other places though where its totally fine to use getValue
                         //  for the current value.
-                        mOnKeepSessionListener.onKeepSession(mViewModel.getPostSleepData()
-                                                                     .getValue());
+                        mOnKeepSessionListener.onKeepSession(mViewModel.getKeptSessionData());
                     }
                 })
                 .setNegativeButton(R.string.discard, (dialog, which) -> {

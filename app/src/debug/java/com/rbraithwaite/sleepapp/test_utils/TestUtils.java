@@ -23,8 +23,6 @@ import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDu
 import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.data.prefs.SleepAppDataPrefs;
-import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
-import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.CurrentSessionUiData;
 import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.DateRange;
 
 import java.util.ArrayList;
@@ -127,17 +125,6 @@ public class TestUtils
     public static class ArbitraryData
     {
         private ArbitraryData() {/* No instantiation */}
-        
-        public static CurrentSessionUiData getCurrentSessionUiData()
-        {
-            return new CurrentSessionUiData(
-                    "start",
-                    "end",
-                    "duration",
-                    new MoodUiData(3),
-                    "comments",
-                    Arrays.asList(1, 2, 3));
-        }
         
         public static List<Integer> getIdList() { return Arrays.asList(1, 2, 3, 4, 5); }
         

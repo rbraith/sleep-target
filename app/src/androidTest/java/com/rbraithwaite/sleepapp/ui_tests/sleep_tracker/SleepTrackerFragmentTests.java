@@ -74,13 +74,14 @@ public class SleepTrackerFragmentTests
     
     // regression for #14
     @Test
-    public void trackerIsClearedWhenSessionEnds()
+    public void trackerIsClearedAfterKeepingSession()
     {
         // SMELL [21-05-7 1:20AM] -- [big job] In general, my tests have abstraction level
         //  problems - ie they should be way more abstract, clear, and simple - I need a better
         //  "test harness".
         sleepTracker.addNewMood(2);
         List<Integer> tagIndices = sleepTracker.addTags(Arrays.asList("tag1", "tag2"));
+        // BUG [21-06-27 2:43AM] -- this doesn't seem to be toggling the right tags currently?
         sleepTracker.toggleTagSelections(tagIndices);
         sleepTracker.setAdditionalComments("some comments");
         
@@ -88,7 +89,11 @@ public class SleepTrackerFragmentTests
         
         sleepTracker.assertThat().screenIsClear();
         
-        // BUG [21-06-24 3:31AM] -- check that the screen remains clear after an app restart
+        sleepTracker.restartFragment();
+        sleepTracker.assertThat().screenIsClear();
+        
+        sleepTracker.restartApp();
+        sleepTracker.assertThat().screenIsClear();
     }
     
     @Test

@@ -7,11 +7,12 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
 import com.rbraithwaite.sleepapp.core.repositories.TagRepository;
+import com.rbraithwaite.sleepapp.ui.common.convert.ConvertMood;
 import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.ConvertTag;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagUiData;
-import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.CurrentSessionUiData;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.PostSleepData;
+import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.StoppedSessionData;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,10 +28,15 @@ public class PostSleepDialogViewModel
 //*********************************************************
 
     private MutableLiveData<PostSleepData> mPostSleepData = new MutableLiveData<>();
-    private CurrentSessionUiData mSessionUiData;
     private Context mContext;
     private TagRepository mTagRepository;
     private PostSleepDialogViewModel.EntryPoint mEntryPoint;
+
+//*********************************************************
+// private constants
+//*********************************************************
+
+    private final StoppedSessionData mStoppedSessionData;
 
 //*********************************************************
 // package helpers
@@ -48,15 +54,16 @@ public class PostSleepDialogViewModel
 //*********************************************************
 
     public PostSleepDialogViewModel(
-            PostSleepData initialData,
-            CurrentSessionUiData currentSessionUiData,
+            StoppedSessionData stoppedSessionData,
             Context context)
     {
         mContext = context;
+        // REFACTOR [21-06-27 2:52PM] -- This is being applied to a DialogFragment, I should
+        //  be using a framework ViewModel and ctor-injecting this.
         mTagRepository = createTagRepository();
         
-        mPostSleepData.setValue(initialData);
-        mSessionUiData = currentSessionUiData;
+        mPostSleepData.setValue(stoppedSessionData.postSleepData);
+        mStoppedSessionData = stoppedSessionData;
     }
 
 //*********************************************************
@@ -81,34 +88,41 @@ public class PostSleepDialogViewModel
     
     public MoodUiData getMood()
     {
-        return mSessionUiData.mood;
+        return ConvertMood.toUiData(mStoppedSessionData.currentSessionSnapshot.mood);
     }
     
     public LiveData<List<TagUiData>> getTags()
     {
         return Transformations.map(
-                mTagRepository.getTagsWithIds(mSessionUiData.tagIds),
+                mTagRepository.getTagsWithIds(mStoppedSessionData.currentSessionSnapshot.selectedTagIds),
                 tags -> tags.stream().map(ConvertTag::toUiData).collect(Collectors.toList()));
     }
     
     public String getAdditionalComments()
     {
-        return mSessionUiData.additionalComments;
+        return mStoppedSessionData.currentSessionSnapshot.additionalComments;
     }
     
     public String getDurationText()
     {
-        return mSessionUiData.duration;
+        return PostSleepDialogFormatting.formatDuration(mStoppedSessionData.currentSessionSnapshot.durationMillis);
     }
     
     public String getEndText()
     {
-        return mSessionUiData.end;
+        return PostSleepDialogFormatting.formatDate(mStoppedSessionData.currentSessionSnapshot.end);
     }
     
     public String getStartText()
     {
-        return mSessionUiData.start;
+        return PostSleepDialogFormatting.formatDate(mStoppedSessionData.currentSessionSnapshot.start);
+    }
+    
+    public StoppedSessionData getKeptSessionData()
+    {
+        return new StoppedSessionData(
+                mStoppedSessionData.currentSessionSnapshot,
+                getPostSleepData().getValue());
     }
 
 //*********************************************************

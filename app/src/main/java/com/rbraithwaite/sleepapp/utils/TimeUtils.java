@@ -26,7 +26,7 @@ public class TimeUtils
     // REFACTOR [21-03-4 11:58PM] -- call this TimeService instead?
     @Inject
     public TimeUtils() {}
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -37,7 +37,7 @@ public class TimeUtils
         calendar.setTime(date);
         return calendar;
     }
-
+    
     public static long timeToMillis(int hours, int minutes, int seconds, int millis)
     {
         long hourMillis = hours * 60 * 60 * 1000;
@@ -59,6 +59,8 @@ public class TimeUtils
     
     // TODO [20-11-15 1:05AM] -- think about how I could test this.
     //  idk if I could? probably not a huge deal
+    // TODO [21-06-27 3:04AM] -- replace this with a Now class.
+    @Deprecated
     public Date getNow()
     {
         return new GregorianCalendar().getTime();

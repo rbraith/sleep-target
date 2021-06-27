@@ -14,15 +14,14 @@ import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.ui.common.convert.ConvertMood;
 import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagUiData;
-import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.CurrentSessionUiData;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.PostSleepData;
+import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.StoppedSessionData;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
 import com.rbraithwaite.sleepapp.utils.TickingLiveData;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 import com.rbraithwaite.sleepapp.utils.interfaces.ProviderOf;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class SleepTrackerFragmentViewModel
@@ -41,8 +40,6 @@ public class SleepTrackerFragmentViewModel
     
     private TimeUtils mTimeUtils;
     
-    private LiveData<CurrentSession> mCurrentSession;
-    
     /**
      * This is used to hold comment values that the user has entered without needing to persist
      * these values to storage every time they change. These new local values take precedence over
@@ -53,27 +50,15 @@ public class SleepTrackerFragmentViewModel
     private ActiveValue<List<TagUiData>> mLocalSelectedTags = new ActiveValue<>();
     
     private MutableLiveData<Boolean> mIsCurrentSessionStopped = new MutableLiveData<>(false);
-    private MutableLiveData<CurrentSession.Snapshot> mStoppedSession =
+    private MutableLiveData<CurrentSession.Snapshot> mStoppedSessionSnapshot =
             new MutableLiveData<>();
-    private OnKeepSessionListener mOnKeepSessionListener;
     private PostSleepData mPostSleepData;
-    private LiveData<CurrentSession> mRepoCurrentSession;
-
-//*********************************************************
-// private constants
-//*********************************************************
-
-    private static final String TAG = "SleepTrackerFragmentVie";
+    private LiveData<CurrentSession> mCurrentSession;
 
 //*********************************************************
 // public helpers
 //*********************************************************
 
-    public interface OnKeepSessionListener
-    {
-        void onKeepSession();
-    }
-    
     public static class InitialTagData
     {
         public List<Integer> selectedTagIds;
@@ -104,11 +89,6 @@ public class SleepTrackerFragmentViewModel
 // api
 //*********************************************************
 
-    public void setOnKeepSessionListener(OnKeepSessionListener onKeepSessionListener)
-    {
-        mOnKeepSessionListener = onKeepSessionListener;
-    }
-    
     public TimeUtils getTimeUtils()
     {
         return mTimeUtils;
@@ -133,14 +113,14 @@ public class SleepTrackerFragmentViewModel
     /**
      * If a new session is started while one is currently ongoing, the ongoing session is discarded.
      * If you want to retain that session instead, call
-     * {@link SleepTrackerFragmentViewModel#keepStoppedSession(PostSleepData)}
+     * {@link SleepTrackerFragmentViewModel#keepStoppedSession(StoppedSessionData)}
      */
     public void startSleepSession()
     {
         setIsCurrentSessionStopped(false);
+        
         LiveDataFuture.getValue(
                 getCurrentSession(),
-                null,
                 currentSession -> {
                     updateCurrentSessionWithLocalValues(currentSession);
                     currentSession.setStart(mTimeUtils.getNow());
@@ -156,16 +136,18 @@ public class SleepTrackerFragmentViewModel
         setIsCurrentSessionStopped(true);
     }
     
-    public void keepStoppedSession(PostSleepData postSleepData)
+    public void keepStoppedSession(StoppedSessionData stoppedSession)
     {
-        CurrentSession.Snapshot stoppedSession = mStoppedSession.getValue();
-        if (stoppedSession != null) {
-            mSleepSessionRepository.addSleepSession(prepareNewSleepSession(stoppedSession,
-                                                                           postSleepData));
+        mSleepSessionRepository.addSleepSession(prepareNewSleepSession(
+                stoppedSession.currentSessionSnapshot,
+                stoppedSession.postSleepData));
+    }
+    
+    public void discardSleepSession()
+    {
+        if (mIsCurrentSessionStopped.getValue()) {
+            setIsCurrentSessionStopped(false);
         }
-        
-        Optional.ofNullable(mOnKeepSessionListener)
-                .ifPresent(OnKeepSessionListener::onKeepSession);
     }
     
     public LiveData<String> getCurrentSleepSessionDuration()
@@ -181,6 +163,11 @@ public class SleepTrackerFragmentViewModel
                 getCurrentSession(),
                 currentSession -> {
                     if (!currentSession.isStarted()) {
+                        // TODO [21-06-27 3:13AM] -- change this text to "Error" - this will
+                        //  reflect the intent that the timer shouldn't be visible when not in a
+                        //  session.
+                        // OPTIMIZE [21-06-27 3:13AM] -- I don't need to be returning a new instance
+                        //  of this every time.
                         return new MutableLiveData<>(SleepTrackerFormatting.formatDuration(0));
                     } else {
                         return new TickingLiveData<String>()
@@ -259,7 +246,6 @@ public class SleepTrackerFragmentViewModel
         if (!mIsCurrentSessionStopped.getValue()) {
             LiveDataFuture.getValue(
                     getCurrentSession(),
-                    null,
                     currentSession -> {
                         updateCurrentSessionWithLocalValues(currentSession);
                         mCurrentSessionRepository.setCurrentSession(currentSession);
@@ -311,41 +297,13 @@ public class SleepTrackerFragmentViewModel
                 CurrentSession::getSelectedTagIds);
     }
     
-    public void discardSleepSession()
+    public StoppedSessionData getStoppedSessionData()
     {
-        if (mIsCurrentSessionStopped.getValue()) {
-            mCurrentSessionRepository.clearCurrentSession();
-            setIsCurrentSessionStopped(false);
-        }
+        return mIsCurrentSessionStopped.getValue() ?
+                new StoppedSessionData(mStoppedSessionSnapshot.getValue(), getPostSleepData()) :
+                null;
     }
     
-    public PostSleepData getPostSleepData()
-    {
-        return mPostSleepData;
-    }
-    
-    public void setPostSleepData(PostSleepData postSleepData)
-    {
-        mPostSleepData = postSleepData;
-    }
-    
-    public CurrentSessionUiData getStoppedSessionData()
-    {
-        CurrentSession.Snapshot snapshot = mStoppedSession.getValue();
-        if (snapshot == null) {
-            return null;
-        }
-        
-        // REFACTOR [21-05-2 3:17AM] -- extract as convertSnapshotToUiData.
-        return new CurrentSessionUiData(
-                PostSleepDialogFormatting.formatDate(snapshot.start),
-                PostSleepDialogFormatting.formatDate(snapshot.end),
-                PostSleepDialogFormatting.formatDuration(snapshot.durationMillis),
-                ConvertMood.toUiData(snapshot.mood),
-                snapshot.additionalComments,
-                snapshot.selectedTagIds);
-    }
-
 //*********************************************************
 // protected api
 //*********************************************************
@@ -354,13 +312,27 @@ public class SleepTrackerFragmentViewModel
     {
         return new TimeUtils();
     }
-
-
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
 
+    private PostSleepData getPostSleepData()
+    {
+        return mPostSleepData;
+    }
+
+    public void setPostSleepData(PostSleepData postSleepData)
+    {
+        mPostSleepData = postSleepData;
+    }
+
+    private void clearLocalValues()
+    {
+        mLocalMood.clear();
+        mLocalAdditionalComments.clear();
+        mLocalSelectedTags.clear();
+    }
     
     /**
      * Sets mIsCurrentSessionStopped, and takes a current session snapshot or clears the last
@@ -370,15 +342,17 @@ public class SleepTrackerFragmentViewModel
     {
         mIsCurrentSessionStopped.setValue(isCurrentSessionStopped);
         if (isCurrentSessionStopped) {
-            mStoppedSession.setValue(createCurrentSessionSnapshot());
+            mStoppedSessionSnapshot.setValue(createCurrentSessionSnapshot());
+            mCurrentSessionRepository.clearCurrentSession();
+            clearLocalValues();
         } else {
-            mStoppedSession.setValue(null);
+            mStoppedSessionSnapshot.setValue(null);
         }
     }
     
     private CurrentSession.Snapshot createCurrentSessionSnapshot()
     {
-        CurrentSession currentSession = getRepoCurrentSession().getValue();
+        CurrentSession currentSession = getCurrentSession().getValue();
         if (currentSession == null) {
             currentSession = new CurrentSession();
         }
@@ -428,31 +402,9 @@ public class SleepTrackerFragmentViewModel
     private LiveData<CurrentSession> getCurrentSession()
     {
         if (mCurrentSession == null) {
-            // If the session is stopped, return an empty value so that the UI values stay empty
-            //  on fragment restart (orientation change, etc), otherwise use the persisted values.
-            //  Otherwise, in order to clear the UI values we would need to clear the persisted
-            //  values, but we don't want to do that until the user has decided whether to keep
-            //  or discard those values.
-            mCurrentSession = Transformations.switchMap(
-                    mIsCurrentSessionStopped,
-                    isCurrentSessionStopped -> isCurrentSessionStopped ?
-                            createEmptyCurrentSession() :
-                            getRepoCurrentSession());
+            mCurrentSession = mCurrentSessionRepository.getCurrentSession();
         }
         return mCurrentSession;
-    }
-    
-    private LiveData<CurrentSession> getRepoCurrentSession()
-    {
-        if (mRepoCurrentSession == null) {
-            mRepoCurrentSession = mCurrentSessionRepository.getCurrentSession();
-        }
-        return mRepoCurrentSession;
-    }
-    
-    private LiveData<CurrentSession> createEmptyCurrentSession()
-    {
-        return new MutableLiveData<>(new CurrentSession());
     }
     
     // REFACTOR [21-05-2 3:20AM] -- extract this.
@@ -488,6 +440,15 @@ public class SleepTrackerFragmentViewModel
                 return mValue;
             }
             return fallback.provide();
+        }
+        
+        /**
+         * Clear this active value, resetting it to its initial state.
+         */
+        public void clear()
+        {
+            mValue = null;
+            mIsActive = false;
         }
     }
 }

@@ -28,8 +28,7 @@ import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.MoodSelectorContr
 import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.MoodSelectorViewModel;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorController;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorViewModel;
-import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.CurrentSessionUiData;
-import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.PostSleepData;
+import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.StoppedSessionData;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -95,7 +94,6 @@ public class SleepTrackerFragment
         initAdditionalCommentsText(view);
         initMoodSelector(view);
         initTagSelector(view);
-        getViewModel().setOnKeepSessionListener(this::clearDetailsValues);
     }
     
     @Override
@@ -186,7 +184,7 @@ public class SleepTrackerFragment
         
         // initialize the tag selector's selected tags
         LiveDataFuture.getValue(
-                getViewModel().getPersistedSelectedTagIds(),
+                viewModel.getPersistedSelectedTagIds(),
                 getViewLifecycleOwner(),
                 mTagSelectorViewModel::setSelectedTagIds);
     }
@@ -317,12 +315,10 @@ public class SleepTrackerFragment
                         startedText.setVisibility(View.GONE);
                         sessionStartTime.setVisibility(View.GONE);
                     }
-                }
-        );
+                });
         viewModel.getSessionStartTime().observe(
                 getViewLifecycleOwner(),
-                sessionStartTime::setText
-        );
+                sessionStartTime::setText);
     }
     
     private void initSessionTimeDisplay(View fragmentRoot)
@@ -341,37 +337,29 @@ public class SleepTrackerFragment
         // REFACTOR [21-06-16 7:13PM] this logic could be in the viewmodel - it could return
         //  the string to set.
         getViewModel().inSleepSession()
-                .observe(getViewLifecycleOwner(), inSleepSession -> {
-                    if (inSleepSession) {
-                        sleepTrackerButton.setText(R.string.sleep_tracker_button_stop);
-                    } else {
-                        sleepTrackerButton.setText(R.string.sleep_tracker_button_start);
-                    }
-                });
+                .observe(getViewLifecycleOwner(), inSleepSession -> sleepTrackerButton.setText(
+                        inSleepSession ? R.string.sleep_tracker_button_stop :
+                                R.string.sleep_tracker_button_start));
         
         sleepTrackerButton.setOnClickListener(v -> {
             SleepTrackerFragmentViewModel viewModel = getViewModel();
-            // REFACTOR [21-01-14 12:15AM] -- use LiveDataFuture here to remove the getValue
-            //  call.
             Boolean inSleepSession = viewModel.inSleepSession().getValue();
             if (inSleepSession) {
                 viewModel.stopSleepSession();
-                displayPostSleepDialog(viewModel.getPostSleepData(),
-                                       viewModel.getStoppedSessionData());
+                clearDetailsValues();
+                displayPostSleepDialog(viewModel.getStoppedSessionData());
             } else {
                 viewModel.startSleepSession();
             }
         });
     }
     
-    private void displayPostSleepDialog(
-            PostSleepData postSleepData,
-            CurrentSessionUiData currentSessionUiData)
+    private void displayPostSleepDialog(StoppedSessionData stoppedSession)
     {
         SleepTrackerFragmentViewModel viewModel = getViewModel();
         
         PostSleepDialogViewModel dialogViewModel =
-                new PostSleepDialogViewModel(postSleepData, currentSessionUiData, requireContext());
+                new PostSleepDialogViewModel(stoppedSession, requireContext());
         // OPTIMIZE [21-05-8 6:00PM] -- The post sleep data in displayPostSleepDialog is coming
         //  from the sleep tracker view model originally, so it unnecessarily updates to its
         //  own value here.
@@ -382,11 +370,11 @@ public class SleepTrackerFragment
         PostSleepDialog dialog = PostSleepDialog.createInstance(
                 dialogViewModel,
                 viewModel::keepStoppedSession,
-                () -> displaySessionDiscardDialog(currentSessionUiData));
+                this::displaySessionDiscardDialog);
         dialog.show(getChildFragmentManager(), POST_SLEEP_DIALOG);
     }
     
-    private void displaySessionDiscardDialog(CurrentSessionUiData currentSessionUiData)
+    private void displaySessionDiscardDialog()
     {
         AlertDialogFragment discardDialog =
                 AlertDialogFragment.createInstance(() -> {
@@ -398,11 +386,10 @@ public class SleepTrackerFragment
                             // dialog again
                             .setNegativeButton(R.string.cancel,
                                                ((dialog1, which) -> displayPostSleepDialog(
-                                                       getViewModel().getPostSleepData(),
-                                                       currentSessionUiData)))
+                                                       getViewModel().getStoppedSessionData())))
                             .setPositiveButton(R.string.discard,
                                                (dialog1, which) -> getViewModel().discardSleepSession());
-
+                    
                     AlertDialog alertDialog = builder.create();
                     // This dialog can't be cancelled by clicking outside since this is
                     // a kind of "point of no return" - the user must now either record

@@ -16,11 +16,12 @@ import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.data.MockRepositoryUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.assertion_utils.AssertOn;
+import com.rbraithwaite.sleepapp.ui.common.convert.ConvertMood;
 import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagUiData;
 import com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFormatting;
-import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.CurrentSessionUiData;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.PostSleepData;
+import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.StoppedSessionData;
 import com.rbraithwaite.sleepapp.utils.TickingLiveData;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
@@ -45,7 +46,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -119,29 +119,13 @@ public class SleepTrackerFragmentViewModelTests
     }
     
     @Test
-    public void OnKeepSessionListener_hears_keepStoppedSession()
-    {
-        when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(
-                new MutableLiveData<>(new CurrentSession()));
-        
-        TestUtils.DoubleRef<Boolean> listenerWasCalled = new TestUtils.DoubleRef<>(false);
-        viewModel.setOnKeepSessionListener(() -> listenerWasCalled.ref = true);
-        
-        viewModel.startSleepSession();
-        viewModel.stopSleepSession();
-        viewModel.keepStoppedSession(null);
-        
-        assertThat(listenerWasCalled.ref, is(true));
-    }
-    
-    @Test
     public void getStoppedSessionData_usesLocalValues()
     {
         when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(new MutableLiveData<>(
                 new CurrentSession(
                         TestUtils.ArbitraryData.getDate(),
                         "persisted comment",
-                        Mood.fromIndex(1),
+                        new Mood(1),
                         Arrays.asList(1, 2))));
         
         List<TagUiData> tags = Arrays.asList(
@@ -160,41 +144,15 @@ public class SleepTrackerFragmentViewModelTests
         
         // SUT
         viewModel.stopSleepSession();
-        CurrentSessionUiData uiData = viewModel.getStoppedSessionData();
+        StoppedSessionData stoppedSession = viewModel.getStoppedSessionData();
         
         // verify
-        assertThat(uiData.mood, is(equalTo(expectedMood)));
-        assertThat(uiData.additionalComments, is(equalTo(expectedComment)));
-        assertThat(uiData.tagIds, is(equalTo(expectedTagIds)));
-    }
-    
-    @Test
-    public void stopCurrentSession_clearsSessionDataWithoutClearingPersistedData()
-    {
-        CurrentSession persistedCurrentSession = TestUtils.ArbitraryData.getCurrentSession();
-        MutableLiveData<CurrentSession> currentSessionLive =
-                new MutableLiveData<>(persistedCurrentSession);
-        when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(currentSessionLive);
-        
-        LiveData<String> comments = viewModel.getPersistedAdditionalComments();
-        TestUtils.activateLocalLiveData(comments);
-        
-        assertThat(comments.getValue(),
-                   is(equalTo(persistedCurrentSession.getAdditionalComments())));
-        
-        // SUT
-        viewModel.stopSleepSession();
-        
-        assertThat(comments.getValue(), is(nullValue()));
-        verify(mockCurrentSessionRepository, times(0)).clearCurrentSession();
-    }
-    
-    @Test
-    public void getPostSleepData_reflects_setPostSleepData()
-    {
-        PostSleepData expected = new PostSleepData(2.5f);
-        viewModel.setPostSleepData(expected);
-        assertThat(viewModel.getPostSleepData(), is(equalTo(expected)));
+        assertThat(stoppedSession.currentSessionSnapshot.mood,
+                   is(equalTo(ConvertMood.fromUiData(expectedMood))));
+        assertThat(stoppedSession.currentSessionSnapshot.additionalComments,
+                   is(equalTo(expectedComment)));
+        assertThat(stoppedSession.currentSessionSnapshot.selectedTagIds,
+                   is(equalTo(expectedTagIds)));
     }
     
     @Test
@@ -470,14 +428,6 @@ public class SleepTrackerFragmentViewModelTests
     }
     
     @Test
-    public void keepStoppedSession_doesNothingIfNoSession()
-    {
-        viewModel.keepStoppedSession(null);
-        verify(mockSleepSessionRepository, times(0))
-                .addSleepSession(any());
-    }
-    
-    @Test
     public void keepStoppedSession_recordsNewSession()
     {
         CurrentSession currentSession = TestUtils.ArbitraryData.getCurrentSession();
@@ -488,8 +438,9 @@ public class SleepTrackerFragmentViewModelTests
         viewModel.stopSleepSession();
         
         PostSleepData postSleepData = new PostSleepData(4.5f);
+        viewModel.setPostSleepData(postSleepData);
         // SUT
-        viewModel.keepStoppedSession(postSleepData);
+        viewModel.keepStoppedSession(viewModel.getStoppedSessionData());
         
         assertOnRepoAddSleepSessionArg(arg -> {
             assertThat(arg.start, is(equalTo(currentSession.getStart())));

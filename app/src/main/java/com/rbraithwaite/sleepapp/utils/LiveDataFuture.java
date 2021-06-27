@@ -57,4 +57,11 @@ public class LiveDataFuture
             liveData.observe(lifecycleOwner, observer);
         }
     }
+    
+    public static <T> void getValue(
+            @NonNull final LiveData<T> liveData,
+            @NonNull final OnValueListener<T> onValueListener)
+    {
+        getValue(liveData, null, onValueListener);
+    }
 }
