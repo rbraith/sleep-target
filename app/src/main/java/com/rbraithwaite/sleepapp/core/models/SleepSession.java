@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Objects;
 
@@ -262,6 +263,30 @@ public class SleepSession
         
         mDurationMillis = getEnd().getTime() - start.getTimeInMillis();
         mStart = start.getTime();
+    }
+    
+    /**
+     * Offset the session start by the given hours and minutes in a fixed way (The end date stays
+     * the same, so the duration is changed).
+     */
+    public void offsetStartFixed(int hours, int minutes)
+    {
+        GregorianCalendar start = TimeUtils.getCalendarFrom(getStart());
+        start.add(Calendar.MILLISECOND,
+                  (int) TimeUtils.timeToMillis(hours, minutes, 0, 0));
+        setStartFixed(start);
+    }
+    
+    /**
+     * Offset the session end by the given hours and minutes in a fixed way (The start date stays
+     * the same, so the duration is changed).
+     */
+    public void offsetEndFixed(int hours, int minutes)
+    {
+        GregorianCalendar end = TimeUtils.getCalendarFrom(getEnd());
+        end.add(Calendar.MILLISECOND,
+                (int) TimeUtils.timeToMillis(hours, minutes, 0, 0));
+        setEndFixed(end);
     }
     
     /**

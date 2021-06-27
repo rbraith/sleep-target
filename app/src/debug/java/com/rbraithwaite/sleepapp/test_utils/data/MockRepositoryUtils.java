@@ -8,7 +8,6 @@ import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
 import com.rbraithwaite.sleepapp.core.models.WakeTimeGoal;
 import com.rbraithwaite.sleepapp.core.repositories.CurrentGoalsRepository;
 import com.rbraithwaite.sleepapp.core.repositories.CurrentSessionRepository;
-import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import org.mockito.stubbing.Answer;
 
@@ -53,7 +52,7 @@ public class MockRepositoryUtils
             return null;
         }).when(mockRepo).setCurrentSession(any(CurrentSession.class));
         doAnswer((Answer<Void>) invocation -> {
-            currentSession.setValue(new CurrentSession(new TimeUtils()));
+            currentSession.setValue(new CurrentSession());
             return null;
         }).when(mockRepo).clearCurrentSession();
     }

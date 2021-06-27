@@ -98,7 +98,7 @@ public class MoodDialogFragment
         fragment.mThemeId = themeId;
         return fragment;
     }
-
+    
     public static MoodDialogFragment createInstance()
     {
         return createInstance(NO_THEME);
@@ -120,19 +120,20 @@ public class MoodDialogFragment
         mPositiveTextId = textId;
         mPositiveListener = positiveListener;
     }
-
-
+    
+    
     public void setSelectedMood(MoodUiData selectedMood)
     {
         mSelectedMood = selectedMood;
     }
 
 
+
 //*********************************************************
 // private methods
 //*********************************************************
 
-
+    
     /**
      * Creates a matrix of mood views.
      */
@@ -151,7 +152,15 @@ public class MoodDialogFragment
         MoodDialogRecyclerAdapter moodRecyclerAdapter = new MoodDialogRecyclerAdapter();
         moodRecyclerAdapter.setOnSelectionChangedListener(selectedMoodIndex -> setSelectedMood(
                 new MoodUiData(selectedMoodIndex)));
-        moodRecyclerAdapter.setSelectedMoodPosition(mSelectedMood.asIndex());
+        
+        // REFACTOR [21-06-25 5:36PM] -- Since Mood and MoodUiData can be in an unset state, there's
+        //  no reason to ever be passing around null Mood or MoodUiData instances - fix all
+        //  occurrences of this.
+        if (mSelectedMood == null) {
+            moodRecyclerAdapter.setSelectedMoodPosition(null);
+        } else {
+            moodRecyclerAdapter.setSelectedMoodPosition(mSelectedMood.asIndex());
+        }
         
         recyclerView.setAdapter(moodRecyclerAdapter);
         

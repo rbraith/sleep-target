@@ -189,7 +189,7 @@ public class SleepTrackerFragmentViewModel
                             public String onTick()
                             {
                                 return SleepTrackerFormatting.formatDuration(
-                                        currentSession.getOngoingDurationMillis());
+                                        currentSession.getOngoingDurationMillis(mTimeUtils));
                             }
                         };
                     }
@@ -361,7 +361,7 @@ public class SleepTrackerFragmentViewModel
 // private methods
 //*********************************************************
 
-
+    
     /**
      * Sets mIsCurrentSessionStopped, and takes a current session snapshot or clears the last
      * snapshot, depending on true or false input respectively.
@@ -380,18 +380,12 @@ public class SleepTrackerFragmentViewModel
     {
         CurrentSession currentSession = getRepoCurrentSession().getValue();
         if (currentSession == null) {
-            currentSession = new CurrentSession(mTimeUtils);
-        } else {
-            // HACK [21-05-11 11:38PM] -- This is specifically to aid testing, so that I can
-            //  get a stubbed TimeUtils into the current session and have it create a snapshot
-            //  with the desired end date. see for example
-            //  SleepTrackerTestDriver.recordSpecificSession().
-            currentSession.setTimeUtils(mTimeUtils);
+            currentSession = new CurrentSession();
         }
         
         updateCurrentSessionWithLocalValues(currentSession);
         
-        return currentSession.createSnapshot();
+        return currentSession.createSnapshot(mTimeUtils);
     }
     
     private void updateCurrentSessionWithLocalValues(CurrentSession currentSession)
@@ -458,7 +452,7 @@ public class SleepTrackerFragmentViewModel
     
     private LiveData<CurrentSession> createEmptyCurrentSession()
     {
-        return new MutableLiveData<>(new CurrentSession(mTimeUtils));
+        return new MutableLiveData<>(new CurrentSession());
     }
     
     // REFACTOR [21-05-2 3:20AM] -- extract this.

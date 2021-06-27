@@ -42,7 +42,7 @@ public class ConvertWakeTimeGoalTests
     @Test
     public void convertModelToEntity_positiveInput()
     {
-        WakeTimeGoal model = TestUtils.ArbitraryData.getWakeTimeGoalModel();
+        WakeTimeGoal model = TestUtils.ArbitraryData.getWakeTimeGoal();
         
         // SUT
         WakeTimeGoalEntity entity = ConvertWakeTimeGoal.toEntity(model);

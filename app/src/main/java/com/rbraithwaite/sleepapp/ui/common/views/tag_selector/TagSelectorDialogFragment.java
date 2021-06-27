@@ -27,6 +27,7 @@ public class TagSelectorDialogFragment
     private TagSelectorViewModel mViewModel;
     
     private int mThemeId;
+    private RecyclerView mTagRecycler;
 
 //*********************************************************
 // public constants
@@ -56,7 +57,7 @@ public class TagSelectorDialogFragment
 // api
 //*********************************************************
 
-
+    
     /**
      * Creates a new instance of this fragment.
      *
@@ -72,6 +73,11 @@ public class TagSelectorDialogFragment
         fragment.mThemeId = dialogThemeId;
         return fragment;
     }
+    
+    public RecyclerView getTagRecycler()
+    {
+        return mTagRecycler;
+    }
 
 //*********************************************************
 // private methods
@@ -79,7 +85,7 @@ public class TagSelectorDialogFragment
 
     private View initTagRecycler()
     {
-        RecyclerView tagRecycler = new RecyclerView(new ContextThemeWrapper(
+        mTagRecycler = new RecyclerView(new ContextThemeWrapper(
                 requireContext(), mThemeId));
         
         LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext());
@@ -89,13 +95,13 @@ public class TagSelectorDialogFragment
         // getting that.
         layoutManager.setReverseLayout(true);
         layoutManager.setStackFromEnd(true);
-        tagRecycler.setLayoutManager(layoutManager);
-        tagRecycler.setTag(RECYCLER_TAG);
+        mTagRecycler.setLayoutManager(layoutManager);
+        mTagRecycler.setTag(RECYCLER_TAG);
         // On using 'this' instead of getViewLifecycleOwner() in DialogFragments
         //  https://stackoverflow.com/a/60446681
         //  https://developer.android.com/guide/fragments/dialogs#lifecycle
-        tagRecycler.setAdapter(new TagSelectorRecyclerAdapter(mViewModel, this));
-        return applyKeyboardHackLol(tagRecycler);
+        mTagRecycler.setAdapter(new TagSelectorRecyclerAdapter(mViewModel, this));
+        return applyKeyboardHackLol(mTagRecycler);
     }
     
     // HACK [21-04-9 11:55PM] -- Hacky solution to the problem of the soft keyboard not being

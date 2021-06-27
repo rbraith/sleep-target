@@ -4,7 +4,6 @@ import com.rbraithwaite.sleepapp.core.models.CurrentSession;
 import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.data.prefs.CurrentSessionPrefsData;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
-import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import org.junit.Test;
 
@@ -34,8 +33,7 @@ public class ConvertCurrentSessionTests
                 TestUtils.ArbitraryData.getDate(),
                 "test",
                 Mood.fromIndex(2),
-                Arrays.asList(1, 2, 3),
-                new TimeUtils());
+                Arrays.asList(1, 2, 3));
         
         CurrentSessionPrefsData result = ConvertCurrentSession.toPrefsData(currentSession);
         
@@ -48,7 +46,7 @@ public class ConvertCurrentSessionTests
     @Test
     public void fromPrefsData_nullInput()
     {
-        assertThat(ConvertCurrentSession.fromPrefsData(null, new TimeUtils()), is(nullValue()));
+        assertThat(ConvertCurrentSession.fromPrefsData(null), is(nullValue()));
     }
     
     @Test
@@ -60,7 +58,7 @@ public class ConvertCurrentSessionTests
                 2,
                 Arrays.asList(1, 2, 3));
         
-        CurrentSession currentSession = ConvertCurrentSession.fromPrefsData(data, new TimeUtils());
+        CurrentSession currentSession = ConvertCurrentSession.fromPrefsData(data);
         
         assertThat(currentSession.getAdditionalComments(), is(equalTo(data.additionalComments)));
         assertThat(currentSession.getStart(), is(equalTo(data.start)));

@@ -9,7 +9,9 @@ import com.rbraithwaite.sleepapp.utils.CommonUtils;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+
 
 
 /**
@@ -23,10 +25,15 @@ public class ApplicationTestDriver
 
     // MainActivity starts on the sleep tracker
     private Destination mCurrentLocation = Destination.SLEEP_TRACKER;
-    private ActivityScenario<MainActivity> mScenario;
     private SleepTrackerTestDriver mSleepTracker;
     private SessionArchiveTestDriver mSessionArchive;
     private SessionDetailsTestDriver mSessionDetails;
+
+//*********************************************************
+// package properties
+//*********************************************************
+
+    ApplicationFragmentTestHelper.ScenarioCallbacks mScenarioCallbacks;
 
 
 //*********************************************************
@@ -46,7 +53,7 @@ public class ApplicationTestDriver
 
     public ApplicationTestDriver()
     {
-        mScenario = ActivityScenario.launch(MainActivity.class);
+        mScenarioCallbacks = createScenarioCallbacks();
     }
 
 //*********************************************************
@@ -57,15 +64,15 @@ public class ApplicationTestDriver
     {
         mSleepTracker = CommonUtils.lazyInit(mSleepTracker,
                                              () -> new SleepTrackerTestDriver(new ApplicationFragmentTestHelper<>(
-                                                     mScenario)));
+                                                     mScenarioCallbacks)));
         return mCurrentLocation == Destination.SLEEP_TRACKER ? mSleepTracker : null;
     }
     
     public SessionArchiveTestDriver getSessionArchive()
     {
         mSessionArchive = CommonUtils.lazyInit(mSessionArchive, () -> new SessionArchiveTestDriver(
-                new ApplicationFragmentTestHelper<>(mScenario),
-                () -> {mCurrentLocation = Destination.SESSION_DETAILS;}));
+                new ApplicationFragmentTestHelper<>(mScenarioCallbacks),
+                () -> mCurrentLocation = Destination.SESSION_DETAILS));
         return mCurrentLocation == Destination.ARCHIVE ? mSessionArchive : null;
     }
     
@@ -74,8 +81,10 @@ public class ApplicationTestDriver
         mSessionDetails = CommonUtils.lazyInit(mSessionDetails, () -> {
             SessionDetailsTestDriver sessionDetails =
                     SessionDetailsTestDriver.inApplication(new ApplicationFragmentTestHelper<>(
-                            mScenario));
-            sessionDetails.setOnConfirmListener(() -> { mCurrentLocation = Destination.ARCHIVE; });
+                            mScenarioCallbacks));
+            sessionDetails.setOnConfirmListener(() -> mCurrentLocation = Destination.ARCHIVE);
+            sessionDetails.setOnNegativeActionListener(() -> mCurrentLocation =
+                    Destination.ARCHIVE);
             return sessionDetails;
         });
         return mCurrentLocation == Destination.SESSION_DETAILS ? mSessionDetails : null;
@@ -95,11 +104,44 @@ public class ApplicationTestDriver
             throw new RuntimeException("Invalid destination: " + destination.toString());
         }
     }
+    
+    public void navigateUp()
+    {
+        if (mCurrentLocation == Destination.SLEEP_TRACKER) {
+            return;
+        } else if (mCurrentLocation == Destination.SESSION_DETAILS) {
+            mCurrentLocation = Destination.ARCHIVE;
+        } else {
+            mCurrentLocation = Destination.SLEEP_TRACKER;
+        }
+        
+        onView(withContentDescription(R.string.nav_app_bar_navigate_up_description)).perform(click());
+    }
 
 //*********************************************************
 // private methods
 //*********************************************************
 
+    private ApplicationFragmentTestHelper.ScenarioCallbacks createScenarioCallbacks()
+    {
+        return new ApplicationFragmentTestHelper.ScenarioCallbacks()
+        {
+            ActivityScenario<MainActivity> mScenario = ActivityScenario.launch(MainActivity.class);
+            
+            @Override
+            public ActivityScenario<MainActivity> getScenario()
+            {
+                return mScenario;
+            }
+            
+            @Override
+            public void recreateScenario()
+            {
+                mScenario = ActivityScenario.launch(MainActivity.class);
+            }
+        };
+    }
+    
     private void navigateToArchiveFrom(Destination location)
     {
         mCurrentLocation = Destination.ARCHIVE;

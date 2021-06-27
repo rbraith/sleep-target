@@ -8,6 +8,7 @@ import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
 
 
+
 /**
  * Used for fragments existing in the full application.
  */
@@ -18,17 +19,32 @@ public class ApplicationFragmentTestHelper<FragmentType extends Fragment>
 // private properties
 //*********************************************************
 
-    private ActivityScenario<MainActivity> mAppScenario;
+    private ScenarioCallbacks mScenarioCallbacks;
     
+//*********************************************************
+// public helpers
+//*********************************************************
+
+    public interface ScenarioCallbacks
+    {
+        ActivityScenario<MainActivity> getScenario();
+        /**
+         * This is used when the app is restarted. This should create a new ActivityScenario
+         * instance, and after this has been called {@link #getScenario()} should return the new
+         * scenario instance.
+         */
+        void recreateScenario();
+    }
+
 //*********************************************************
 // constructors
 //*********************************************************
 
-    public ApplicationFragmentTestHelper(ActivityScenario<MainActivity> appScenario)
+    public ApplicationFragmentTestHelper(ScenarioCallbacks scenarioCallbacks)
     {
-        mAppScenario = appScenario;
+        mScenarioCallbacks = scenarioCallbacks;
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -36,7 +52,7 @@ public class ApplicationFragmentTestHelper<FragmentType extends Fragment>
     @Override
     public ActivityScenario<? extends AppCompatActivity> getScenario()
     {
-        return mAppScenario;
+        return mScenarioCallbacks.getScenario();
     }
     
     @Override
@@ -45,7 +61,7 @@ public class ApplicationFragmentTestHelper<FragmentType extends Fragment>
         // When in the full application, the navigation component is in charge of the fragments and
         // you need to interact with it in order to access the displayed fragment.
         TestUtils.performSyncedActivityAction(
-                mAppScenario, activity -> {
+                mScenarioCallbacks.getScenario(), activity -> {
                     // TODO [21-05-11 2:33AM] -- there should be an instanceof check here on the
                     //  fragment type.
                     // TODO [21-05-11 3:04AM] -- Is getPrimaryNavigationFragment() supposed to be
@@ -67,6 +83,19 @@ public class ApplicationFragmentTestHelper<FragmentType extends Fragment>
     @Override
     public void restartFragment()
     {
-        mAppScenario.recreate();
+        mScenarioCallbacks.getScenario().recreate();
+    }
+    
+    @Override
+    public void restartApp()
+    {
+        mScenarioCallbacks.getScenario().close();
+        mScenarioCallbacks.recreateScenario();
+    }
+    
+    @Override
+    public void rotateScreen(int desiredOrientation)
+    {
+        TestUtils.rotateActivitySynced(mScenarioCallbacks.getScenario(), desiredOrientation);
     }
 }

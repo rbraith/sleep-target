@@ -26,7 +26,7 @@ public class ConvertSleepDurationGoalTests
     @Test
     public void convertModelToEntity_positiveInput()
     {
-        SleepDurationGoal model = TestUtils.ArbitraryData.getSleepDurationGoalModel();
+        SleepDurationGoal model = TestUtils.ArbitraryData.getSleepDurationGoal();
         
         // SUT
         SleepDurationGoalEntity entity =

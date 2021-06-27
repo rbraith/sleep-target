@@ -5,6 +5,7 @@ import android.view.View;
 import androidx.test.espresso.contrib.RecyclerViewActions;
 
 import com.rbraithwaite.sleepapp.R;
+import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.MoodDialogFragment;
@@ -66,6 +67,15 @@ public class MoodSelectorDriver
             assertThat(mood, is(notNullValue()));
             assertThat(mood.asIndex(), is(equalTo(expectedMoodIndex)));
         }
+        
+        public void selectedMoodMatches(Mood mood)
+        {
+            if (mood == null) {
+                moodIsUnset();
+            } else {
+                selectedMoodMatches(mood.asIndex());
+            }
+        }
     }
 
 //*********************************************************
@@ -89,10 +99,50 @@ public class MoodSelectorDriver
         selectMoodInDialog(moodIndex);
         DialogTestUtils.pressPositiveButton();
     }
-
+    
+    // REFACTOR [21-06-25 3:33PM] -- this makes addNewMood redundant.
+    public void setMood(Mood mood)
+    {
+        if (selectedMoodEquals(mood)) {
+            return;
+        }
+        openMoodDialog();
+        if (mood == null) {
+            // delete the mood
+            DialogTestUtils.pressNegativeButton();
+        } else {
+            selectMoodInDialog(mood.asIndex());
+            DialogTestUtils.pressPositiveButton();
+        }
+    }
+    
 //*********************************************************
 // private methods
 //*********************************************************
+
+    private boolean selectedMoodEquals(Mood mood)
+    {
+        if (mood == null) {
+            return isMoodUnset();
+        } else {
+            try {
+                assertThat.selectedMoodMatches(mood.asIndex());
+                return true;
+            } catch (AssertionError e) {
+                return false;
+            }
+        }
+    }
+    
+    private boolean isMoodUnset()
+    {
+        try {
+            assertThat.moodIsUnset();
+            return true;
+        } catch (AssertionError e) {
+            return false;
+        }
+    }
 
     private void selectMoodInDialog(int moodIndex)
     {

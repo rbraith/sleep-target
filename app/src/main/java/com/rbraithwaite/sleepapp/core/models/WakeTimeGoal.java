@@ -1,7 +1,9 @@
 package com.rbraithwaite.sleepapp.core.models;
 
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
+import com.rbraithwaite.sleepapp.utils.time.TimeOfDay;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
@@ -74,5 +76,18 @@ public class WakeTimeGoal
         TimeUtils timeUtils = new TimeUtils();
         timeUtils.setCalendarTimeOfDay(cal, getGoalMillis());
         return cal.getTime();
+    }
+    
+    // TEST NEEDED [21-06-26 9:02PM]
+    public TimeOfDay asTimeOfDay()
+    {
+        GregorianCalendar cal = new GregorianCalendar();
+        // REFACTOR [21-03-9 3:05AM] -- inject time utils here
+        TimeUtils timeUtils = new TimeUtils();
+        timeUtils.setCalendarTimeOfDay(cal, getGoalMillis());
+        
+        return new TimeOfDay(
+                cal.get(Calendar.HOUR_OF_DAY),
+                cal.get(Calendar.MINUTE));
     }
 }

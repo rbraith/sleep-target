@@ -26,11 +26,37 @@ public class TimeUtils
     // REFACTOR [21-03-4 11:58PM] -- call this TimeService instead?
     @Inject
     public TimeUtils() {}
-
+    
 //*********************************************************
 // api
 //*********************************************************
 
+    public static GregorianCalendar getCalendarFrom(Date date)
+    {
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTime(date);
+        return calendar;
+    }
+
+    public static long timeToMillis(int hours, int minutes, int seconds, int millis)
+    {
+        long hourMillis = hours * 60 * 60 * 1000;
+        long minuteMillis = minutes * 60 * 1000;
+        long secondMillis = seconds * 1000;
+        
+        return hourMillis + minuteMillis + secondMillis + millis;
+    }
+    
+    public static long minutesToMillis(int minutes)
+    {
+        return timeToMillis(0, minutes, 0, 0);
+    }
+    
+    public static long hoursToMillis(int hours)
+    {
+        return timeToMillis(hours, 0, 0, 0);
+    }
+    
     // TODO [20-11-15 1:05AM] -- think about how I could test this.
     //  idk if I could? probably not a huge deal
     public Date getNow()
@@ -69,20 +95,6 @@ public class TimeUtils
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTime(date);
         return getTimeOfDay(cal);
-    }
-    
-    public long timeToMillis(int hours, int minutes, int seconds, int millis)
-    {
-        long hourMillis = hours * 60 * 60 * 1000;
-        long minuteMillis = minutes * 60 * 1000;
-        long secondMillis = seconds * 1000;
-        
-        return hourMillis + minuteMillis + secondMillis + millis;
-    }
-    
-    public long hoursToMillis(int hours)
-    {
-        return timeToMillis(hours, 0, 0, 0);
     }
     
     public double millisToHours(long millis)

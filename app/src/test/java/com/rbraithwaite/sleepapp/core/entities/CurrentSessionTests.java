@@ -32,6 +32,12 @@ public class CurrentSessionTests
         cal.add(Calendar.MILLISECOND, (int) durationMillis);
         Date end = cal.getTime();
         
+        CurrentSession currentSession = new CurrentSession(
+                start,
+                "some comments",
+                Mood.fromIndex(1),
+                Arrays.asList(1, 2, 3));
+        
         TimeUtils stubTimeUtils = new TimeUtils()
         {
             @Override
@@ -41,15 +47,8 @@ public class CurrentSessionTests
             }
         };
         
-        CurrentSession currentSession = new CurrentSession(
-                start,
-                "some comments",
-                Mood.fromIndex(1),
-                Arrays.asList(1, 2, 3),
-                stubTimeUtils);
-        
         // SUT
-        CurrentSession.Snapshot snapshot = currentSession.createSnapshot();
+        CurrentSession.Snapshot snapshot = currentSession.createSnapshot(stubTimeUtils);
         
         assertThat(snapshot.start, is(equalTo(start)));
         assertThat(snapshot.end, is(equalTo(end)));
@@ -63,7 +62,7 @@ public class CurrentSessionTests
     @Test
     public void isSet_returnsCorrectValue()
     {
-        CurrentSession currentSession = new CurrentSession(new TimeUtils());
+        CurrentSession currentSession = new CurrentSession();
         assertThat(currentSession.isStarted(), is(false));
         
         currentSession.setStart(TestUtils.ArbitraryData.getDate());
@@ -74,8 +73,7 @@ public class CurrentSessionTests
     public void setStart_nullInputUnsets()
     {
         CurrentSession currentSession = new CurrentSession(
-                TestUtils.ArbitraryData.getDate(),
-                new TimeUtils());
+                TestUtils.ArbitraryData.getDate());
         assertThat(currentSession.isStarted(), is(true));
         
         currentSession.setStart(null);
@@ -86,17 +84,18 @@ public class CurrentSessionTests
     public void getOngoingDurationMillis_isDynamic()
     {
         CurrentSession currentSession = new CurrentSession(
-                TestUtils.ArbitraryData.getDate(),
-                new TimeUtils());
+                TestUtils.ArbitraryData.getDate());
         
-        long duration1 = currentSession.getOngoingDurationMillis();
+        TimeUtils timeUtils = new TimeUtils();
+        
+        long duration1 = currentSession.getOngoingDurationMillis(timeUtils);
         // let some time pass
         try {
             Thread.sleep(100);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        long duration2 = currentSession.getOngoingDurationMillis();
+        long duration2 = currentSession.getOngoingDurationMillis(timeUtils);
         
         assertThat(duration2, is(greaterThan(duration1)));
     }

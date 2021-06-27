@@ -2,17 +2,26 @@ package com.rbraithwaite.sleepapp.test_utils.ui.drivers;
 
 import android.view.View;
 
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.espresso.contrib.RecyclerViewActions;
 
 import com.rbraithwaite.sleepapp.R;
+import com.rbraithwaite.sleepapp.core.models.Tag;
+import com.rbraithwaite.sleepapp.test_utils.ui.assertion_utils.AssertionFailed;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
+import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.FragmentTestHelper;
+import com.rbraithwaite.sleepapp.ui.BaseFragment;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagScrollController;
+import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorController;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorDialogFragment;
+import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorRecyclerAdapter;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorViewModel;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagUiData;
+import com.rbraithwaite.sleepapp.utils.interfaces.Action;
 
 import org.hamcrest.Matcher;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,6 +47,7 @@ public class TagSelectorDriver
 // private properties
 //*********************************************************
 
+    private FragmentTestHelper<?> mOwningFragment;
     private Matcher<View> mTagSelectorView;
     private TagSelectorViewModel mViewModel;
 
@@ -46,7 +56,7 @@ public class TagSelectorDriver
 //*********************************************************
 
     public final Assertions assertThat;
-    
+
 //*********************************************************
 // package properties
 //*********************************************************
@@ -57,7 +67,7 @@ public class TagSelectorDriver
     //  TagSelectorViewModel.
     // 0 so that the first time a tag is added this increments to 1 (lowest db id)
     int greatestTagId = 0;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -88,17 +98,22 @@ public class TagSelectorDriver
             }
         }
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
 
-    public TagSelectorDriver(Matcher<View> tagSelectorView, TagSelectorViewModel viewModel)
+    public TagSelectorDriver(
+            FragmentTestHelper<?> owningFragment,
+            Matcher<View> tagSelectorView,
+            TagSelectorViewModel viewModel)
     {
+        mOwningFragment = owningFragment;
         mTagSelectorView = tagSelectorView;
         mViewModel = viewModel;
         assertThat = new Assertions(this);
     }
+
 
 //*********************************************************
 // api
@@ -115,10 +130,7 @@ public class TagSelectorDriver
     public List<Integer> addTags(List<String> tagTexts)
     {
         openTagDialog();
-        List<Integer> addedIds =
-                tagTexts.stream()
-                        .map(this::addTagInDialog)
-                        .collect(Collectors.toList());
+        List<Integer> addedIds = addTagsInDialog(tagTexts);
         closeTagDialog();
         return addedIds;
     }
@@ -137,16 +149,152 @@ public class TagSelectorDriver
         closeTagDialog();
     }
     
+    public void setSelectedTags(List<Tag> tags)
+    {
+        boolean deselectAll = (tags == null || tags.isEmpty()) && thereAreSelectedTags();
+        
+        openTagDialog();
+        deselectAllTagsInDialog();
+        
+        if (deselectAll) {
+            closeTagDialog();
+            return;
+        }
+        
+        List<Integer> tagIdsToSelect = addMissingInDialog(tags);
+        
+        for (Integer index : getIndicesFromIds(tagIdsToSelect)) {
+            toggleTagSelectionInDialog(index);
+        }
+        closeTagDialog();
+    }
+    
 //*********************************************************
 // private methods
 //*********************************************************
 
+    private List<Integer> addTagsInDialog(List<String> tagTexts)
+    {
+        return tagTexts.stream()
+                .map(this::addTagInDialog)
+                .collect(Collectors.toList());
+    }
+    
+    private List<Integer> getIndicesFromIds(List<Integer> tagIds)
+    {
+        List<Integer> result = new ArrayList<>();
+        
+        if (tagIds == null || tagIds.isEmpty()) {
+            return result;
+        }
+        
+        forEachTagInDialog(tagForEachData -> {
+            if (tagIds.contains(tagForEachData.listItemData.tagUiData.tagId)) {
+                result.add(tagForEachData.position);
+            }
+        });
+        
+        return result;
+    }
+    
+    /**
+     * Add any missing tags from the list
+     *
+     * @return A list of the existing and new tag ids from the arg list.
+     */
+    private List<Integer> addMissingInDialog(List<Tag> tags)
+    {
+        List<Integer> existingTagIds = getExistingTagIds();
+        
+        List<Integer> existingIdsInTags = new ArrayList<>();
+        List<String> tagTextToAdd = new ArrayList<>();
+        
+        for (Tag tag : tags) {
+            if (existingTagIds.contains(tag.getTagId())) {
+                existingIdsInTags.add(tag.getTagId());
+            } else {
+                tagTextToAdd.add(tag.getText());
+            }
+        }
+        
+        List<Integer> newIds = addTagsInDialog(tagTextToAdd);
+        
+        existingIdsInTags.addAll(newIds);
+        
+        return existingIdsInTags;
+    }
+    
+    private List<Integer> getExistingTagIds()
+    {
+        List<Integer> result = new ArrayList<>();
+        forEachTagInDialog(tagForEachData -> result.add(tagForEachData.listItemData.tagUiData.tagId));
+        return result;
+    }
+    
+    private boolean thereAreSelectedTags()
+    {
+        try {
+            assertThat.thereAreNoSelectedTags();
+            return false;
+        } catch (AssertionError e) {
+            return true;
+        }
+    }
+    
+    private void performOnTagDialog(Action<TagSelectorDialogFragment> action)
+    {
+        mOwningFragment.performSyncedFragmentAction(fragment -> {
+            TagSelectorDialogFragment dialog =
+                    (TagSelectorDialogFragment) ((BaseFragment<?>) fragment).getDialogByTag(
+                            TagSelectorController.DIALOG_TAG);
+            
+            if (dialog == null) {
+                // REFACTOR [21-05-7 11:56PM] -- this could be less generic.
+                throw new AssertionFailed("Tag selector dialog does not exist.");
+            }
+            
+            action.performOn(dialog);
+        });
+    }
+    
+    private void deselectAllTagsInDialog()
+    {
+        ArrayList<Integer> tagIndicesToDeselect = new ArrayList<>();
+        
+        forEachTagInDialog(tagForEachData -> {
+            if (tagForEachData.listItemData.selected) {
+                tagIndicesToDeselect.add(tagForEachData.position);
+            }
+        });
+        
+        for (Integer tagIndex : tagIndicesToDeselect) {
+            toggleTagSelectionInDialog(tagIndex);
+        }
+    }
+    
+    private void forEachTagInDialog(Action<TagForEachData> action)
+    {
+        performOnTagDialog(dialog -> {
+            RecyclerView tagRecycler = dialog.getTagRecycler();
+            TagSelectorRecyclerAdapter tagAdapter =
+                    (TagSelectorRecyclerAdapter) tagRecycler.getAdapter();
+            for (int i = 0; i < tagAdapter.getItemCount(); i++) {
+                if (tagAdapter.getItemViewType(i) == TagSelectorRecyclerAdapter.VIEW_TYPE_TAG) {
+                    TagSelectorRecyclerAdapter.TagViewHolder vh =
+                            (TagSelectorRecyclerAdapter.TagViewHolder) tagRecycler.findViewHolderForAdapterPosition(
+                                    i);
+                    action.performOn(new TagForEachData(vh.getListItemData(), i));
+                }
+            }
+        });
+    }
+    
     private void toggleTagSelectionInDialog(int tagIndex)
     {
         onView(withTagValue(tagValue(TagSelectorDialogFragment.RECYCLER_TAG)))
                 .perform(RecyclerViewActions.actionOnItemAtPosition(tagIndex, click()));
     }
-    
+
     /**
      * Add a tag in the tag dialog.
      *
@@ -177,5 +325,21 @@ public class TagSelectorDriver
     private void closeTagDialog()
     {
         DialogTestUtils.pressPositiveButton();
+    }
+    
+//*********************************************************
+// private helpers
+//*********************************************************
+
+    private static class TagForEachData
+    {
+        TagSelectorViewModel.ListItemData listItemData;
+        int position;
+        
+        public TagForEachData(TagSelectorViewModel.ListItemData listItemData, int position)
+        {
+            this.listItemData = listItemData;
+            this.position = position;
+        }
     }
 }

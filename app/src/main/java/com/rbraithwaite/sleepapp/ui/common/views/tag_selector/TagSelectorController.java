@@ -34,10 +34,10 @@ public class TagSelectorController
     private View.OnClickListener mDisplayDialogListener = v -> displayTagDialog();
 
 //*********************************************************
-// private constants
+// public constants
 //*********************************************************
 
-    private static final String DIALOG_TAG = "TagSelectorController_dialog";
+    public static final String DIALOG_TAG = "TagSelectorController_dialog";
 
 //*********************************************************
 // constructors

@@ -3,10 +3,14 @@ package com.rbraithwaite.sleepapp.test_utils.data.database;
 import androidx.lifecycle.LiveData;
 import androidx.room.Room;
 
+import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.core.models.Tag;
+import com.rbraithwaite.sleepapp.core.models.WakeTimeGoal;
+import com.rbraithwaite.sleepapp.data.convert.ConvertSleepDurationGoal;
 import com.rbraithwaite.sleepapp.data.convert.ConvertSleepSession;
 import com.rbraithwaite.sleepapp.data.convert.ConvertTag;
+import com.rbraithwaite.sleepapp.data.convert.ConvertWakeTimeGoal;
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 
@@ -63,7 +67,7 @@ public class DatabaseTestDriver
         assertThat = new Assertions(this);
         mDatabase = findDatabase();
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -83,6 +87,18 @@ public class DatabaseTestDriver
         mDatabase.getSleepSessionDao().addSleepSessionWithTags(
                 ConvertSleepSession.toEntity(sleepSession),
                 sleepSession.getTags().stream().map(Tag::getTagId).collect(Collectors.toList()));
+    }
+    
+    public void setWakeTimeGoal(WakeTimeGoal wakeTimeGoal)
+    {
+        mDatabase.getWakeTimeGoalDao().updateWakeTimeGoal(
+                ConvertWakeTimeGoal.toEntity(wakeTimeGoal));
+    }
+    
+    public void setSleepDurationGoal(SleepDurationGoal sleepDurationGoal)
+    {
+        mDatabase.getSleepDurationGoalDao().updateSleepDurationGoal(
+                ConvertSleepDurationGoal.toEntity(sleepDurationGoal));
     }
 
 //*********************************************************

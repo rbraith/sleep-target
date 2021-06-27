@@ -21,6 +21,7 @@ public class MoodView
 //*********************************************************
 
     private int mMoodColor;
+    private int mMoodIndex;
 
 //*********************************************************
 // private constants
@@ -119,7 +120,7 @@ public class MoodView
     
     // TODO [21-06-13 11:31PM] --
     //  I should have a ctor that takes the mood index.
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -136,15 +137,14 @@ public class MoodView
     {
         super(context, attrs);
         TypedArray ta = context.obtainStyledAttributes(R.styleable.MoodView);
-        int moodIndex;
         try {
-            moodIndex = ta.getInt(R.styleable.MoodView_mood, DEFAULT_MOOD_INDEX);
+            mMoodIndex = ta.getInt(R.styleable.MoodView_mood, DEFAULT_MOOD_INDEX);
+            setMood(mMoodIndex);
         } finally {
             ta.recycle();
         }
-        setMood(moodIndex);
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -159,11 +159,18 @@ public class MoodView
         int drawableId;
         try {
             drawableId = MOOD_DRAWABLES.get(moodIndex);
+            mMoodIndex = moodIndex;
         } catch (IndexOutOfBoundsException e) {
             // TODO [21-06-9 7:21PM] -- maybe let the client handle an invalid index instead?
             drawableId = DEFAULT_MOOD_INDEX;
+            mMoodIndex = DEFAULT_MOOD_INDEX;
         }
         setImageDrawable(AppCompatResources.getDrawable(getContext(), drawableId));
+    }
+    
+    public int getMoodIndex()
+    {
+        return mMoodIndex;
     }
     
     public int getMoodColor()

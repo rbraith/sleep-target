@@ -73,7 +73,7 @@ public class DateRange
 // api
 //*********************************************************
 
-
+    
     /**
      * Returns a DateRange where getStart() returns Monday of the week of the provided Date, set to
      * offsetMillis and getEnd() returns the Monday of the next week, set to the same time
@@ -166,11 +166,24 @@ public class DateRange
     
     public DateRange offsetDays(int days)
     {
+        return offsetStartDays(days).offsetEndDays(days);
+    }
+    
+    // TODO [21-06-25 10:02PM] -- check that start doesn't come after end.
+    public DateRange offsetStartDays(int days)
+    {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTime(mStart);
         cal.add(Calendar.DAY_OF_WEEK, days);
         mStart = cal.getTime();
         
+        return this;
+    }
+    
+    // TODO [21-06-25 10:02PM] -- check that start doesn't come after end.
+    public DateRange offsetEndDays(int days)
+    {
+        GregorianCalendar cal = new GregorianCalendar();
         cal.setTime(mEnd);
         cal.add(Calendar.DAY_OF_WEEK, days);
         mEnd = cal.getTime();

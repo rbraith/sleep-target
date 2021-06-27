@@ -8,7 +8,6 @@ import com.rbraithwaite.sleepapp.core.models.CurrentSession;
 import com.rbraithwaite.sleepapp.core.repositories.CurrentSessionRepository;
 import com.rbraithwaite.sleepapp.data.convert.ConvertCurrentSession;
 import com.rbraithwaite.sleepapp.data.prefs.SleepAppDataPrefs;
-import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -22,17 +21,15 @@ public class CurrentSessionRepositoryImpl
 //*********************************************************
 
     private SleepAppDataPrefs mDataPrefs;
-    private TimeUtils mTimeUtils;
 
 //*********************************************************
 // constructors
 //*********************************************************
 
     @Inject
-    public CurrentSessionRepositoryImpl(SleepAppDataPrefs dataPrefs, TimeUtils timeUtils)
+    public CurrentSessionRepositoryImpl(SleepAppDataPrefs dataPrefs)
     {
         mDataPrefs = dataPrefs;
-        mTimeUtils = timeUtils;
     }
 
 //*********************************************************
@@ -42,7 +39,7 @@ public class CurrentSessionRepositoryImpl
     @Override
     public void clearCurrentSession()
     {
-        setCurrentSession(new CurrentSession(mTimeUtils));
+        setCurrentSession(new CurrentSession());
     }
     
     @Override
@@ -50,7 +47,7 @@ public class CurrentSessionRepositoryImpl
     {
         return Transformations.map(
                 mDataPrefs.getCurrentSession(),
-                prefsData -> ConvertCurrentSession.fromPrefsData(prefsData, mTimeUtils));
+                ConvertCurrentSession::fromPrefsData);
     }
     
     @Override

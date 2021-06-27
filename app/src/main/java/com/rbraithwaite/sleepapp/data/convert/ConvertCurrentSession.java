@@ -3,7 +3,6 @@ package com.rbraithwaite.sleepapp.data.convert;
 import com.rbraithwaite.sleepapp.core.models.CurrentSession;
 import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.data.prefs.CurrentSessionPrefsData;
-import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 public class ConvertCurrentSession
 {
@@ -31,9 +30,7 @@ public class ConvertCurrentSession
                 currentSession.getSelectedTagIds());
     }
     
-    public static CurrentSession fromPrefsData(
-            CurrentSessionPrefsData prefsData,
-            TimeUtils timeUtils)
+    public static CurrentSession fromPrefsData(CurrentSessionPrefsData prefsData)
     {
         if (prefsData == null) {
             return null;
@@ -44,8 +41,7 @@ public class ConvertCurrentSession
                 prefsData.moodIndex == CurrentSessionPrefsData.NO_MOOD ?
                         null :
                         Mood.fromIndex(prefsData.moodIndex),
-                prefsData.selectedTagIds,
-                timeUtils);
+                prefsData.selectedTagIds);
         return currentSession;
     }
 }

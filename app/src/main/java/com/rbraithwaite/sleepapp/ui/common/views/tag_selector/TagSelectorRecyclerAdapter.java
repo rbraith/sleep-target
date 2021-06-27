@@ -39,10 +39,13 @@ public class TagSelectorRecyclerAdapter
 //*********************************************************
 
     private static final String TAG = "TagSelectorRecyclerAdap";
-    private static final int VIEW_TYPE_TAG = 0;
-    
-    
-    private static final int VIEW_TYPE_ADD_CUSTOM_BUTTON = 1;
+
+//*********************************************************
+// public constants
+//*********************************************************
+
+    public static final int VIEW_TYPE_TAG = 0;
+    public static final int VIEW_TYPE_ADD_CUSTOM_BUTTON = 1;
 
 //*********************************************************
 // public helpers
@@ -104,6 +107,8 @@ public class TagSelectorRecyclerAdapter
     {
         private static final String TAG = "TagViewHolder";
         
+        private TagSelectorViewModel.ListItemData mListItemData;
+        
         private CardView mCard;
         private TextView mTagText;
         private EditText mTagEditText;
@@ -127,6 +132,11 @@ public class TagSelectorRecyclerAdapter
             mCard = itemView.findViewById(R.id.tag_selector_dialog_list_item_card);
             
             mAttributes = attributes;
+        }
+        
+        public TagSelectorViewModel.ListItemData getListItemData()
+        {
+            return mListItemData;
         }
         
         private void expandView()
@@ -156,6 +166,8 @@ public class TagSelectorRecyclerAdapter
         
         public void bindTo(final TagSelectorViewModel.ListItemData listItemData)
         {
+            mListItemData = listItemData;
+            
             if (listItemData.expanded) {
                 expandView();
                 
@@ -187,6 +199,7 @@ public class TagSelectorRecyclerAdapter
         }
     }
     
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -196,7 +209,7 @@ public class TagSelectorRecyclerAdapter
         mViewModel = viewModel;
         bindViewModel(lifecycleOwner);
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -245,7 +258,7 @@ public class TagSelectorRecyclerAdapter
         }
         return VIEW_TYPE_ADD_CUSTOM_BUTTON;
     }
-
+    
     @Override
     public int getItemCount()
     {
@@ -255,7 +268,7 @@ public class TagSelectorRecyclerAdapter
         }
         return mListItems.size() + 1;
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -330,7 +343,7 @@ public class TagSelectorRecyclerAdapter
                 lifecycleOwner,
                 this::notifyItemChanged);
     }
-
+    
     // REFACTOR [21-04-17 2:52PM] -- I could extract this as a general utility for recycler
     //  adapters.
     private View inflateLayout(int layoutId, ViewGroup parent)
@@ -360,7 +373,7 @@ public class TagSelectorRecyclerAdapter
             return true;
         });
     }
-    
+
 //*********************************************************
 // private helpers
 //*********************************************************

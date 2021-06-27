@@ -21,7 +21,7 @@ public class TimeUtilsTests
 //*********************************************************
 
     TimeUtils timeUtils;
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -39,6 +39,13 @@ public class TimeUtilsTests
     }
     
     @Test
+    public void getCalendarFromDate_returnsCorrectCalendar()
+    {
+        Date expected = TestUtils.ArbitraryData.getDate();
+        assertThat(TimeUtils.getCalendarFrom(expected).getTime(), is(equalTo(expected)));
+    }
+    
+    @Test
     public void addDurationToDate_returnsCorrectDate()
     {
         Date date = TestUtils.ArbitraryData.getDate();
@@ -47,7 +54,7 @@ public class TimeUtilsTests
         
         assertThat(newDate.getTime() - date.getTime(), is(equalTo((long) expectedDuration)));
     }
-
+    
     @Test
     public void setCalendarTimeOfDay_positiveInput()
     {
@@ -55,7 +62,7 @@ public class TimeUtilsTests
         timeUtils.setCalendarTimeOfDay(cal, 0);
         
         checkCalendarTimeOfDay(cal, 0, 0, 0, 0);
-
+        
         timeUtils.setCalendarTimeOfDay(cal, timeUtils.timeToMillis(
                 1, 2, 3, 4));
         

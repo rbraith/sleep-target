@@ -268,12 +268,9 @@ public class SleepTrackerFragment
                 getViewLifecycleOwner(),
                 wakeTimeGoalText -> {
                     if (wakeTimeGoalText == null) {
-                        // REFACTOR [21-06-16 7:10PM] create a visibility group for these views?
-                        wakeTimeGoalTitle.setVisibility(View.GONE);
-                        wakeTimeGoalValue.setVisibility(View.GONE);
+                        wakeTimeGoalCard.setVisibility(View.GONE);
                     } else {
-                        wakeTimeGoalTitle.setVisibility(View.VISIBLE);
-                        wakeTimeGoalValue.setVisibility(View.VISIBLE);
+                        wakeTimeGoalCard.setVisibility(View.VISIBLE);
                         wakeTimeGoalValue.setText(wakeTimeGoalText);
                     }
                 });
@@ -291,12 +288,9 @@ public class SleepTrackerFragment
                 getViewLifecycleOwner(),
                 sleepDurationGoalText -> {
                     if (sleepDurationGoalText == null) {
-                        // REFACTOR [21-06-16 7:11PM] create a visibility group for these views?
-                        sleepDurationGoalTitle.setVisibility(View.GONE);
-                        sleepDurationGoalValue.setVisibility(View.GONE);
+                        sleepDurationGoalCard.setVisibility(View.GONE);
                     } else {
-                        sleepDurationGoalTitle.setVisibility(View.VISIBLE);
-                        sleepDurationGoalValue.setVisibility(View.VISIBLE);
+                        sleepDurationGoalCard.setVisibility(View.VISIBLE);
                         sleepDurationGoalValue.setText(sleepDurationGoalText);
                     }
                 });

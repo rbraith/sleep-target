@@ -196,7 +196,7 @@ public class CurrentGoalsRepositoryImplTests
     @Test
     public void setWakeTimeGoal_updatesDatabase()
     {
-        WakeTimeGoal expected = TestUtils.ArbitraryData.getWakeTimeGoalModel();
+        WakeTimeGoal expected = TestUtils.ArbitraryData.getWakeTimeGoal();
         
         repository.setWakeTimeGoal(expected);
         
@@ -227,7 +227,7 @@ public class CurrentGoalsRepositoryImplTests
     @Test
     public void setSleepDurationGoal_updatesDatabase()
     {
-        SleepDurationGoal model = TestUtils.ArbitraryData.getSleepDurationGoalModel();
+        SleepDurationGoal model = TestUtils.ArbitraryData.getSleepDurationGoal();
         repository.setSleepDurationGoal(model);
         
         ArgumentCaptor<SleepDurationGoalEntity> arg =

@@ -15,7 +15,6 @@ public class CurrentSession
 //*********************************************************
 
     private Date mStart;
-    private TimeUtils mTimeUtils;
     
     private String mAdditionalComments;
     private Mood mMood;
@@ -30,7 +29,7 @@ public class CurrentSession
     
     /**
      * A static "snapshot" of some CurrentSession's state. This is needed as CurrentSession's
-     * duration is always updating in real time - see {@link #getOngoingDurationMillis()}
+     * duration is always updating in real time - see getOngoingDurationMillis()
      */
     public static class Snapshot
     {
@@ -60,23 +59,22 @@ public class CurrentSession
 // constructors
 //*********************************************************
 
-    public CurrentSession(TimeUtils timeUtils)
+    public CurrentSession()
     {
-        this(null, timeUtils);
+        this(null);
     }
     
-    public CurrentSession(@Nullable Date start, TimeUtils timeUtils)
+    public CurrentSession(@Nullable Date start)
     {
-        this(start, null, timeUtils);
+        this(start, null);
     }
     
     public CurrentSession(
             @Nullable Date start,
-            @Nullable String additionalComments,
-            TimeUtils timeUtils)
+            @Nullable String additionalComments)
     {
         // TODO [21-06-14 1:30AM] -- mood shouldn't ever be null, only unset.
-        this(start, additionalComments, null, null, timeUtils);
+        this(start, additionalComments, null, null);
     }
     
     
@@ -85,12 +83,10 @@ public class CurrentSession
             @Nullable String additionalComments,
             // TODO [21-06-14 1:30AM] -- mood shouldn't ever be null, only unset.
             @Nullable Mood mood,
-            @Nullable List<Integer> selectedTagIds,
-            TimeUtils timeUtils)
+            @Nullable List<Integer> selectedTagIds)
     {
         mStart = start;
         mAdditionalComments = additionalComments;
-        mTimeUtils = timeUtils;
         mMood = mood;
         mSelectedTagIds = selectedTagIds == null ? new ArrayList<>() : selectedTagIds;
     }
@@ -128,9 +124,9 @@ public class CurrentSession
      * This returns a dynamic value - the duration from the start of the current session to whenever
      * this method was called. Do not expect any two calls of this method to return the same value.
      */
-    public long getOngoingDurationMillis()
+    public long getOngoingDurationMillis(TimeUtils timeUtils)
     {
-        return mTimeUtils.getNow().getTime() - mStart.getTime();
+        return timeUtils.getNow().getTime() - mStart.getTime();
     }
     
     public String getAdditionalComments()
@@ -153,10 +149,10 @@ public class CurrentSession
         mSelectedTagIds = selectedTagIds;
     }
     
-    public Snapshot createSnapshot()
+    public Snapshot createSnapshot(TimeUtils timeUtils)
     {
         Date start = getStart();
-        int durationMillis = (int) getOngoingDurationMillis();
+        int durationMillis = (int) getOngoingDurationMillis(timeUtils);
         // HACK [21-05-25 3:35PM] -- this is a temporary bandaid here for a larger app-wide issue.
         //  That issue being the multitude of places where I am casting from long to int for
         //  a sleep session's duration. This behaviour is very far from ideal, what would be much
@@ -166,7 +162,7 @@ public class CurrentSession
         //  elsewhere in the app where no such protections (regardless of how hacky) exist.
         durationMillis = Math.max(0, durationMillis);
         
-        Date end = mTimeUtils.addDurationToDate(start, durationMillis);
+        Date end = timeUtils.addDurationToDate(start, durationMillis);
         
         return new Snapshot(
                 start,
@@ -175,10 +171,5 @@ public class CurrentSession
                 getMood(),
                 getAdditionalComments(),
                 getSelectedTagIds());
-    }
-    
-    public void setTimeUtils(TimeUtils timeUtils)
-    {
-        mTimeUtils = timeUtils;
     }
 }

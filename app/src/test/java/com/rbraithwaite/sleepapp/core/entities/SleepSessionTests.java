@@ -2,6 +2,7 @@ package com.rbraithwaite.sleepapp.core.entities;
 
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
+import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import org.junit.Test;
 
@@ -62,6 +63,36 @@ public class SleepSessionTests
         
         // verify
         assertThat(sleepSession.getStart(), is(equalTo(newStart.getTime())));
+    }
+    
+    @Test
+    public void offsetStartFixed_setStartDateCorrectly()
+    {
+        GregorianCalendar originalStart = TestUtils.ArbitraryData.getCalendar();
+        SleepSession sleepSession = new SleepSession(originalStart.getTime(), 12345);
+        
+        sleepSession.offsetStartFixed(-12, -34);
+        
+        GregorianCalendar offsetStart = TimeUtils.getCalendarFrom(sleepSession.getStart());
+        
+        int expectedOffset = (int) TimeUtils.timeToMillis(12, 34, 0, 0);
+        assertThat((int) (originalStart.getTimeInMillis() - offsetStart.getTimeInMillis()),
+                   is(expectedOffset));
+    }
+    
+    @Test
+    public void offsetEndFixed_setsEndDateCorrectly()
+    {
+        GregorianCalendar originalEnd = TestUtils.ArbitraryData.getCalendar();
+        SleepSession sleepSession = new SleepSession(originalEnd.getTime(), 0);
+        
+        sleepSession.offsetEndFixed(12, 34);
+        
+        GregorianCalendar offsetEnd = TimeUtils.getCalendarFrom(sleepSession.getEnd());
+        
+        int expectedOffset = (int) TimeUtils.timeToMillis(12, 34, 0, 0);
+        assertThat((int) (offsetEnd.getTimeInMillis() - originalEnd.getTimeInMillis()),
+                   is(expectedOffset));
     }
     
     @Test

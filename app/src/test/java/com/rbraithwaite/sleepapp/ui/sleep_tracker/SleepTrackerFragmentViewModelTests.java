@@ -122,7 +122,7 @@ public class SleepTrackerFragmentViewModelTests
     public void OnKeepSessionListener_hears_keepStoppedSession()
     {
         when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(
-                new MutableLiveData<>(new CurrentSession(new TimeUtils())));
+                new MutableLiveData<>(new CurrentSession()));
         
         TestUtils.DoubleRef<Boolean> listenerWasCalled = new TestUtils.DoubleRef<>(false);
         viewModel.setOnKeepSessionListener(() -> listenerWasCalled.ref = true);
@@ -142,8 +142,7 @@ public class SleepTrackerFragmentViewModelTests
                         TestUtils.ArbitraryData.getDate(),
                         "persisted comment",
                         Mood.fromIndex(1),
-                        Arrays.asList(1, 2),
-                        new TimeUtils())));
+                        Arrays.asList(1, 2))));
         
         List<TagUiData> tags = Arrays.asList(
                 new TagUiData(3, "meh"),
@@ -203,7 +202,7 @@ public class SleepTrackerFragmentViewModelTests
     {
         List<Integer> expectedIdsList = Arrays.asList(1, 2, 3);
         when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(new MutableLiveData<>(
-                new CurrentSession(null, null, null, expectedIdsList, new TimeUtils())));
+                new CurrentSession(null, null, null, expectedIdsList)));
         
         LiveData<SleepTrackerFragmentViewModel.InitialTagData> initialTagData =
                 viewModel.getInitialTagData();
@@ -222,8 +221,7 @@ public class SleepTrackerFragmentViewModelTests
                         null,
                         null,
                         null,
-                        expected,
-                        new TimeUtils())));
+                        expected)));
         
         LiveData<List<Integer>> selectedTagIds = viewModel.getPersistedSelectedTagIds();
         
@@ -259,8 +257,7 @@ public class SleepTrackerFragmentViewModelTests
                         null,
                         null,
                         new Mood(0),
-                        null,
-                        new TimeUtils())));
+                        null)));
         
         LiveData<MoodUiData> moodUiData = viewModel.getPersistedMood();
         
@@ -278,7 +275,7 @@ public class SleepTrackerFragmentViewModelTests
                 new TagUiData(3, "what"));
         
         when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(
-                new MutableLiveData<>(new CurrentSession(expectedStart, new TimeUtils())));
+                new MutableLiveData<>(new CurrentSession(expectedStart)));
         
         viewModel.setLocalAdditionalComments(expectedComments);
         viewModel.setLocalMood(expectedMood);
@@ -314,7 +311,7 @@ public class SleepTrackerFragmentViewModelTests
     @Test
     public void getWakeTimeText_getsWakeTimeText()
     {
-        WakeTimeGoal model = TestUtils.ArbitraryData.getWakeTimeGoalModel();
+        WakeTimeGoal model = TestUtils.ArbitraryData.getWakeTimeGoal();
         when(mockCurrentGoalsRepository.getWakeTimeGoal()).thenReturn(new MutableLiveData<>(model));
         
         LiveData<String> wakeTime = viewModel.getWakeTimeGoalText();
@@ -329,7 +326,7 @@ public class SleepTrackerFragmentViewModelTests
     {
         Date testDate = TestUtils.ArbitraryData.getDate();
         when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(
-                new MutableLiveData<>(new CurrentSession(testDate, new TimeUtils())));
+                new MutableLiveData<>(new CurrentSession(testDate)));
         
         String expected = SleepTrackerFormatting.formatSessionStartTime(testDate);
         
@@ -380,7 +377,7 @@ public class SleepTrackerFragmentViewModelTests
         
         // start sleep session
         mockCurrentSessionStart.setValue(
-                new CurrentSession(TestUtils.ArbitraryData.getDate(), new TimeUtils()));
+                new CurrentSession(TestUtils.ArbitraryData.getDate()));
         
         // REFACTOR [20-11-18 9:04PM] -- call this TestUtils.getShadowLooper(threadName).
         // It was necessary to manually manipulate the TickingLiveData's looper like this,
@@ -419,7 +416,7 @@ public class SleepTrackerFragmentViewModelTests
     {
         // set up the repo behaviours
         final MutableLiveData<CurrentSession> mockStartTime =
-                new MutableLiveData<>(new CurrentSession(new TimeUtils()));
+                new MutableLiveData<>(new CurrentSession());
         MockRepositoryUtils.setupCurrentSessionRepositoryWithState(
                 mockCurrentSessionRepository,
                 mockStartTime);
@@ -448,8 +445,7 @@ public class SleepTrackerFragmentViewModelTests
         when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(new MutableLiveData<>(
                 new CurrentSession(
                         new GregorianCalendar(2021, 2, 30).getTime(),
-                        expectedComments,
-                        new TimeUtils())));
+                        expectedComments)));
         TimeUtils stubTimeUtils = new TimeUtils()
         {
             @Override

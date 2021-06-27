@@ -1,10 +1,13 @@
 package com.rbraithwaite.sleepapp.test_utils.ui.drivers;
 
+import androidx.lifecycle.LiveData;
 import androidx.test.espresso.ViewInteraction;
 
 import com.rbraithwaite.sleepapp.R;
+import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.core.models.Tag;
+import com.rbraithwaite.sleepapp.core.models.WakeTimeGoal;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.assertion_utils.AssertOn;
@@ -17,8 +20,10 @@ import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorViewMod
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagUiData;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.PostSleepDialog;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.PostSleepDialogFormatting;
+import com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFormatting;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFragment;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFragmentViewModel;
+import com.rbraithwaite.sleepapp.utils.CommonUtils;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 import com.rbraithwaite.sleepapp.utils.interfaces.Action;
 
@@ -30,48 +35,43 @@ import java.util.stream.IntStream;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 
 public class SleepTrackerTestDriver
+        extends BaseFragmentTestDriver<SleepTrackerFragment, SleepTrackerTestDriver.Assertions>
 {
 //*********************************************************
 // private properties
 //*********************************************************
 
-    private FragmentTestHelper<SleepTrackerFragment> mHelper;
     private MoodSelectorDriver mMoodSelector;
     private TagSelectorDriver mTagSelectorDriver;
     private Boolean mInSession = false;
 
 //*********************************************************
-// public constants
-//*********************************************************
-
-    public final Assertions assertThat;
-
-//*********************************************************
 // public helpers
 //*********************************************************
-
-    public static class Assertions
+    
+    public static class Assertions extends BaseFragmentTestDriver.BaseAssertions<SleepTrackerTestDriver, SleepTrackerFragmentViewModel>
     {
-        private SleepTrackerTestDriver mOwningSleepTracker;
-        
         public enum TrackerButtonState
         {
             NOT_STARTED,
             STARTED
         }
         
-        private Assertions(SleepTrackerTestDriver owningSleepTracker)
+        public Assertions(SleepTrackerTestDriver owningDriver)
         {
-            mOwningSleepTracker = owningSleepTracker;
+            super(owningDriver);
         }
         
         public void sleepTrackerButtonIsInState(TrackerButtonState state)
@@ -97,12 +97,12 @@ public class SleepTrackerTestDriver
         
         public void moodIsUnSet()
         {
-            mOwningSleepTracker.mMoodSelector.assertThat.moodIsUnset();
+            getOwningDriver().mMoodSelector.assertThat.moodIsUnset();
         }
         
         public void thereAreNoSelectedTags()
         {
-            mOwningSleepTracker.mTagSelectorDriver.assertThat.thereAreNoSelectedTags();
+            getOwningDriver().mTagSelectorDriver.assertThat.thereAreNoSelectedTags();
         }
         
         public void commentsAreUnset()
@@ -112,9 +112,7 @@ public class SleepTrackerTestDriver
         
         public void postSleepDialogHasMood(int expectedMoodIndex)
         {
-            assertOnPostSleepDialog(dialog -> {
-                assertThat(dialog.getMoodIndex(), is(equalTo(expectedMoodIndex)));
-            });
+            assertOnPostSleepDialog(dialog -> hamcrestAssertThat(dialog.getMoodIndex(), is(equalTo(expectedMoodIndex))));
         }
         
         public void postSleepDialogHasSelectedTags(List<Integer> expectedSelectedTagIds)
@@ -125,11 +123,11 @@ public class SleepTrackerTestDriver
                 //  Or I could just access the view model through a getter.
                 List<TagUiData> tags = dialog.getTags();
                 
-                assertThat(tags, is(notNullValue()));
-                assertThat(tags.isEmpty(), is(false));
-                assertThat(tags.size(), is(equalTo(expectedSelectedTagIds.size())));
+                hamcrestAssertThat(tags, is(notNullValue()));
+                hamcrestAssertThat(tags.isEmpty(), is(false));
+                hamcrestAssertThat(tags.size(), is(equalTo(expectedSelectedTagIds.size())));
                 for (int i = 0; i < tags.size(); i++) {
-                    assertThat(tags.get(i).tagId, is(equalTo(expectedSelectedTagIds.get(i))));
+                    hamcrestAssertThat(tags.get(i).tagId, is(equalTo(expectedSelectedTagIds.get(i))));
                 }
             });
         }
@@ -149,7 +147,7 @@ public class SleepTrackerTestDriver
         public void postSleepDialogRatingIsUnset()
         {
             assertOnPostSleepDialog(dialog -> {
-                assertThat(dialog.getViewModel().getRating(), is(0f));
+                hamcrestAssertThat(dialog.getViewModel().getRating(), is(0f));
             });
         }
         
@@ -160,19 +158,19 @@ public class SleepTrackerTestDriver
         
         public void selectedMoodMatches(int expectedMoodIndex)
         {
-            mOwningSleepTracker.mMoodSelector.assertThat.selectedMoodMatches(expectedMoodIndex);
+            getOwningDriver().mMoodSelector.assertThat.selectedMoodMatches(expectedMoodIndex);
         }
         
         public void selectedTagsMatch(List<Integer> expectedSelectedTagIds)
         {
-            mOwningSleepTracker.mTagSelectorDriver.assertThat.selectedTagsMatch(
+            getOwningDriver().mTagSelectorDriver.assertThat.selectedTagsMatch(
                     expectedSelectedTagIds);
         }
         
         public void postSleepDialogIsDisplayed()
         {
             assertOnPostSleepDialog(dialog -> {
-                assertThat(dialog, is(notNullValue()));
+                hamcrestAssertThat(dialog, is(notNullValue()));
             });
         }
         
@@ -190,15 +188,115 @@ public class SleepTrackerTestDriver
         {
             assertOnPostSleepDialog(dialog -> {
                 TagScrollController tagScrollController = dialog.getTagScrollController();
-                assertThat(tagScrollController.isEmpty(), is(true));
+                hamcrestAssertThat(tagScrollController.isEmpty(), is(true));
             });
+        }
+        
+        /**
+         * Assert that the tracker is not currently tracking, and that no details have been set.
+         */
+        public void screenIsClear()
+        {
+            thereIsNoCurrentSession();
+            detailsAreCleared();
+        }
+        
+        public void noGoalsAreDisplayed()
+        {
+            sleepDurationGoalIsNotDisplayed();
+            wakeTimeGoalIsNotDisplayed();
+        }
+        
+        public void sleepDurationGoalIsNotDisplayed()
+        {
+            onView(withId(R.id.tracker_duration_goal_card)).check(matches(not(isDisplayed())));
+        }
+        
+        public void wakeTimeGoalIsNotDisplayed()
+        {
+            onView(withId(R.id.tracker_waketime_goal_card)).check(matches(not(isDisplayed())));
+        }
+        
+        public void onlyWakeTimeGoalIsDisplayed(WakeTimeGoal expectedWakeTimeGoal)
+        {
+            sleepDurationGoalIsNotDisplayed();
+            wakeTimeGoalIsDisplayed(expectedWakeTimeGoal);
+        }
+        
+        public void wakeTimeGoalIsDisplayed(WakeTimeGoal expectedWakeTimeGoal)
+        {
+            onView(allOf(isDescendantOfA(withId(R.id.tracker_waketime_goal_card)),
+                         withId(R.id.tracker_goal_value)))
+                    .check(matches(allOf(
+                            isDisplayed(),
+                            withText(SleepTrackerFormatting.formatWakeTimeGoal(
+                                    expectedWakeTimeGoal)))));
+        }
+        
+        public void sessionStartTimeIsNotDisplayed()
+        {
+            onView(withId(R.id.sleep_tracker_start_time)).check(matches(not(isDisplayed())));
+            onView(withId(R.id.sleep_tracker_started_text)).check(matches(not(isDisplayed())));
+        }
+        
+        public void sessionTimerMatches(int expectedDuration)
+        {
+            onView(withId(R.id.sleep_tracker_session_time)).check(matches(withText(
+                    SleepTrackerFormatting.formatDuration(expectedDuration))));
+        }
+        
+        public void sessionStartTimeMatches(Date expectedStartTime)
+        {
+            onView(withId(R.id.sleep_tracker_start_time)).check(matches(withText(
+                    SleepTrackerFormatting.formatSessionStartTime(expectedStartTime))));
+        }
+        
+        public void detailsMatch(SleepSession sleepSession)
+        {
+            // TODO [21-06-25 7:55PM] -- this should handle comments being null.
+            additionalCommentsMatch(sleepSession.getAdditionalComments());
+            // TODO [21-06-25 7:55PM] -- this needs to handle mood being null.
+            selectedMoodMatches(sleepSession.getMood().asIndex());
+            selectedTagsMatch(sleepSession.getTags().stream().map(Tag::getTagId).collect(Collectors.toList()));
+        }
+        
+        private void sleepDurationGoalIsDisplayed(SleepDurationGoal expectedSleepDurationGoal)
+        {
+            onView(allOf(isDescendantOfA(withId(R.id.tracker_duration_goal_card)),
+                         withId(R.id.tracker_goal_value)))
+                    .check(matches(allOf(
+                            isDisplayed(),
+                            withText(SleepTrackerFormatting.formatSleepDurationGoal(
+                                    expectedSleepDurationGoal)))));
+        }
+        
+        public void bothGoalsAreDisplayed(
+                WakeTimeGoal expectedWakeTimeGoal,
+                SleepDurationGoal expectedSleepDurationGoal)
+        {
+            wakeTimeGoalIsDisplayed(expectedWakeTimeGoal);
+            sleepDurationGoalIsDisplayed(expectedSleepDurationGoal);
+        }
+        
+        
+        private void thereIsNoCurrentSession()
+        {
+            // check UI
+            onView(withId(R.id.sleep_tracker_session_time)).check(matches(withText(
+                    SleepTrackerFormatting.formatDuration(0))));
+            
+            // check ViewModel
+            LiveData<Boolean> inSleepSession = getViewModel().inSleepSession();
+            TestUtils.activateInstrumentationLiveData(inSleepSession);
+            hamcrestAssertThat(inSleepSession.getValue(), is(false));
         }
         
         private void assertOnPostSleepDialog(AssertOn<PostSleepDialog> assertion)
         {
-            mOwningSleepTracker.performOnPostSleepDialog(assertion::assertOn);
+            getOwningDriver().performOnPostSleepDialog(assertion::assertOn);
         }
     }
+    
 
 //*********************************************************
 // constructors
@@ -206,14 +304,15 @@ public class SleepTrackerTestDriver
 
     public SleepTrackerTestDriver(FragmentTestHelper<SleepTrackerFragment> helper)
     {
-        mHelper = helper;
+        init(helper, new Assertions(this));
+        
         mMoodSelector = new MoodSelectorDriver(
                 withId(R.id.more_context_mood),
                 getMoodSelectorViewModel());
         mTagSelectorDriver = new TagSelectorDriver(
+                getHelper(),
                 withId(R.id.more_context_tags),
                 getTagSelectorViewModel());
-        assertThat = new Assertions(this);
     }
 
 //*********************************************************
@@ -233,7 +332,7 @@ public class SleepTrackerTestDriver
     
     public void discardSessionManually()
     {
-        assertThat.postSleepDialogIsDisplayed();
+        assertThat().postSleepDialogIsDisplayed();
         DialogTestUtils.pressNegativeButton();
         DialogTestUtils.pressPositiveButton();
     }
@@ -309,19 +408,9 @@ public class SleepTrackerTestDriver
         injectTimeUtils(oldTimeUtils);
     }
     
-    public void restartFragment()
-    {
-        mHelper.restartFragment();
-    }
-    
     public void recordSpecificSession(SleepSession sleepSession)
     {
-        setAdditionalComments(sleepSession.getAdditionalComments());
-        addNewMood(sleepSession.getMood().asIndex());
-        addTags(sleepSession.getTags().stream().map(Tag::getText).collect(Collectors.toList()));
-        // REFACTOR [21-05-11 11:47PM] -- call this ListUtils.asIndices().
-        toggleTagSelections(IntStream.range(0, sleepSession.getTags().size()).boxed().collect(
-                Collectors.toList()));
+        setDetailsFrom(sleepSession);
         
         // REFACTOR [21-05-11 9:56PM] -- this duplicates keepSleepSession - I should have an
         //  overload: keepSleepSession(start, end) (although the adding of a rating is different...
@@ -342,9 +431,38 @@ public class SleepTrackerTestDriver
     
     public void setPostSleepRating(float rating)
     {
-        performOnPostSleepDialog(dialog -> {
-            dialog.getViewModel().setRating(rating);
-        });
+        performOnPostSleepDialog(dialog -> dialog.getViewModel().setRating(rating));
+    }
+    
+    /**
+     * Starts a session paused at a specific start time and duration. The start time is the real now
+     * minus currentDuration.
+     *
+     * @param currentDurationMillis The duration to pause at.
+     *
+     * @return The start time.
+     */
+    public Date startPausedSession(int currentDurationMillis)
+    {
+        TimeUtils timeUtils = new TimeUtils();
+        Date start = timeUtils.addDurationToDate(timeUtils.getNow(), currentDurationMillis * -1);
+        
+        // TODO [21-06-24 4:21AM] -- record the oldTimeUtils for un-pausing?
+        injectTimeUtils(createPausedTimeUtils(start, currentDurationMillis));
+        
+        startSessionManually();
+        
+        return start;
+    }
+    
+    public void setDetailsFrom(SleepSession sleepSession)
+    {
+        setAdditionalComments(sleepSession.getAdditionalComments());
+        addNewMood(sleepSession.getMood().asIndex());
+        addTags(sleepSession.getTags().stream().map(Tag::getText).collect(Collectors.toList()));
+        // REFACTOR [21-05-11 11:47PM] -- call this ListUtils.asIndices().
+        toggleTagSelections(IntStream.range(0, sleepSession.getTags().size()).boxed().collect(
+                Collectors.toList()));
     }
 
 //*********************************************************
@@ -353,7 +471,7 @@ public class SleepTrackerTestDriver
 
     private void performOnPostSleepDialog(Action<PostSleepDialog> action)
     {
-        mHelper.performSyncedFragmentAction(fragment -> {
+        getHelper().performSyncedFragmentAction(fragment -> {
             PostSleepDialog dialog =
                     (PostSleepDialog) fragment.getDialogByTag(SleepTrackerFragment.POST_SLEEP_DIALOG);
             
@@ -367,10 +485,38 @@ public class SleepTrackerTestDriver
     }
     
     /**
-     * Used to control the start & end times for a recorded sleep session. If getNow() is called
-     * more than twice it will throw a RuntimeException. If start or end is null, super.getNow()
-     * (i.e. the real time) is used in that Date's place.
+     * This overrides getNow() to first return startTime, then a Date that is startTime +
+     * currentDuration on every subsequent call, effectively pausing the session timer.
      */
+    private TimeUtils createPausedTimeUtils(Date startTime, int currentDuration)
+    {
+        return new TimeUtils()
+        {
+            private boolean mFirstCall = true;
+            private Date mPausedDate;
+            
+            @Override
+            public Date getNow()
+            {
+                if (mFirstCall) {
+                    mFirstCall = false;
+                    return startTime;
+                }
+                return getPausedDate();
+            }
+            
+            public Date getPausedDate()
+            {
+                mPausedDate = CommonUtils.lazyInit(mPausedDate,
+                                                   () -> new TimeUtils().addDurationToDate(startTime,
+                                                                                           currentDuration));
+                return mPausedDate;
+            }
+        };
+    }
+    
+    // REFACTOR [21-06-25 8:41PM] -- I ended up changing this TimeUtil's behaviour and now it
+    //  behaves very similarly to createPausedTimeUtils()
     private TimeUtils createSessionTimeUtils(Date start, Date end)
     {
         return new TimeUtils()
@@ -384,10 +530,8 @@ public class SleepTrackerTestDriver
                 
                 if (timesCalled == 1) {
                     return start == null ? super.getNow() : start;
-                } else if (timesCalled == 2) {
-                    return end == null ? super.getNow() : end;
                 } else {
-                    throw new RuntimeException("keepSleepSession TimeUtils called too much.");
+                    return end == null ? super.getNow() : end;
                 }
             }
         };
@@ -396,7 +540,7 @@ public class SleepTrackerTestDriver
     private TagSelectorViewModel getTagSelectorViewModel()
     {
         TestUtils.DoubleRef<TagSelectorViewModel> viewModel = new TestUtils.DoubleRef<>(null);
-        mHelper.performSyncedFragmentAction(fragment -> {
+        getHelper().performSyncedFragmentAction(fragment -> {
             viewModel.ref = fragment.getTagSelectorViewModel();
         });
         return viewModel.ref;
@@ -405,7 +549,7 @@ public class SleepTrackerTestDriver
     private MoodSelectorViewModel getMoodSelectorViewModel()
     {
         TestUtils.DoubleRef<MoodSelectorViewModel> viewModel = new TestUtils.DoubleRef<>(null);
-        mHelper.performSyncedFragmentAction(fragment -> {
+        getHelper().performSyncedFragmentAction(fragment -> {
             viewModel.ref = fragment.getMoodSelectorViewModel();
         });
         return viewModel.ref;
@@ -427,7 +571,7 @@ public class SleepTrackerTestDriver
     private TimeUtils injectTimeUtils(TimeUtils newTimeUtils)
     {
         TestUtils.DoubleRef<TimeUtils> oldTimeUtils = new TestUtils.DoubleRef<>(null);
-        mHelper.performSyncedFragmentAction(fragment -> {
+        getHelper().performSyncedFragmentAction(fragment -> {
             SleepTrackerFragmentViewModel viewModel = fragment.getViewModel();
             oldTimeUtils.ref = viewModel.getTimeUtils();
             viewModel.setTimeUtils(newTimeUtils);

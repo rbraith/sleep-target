@@ -23,6 +23,7 @@ import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 // This is mainly for testing fragment UI in isolation I guess.
 
 
+
 /**
  * This is for testing Hilt fragments in isolation, since currently FragmentScenario doesn't play
  * nice with them.
@@ -35,6 +36,9 @@ public class HiltFragmentTestHelper<FragmentType extends Fragment>
 //*********************************************************
 
     private ActivityScenario<HiltFragmentActivity> mScenario;
+    // These are stored for reference when the app is restarted.
+    private Class<FragmentType> mFragmentClass;
+    private Bundle mFragmentArgs;
 
 //*********************************************************
 // constructors
@@ -42,9 +46,9 @@ public class HiltFragmentTestHelper<FragmentType extends Fragment>
 
     private HiltFragmentTestHelper(final Class<FragmentType> fragmentClass, final Bundle args)
     {
-        mScenario = ActivityScenario.launch(HiltFragmentActivity.class);
-        TestUtils.performSyncedActivityAction(
-                mScenario, activity -> setupActivityWithFragment(activity, fragmentClass, args));
+        mFragmentClass = fragmentClass;
+        mFragmentArgs = args;
+        initScenario();
     }
 
 //*********************************************************
@@ -74,6 +78,24 @@ public class HiltFragmentTestHelper<FragmentType extends Fragment>
         mScenario.recreate();
     }
     
+    /**
+     * Restart the application and start up this fragment with the same args it was created with.
+     */
+    @Override
+    public void restartApp()
+    {
+        mScenario.close();
+        // TODO [21-06-24 2:41AM] -- Should the app be allowed to be restarted with new args?
+        //  This would involve updating mArgs.
+        initScenario();
+    }
+    
+    @Override
+    public void rotateScreen(int desiredOrientation)
+    {
+        TestUtils.rotateActivitySynced(mScenario, desiredOrientation);
+    }
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -95,6 +117,18 @@ public class HiltFragmentTestHelper<FragmentType extends Fragment>
 // private methods
 //*********************************************************
 
+    
+    /**
+     * Create the ActivityScenario then create the fragment in the activity.
+     */
+    private void initScenario()
+    {
+        mScenario = ActivityScenario.launch(HiltFragmentActivity.class);
+        TestUtils.performSyncedActivityAction(
+                mScenario, activity -> setupActivityWithFragment(activity, mFragmentClass,
+                                                                 mFragmentArgs));
+    }
+    
     private void setupActivityWithFragment(
             HiltFragmentActivity activity,
             final Class<FragmentType> fragmentClass,

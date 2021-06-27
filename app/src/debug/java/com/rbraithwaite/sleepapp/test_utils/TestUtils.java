@@ -26,7 +26,6 @@ import com.rbraithwaite.sleepapp.data.prefs.SleepAppDataPrefs;
 import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.CurrentSessionUiData;
 import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.DateRange;
-import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -198,7 +197,9 @@ public class TestUtils
             return Mood.fromIndex(1);
         }
         
-        public static Date getWakeTimeGoal()
+        // REFACTOR [21-06-24 3:20AM] -- I should probably get rid of this.
+        @Deprecated
+        public static Date getWakeTimeGoalDate()
         {
             GregorianCalendar calendar = getCalendar();
             calendar.set(Calendar.HOUR_OF_DAY, 7);
@@ -211,7 +212,7 @@ public class TestUtils
             return 10 * 60 * 1000; // 10 min
         }
         
-        public static SleepDurationGoal getSleepDurationGoalModel()
+        public static SleepDurationGoal getSleepDurationGoal()
         {
             return new SleepDurationGoal(1234);
         }
@@ -229,7 +230,7 @@ public class TestUtils
             return entity;
         }
         
-        public static WakeTimeGoal getWakeTimeGoalModel()
+        public static WakeTimeGoal getWakeTimeGoal()
         {
             return new WakeTimeGoal(TestUtils.ArbitraryData.getDate(), 12345);
         }
@@ -248,8 +249,7 @@ public class TestUtils
                     getDate(),
                     "hello there",
                     getMood(),
-                    Arrays.asList(1, 2, 3),
-                    new TimeUtils());
+                    Arrays.asList(1, 2, 3));
         }
         
         public static SleepSessionRepository.NewSleepSessionData getNewSleepSessionData()
@@ -328,6 +328,8 @@ public class TestUtils
         });
         blocker.blockThread();
     }
+    
+    // REFACTOR [21-06-25 12:16AM] -- move this to UITestUtils.
     
     /**
      * @return false if the activity was already at the desiredOrientation

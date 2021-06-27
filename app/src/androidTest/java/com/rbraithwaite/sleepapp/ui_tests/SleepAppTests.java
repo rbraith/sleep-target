@@ -49,29 +49,6 @@ public class SleepAppTests
         app.getSleepTracker().recordSpecificSession(sleepSession);
         app.navigateTo(ApplicationTestDriver.Destination.ARCHIVE);
         app.getSessionArchive().openSessionDetailsFor(0);
-        app.getSessionDetails().assertThat.displayedValuesMatch(sleepSession);
-    }
-    
-    // TODO [21-05-14 2:02PM] -- make this test coarser - check that all session properties are
-    //  updated properly when they are edited - like recordSpecificSession, use a SleepSession
-    //  to edit the details, then the same SleepSession for the assertion.
-    @Test
-    public void editedRatingIsUpdateInArchive()
-    {
-        SleepSession sleepSession = TestUtils.ArbitraryData.getSleepSession();
-        sleepSession.setRating(1.0f);
-        
-        app.getSleepTracker().recordSpecificSession(sleepSession);
-        app.navigateTo(ApplicationTestDriver.Destination.ARCHIVE);
-        
-        app.getSessionArchive().openSessionDetailsFor(0);
-        
-        float expectedRating = 2.0f;
-        app.getSessionDetails().setRating(expectedRating);
-        app.getSessionDetails().confirm();
-        
-        // open the details again, check that the rating was updated
-        app.getSessionArchive().openSessionDetailsFor(0);
-        app.getSessionDetails().assertThat.ratingMatches(expectedRating);
+        app.getSessionDetails().assertThat().displayedValuesMatch(sleepSession);
     }
 }

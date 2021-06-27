@@ -330,7 +330,7 @@ public class SleepGoalsFragmentViewModelTests
         
         assertThat(hasWakeTime.getValue(), is(false));
         
-        mockWakeTimeGoal.setValue(TestUtils.ArbitraryData.getWakeTimeGoalModel());
+        mockWakeTimeGoal.setValue(TestUtils.ArbitraryData.getWakeTimeGoal());
         synchronizer.sync();
         assertThat(hasWakeTime.getValue(), is(true));
         
@@ -358,7 +358,7 @@ public class SleepGoalsFragmentViewModelTests
     @Test
     public void getWakeTimeText_updatesFromRepository()
     {
-        WakeTimeGoal expectedWakeTime = TestUtils.ArbitraryData.getWakeTimeGoalModel();
+        WakeTimeGoal expectedWakeTime = TestUtils.ArbitraryData.getWakeTimeGoal();
         
         when(mockCurrentGoalsRepository.getWakeTimeGoal()).thenReturn(
                 new MutableLiveData<>(expectedWakeTime));
@@ -374,7 +374,7 @@ public class SleepGoalsFragmentViewModelTests
     public void getWakeTimeGoalDateMillis_callsRepository()
     {
         LiveData<WakeTimeGoal> expected =
-                new MutableLiveData<>(TestUtils.ArbitraryData.getWakeTimeGoalModel());
+                new MutableLiveData<>(TestUtils.ArbitraryData.getWakeTimeGoal());
         when(mockCurrentGoalsRepository.getWakeTimeGoal()).thenReturn(expected);
         
         LiveData<Long> wakeTimeGoalMillis = viewModel.getWakeTimeGoalDateMillis();

@@ -1,20 +1,26 @@
 package com.rbraithwaite.sleepapp.test_utils.ui.drivers;
 
 import androidx.test.espresso.ViewInteraction;
+import androidx.test.espresso.contrib.PickerActions;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.core.models.Tag;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
+import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
+import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.ApplicationFragmentTestHelper;
-import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.FragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.MoodSelectorViewModel;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorViewModel;
 import com.rbraithwaite.sleepapp.ui.session_details.SessionDetailsFormatting;
 import com.rbraithwaite.sleepapp.ui.session_details.SessionDetailsFragment;
+import com.rbraithwaite.sleepapp.ui.session_details.SessionDetailsFragmentViewModel;
 import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
+import com.rbraithwaite.sleepapp.utils.TimeUtils;
+import com.rbraithwaite.sleepapp.utils.time.Day;
+import com.rbraithwaite.sleepapp.utils.time.TimeOfDay;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -28,44 +34,48 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoActions.setDatePickerDate;
+import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.onDatePicker;
+import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.onTimePicker;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 public class SessionDetailsTestDriver
+        extends BaseFragmentTestDriver<SessionDetailsFragment, SessionDetailsTestDriver.Assertions>
 {
 //*********************************************************
 // private properties
 //*********************************************************
 
-    private FragmentTestHelper<SessionDetailsFragment> mHelper;
     private TagSelectorDriver mTagSelector;
     private MoodSelectorDriver mMoodSelector;
     private OnConfirmListener mOnConfirmListener;
-
-//*********************************************************
-// public constants
-//*********************************************************
-
-    public final Assertions assertThat;
+    private OnNegativeActionListener mOnNegativeActionListener;
 
 //*********************************************************
 // public helpers
 //*********************************************************
 
+    // REFACTOR [21-06-25 5:11PM] -- rename this OnPositivePressListener.
     public interface OnConfirmListener
     {
         void onConfirm();
     }
     
-    public static class Assertions
+    public interface OnNegativeActionListener
     {
-        private SessionDetailsTestDriver mOwningSessionDetails;
-        
-        private Assertions(SessionDetailsTestDriver owningSessionDetails)
+        void onNegativeAction();
+    }
+    
+    public static class Assertions
+            extends BaseFragmentTestDriver.BaseAssertions<SessionDetailsTestDriver,
+            SessionDetailsFragmentViewModel>
+    {
+        public Assertions(SessionDetailsTestDriver owningDriver)
         {
-            mOwningSessionDetails = owningSessionDetails;
+            super(owningDriver);
         }
         
         public void displayedValuesMatch(SleepSession sleepSession)
@@ -81,23 +91,24 @@ public class SessionDetailsTestDriver
         
         public void ratingMatches(float rating)
         {
-            mOwningSessionDetails.mHelper.performSyncedFragmentAction(fragment -> {
-                assertThat(fragment.getRatingBar().getRating(), is(equalTo(rating)));
+            getOwningDriver().getHelper().performSyncedFragmentAction(fragment -> {
+                hamcrestAssertThat(fragment.getRatingBar().getRating(), is(equalTo(rating)));
             });
         }
         
         public void selectedTagsMatch(List<Tag> tags)
         {
-            mOwningSessionDetails.mTagSelector.assertThat.selectedTagsMatch(getTagIdsOf(tags));
+            getOwningDriver().mTagSelector.assertThat.selectedTagsMatch(getTagIdsOf(tags));
         }
         
         public void moodMatches(Mood mood)
         {
-            mOwningSessionDetails.mMoodSelector.assertThat.selectedMoodMatches(mood.asIndex());
+            getOwningDriver().mMoodSelector.assertThat.selectedMoodMatches(mood);
         }
         
         public void additionalCommentsMatch(String additionalComments)
         {
+            additionalComments = additionalComments == null ? "" : additionalComments;
             onView(withId(R.id.session_details_comments)).check(matches(withText(additionalComments)));
         }
         
@@ -109,8 +120,7 @@ public class SessionDetailsTestDriver
         
         public void endDateAndTimeMatch(Date end)
         {
-            GregorianCalendar cal = new GregorianCalendar();
-            cal.setTime(end);
+            GregorianCalendar cal = TimeUtils.getCalendarFrom(end);
             
             endDateMatches(cal.get(Calendar.YEAR),
                            cal.get(Calendar.MONTH),
@@ -134,8 +144,7 @@ public class SessionDetailsTestDriver
         
         public void startDateAndTimeMatch(Date start)
         {
-            GregorianCalendar cal = new GregorianCalendar();
-            cal.setTime(start);
+            GregorianCalendar cal = TimeUtils.getCalendarFrom(start);
             
             startDateMatches(cal.get(Calendar.YEAR),
                              cal.get(Calendar.MONTH),
@@ -157,6 +166,37 @@ public class SessionDetailsTestDriver
                                                                                      dayOfMonth))));
         }
         
+        public void invalidStartErrorIsDisplayed()
+        {
+            UITestUtils.checkSnackbarIsDisplayedWithMessage(R.string.error_session_edit_start_datetime);
+            UITestUtils.waitForSnackbarToFinish();
+        }
+        
+        public void invalidEndErrorIsDisplayed()
+        {
+            UITestUtils.checkSnackbarIsDisplayedWithMessage(R.string.error_session_edit_end_datetime);
+            UITestUtils.waitForSnackbarToFinish();
+        }
+        
+        public void endDoesNotMatch(Date end)
+        {
+            GregorianCalendar cal = TimeUtils.getCalendarFrom(end);
+            
+            // REFACTOR [21-06-25 6:20PM] -- extract these to endDateDoesNotMatch and
+            //  endTimeOfDayDoesNotMatch.
+            // REFACTOR [21-06-25 6:20PM] -- maybe make a checkEndDay(day, shouldMatch)
+            //  - then inside use not() if shouldMatch is false
+            //  - repeat for endTimeOfDat, & for start day/timeOfDay.
+            onEndTimeOfDay().check(matches(not(withText(SessionDetailsFormatting.formatTimeOfDay(
+                    cal.get(Calendar.HOUR_OF_DAY),
+                    cal.get(Calendar.MINUTE))))));
+            
+            onEndDate().check(matches(not(withText(SessionDetailsFormatting.formatDate(
+                    cal.get(Calendar.YEAR),
+                    cal.get(Calendar.MONTH),
+                    cal.get(Calendar.DAY_OF_MONTH))))));
+        }
+        
         // REFACTOR [21-05-14 3:40AM] -- extract this, it duplicates getIdsFromTags()
         //  in SleepTrackerViewModel.
         private List<Integer> getTagIdsOf(List<Tag> tags)
@@ -166,26 +206,22 @@ public class SessionDetailsTestDriver
         
         private ViewInteraction onStartDate()
         {
-            return onView(allOf(withParent(withId(R.id.session_details_start_time)),
-                                withId(R.id.date)));
+            return getOwningDriver().onStartDateTextView();
         }
         
         private ViewInteraction onEndDate()
         {
-            return onView(allOf(withParent(withId(R.id.session_details_end_time)),
-                                withId(R.id.date)));
+            return getOwningDriver().onEndDateTextView();
         }
         
         private ViewInteraction onStartTimeOfDay()
         {
-            return onView(allOf(withParent(withId(R.id.session_details_start_time)),
-                                withId(R.id.time)));
+            return getOwningDriver().onStartTimeTextView();
         }
         
         private ViewInteraction onEndTimeOfDay()
         {
-            return onView(allOf(withParent(withId(R.id.session_details_end_time)),
-                                withId(R.id.time)));
+            return getOwningDriver().onEndTimeTextView();
         }
     }
 
@@ -195,7 +231,6 @@ public class SessionDetailsTestDriver
 
     private SessionDetailsTestDriver()
     {
-        assertThat = new Assertions(this);
     }
 
 //*********************************************************
@@ -206,11 +241,14 @@ public class SessionDetailsTestDriver
     {
         SessionDetailsTestDriver sessionDetails = new SessionDetailsTestDriver();
         // REFACTOR [21-05-11 10:57PM] -- maybe I should just generally inject the helper.
-        sessionDetails.mHelper = HiltFragmentTestHelper.launchFragmentWithArgs(
-                SessionDetailsFragment.class,
-                SessionDetailsFragment.createArguments(
-                        new SessionDetailsFragment.ArgsBuilder(new SleepSessionWrapper(sleepSession))
-                                .build()));
+        HiltFragmentTestHelper<SessionDetailsFragment> helper =
+                HiltFragmentTestHelper.launchFragmentWithArgs(
+                        SessionDetailsFragment.class,
+                        SessionDetailsFragment.createArguments(
+                                new SessionDetailsFragment.ArgsBuilder(new SleepSessionWrapper(
+                                        sleepSession))
+                                        .build()));
+        sessionDetails.init(helper, new SessionDetailsTestDriver.Assertions(sessionDetails));
         sessionDetails.initSelectors();
         return sessionDetails;
     }
@@ -218,19 +256,25 @@ public class SessionDetailsTestDriver
     public static SessionDetailsTestDriver inApplication(ApplicationFragmentTestHelper<SessionDetailsFragment> helper)
     {
         SessionDetailsTestDriver sessionDetails = new SessionDetailsTestDriver();
-        sessionDetails.mHelper = helper;
+        sessionDetails.init(helper, new SessionDetailsTestDriver.Assertions(sessionDetails));
         sessionDetails.initSelectors();
         return sessionDetails;
     }
     
     public void setRating(float rating)
     {
-        mHelper.performSyncedFragmentAction(fragment -> fragment.getRatingBar().setRating(rating));
+        getHelper().performSyncedFragmentAction(fragment -> fragment.getRatingBar()
+                .setRating(rating));
     }
     
     public void setOnConfirmListener(OnConfirmListener onConfirmListener)
     {
         mOnConfirmListener = onConfirmListener;
+    }
+    
+    public void setOnNegativeActionListener(OnNegativeActionListener onNegativeActionListener)
+    {
+        mOnNegativeActionListener = onNegativeActionListener;
     }
     
     public void confirm()
@@ -240,15 +284,147 @@ public class SessionDetailsTestDriver
         }
         onView(withId(R.id.session_data_action_positive)).perform(click());
     }
-
+    
+    public void setStart(Date start)
+    {
+        GregorianCalendar cal = TimeUtils.getCalendarFrom(start);
+        setStartDay(Day.of(cal));
+        setStartTimeOfDay(TimeOfDay.of(cal));
+    }
+    
+    public void setEnd(Date end)
+    {
+        GregorianCalendar cal = TimeUtils.getCalendarFrom(end);
+        setEndDay(Day.of(cal));
+        setEndTimeOfDay(TimeOfDay.of(cal));
+    }
+    
+    public void setValuesTo(SleepSession sleepSession)
+    {
+        setStart(sleepSession.getStart());
+        setEnd(sleepSession.getEnd());
+        setMood(sleepSession.getMood());
+        setSelectedTags(sleepSession.getTags());
+        setAdditionalComments(sleepSession.getAdditionalComments());
+        setRating(sleepSession.getRating());
+    }
+    
+    /**
+     * Don't call this unless you're in an {@link ApplicationTestDriver}. This assumes that this
+     * SessionDetailsFragment was accessed in an edit-mode from the archive.
+     */
+    public void deleteSession()
+    {
+        if (mOnNegativeActionListener != null) {
+            mOnNegativeActionListener.onNegativeAction();
+        }
+        pressNegativeButton();
+        DialogTestUtils.pressPositiveButton();
+    }
+    
+    /**
+     * Don't call this unless you're in an {@link ApplicationTestDriver}. This assumes that this
+     * SessionDetailsFragment was accessed in an add-mode from the archive.
+     */
+    public void cancel()
+    {
+        if (mOnNegativeActionListener != null) {
+            mOnNegativeActionListener.onNegativeAction();
+        }
+        pressNegativeButton();
+    }
+    
+    public void setStartDay(Day day)
+    {
+        onStartDateTextView().perform(click());
+        setDayInPicker(day);
+    }
+    
+    public void setStartTimeOfDay(TimeOfDay timeOfDay)
+    {
+        onStartTimeTextView().perform(click());
+        setTimeOfDayInPicker(timeOfDay);
+    }
+    
+    public void setEndDay(Day day)
+    {
+        onEndDateTextView().perform(click());
+        setDayInPicker(day);
+    }
+    
+    public void setEndTimeOfDay(TimeOfDay timeOfDay)
+    {
+        onEndTimeTextView().perform(click());
+        setTimeOfDayInPicker(timeOfDay);
+    }
+    
 //*********************************************************
 // private methods
 //*********************************************************
 
+    private void pressNegativeButton()
+    {
+        onView(withId(R.id.session_data_action_negative)).perform(click());
+    }
+    
+    private void setMood(Mood mood)
+    {
+        mMoodSelector.setMood(mood);
+    }
+    
+    private void setSelectedTags(List<Tag> tags)
+    {
+        mTagSelector.setSelectedTags(tags);
+    }
+    
+    private void setAdditionalComments(String additionalComments)
+    {
+        additionalComments = additionalComments == null ? "" : additionalComments;
+        UITestUtils.typeOnMultilineEditText(additionalComments,
+                                            onView(withId(R.id.session_details_comments)));
+    }
+    
+    private void setTimeOfDayInPicker(TimeOfDay timeOfDay)
+    {
+        onTimePicker().perform(PickerActions.setTime(timeOfDay.hourOfDay, timeOfDay.minute));
+        DialogTestUtils.pressPositiveButton();
+    }
+    
+    private void setDayInPicker(Day day)
+    {
+        onDatePicker().perform(setDatePickerDate(
+                day.year,
+                day.month,
+                day.dayOfMonth));
+        DialogTestUtils.pressPositiveButton();
+    }
+
+    private ViewInteraction onStartDateTextView()
+    {
+        return onView(allOf(withParent(withId(R.id.session_details_start_time)),
+                            withId(R.id.date)));
+    }
+    
+    private ViewInteraction onEndDateTextView()
+    {
+        return onView(allOf(withParent(withId(R.id.session_details_end_time)), withId(R.id.date)));
+    }
+    
+    private ViewInteraction onStartTimeTextView()
+    {
+        return onView(allOf(withParent(withId(R.id.session_details_start_time)),
+                            withId(R.id.time)));
+    }
+    
+    private ViewInteraction onEndTimeTextView()
+    {
+        return onView(allOf(withParent(withId(R.id.session_details_end_time)), withId(R.id.time)));
+    }
+    
     private MoodSelectorViewModel getMoodSelectorViewModel()
     {
         TestUtils.DoubleRef<MoodSelectorViewModel> viewModel = new TestUtils.DoubleRef<>(null);
-        mHelper.performSyncedFragmentAction(fragment -> {
+        getHelper().performSyncedFragmentAction(fragment -> {
             viewModel.ref = fragment.getMoodSelectorViewModel();
         });
         return viewModel.ref;
@@ -257,7 +433,7 @@ public class SessionDetailsTestDriver
     private TagSelectorViewModel getTagSelectorViewModel()
     {
         TestUtils.DoubleRef<TagSelectorViewModel> viewModel = new TestUtils.DoubleRef<>(null);
-        mHelper.performSyncedFragmentAction(fragment -> {
+        getHelper().performSyncedFragmentAction(fragment -> {
             viewModel.ref = fragment.getTagSelectorViewModel();
         });
         return viewModel.ref;
@@ -266,8 +442,7 @@ public class SessionDetailsTestDriver
     private void initSelectors()
     {
         mTagSelector = new TagSelectorDriver(
-                // REFACTOR [21-05-14 3:39AM] -- change remaining instances of "session_data" to
-                //  "session_details".
+                getHelper(),
                 withId(R.id.session_details_tags),
                 getTagSelectorViewModel());
         mMoodSelector = new MoodSelectorDriver(
