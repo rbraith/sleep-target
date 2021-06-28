@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.navigation.NavDirections;
 import androidx.navigation.ui.NavigationUI;
 
@@ -292,6 +293,12 @@ public class SleepTrackerFragment
                         sleepDurationGoalValue.setText(sleepDurationGoalText);
                     }
                 });
+        
+        // no goals card
+        CardView noGoalsCard = fragmentRoot.findViewById(R.id.tracker_no_goals_card);
+        getViewModel().hasAnyGoal().observe(
+                getViewLifecycleOwner(),
+                hasAnyGoal -> noGoalsCard.setVisibility(hasAnyGoal ? View.GONE : View.VISIBLE));
     }
     
     // REFACTOR [20-11-19 3:08AM] -- this shares the inSleepSession LiveData with

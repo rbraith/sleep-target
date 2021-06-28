@@ -205,6 +205,7 @@ public class SleepTrackerTestDriver
         {
             sleepDurationGoalIsNotDisplayed();
             wakeTimeGoalIsNotDisplayed();
+            onView(withId(R.id.tracker_no_goals_card)).check(matches(isDisplayed()));
         }
         
         public void sleepDurationGoalIsNotDisplayed()
@@ -225,6 +226,7 @@ public class SleepTrackerTestDriver
         
         public void wakeTimeGoalIsDisplayed(WakeTimeGoal expectedWakeTimeGoal)
         {
+            onView(withId(R.id.tracker_no_goals_card)).check(matches(not(isDisplayed())));
             onView(allOf(isDescendantOfA(withId(R.id.tracker_waketime_goal_card)),
                          withId(R.id.tracker_goal_value)))
                     .check(matches(allOf(
@@ -262,6 +264,7 @@ public class SleepTrackerTestDriver
         
         private void sleepDurationGoalIsDisplayed(SleepDurationGoal expectedSleepDurationGoal)
         {
+            onView(withId(R.id.tracker_no_goals_card)).check(matches(not(isDisplayed())));
             onView(allOf(isDescendantOfA(withId(R.id.tracker_duration_goal_card)),
                          withId(R.id.tracker_goal_value)))
                     .check(matches(allOf(
@@ -297,7 +300,6 @@ public class SleepTrackerTestDriver
         }
     }
     
-
 //*********************************************************
 // constructors
 //*********************************************************

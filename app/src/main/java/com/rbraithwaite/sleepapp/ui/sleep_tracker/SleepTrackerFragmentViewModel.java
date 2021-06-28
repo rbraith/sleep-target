@@ -2,6 +2,7 @@ package com.rbraithwaite.sleepapp.ui.sleep_tracker;
 
 import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
@@ -16,12 +17,14 @@ import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagUiData;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.PostSleepData;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.StoppedSessionData;
+import com.rbraithwaite.sleepapp.utils.CommonUtils;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
 import com.rbraithwaite.sleepapp.utils.TickingLiveData;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 import com.rbraithwaite.sleepapp.utils.interfaces.ProviderOf;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public class SleepTrackerFragmentViewModel
@@ -54,6 +57,8 @@ public class SleepTrackerFragmentViewModel
             new MutableLiveData<>();
     private PostSleepData mPostSleepData;
     private LiveData<CurrentSession> mCurrentSession;
+    
+    private LiveData<Boolean> mHasAnyGoal;
 
 //*********************************************************
 // public helpers
@@ -304,6 +309,30 @@ public class SleepTrackerFragmentViewModel
                 null;
     }
     
+    public LiveData<Boolean> hasAnyGoal()
+    {
+        // REFACTOR [21-06-27 9:29PM] -- replace TestUtils.DoubleRef w/ AtomicReference I guess lol.
+        AtomicReference<Boolean> hasWakeTimeGoal = new AtomicReference<>(false);
+        AtomicReference<Boolean> hasSleepDurationGoal = new AtomicReference<>(false);
+        mHasAnyGoal = CommonUtils.lazyInit(mHasAnyGoal, () -> {
+            MediatorLiveData<Boolean> mediator = new MediatorLiveData<>();
+            mediator.addSource(mCurrentGoalsRepository.getWakeTimeGoal(), wakeTimeGoal -> {
+                hasWakeTimeGoal.set(wakeTimeGoal != null && wakeTimeGoal.isSet());
+                mediator.setValue(hasWakeTimeGoal.get() || hasSleepDurationGoal.get());
+            });
+            mediator.addSource(mCurrentGoalsRepository.getSleepDurationGoal(),
+                               sleepDurationGoal -> {
+                                   hasSleepDurationGoal.set(
+                                           sleepDurationGoal != null && sleepDurationGoal.isSet());
+                                   mediator.setValue(
+                                           hasWakeTimeGoal.get() || hasSleepDurationGoal.get());
+                               });
+            return mediator;
+        });
+        
+        return mHasAnyGoal;
+    }
+
 //*********************************************************
 // protected api
 //*********************************************************
@@ -312,7 +341,7 @@ public class SleepTrackerFragmentViewModel
     {
         return new TimeUtils();
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -321,12 +350,12 @@ public class SleepTrackerFragmentViewModel
     {
         return mPostSleepData;
     }
-
+    
     public void setPostSleepData(PostSleepData postSleepData)
     {
         mPostSleepData = postSleepData;
     }
-
+    
     private void clearLocalValues()
     {
         mLocalMood.clear();

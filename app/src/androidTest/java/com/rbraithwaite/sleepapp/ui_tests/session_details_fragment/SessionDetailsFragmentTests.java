@@ -27,7 +27,7 @@ public class SessionDetailsFragmentTests
 
     @Rule
     // protection against potentially infinitely blocked threads
-    public Timeout timeout = new Timeout(10, TimeUnit.SECONDS);
+    public Timeout timeout = new Timeout(20, TimeUnit.SECONDS);
 
 //*********************************************************
 // api

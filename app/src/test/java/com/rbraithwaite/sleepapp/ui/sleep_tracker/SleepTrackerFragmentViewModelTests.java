@@ -102,6 +102,33 @@ public class SleepTrackerFragmentViewModelTests
     }
     
     @Test
+    public void hasAnyGoal_returnsCorrectValue()
+    {
+        MutableLiveData<WakeTimeGoal> wakeTimeGoalLive = new MutableLiveData<>(null);
+        MutableLiveData<SleepDurationGoal> sleepDurationGoalLive = new MutableLiveData<>(null);
+        when(mockCurrentGoalsRepository.getWakeTimeGoal()).thenReturn(wakeTimeGoalLive);
+        when(mockCurrentGoalsRepository.getSleepDurationGoal()).thenReturn(sleepDurationGoalLive);
+        
+        LiveData<Boolean> hasAnyGoal = viewModel.hasAnyGoal();
+        TestUtils.activateLocalLiveData(hasAnyGoal);
+        
+        // none
+        assertThat(hasAnyGoal.getValue(), is(false));
+        
+        // only wake time
+        wakeTimeGoalLive.setValue(new WakeTimeGoal(null, 1234));
+        assertThat(hasAnyGoal.getValue(), is(true));
+        
+        // both
+        sleepDurationGoalLive.setValue(new SleepDurationGoal(123));
+        assertThat(hasAnyGoal.getValue(), is(true));
+        
+        // only sleep duration
+        wakeTimeGoalLive.setValue(null);
+        assertThat(hasAnyGoal.getValue(), is(true));
+    }
+    
+    @Test
     public void discardSleepSession_discardsPersistedDataIfSessionIsStopped()
     {
         when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(

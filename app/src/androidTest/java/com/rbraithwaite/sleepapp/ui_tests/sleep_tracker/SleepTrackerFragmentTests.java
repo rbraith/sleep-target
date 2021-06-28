@@ -150,7 +150,7 @@ public class SleepTrackerFragmentTests
         // add a wake-time goal, verify it is displayed
         WakeTimeGoal expectedWakeTimeGoal = TestUtils.ArbitraryData.getWakeTimeGoal();
         database.setWakeTimeGoal(expectedWakeTimeGoal);
-        sleepTracker.restartFragment();
+        sleepTracker.restartApp();
         
         sleepTracker.assertThat().onlyWakeTimeGoalIsDisplayed(expectedWakeTimeGoal);
         
@@ -158,7 +158,7 @@ public class SleepTrackerFragmentTests
         SleepDurationGoal expectedSleepDurationGoal =
                 TestUtils.ArbitraryData.getSleepDurationGoal();
         database.setSleepDurationGoal(expectedSleepDurationGoal);
-        sleepTracker.restartFragment();
+        sleepTracker.restartApp();
         
         sleepTracker.assertThat().bothGoalsAreDisplayed(
                 expectedWakeTimeGoal,
