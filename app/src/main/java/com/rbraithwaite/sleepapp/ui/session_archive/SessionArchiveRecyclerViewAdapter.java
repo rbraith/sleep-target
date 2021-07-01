@@ -14,7 +14,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.shape.CornerFamily;
@@ -25,9 +24,9 @@ import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.TEMP.MoodView;
 import com.rbraithwaite.sleepapp.ui.session_archive.data.SessionArchiveListItem;
 import com.rbraithwaite.sleepapp.utils.CommonUtils;
-import com.rbraithwaite.sleepapp.utils.SingleObserver;
 import com.rbraithwaite.sleepapp.utils.interfaces.ProviderOf;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -44,9 +43,8 @@ public class SessionArchiveRecyclerViewAdapter
 //*********************************************************
 
     private ProviderOf<Fragment> mFragmentProvider;
-    private ProviderOf<Context> mContextProvider;
-    private SessionArchiveFragmentViewModel mViewModel;
-    private List<Integer> mSleepSessionDataIds;
+    
+    private List<SessionArchiveListItem> mItems = new ArrayList<>();
     
     private OnListItemClickListener mOnListItemClickListener;
     
@@ -74,7 +72,10 @@ public class SessionArchiveRecyclerViewAdapter
     static class ViewHolder
             extends RecyclerView.ViewHolder
     {
-        private SingleObserver<SessionArchiveListItem> observer;
+        // REFACTOR [21-06-29 10:19PM] -- I should consider maybe just keeping the sleep session id?
+        //  since that's all I'm using this for currently.
+        SessionArchiveListItem data;
+        
         TextView startTime;
         TextView stopTime;
         TextView duration;
@@ -125,25 +126,15 @@ public class SessionArchiveRecyclerViewAdapter
     public SessionArchiveRecyclerViewAdapter(
             SessionArchiveFragmentViewModel viewModel,
             ProviderOf<Fragment> fragmentProvider,
-            ProviderOf<Context> contextProvider,
             OnListItemClickListener onListItemClickListener)
     {
         Log.d(TAG, "ctor called");
-        mViewModel = viewModel;
         mFragmentProvider = fragmentProvider;
-        mContextProvider = contextProvider;
         mOnListItemClickListener = onListItemClickListener;
         
-        // SMELL [21-03-24 10:39PM] consider a different solution for displayed the sessions
-        //  - do some research on conventional patterns.
-        mViewModel.getAllSleepSessionIds().observe(
-                getLifecycleOwner(),
-                sessionIds -> {
-                    mSleepSessionDataIds = sessionIds;
-                    notifyDataSetChanged();
-                });
+        viewModel.getAllListItems().observe(getLifecycleOwner(), this::setItems);
     }
-
+    
 //*********************************************************
 // overrides
 //*********************************************************
@@ -156,30 +147,36 @@ public class SessionArchiveRecyclerViewAdapter
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.session_archive_list_item, parent, false);
         mFragmentProvider.provide().registerForContextMenu(view);
-        ViewHolder viewHolder = new ViewHolder(view, mOnListItemClickListener);
-        viewHolder.observer = createViewHolderObserver(viewHolder);
-        return viewHolder;
+        return new ViewHolder(view, mOnListItemClickListener);
     }
-    
+
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position)
     {
         Log.d(TAG, "onBindViewHolder: called, position = " + position);
         // REFACTOR [20-11-14 5:22PM] -- to make more OO, add this as a method in ViewHolder
-        //  ViewHolder might need a LifeCycleProvider ctor dependency in this case.
-        //  ehhhh maybe don't do this..... since bindToViewModel calls notifyItemChanged
-        bindToViewModel(holder, position);
+        bindViewHolderToItem(holder, mItems.get(position));
     }
     
     @Override
     public int getItemCount()
     {
-        if (mSleepSessionDataIds == null) { return 0; }
+        if (mItems == null) { return 0; }
         
-        int itemCount = mSleepSessionDataIds.size();
+        int itemCount = mItems.size();
         Log.d(TAG, "getItemCount: itemCount is " + itemCount);
         
         return itemCount;
+    }
+    
+//*********************************************************
+// api
+//*********************************************************
+
+    public void setItems(List<SessionArchiveListItem> items)
+    {
+        mItems = items;
+        notifyDataSetChanged();
     }
 
 //*********************************************************
@@ -191,60 +188,44 @@ public class SessionArchiveRecyclerViewAdapter
         return mFragmentProvider.provide();
     }
     
-    private void bindToViewModel(final ViewHolder viewHolder, final int position)
+    private void bindViewHolderToItem(ViewHolder viewHolder, SessionArchiveListItem item)
     {
-        LiveData<SessionArchiveListItem> listItem =
-                mViewModel.getListItemData(mSleepSessionDataIds.get(position));
-        listItem.observe(getLifecycleOwner(), viewHolder.observer.transferTo(listItem));
+        viewHolder.data = item;
+        
+        viewHolder.startTime.setText(item.startTime);
+        viewHolder.stopTime.setText(item.endTime);
+        viewHolder.duration.setText(item.sessionDuration);
+        viewHolder.additionalCommentsIcon.setVisibility(
+                item.hasAdditionalComments ?
+                        View.VISIBLE : View.GONE);
+        
+        // TODO [21-06-13 2:46AM] -- It would be nice if it weren't possible for mood
+        //  here to be null, so that this was just checking isSet().
+        if (item.mood != null &&
+            item.mood.isSet()) {
+            // REFACTOR [21-06-13 3:02AM] -- This mood frame is a legacy artifact and
+            //  needs to be removed.
+            viewHolder.moodFrame.setVisibility(View.VISIBLE);
+            viewHolder.mood.setMood(item.mood.asIndex());
+        } else {
+            viewHolder.moodFrame.setVisibility(View.GONE);
+        }
+        
+        if (!item.tags.isEmpty()) {
+            viewHolder.tagsFrame.setVisibility(View.VISIBLE);
+            setupListItemTagList(
+                    viewHolder,
+                    item.tags,
+                    viewHolder.itemView.getContext());
+        } else {
+            viewHolder.tagsFrame.setVisibility(View.GONE);
+        }
+        
+        viewHolder.ratingIndicator.setRating(item.rating);
     }
     
-    // REFACTOR [21-04-22 11:49PM] -- Regarding this & other view holder related methods - consider
-    //  moving them to ViewHolder for a more OOP solution (I originally had it that way, but then
-    //  ViewHolder was very large compared to SessionArchiveRecyclerViewAdapter - still, come
-    //  back to this, maybe move ViewHolder into its own file).
-    private SingleObserver<SessionArchiveListItem> createViewHolderObserver(ViewHolder viewHolder)
-    {
-        return new SingleObserver<SessionArchiveListItem>()
-        {
-            @Override
-            public void onChanged(SessionArchiveListItem sessionArchiveListItem)
-            {
-                if (sessionArchiveListItem != null) {
-                    viewHolder.startTime.setText(sessionArchiveListItem.startTime);
-                    viewHolder.stopTime.setText(sessionArchiveListItem.endTime);
-                    viewHolder.duration.setText(sessionArchiveListItem.sessionDuration);
-                    viewHolder.additionalCommentsIcon.setVisibility(
-                            sessionArchiveListItem.hasAdditionalComments ?
-                                    View.VISIBLE : View.GONE);
-                    
-                    // TODO [21-06-13 2:46AM] -- It would be nice if it weren't possible for mood
-                    //  here to be null, so that this was just checking isSet().
-                    if (sessionArchiveListItem.mood != null &&
-                        sessionArchiveListItem.mood.isSet()) {
-                        // REFACTOR [21-06-13 3:02AM] -- This mood frame is a legacy artifact and
-                        //  needs to be removed.
-                        viewHolder.moodFrame.setVisibility(View.VISIBLE);
-                        viewHolder.mood.setMood(sessionArchiveListItem.mood.asIndex());
-                    } else {
-                        viewHolder.moodFrame.setVisibility(View.GONE);
-                    }
-                    
-                    if (!sessionArchiveListItem.tags.isEmpty()) {
-                        viewHolder.tagsFrame.setVisibility(View.VISIBLE);
-                        setupListItemTagList(
-                                viewHolder,
-                                sessionArchiveListItem.tags,
-                                viewHolder.itemView.getContext());
-                    } else {
-                        viewHolder.tagsFrame.setVisibility(View.GONE);
-                    }
-                    
-                    viewHolder.ratingIndicator.setRating(sessionArchiveListItem.rating);
-                }
-            }
-        };
-    }
-    
+    // REFACTOR [21-06-29 4:49PM] -- All these methods relating to the tag display should be
+    //  extracted, likely to a custom component class for that tag display.
     // REFACTOR [21-04-21 9:18PM] -- the logic in here is very similar to
     //  TagSelectorController.updateSelectedTagsScrollView - similar lists of tags (though maybe
     //  there are enough key differences, e.g. no scroll view here)

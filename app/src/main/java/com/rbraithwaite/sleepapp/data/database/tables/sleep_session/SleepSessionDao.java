@@ -44,10 +44,6 @@ public abstract class SleepSessionDao
            " WHERE " + SleepSessionContract.Columns.ID + " = :sleepSessionId")
     public abstract LiveData<SleepSessionWithTags> getSleepSessionWithTags(int sleepSessionId);
     
-    @Query("SELECT " + SleepSessionContract.Columns.ID +
-           " FROM " + SleepSessionContract.TABLE_NAME)
-    public abstract LiveData<List<Integer>> getAllSleepSessionIds();
-    
     @Query("SELECT * FROM " + SleepSessionContract.TABLE_NAME +
            " WHERE " +
            "(" + SleepSessionContract.Columns.START_TIME + " BETWEEN :start AND :end)" +
@@ -84,6 +80,14 @@ public abstract class SleepSessionDao
     @Query("SELECT COUNT(*) FROM " + SleepSessionContract.TABLE_NAME)
     public abstract LiveData<Integer> getTotalSleepSessionCount();
     
+    @Query("SELECT * FROM " + SleepSessionContract.TABLE_NAME)
+    public abstract LiveData<List<SleepSessionEntity>> getAllSleepSessions();
+    
+    // TEST NEEDED [21-06-30 6:16PM] -- .
+    @Transaction
+    @Query("SELECT * FROM " + SleepSessionContract.TABLE_NAME)
+    public abstract LiveData<List<SleepSessionWithTags>> getAllSleepSessionsWithTags();
+    
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     protected abstract void addTagsToSleepSession(List<SleepSessionTagJunction> junctions);
     
@@ -97,7 +101,7 @@ public abstract class SleepSessionDao
 // api
 //*********************************************************
 
-
+    
     /**
      * Adds a new sleep session and its associated tags.
      *

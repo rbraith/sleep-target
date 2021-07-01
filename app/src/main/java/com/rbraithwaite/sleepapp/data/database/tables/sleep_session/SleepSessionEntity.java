@@ -62,7 +62,7 @@ public class SleepSessionEntity
         //  SleepSessionEntity.
         this.duration = endTime.getTime() - startTime.getTime();
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -77,7 +77,7 @@ public class SleepSessionEntity
         hash = prime * hash + endTime.hashCode();
         hash = prime * hash + (int) duration;
         hash = prime * hash + (additionalComments == null ? 0 : additionalComments.hashCode());
-        hash = prime * hash + moodIndex;
+        hash = prime * hash + (moodIndex == null ? 0 : moodIndex.hashCode());
         hash = prime * hash + rating.hashCode();
         return hash;
     }

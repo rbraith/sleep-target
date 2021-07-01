@@ -1,16 +1,24 @@
 package com.rbraithwaite.sleepapp.utils.list_tracking;
 
 import java.util.List;
+import java.util.Objects;
 
 public class ListTrackingData<T>
 {
+//*********************************************************
+// private constants
+//*********************************************************
+
+    private final long mChangeId;
+
 //*********************************************************
 // public constants
 //*********************************************************
 
     public final List<T> list;
+    
     public final ListChange<T> lastChange;
-
+    
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -37,6 +45,29 @@ public class ListTrackingData<T>
             this.index = index;
             this.changeType = changeType;
         }
+        
+        @Override
+        public int hashCode()
+        {
+            int result = elem != null ? elem.hashCode() : 0;
+            result = 31 * result + index;
+            result = 31 * result + changeType.hashCode();
+            return result;
+        }
+        
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) { return true; }
+            if (o == null || getClass() != o.getClass()) { return false; }
+            
+            ListChange<?> that = (ListChange<?>) o;
+            
+            if (index != that.index) { return false; }
+            if (changeType != that.changeType) { return false; }
+            // elem comparison is potentially the heaviest, so do that last
+            return Objects.equals(elem, that.elem);
+        }
     }
 
 //*********************************************************
@@ -44,10 +75,43 @@ public class ListTrackingData<T>
 //*********************************************************
 
     public ListTrackingData(
+            long changeId,
             List<T> list,
             ListChange<T> lastChange)
     {
+        // changeId is used to help optimize comparisons - see equals(), see changeId generation
+        // in ListTrackingLiveData. It's unlikely but possible that 2 instances of ListTrackingData
+        // share the same id due to overflow.
+        mChangeId = changeId;
         this.list = list;
         this.lastChange = lastChange;
+    }
+    
+//*********************************************************
+// overrides
+//*********************************************************
+
+    @Override
+    public int hashCode()
+    {
+        int result = list.hashCode();
+        result = 31 * result + (lastChange != null ? lastChange.hashCode() : 0);
+        result = 31 * result + (int) (mChangeId ^ (mChangeId >>> 32));
+        return result;
+    }
+    
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        
+        ListTrackingData<?> that = (ListTrackingData<?>) o;
+        
+        // changeId is compared first, to speed up comparison
+        if (mChangeId != that.mChangeId) { return false; }
+        if (Objects.equals(lastChange, that.lastChange)) { return false; }
+        // list comparison is likely the heaviest, so compare the lists last
+        return list.equals(that.list);
     }
 }

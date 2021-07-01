@@ -30,7 +30,7 @@ public class SessionArchiveFragmentTests
 //*********************************************************
 
     private DatabaseTestDriver database;
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -67,6 +67,7 @@ public class SessionArchiveFragmentTests
         sessionArchive.assertThat().listItemAtIndex(0).hasValuesMatching(sleepSession);
     }
     
+    // BUG [21-06-30 6:40PM] -- flaky test?
     @Test
     public void sessionArchiveCrudTest()
     {
@@ -169,7 +170,7 @@ public class SessionArchiveFragmentTests
     
     // TODO [20-12-16 9:01PM] -- addSession_hasCorrectValuesAfterBackPress
     //  the behaviour for this already exists, so it should just be green >_>
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

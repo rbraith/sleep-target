@@ -30,6 +30,7 @@ public class SessionArchiveFragment
 // private properties
 //*********************************************************
 
+    private RecyclerView mRecyclerView;
     private SessionArchiveRecyclerViewAdapter mRecyclerViewAdapter;
 
 //*********************************************************
@@ -78,7 +79,6 @@ public class SessionArchiveFragment
             mRecyclerViewAdapter = new SessionArchiveRecyclerViewAdapter(
                     getViewModel(),
                     () -> SessionArchiveFragment.this,
-                    this::requireContext,
                     (v, position) -> navigateToEditSessionScreen(position));
         }
         return mRecyclerViewAdapter;
@@ -90,17 +90,20 @@ public class SessionArchiveFragment
 
     private void navigateToEditSessionScreen(final int listItemPosition)
     {
-        // SMELL [21-12-30 9:35PM] -- These nested anon classes are kinda ugly, try to find a
-        //  better way.
+        int sessionId = getViewHolderFor(listItemPosition).data.sleepSessionId;
         LiveDataFuture.getValue(
-                getViewModel().getAllSleepSessionIds(),
+                getViewModel().getSleepSession(sessionId),
                 getViewLifecycleOwner(),
-                sleepSessionIds -> LiveDataFuture.getValue(
-                        getViewModel().getSleepSession(sleepSessionIds.get(listItemPosition)),
-                        getViewLifecycleOwner(),
-                        initialEditData -> getNavController().navigate(toEditSessionScreen(
-                                initialEditData))));
+                sleepSession -> getNavController().navigate(toEditSessionScreen(
+                        sleepSession)));
     }
+    
+    private SessionArchiveRecyclerViewAdapter.ViewHolder getViewHolderFor(int listItemPosition)
+    {
+        return (SessionArchiveRecyclerViewAdapter.ViewHolder) mRecyclerView.findViewHolderForAdapterPosition(
+                listItemPosition);
+    }
+    
     
     private void initFloatingActionButton(View fragmentRoot)
     {
@@ -134,8 +137,7 @@ public class SessionArchiveFragment
                                     argsBuilder.build());
                     
                     getNavController().navigate(toAddSessionScreen);
-                }
-        );
+                });
     }
     
     private SessionArchiveFragmentDirections.ActionSessionArchiveToSessionData toEditSessionScreen(
@@ -205,8 +207,8 @@ public class SessionArchiveFragment
     
     private void initRecyclerView(@NonNull View fragmentRoot)
     {
-        RecyclerView recyclerView = fragmentRoot.findViewById(R.id.session_archive_list);
-        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        recyclerView.setAdapter(getRecyclerViewAdapter());
+        mRecyclerView = fragmentRoot.findViewById(R.id.session_archive_list);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        mRecyclerView.setAdapter(getRecyclerViewAdapter());
     }
 }

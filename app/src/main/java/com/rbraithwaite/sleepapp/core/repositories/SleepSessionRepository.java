@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 
 import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 
 import java.util.Date;
 import java.util.List;
@@ -40,6 +41,17 @@ public interface SleepSessionRepository
             this.mood = mood;
             this.tagIds = tagIds;
             this.rating = rating;
+        }
+        
+        public SleepSessionEntity toEntity()
+        {
+            return new SleepSessionEntity(
+                    start,
+                    end,
+                    durationMillis,
+                    additionalComments,
+                    mood == null ? null : mood.asIndex(),
+                    rating);
         }
     }
 
@@ -84,8 +96,6 @@ public interface SleepSessionRepository
      */
     SleepSession getFirstSleepSessionStartingBefore(long dateTimeMillis);
     
-    LiveData<List<Integer>> getAllSleepSessionIds();
-    
     /**
      * Eh...I need to workshop the name for this. The idea is this will give you 'count' sleep
      * sessions, going back in time and starting from 'offset'. For example, if 'count' is 50 and
@@ -108,4 +118,5 @@ public interface SleepSessionRepository
      * @return The total number of sleep sessions.
      */
     LiveData<Integer> getTotalSleepSessionCount();
+    LiveData<List<SleepSession>> getAllSleepSessions();
 }

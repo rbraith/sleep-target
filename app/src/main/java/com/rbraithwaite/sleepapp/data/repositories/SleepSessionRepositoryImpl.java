@@ -9,7 +9,6 @@ import com.rbraithwaite.sleepapp.core.models.Tag;
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.data.convert.ConvertSleepSession;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionDao;
-import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 
 import java.util.Date;
 import java.util.List;
@@ -57,7 +56,7 @@ public class SleepSessionRepositoryImpl
     public void addSleepSession(final NewSleepSessionData newSleepSession)
     {
         mExecutor.execute(() -> mSleepSessionDao.addSleepSessionWithTags(
-                convertNewSleepSessionToEntity(newSleepSession),
+                newSleepSession.toEntity(),
                 newSleepSession.tagIds));
     }
     
@@ -134,11 +133,6 @@ public class SleepSessionRepositoryImpl
                 mSleepSessionDao.getFirstSleepSessionStartingBefore(dateTimeMillis));
     }
     
-    public LiveData<List<Integer>> getAllSleepSessionIds()
-    {
-        return mSleepSessionDao.getAllSleepSessionIds();
-    }
-    
     @Override
     public LiveData<List<SleepSession>> getLatestSleepSessionsFromOffset(int offset, int count)
     {
@@ -152,19 +146,14 @@ public class SleepSessionRepositoryImpl
     {
         return mSleepSessionDao.getTotalSleepSessionCount();
     }
-
-//*********************************************************
-// private methods
-//*********************************************************
-
-    private SleepSessionEntity convertNewSleepSessionToEntity(NewSleepSessionData newSleepSession)
+    
+    @Override
+    public LiveData<List<SleepSession>> getAllSleepSessions()
     {
-        return new SleepSessionEntity(
-                newSleepSession.start,
-                newSleepSession.end,
-                newSleepSession.durationMillis,
-                newSleepSession.additionalComments,
-                newSleepSession.mood == null ? null : newSleepSession.mood.asIndex(),
-                newSleepSession.rating);
+        return Transformations.map(
+                mSleepSessionDao.getAllSleepSessionsWithTags(),
+                sleepSessionsWithTags -> sleepSessionsWithTags.stream()
+                        .map(ConvertSleepSession::fromEntityWithTags)
+                        .collect(Collectors.toList()));
     }
 }

@@ -3,6 +3,8 @@ package com.rbraithwaite.sleepapp.utils.list_tracking;
 import androidx.lifecycle.LiveData;
 
 import java.util.List;
+import java.util.function.Predicate;
+
 
 
 /**
@@ -19,6 +21,7 @@ public class ListTrackingLiveData<T>
 //*********************************************************
 
     private List<T> mList;
+    private long mChangeId = -1L; // -1 so it increments to 0 the first time
 
 //*********************************************************
 // private constants
@@ -33,7 +36,7 @@ public class ListTrackingLiveData<T>
     public ListTrackingLiveData(List<T> list)
     {
         mList = list;
-        setValue(new ListTrackingData<>(mList, null));
+        setValue(new ListTrackingData<>(getNextChangeId(), mList, null));
     }
 
 //*********************************************************
@@ -49,6 +52,7 @@ public class ListTrackingLiveData<T>
     {
         mList.add(elem);
         postValue(new ListTrackingData<>(
+                getNextChangeId(),
                 mList,
                 new ListTrackingData.ListChange<>(
                         elem,
@@ -60,6 +64,7 @@ public class ListTrackingLiveData<T>
     {
         T deleted = mList.remove(index);
         postValue(new ListTrackingData<>(
+                getNextChangeId(),
                 mList,
                 new ListTrackingData.ListChange<>(
                         deleted,
@@ -72,14 +77,59 @@ public class ListTrackingLiveData<T>
         delete(mList.indexOf(elem));
     }
     
+    // TEST NEEDED [21-06-30 3:03AM]
+    
+    /**
+     * Deletes the first element matching the predicate. Does nothing if there is no match.
+     */
+    public void delete(Predicate<T> predicate)
+    {
+        // REFACTOR [21-06-29 9:58PM] -- there might be a better stream-based way of doing this.
+        for (int i = 0; i < mList.size(); i++) {
+            if (predicate.test(mList.get(i))) {
+                delete(i);
+                break;
+            }
+        }
+    }
+    
     public void set(int index, T elem)
     {
         mList.set(index, elem);
         postValue(new ListTrackingData<T>(
+                getNextChangeId(),
                 mList,
                 new ListTrackingData.ListChange<T>(
                         elem,
                         index,
                         ListTrackingData.ChangeType.MODIFIED)));
+    }
+    
+    // TEST NEEDED [21-06-30 3:03AM]
+    
+    /**
+     * Set the first element that matches the predicate.
+     */
+    public void set(T elem, Predicate<T> predicate)
+    {
+        // REFACTOR [21-06-29 9:58PM] -- there might be a better stream-based way of doing this.
+        int elemIndex = -1; // -1 so that if the elem isn't found, the set() call will crash
+        for (int i = 0; i < mList.size(); i++) {
+            if (predicate.test(mList.get(i))) {
+                elemIndex = i;
+                break;
+            }
+        }
+        set(elemIndex, elem);
+    }
+    
+//*********************************************************
+// private methods
+//*********************************************************
+
+    private long getNextChangeId()
+    {
+        mChangeId++;
+        return mChangeId;
     }
 }

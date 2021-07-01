@@ -106,6 +106,8 @@ public class TagSelectorViewModel
 // api
 //*********************************************************
 
+    // REFACTOR [21-06-29 8:43PM] -- make this like SessionArchiveFragmentViewModel
+    //  .getLastListItemsChange.
     public LiveData<ListTrackingData<ListItemData>> getLastListItemChange()
     {
         if (mLastListItemChange == null) {
@@ -117,7 +119,10 @@ public class TagSelectorViewModel
                         }
                         if (!mInitializedListItems) {
                             initializeListItems(lastTagsChange.list);
-                            return new ListTrackingData<>(mListItems.getValue(), null);
+                            // HACK [21-06-30 8:54PM] -- I actually shouldn't be creating
+                            //  ListTrackingData
+                            //  directly like this.
+                            return new ListTrackingData<>(0, mListItems.getValue(), null);
                         } else {
                             return updateListItemsWith(lastTagsChange.lastChange);
                         }
@@ -273,7 +278,9 @@ public class TagSelectorViewModel
     private ListTrackingData<ListItemData> updateListItemsWith(ListTrackingData.ListChange<Tag> change)
     {
         if (change == null) {
-            return new ListTrackingData<>(mListItems.getValue(), null);
+            // HACK [21-06-30 8:54PM] -- I actually shouldn't be creating ListTrackingData
+            //  directly like this.
+            return new ListTrackingData<>(0, mListItems.getValue(), null);
         }
         
         // update the ViewModel's cached list to reflect the repo
@@ -300,7 +307,9 @@ public class TagSelectorViewModel
             listItem.tagUiData = ConvertTag.toUiData(change.elem);
         }
         
-        return new ListTrackingData<>(mListItems.getValue(), new ListTrackingData.ListChange<>(
+        // HACK [21-06-30 8:54PM] -- I actually shouldn't be creating ListTrackingData
+        //  directly like this.
+        return new ListTrackingData<>(0, mListItems.getValue(), new ListTrackingData.ListChange<>(
                 listItem, change.index, change.changeType));
     }
     

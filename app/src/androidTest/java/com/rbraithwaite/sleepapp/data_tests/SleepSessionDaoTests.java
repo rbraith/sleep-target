@@ -32,7 +32,6 @@ import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -72,6 +71,22 @@ public class SleepSessionDaoTests
     public void teardown()
     {
         database.close();
+    }
+    
+    @Test
+    public void getAllSleepSessions_getsAllSleepSessions()
+    {
+        LiveData<List<SleepSessionEntity>> allSleepSessions = sleepSessionDao.getAllSleepSessions();
+        TestUtils.InstrumentationLiveDataSynchronizer<List<SleepSessionEntity>> synchronizer =
+                new TestUtils.InstrumentationLiveDataSynchronizer<>(allSleepSessions);
+        
+        assertThat(allSleepSessions.getValue().isEmpty(), is(true));
+        
+        sleepSessionDao.addSleepSession(TestUtils.ArbitraryData.getSleepSessionEntity());
+        sleepSessionDao.addSleepSession(TestUtils.ArbitraryData.getSleepSessionEntity());
+        
+        synchronizer.sync();
+        assertThat(allSleepSessions.getValue().size(), is(2));
     }
     
     @Test
@@ -271,22 +286,22 @@ public class SleepSessionDaoTests
     @Test
     public void deleteSleepSession_deletesSleepSession()
     {
-        LiveData<List<Integer>> sessionIds =
-                database.getSleepSessionDao().getAllSleepSessionIds();
-        TestUtils.InstrumentationLiveDataSynchronizer<List<Integer>> synchronizer =
-                new TestUtils.InstrumentationLiveDataSynchronizer<>(sessionIds);
+        LiveData<List<SleepSessionEntity>> sleepSessions =
+                database.getSleepSessionDao().getAllSleepSessions();
+        TestUtils.InstrumentationLiveDataSynchronizer<List<SleepSessionEntity>> synchronizer =
+                new TestUtils.InstrumentationLiveDataSynchronizer<>(sleepSessions);
         
         int sleepSessionId =
                 (int) sleepSessionDao.addSleepSession(TestUtils.ArbitraryData.getSleepSessionEntity());
         
         synchronizer.sync();
-        assertThat(sessionIds.getValue().size(), is(1));
+        assertThat(sleepSessions.getValue().size(), is(1));
         
         // SUT
         sleepSessionDao.deleteSleepSession(sleepSessionId);
         
         synchronizer.sync();
-        assertThat(sessionIds.getValue().size(), is(0));
+        assertThat(sleepSessions.getValue().size(), is(0));
     }
     
     @Test
@@ -331,38 +346,6 @@ public class SleepSessionDaoTests
         
         TestUtils.activateInstrumentationLiveData(sleepSession);
         assertThat(sleepSession.getValue(), is(equalTo(testSleepSession)));
-    }
-    
-    @Test
-    public void getAllSleepSessionIds_returnsEmptyListWhenViewIsEmpty()
-    {
-        LiveData<List<Integer>> ids = sleepSessionDao.getAllSleepSessionIds();
-        
-        TestUtils.activateInstrumentationLiveData(ids);
-        
-        assertThat(ids.getValue().size(), is(0));
-    }
-    
-    @Test
-    public void getAllSleepSessionIds_LiveDataUpdatesWhenSleepSessionIsAdded() throws
-            InterruptedException
-    {
-        LiveData<List<Integer>> ids = sleepSessionDao.getAllSleepSessionIds();
-        
-        TestUtils.InstrumentationLiveDataSynchronizer<List<Integer>> synchronizer =
-                new TestUtils.InstrumentationLiveDataSynchronizer<>(ids);
-        
-        // assert initial value
-        assertThat(ids.getValue().size(), is(0));
-        
-        // assert livedata was updated
-        int id = (int) database.getSleepSessionDao()
-                .addSleepSession(TestUtils.ArbitraryData.getSleepSessionEntity());
-        assertThat(id, is(not(0)));
-        
-        synchronizer.sync();
-        assertThat(ids.getValue().size(), is(1));
-        assertThat(id, is(ids.getValue().get(0)));
     }
     
     @Test

@@ -37,6 +37,7 @@ public class ConvertSessionArchiveListItem
             return null;
         }
         return SessionArchiveListItem.create(
+                sleepSession.getId(),
                 SessionArchiveFormatting.formatFullDate(sleepSession.getStart()),
                 SessionArchiveFormatting.formatFullDate(sleepSession.getEnd()),
                 SessionArchiveFormatting.formatDuration(sleepSession.getDurationMillis()),

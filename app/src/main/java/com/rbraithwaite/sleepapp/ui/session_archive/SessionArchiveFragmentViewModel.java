@@ -80,18 +80,6 @@ public class SessionArchiveFragmentViewModel
         return id;
     }
     
-    public LiveData<SessionArchiveListItem> getListItemData(int id)
-    {
-        return Transformations.map(
-                mSleepSessionRepository.getSleepSession(id),
-                ConvertSessionArchiveListItem::fromSleepSession);
-    }
-    
-    public LiveData<List<Integer>> getAllSleepSessionIds()
-    {
-        return mSleepSessionRepository.getAllSleepSessionIds();
-    }
-    
     public LiveData<SleepSessionWrapper> getInitialAddSessionData()
     {
         // REFACTOR [21-01-5 9:14PM] -- consider making this lazy init & storing the value in a
@@ -109,6 +97,15 @@ public class SessionArchiveFragmentViewModel
         return Transformations.map(
                 mSleepSessionRepository.getSleepSession(id),
                 SleepSessionWrapper::new);
+    }
+    
+    public LiveData<List<SessionArchiveListItem>> getAllListItems()
+    {
+        return Transformations.map(
+                mSleepSessionRepository.getAllSleepSessions(),
+                sleepSessions -> sleepSessions.stream()
+                        .map(ConvertSessionArchiveListItem::fromSleepSession)
+                        .collect(Collectors.toList()));
     }
 
 //*********************************************************

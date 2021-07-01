@@ -305,7 +305,7 @@ public class TagSelectorViewModelTests
     private TagSelectorViewModel createViewModel(List<Tag> initialTags)
     {
         when(mockTagRepository.getAllTags()).thenReturn(new MutableLiveData<>(
-                new ListTrackingData<>(initialTags, null)));
+                new ListTrackingData<>(0, initialTags, null)));
         
         return createViewModel(mockTagRepository);
     }
@@ -336,6 +336,7 @@ public class TagSelectorViewModelTests
             tagList.remove(index);
             
             tags.setValue(new ListTrackingData<>(
+                    0,
                     tagList,
                     new ListTrackingData.ListChange<>(tag,
                                                       index,
@@ -356,6 +357,7 @@ public class TagSelectorViewModelTests
             tagList.set(index, tag);
             
             tags.setValue(new ListTrackingData<>(
+                    0,
                     tagList,
                     new ListTrackingData.ListChange<>(
                             tag,
@@ -376,6 +378,7 @@ public class TagSelectorViewModelTests
             tagList.add(tag);
             
             tags.setValue(new ListTrackingData<>(
+                    0,
                     tagList,
                     new ListTrackingData.ListChange<>(tag,
                                                       tagList.size() - 1,
@@ -388,7 +391,7 @@ public class TagSelectorViewModelTests
     private MutableLiveData<ListTrackingData<Tag>> setupMockRepoWithTags(List<Tag> tagList)
     {
         MutableLiveData<ListTrackingData<Tag>> tags = new MutableLiveData<>(
-                new ListTrackingData<>(tagList, null));
+                new ListTrackingData<>(0, tagList, null));
         when(mockTagRepository.getAllTags()).thenReturn(tags);
         return tags;
     }

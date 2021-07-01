@@ -92,18 +92,6 @@ public class SleepSessionRepositoryImplTests
     }
     
     @Test
-    public void getAllSleepSessionIds_returnAllIds()
-    {
-        ArrayList<Integer> allIds = new ArrayList<>(Arrays.asList(1, 2, 3));
-        when(mockSleepSessionDao.getAllSleepSessionIds()).thenReturn(
-                new MutableLiveData<List<Integer>>(allIds));
-        
-        LiveData<List<Integer>> allIdsLive = repository.getAllSleepSessionIds();
-        TestUtils.activateLocalLiveData(allIdsLive);
-        assertThat(allIdsLive.getValue(), is((List<Integer>) allIds));
-    }
-    
-    @Test
     public void getSleepSession_positiveInput()
     {
         int positiveId = 1;
@@ -156,8 +144,6 @@ public class SleepSessionRepositoryImplTests
         assertThat(sleepSessionEntity.duration, is(testSleepSession.getDurationMillis()));
     }
     
-    // TODO [20-12-16 12:37AM] -- define updateSleepSession() behaviour on null or invalid args.
-    
     @Test
     public void addSleepSession_addsSleepSession()
     {
@@ -175,10 +161,35 @@ public class SleepSessionRepositoryImplTests
         
         assertThat_NewSleepSession_equalTo_SleepSessionEntity(newSleepSession, entity);
     }
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
+
+    private MutableLiveData<List<SleepSessionEntity>> initDaoWithSleepSessions()
+    {
+        List<SleepSessionEntity> sleepSessions = createEntityList();
+        
+        MutableLiveData<List<SleepSessionEntity>> sleepSessionsLive =
+                new MutableLiveData<>(sleepSessions);
+        when(mockSleepSessionDao.getAllSleepSessions()).thenReturn(sleepSessionsLive);
+        
+        return sleepSessionsLive;
+    }
+    
+    // TODO [20-12-16 12:37AM] -- define updateSleepSession() behaviour on null or invalid args.
+    
+    private List<SleepSessionEntity> createEntityList()
+    {
+        SleepSessionEntity sleepSession = TestUtils.ArbitraryData.getSleepSessionEntity();
+        sleepSession.id = 1;
+        SleepSessionEntity sleepSession2 = TestUtils.ArbitraryData.getSleepSessionEntity();
+        sleepSession2.id = 2;
+        ArrayList<SleepSessionEntity> sleepSessions = new ArrayList<>();
+        sleepSessions.add(sleepSession);
+        sleepSessions.add(sleepSession2);
+        return sleepSessions;
+    }
 
     private void assertThat_NewSleepSession_equalTo_SleepSessionEntity(
             SleepSessionRepository.NewSleepSessionData newSleepSession,

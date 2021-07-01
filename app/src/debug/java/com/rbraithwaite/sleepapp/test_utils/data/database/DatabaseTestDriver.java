@@ -12,6 +12,7 @@ import com.rbraithwaite.sleepapp.data.convert.ConvertSleepSession;
 import com.rbraithwaite.sleepapp.data.convert.ConvertTag;
 import com.rbraithwaite.sleepapp.data.convert.ConvertWakeTimeGoal;
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 
 import java.util.List;
@@ -50,11 +51,11 @@ public class DatabaseTestDriver
         
         public void sleepSessionCountIs(int count)
         {
-            LiveData<List<Integer>> sessionIds =
-                    mOwner.mDatabase.getSleepSessionDao().getAllSleepSessionIds();
-            TestUtils.activateInstrumentationLiveData(sessionIds);
+            LiveData<List<SleepSessionEntity>> sessions =
+                    mOwner.mDatabase.getSleepSessionDao().getAllSleepSessions();
+            TestUtils.activateInstrumentationLiveData(sessions);
             
-            assertThat(sessionIds.getValue().size(), is(equalTo(count)));
+            assertThat(sessions.getValue().size(), is(equalTo(count)));
         }
     }
 
