@@ -8,6 +8,7 @@ import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.Update;
 
+import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.data.database.junctions.sleep_session_tags.SleepSessionTagContract;
 import com.rbraithwaite.sleepapp.data.database.junctions.sleep_session_tags.SleepSessionTagJunction;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.data.SleepSessionWithTags;
@@ -84,8 +85,10 @@ public abstract class SleepSessionDao
     public abstract LiveData<List<SleepSessionEntity>> getAllSleepSessions();
     
     // TEST NEEDED [21-06-30 6:16PM] -- .
+    // TODO [21-07-1 1:44AM] -- sorting is currently hardcoded - I can parameterize this.
     @Transaction
-    @Query("SELECT * FROM " + SleepSessionContract.TABLE_NAME)
+    @Query("SELECT * FROM " + SleepSessionContract.TABLE_NAME +
+           " ORDER BY " + SleepSessionContract.Columns.START_TIME + " DESC")
     public abstract LiveData<List<SleepSessionWithTags>> getAllSleepSessionsWithTags();
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)
