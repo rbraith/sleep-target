@@ -33,6 +33,7 @@ import java.util.Locale;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
@@ -48,8 +49,8 @@ public class SessionArchiveTestDriver
 //*********************************************************
 
     private final OnOpenSessionDetailsListener mOnOpenSessionDetailsListener;
-    
-    
+
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -58,7 +59,7 @@ public class SessionArchiveTestDriver
     {
         void onOpenSessionDetails();
     }
-
+    
     public static class Assertions
             extends BaseFragmentTestDriver.BaseAssertions<SessionArchiveTestDriver,
             SessionArchiveFragmentViewModel>
@@ -76,9 +77,10 @@ public class SessionArchiveTestDriver
         public void listIsEmpty()
         {
             onView(withId(R.id.session_archive_list_item_card)).check(doesNotExist());
+            onView(withId(R.id.session_archive_no_data_text)).check(matches(isDisplayed()));
         }
     }
-
+    
     public static class ListItemAssertions
     {
         private int mListItemIndex;
@@ -339,7 +341,7 @@ public class SessionArchiveTestDriver
             }
         }
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -356,6 +358,7 @@ public class SessionArchiveTestDriver
     {
         this(helper, null);
     }
+
 
 //*********************************************************
 // api
@@ -384,7 +387,7 @@ public class SessionArchiveTestDriver
         onRecyclerView()
                 .perform(RecyclerViewActions.actionOnItemAtPosition(listItemIndex, click()));
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

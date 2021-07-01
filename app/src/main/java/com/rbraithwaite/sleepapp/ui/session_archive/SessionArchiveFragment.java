@@ -98,9 +98,9 @@ public class SessionArchiveFragment
                         sleepSession)));
     }
     
-    private SessionArchiveRecyclerViewAdapter.ViewHolder getViewHolderFor(int listItemPosition)
+    private SessionArchiveRecyclerViewAdapter.ItemViewHolder getViewHolderFor(int listItemPosition)
     {
-        return (SessionArchiveRecyclerViewAdapter.ViewHolder) mRecyclerView.findViewHolderForAdapterPosition(
+        return (SessionArchiveRecyclerViewAdapter.ItemViewHolder) mRecyclerView.findViewHolderForAdapterPosition(
                 listItemPosition);
     }
     

@@ -55,7 +55,11 @@ public class SessionArchiveRecyclerViewAdapter
 //*********************************************************
 
     private static final String TAG = "RecyclerViewAdapter";
-
+    
+    private static final int VIEW_TYPE_ITEM = 0;
+    
+    private static final int VIEW_TYPE_NO_DATA = 1;
+    
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -64,13 +68,31 @@ public class SessionArchiveRecyclerViewAdapter
     {
         void onClick(View v, int position);
     }
-
+    
 //*********************************************************
 // package helpers
 //*********************************************************
 
     static class ViewHolder
             extends RecyclerView.ViewHolder
+    {
+        public ViewHolder(@NonNull View itemView)
+        {
+            super(itemView);
+        }
+    }
+
+    static class NoDataViewHolder
+            extends ViewHolder
+    {
+        public NoDataViewHolder(@NonNull View itemView)
+        {
+            super(itemView);
+        }
+    }
+
+    static class ItemViewHolder
+            extends ViewHolder
     {
         // REFACTOR [21-06-29 10:19PM] -- I should consider maybe just keeping the sleep session id?
         //  since that's all I'm using this for currently.
@@ -90,7 +112,7 @@ public class SessionArchiveRecyclerViewAdapter
         TextView tagsMore;
         RatingBar ratingIndicator;
         
-        public ViewHolder(
+        public ItemViewHolder(
                 @NonNull View itemView,
                 final SessionArchiveRecyclerViewAdapter.OnListItemClickListener onListItemClickListener)
         {
@@ -118,7 +140,7 @@ public class SessionArchiveRecyclerViewAdapter
             });
         }
     }
-
+    
 //*********************************************************
 // constructors
 //*********************************************************
@@ -143,59 +165,93 @@ public class SessionArchiveRecyclerViewAdapter
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
     {
-        Log.d(TAG, "onCreateViewHolder: called");
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.session_archive_list_item, parent, false);
-        mFragmentProvider.provide().registerForContextMenu(view);
-        return new ViewHolder(view, mOnListItemClickListener);
+        switch (viewType) {
+        case VIEW_TYPE_NO_DATA:
+            View noDataView = inflateLayout(R.layout.session_archive_no_data, parent);
+            return new NoDataViewHolder(noDataView);
+        case VIEW_TYPE_ITEM:
+            View itemView = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.session_archive_list_item, parent, false);
+            mFragmentProvider.provide().registerForContextMenu(itemView);
+            return new ItemViewHolder(itemView, mOnListItemClickListener);
+        default:
+            throw new IllegalArgumentException("Invalid viewType: " + viewType);
+        }
     }
-
+    
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position)
     {
-        Log.d(TAG, "onBindViewHolder: called, position = " + position);
-        // REFACTOR [20-11-14 5:22PM] -- to make more OO, add this as a method in ViewHolder
-        bindViewHolderToItem(holder, mItems.get(position));
+        switch (getItemViewType(position)) {
+        case VIEW_TYPE_NO_DATA:
+            return;
+        case VIEW_TYPE_ITEM:
+            // REFACTOR [20-11-14 5:22PM] -- to make more OO, add this as a method in ItemViewHolder
+            bindViewHolderToItem((ItemViewHolder) holder, mItems.get(position));
+        }
+    }
+    
+    @Override
+    public int getItemViewType(int position)
+    {
+        if (hasNoData()) {
+            if (position != 0) {
+                // do I throw here? this shouldn't be possible
+            }
+            return VIEW_TYPE_NO_DATA;
+        }
+        return VIEW_TYPE_ITEM;
     }
     
     @Override
     public int getItemCount()
     {
-        if (mItems == null) { return 0; }
-        
-        int itemCount = mItems.size();
-        Log.d(TAG, "getItemCount: itemCount is " + itemCount);
-        
-        return itemCount;
+        if (hasNoData()) {
+            return 1;
+        }
+        return mItems.size();
     }
     
 //*********************************************************
 // api
 //*********************************************************
 
+    public boolean hasNoData()
+    {
+        return mItems == null || mItems.isEmpty();
+    }
+    
     public void setItems(List<SessionArchiveListItem> items)
     {
         mItems = items;
         notifyDataSetChanged();
     }
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
+
+    // REFACTOR [21-07-1 12:59AM] -- copied from TagSelectorRecyclerAdapter.
+    private View inflateLayout(int layoutId, ViewGroup parent)
+    {
+        return LayoutInflater
+                .from(parent.getContext())
+                .inflate(layoutId, parent, false);
+    }
 
     private LifecycleOwner getLifecycleOwner()
     {
         return mFragmentProvider.provide();
     }
     
-    private void bindViewHolderToItem(ViewHolder viewHolder, SessionArchiveListItem item)
+    private void bindViewHolderToItem(ItemViewHolder itemViewHolder, SessionArchiveListItem item)
     {
-        viewHolder.data = item;
+        itemViewHolder.data = item;
         
-        viewHolder.startTime.setText(item.startTime);
-        viewHolder.stopTime.setText(item.endTime);
-        viewHolder.duration.setText(item.sessionDuration);
-        viewHolder.additionalCommentsIcon.setVisibility(
+        itemViewHolder.startTime.setText(item.startTime);
+        itemViewHolder.stopTime.setText(item.endTime);
+        itemViewHolder.duration.setText(item.sessionDuration);
+        itemViewHolder.additionalCommentsIcon.setVisibility(
                 item.hasAdditionalComments ?
                         View.VISIBLE : View.GONE);
         
@@ -205,23 +261,23 @@ public class SessionArchiveRecyclerViewAdapter
             item.mood.isSet()) {
             // REFACTOR [21-06-13 3:02AM] -- This mood frame is a legacy artifact and
             //  needs to be removed.
-            viewHolder.moodFrame.setVisibility(View.VISIBLE);
-            viewHolder.mood.setMood(item.mood.asIndex());
+            itemViewHolder.moodFrame.setVisibility(View.VISIBLE);
+            itemViewHolder.mood.setMood(item.mood.asIndex());
         } else {
-            viewHolder.moodFrame.setVisibility(View.GONE);
+            itemViewHolder.moodFrame.setVisibility(View.GONE);
         }
         
         if (!item.tags.isEmpty()) {
-            viewHolder.tagsFrame.setVisibility(View.VISIBLE);
+            itemViewHolder.tagsFrame.setVisibility(View.VISIBLE);
             setupListItemTagList(
-                    viewHolder,
+                    itemViewHolder,
                     item.tags,
-                    viewHolder.itemView.getContext());
+                    itemViewHolder.itemView.getContext());
         } else {
-            viewHolder.tagsFrame.setVisibility(View.GONE);
+            itemViewHolder.tagsFrame.setVisibility(View.GONE);
         }
         
-        viewHolder.ratingIndicator.setRating(item.rating);
+        itemViewHolder.ratingIndicator.setRating(item.rating);
     }
     
     // REFACTOR [21-06-29 4:49PM] -- All these methods relating to the tag display should be
@@ -229,7 +285,10 @@ public class SessionArchiveRecyclerViewAdapter
     // REFACTOR [21-04-21 9:18PM] -- the logic in here is very similar to
     //  TagSelectorController.updateSelectedTagsScrollView - similar lists of tags (though maybe
     //  there are enough key differences, e.g. no scroll view here)
-    private void setupListItemTagList(ViewHolder viewHolder, List<String> tags, Context context)
+    private void setupListItemTagList(
+            ItemViewHolder itemViewHolder,
+            List<String> tags,
+            Context context)
     {
         // TODO [21-04-21 9:00PM] figure out some relation between the frame width and
         //  number of allowed characters per tag line (will depend on the character size - maybe
@@ -238,7 +297,7 @@ public class SessionArchiveRecyclerViewAdapter
 //        int frameWidth = viewHolder.tagsFrame.getWidth();
         int maxLineCharacters = 20;
         
-        LinearLayout[] lines = {viewHolder.tagsLineOne, viewHolder.tagsLineTwo};
+        LinearLayout[] lines = {itemViewHolder.tagsLineOne, itemViewHolder.tagsLineTwo};
         for (LinearLayout line : lines) {
             line.removeAllViews();
         }
@@ -272,7 +331,7 @@ public class SessionArchiveRecyclerViewAdapter
         // If there are more tags than could fit in the available lines, display some text
         // indicating these extra tags
         if (displayedTagsCount < tags.size()) {
-            viewHolder.tagsMore.setText(String.format(
+            itemViewHolder.tagsMore.setText(String.format(
                     Locale.CANADA,
                     context.getString(R.string.session_archive_item_more_tags_text),
                     tags.size() - displayedTagsCount));

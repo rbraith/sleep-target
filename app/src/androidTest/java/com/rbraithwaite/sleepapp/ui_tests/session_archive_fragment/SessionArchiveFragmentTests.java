@@ -77,7 +77,11 @@ public class SessionArchiveFragmentTests
         
         // create
         app.getSessionArchive().pressAddNewSessionButton();
+        // SMELL [21-07-1 1:22AM] -- I need to update Arbitrary.getDate to be closer to the
+        //  current date, its far enough away that its causing problems when it gets converted
+        //  to an int (actually maybe I just shouldn't be using int ever instead of long :p)
         SleepSession sleepSession = TestUtils.ArbitraryData.getSleepSession();
+        sleepSession.setStart(new TimeUtils().getNow());
         app.getSessionDetails().setValuesTo(sleepSession);
         app.getSessionDetails().confirm();
         
