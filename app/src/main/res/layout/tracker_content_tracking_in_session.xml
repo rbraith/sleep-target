@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--The end keyframe for the transition from "not tracking a sleep session" to "tracking a sleep session"-->
+<!--The start keyframe for this transition is tracker_content_tracking.xml-->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -17,8 +19,8 @@
         style="?attr/trackerMainButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        android:layout_marginBottom="60dp"
+        android:layout_marginTop="110dp"
+        android:layout_marginBottom="45dp"
         android:text="@string/sleep_tracker_button_stop"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

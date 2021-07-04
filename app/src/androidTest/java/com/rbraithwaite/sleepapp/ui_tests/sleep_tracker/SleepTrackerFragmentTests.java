@@ -172,7 +172,7 @@ public class SleepTrackerFragmentTests
         sleepTracker.assertThat().sleepTrackerButtonIsInState(
                 SleepTrackerTestDriver.Assertions.TrackerButtonState.NOT_STARTED);
         sleepTracker.assertThat().sessionStartTimeIsNotDisplayed();
-        sleepTracker.assertThat().sessionTimerMatches(0);
+        sleepTracker.assertThat().sessionTimerIsNotDisplayed();
         
         // When in a session
         int expectedDuration = 123456;
@@ -189,7 +189,7 @@ public class SleepTrackerFragmentTests
         sleepTracker.assertThat().sleepTrackerButtonIsInState(
                 SleepTrackerTestDriver.Assertions.TrackerButtonState.NOT_STARTED);
         sleepTracker.assertThat().sessionStartTimeIsNotDisplayed();
-        sleepTracker.assertThat().sessionTimerMatches(0);
+        sleepTracker.assertThat().sessionTimerIsNotDisplayed();
     }
     
     @Test

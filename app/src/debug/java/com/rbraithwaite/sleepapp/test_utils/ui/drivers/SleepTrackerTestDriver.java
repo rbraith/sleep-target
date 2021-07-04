@@ -262,6 +262,11 @@ public class SleepTrackerTestDriver
             selectedTagsMatch(sleepSession.getTags().stream().map(Tag::getTagId).collect(Collectors.toList()));
         }
         
+        public void sessionTimerIsNotDisplayed()
+        {
+            onView(withId(R.id.sleep_tracker_start_time)).check(matches(not(isDisplayed())));
+        }
+        
         private void sleepDurationGoalIsDisplayed(SleepDurationGoal expectedSleepDurationGoal)
         {
             onView(withId(R.id.tracker_no_goals_card)).check(matches(not(isDisplayed())));
@@ -299,7 +304,7 @@ public class SleepTrackerTestDriver
             getOwningDriver().performOnPostSleepDialog(assertion::assertOn);
         }
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************

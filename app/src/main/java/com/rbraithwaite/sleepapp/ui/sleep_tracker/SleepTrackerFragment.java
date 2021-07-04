@@ -17,6 +17,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.Group;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.navigation.NavDirections;
 import androidx.navigation.ui.NavigationUI;
 
@@ -49,6 +51,8 @@ public class SleepTrackerFragment
     
     private TagSelectorController mTagSelectorController;
     private TagSelectorViewModel mTagSelectorViewModel;
+    
+    private SleepTrackerAnimations mAnimations;
 
 //*********************************************************
 // public constants
@@ -84,10 +88,9 @@ public class SleepTrackerFragment
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState)
     {
-        initSleepTrackerButton(view);
+        mAnimations = new SleepTrackerAnimations(requireContext(), view);
         
-        initSessionTimeDisplay(view);
-        initSessionStartTime(view);
+        initSessionTrackingDisplay(view);
         
         initGoalsDisplay(view);
         
@@ -301,55 +304,40 @@ public class SleepTrackerFragment
                 hasAnyGoal -> noGoalsCard.setVisibility(hasAnyGoal ? View.GONE : View.VISIBLE));
     }
     
-    // REFACTOR [20-11-19 3:08AM] -- this shares the inSleepSession LiveData with
-    //  initSleepTrackerButton() - consider combining the two into some new method?
-    //  maybe bindInSleepSession()??
-    //  or consider returning the session start time as LiveData and binding to that instead?
-    //      the condition would be on whether the Date value was null or not
-    private void initSessionStartTime(View fragmentRoot)
+    private void initSessionTrackingDisplay(View fragmentRoot)
     {
-        final TextView startedText = fragmentRoot.findViewById(R.id.sleep_tracker_started_text);
-        final TextView sessionStartTime = fragmentRoot.findViewById(R.id.sleep_tracker_start_time);
-        final SleepTrackerFragmentViewModel viewModel = getViewModel();
-        viewModel.inSleepSession().observe(
-                getViewLifecycleOwner(),
-                inSleepSession -> {
-                    if (inSleepSession) {
-                        // REFACTOR [21-06-16 7:12PM] create a visibility group for these views?
-                        startedText.setVisibility(View.VISIBLE);
-                        sessionStartTime.setVisibility(View.VISIBLE);
-                    } else {
-                        startedText.setVisibility(View.GONE);
-                        sessionStartTime.setVisibility(View.GONE);
-                    }
-                });
-        viewModel.getSessionStartTime().observe(
-                getViewLifecycleOwner(),
-                sessionStartTime::setText);
-    }
-    
-    private void initSessionTimeDisplay(View fragmentRoot)
-    {
-        final TextView currentSessionTime =
+        SleepTrackerFragmentViewModel viewModel = getViewModel();
+        LifecycleOwner lifecycleOwner = getViewLifecycleOwner();
+        
+        Group startTimeGroup = fragmentRoot.findViewById(R.id.started_text_group);
+        TextView startTimeText = fragmentRoot.findViewById(R.id.sleep_tracker_start_time);
+        TextView currentSessionTimeText =
                 fragmentRoot.findViewById(R.id.sleep_tracker_session_time);
+        Button sleepTrackingButton = fragmentRoot.findViewById(R.id.sleep_tracker_button);
+        
+        viewModel.inSleepSession().observe(lifecycleOwner, inSleepSession -> {
+            if (inSleepSession) {
+                mAnimations.transitionIntoTrackingSession();
+                startTimeGroup.setVisibility(View.VISIBLE);
+                currentSessionTimeText.setVisibility(View.VISIBLE);
+                sleepTrackingButton.setText(R.string.sleep_tracker_button_stop);
+            } else {
+                mAnimations.transitionOutOfTrackingSession();
+                startTimeGroup.setVisibility(View.GONE);
+                currentSessionTimeText.setVisibility(View.GONE);
+                sleepTrackingButton.setText(R.string.sleep_tracker_button_start);
+            }
+        });
+        
+        viewModel.getSessionStartTime().observe(lifecycleOwner, startTimeText::setText);
+        
         getViewModel().getCurrentSleepSessionDuration().observe(
-                getViewLifecycleOwner(),
-                currentSessionTime::setText);
-    }
-    
-    private void initSleepTrackerButton(View fragmentRoot)
-    {
-        final Button sleepTrackerButton = fragmentRoot.findViewById(R.id.sleep_tracker_button);
+                lifecycleOwner,
+                currentSessionTimeText::setText);
         
-        // REFACTOR [21-06-16 7:13PM] this logic could be in the viewmodel - it could return
-        //  the string to set.
-        getViewModel().inSleepSession()
-                .observe(getViewLifecycleOwner(), inSleepSession -> sleepTrackerButton.setText(
-                        inSleepSession ? R.string.sleep_tracker_button_stop :
-                                R.string.sleep_tracker_button_start));
-        
-        sleepTrackerButton.setOnClickListener(v -> {
-            SleepTrackerFragmentViewModel viewModel = getViewModel();
+        // REFACTOR [21-07-4 1:08AM] -- consider extracting this to a new method -
+        //  maybe createSleepTrackingButtonClickListener.
+        sleepTrackingButton.setOnClickListener(v -> {
             Boolean inSleepSession = viewModel.inSleepSession().getValue();
             if (inSleepSession) {
                 viewModel.stopSleepSession();
