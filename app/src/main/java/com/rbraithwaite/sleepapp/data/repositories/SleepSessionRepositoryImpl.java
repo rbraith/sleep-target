@@ -133,6 +133,20 @@ public class SleepSessionRepositoryImpl
                 mSleepSessionDao.getFirstSleepSessionStartingBefore(dateTimeMillis));
     }
     
+    /**
+     * Gets the first sleep session that starts after the provided time from epoch (in reverse
+     * order, that is, the sleep session with the earliest start time while still being after
+     * dateTimeMillis.)
+     * <p>
+     * NOTE: This method is synchronous.
+     */
+    @Override
+    public SleepSession getFirstSleepSessionStartingAfter(long dateTimeMillis)
+    {
+        return ConvertSleepSession.fromEntity(
+                mSleepSessionDao.getFirstSleepSessionStartingAfter(dateTimeMillis));
+    }
+    
     @Override
     public LiveData<List<SleepSession>> getLatestSleepSessionsFromOffset(int offset, int count)
     {

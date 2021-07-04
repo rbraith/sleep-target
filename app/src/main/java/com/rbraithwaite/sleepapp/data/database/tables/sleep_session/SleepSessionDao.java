@@ -8,7 +8,6 @@ import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.Update;
 
-import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.data.database.junctions.sleep_session_tags.SleepSessionTagContract;
 import com.rbraithwaite.sleepapp.data.database.junctions.sleep_session_tags.SleepSessionTagJunction;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.data.SleepSessionWithTags;
@@ -67,6 +66,12 @@ public abstract class SleepSessionDao
            " ORDER BY " + SleepSessionContract.Columns.START_TIME + " DESC" +
            " LIMIT 1;")
     public abstract SleepSessionEntity getFirstSleepSessionStartingBefore(long dateTimeMillis);
+    
+    @Query("SELECT * FROM " + SleepSessionContract.TABLE_NAME +
+           " WHERE " + SleepSessionContract.Columns.START_TIME + " >= :dateTimeMillis" +
+           " ORDER BY " + SleepSessionContract.Columns.START_TIME + " ASC" +
+           " LIMIT 1;")
+    public abstract SleepSessionEntity getFirstSleepSessionStartingAfter(long dateTimeMillis);
     
     // OPTIMIZE [21-05-17 4:04PM] -- The ORDER BY here seems really inefficient? Like, is every
     //  call to this sorting the entire table every time? Investigate this.

@@ -16,7 +16,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -81,7 +83,7 @@ public class SessionArchiveFragmentTests
         //  current date, its far enough away that its causing problems when it gets converted
         //  to an int (actually maybe I just shouldn't be using int ever instead of long :p)
         SleepSession sleepSession = TestUtils.ArbitraryData.getSleepSession();
-        sleepSession.setStart(new TimeUtils().getNow());
+        sleepSession.setStart(twoDaysAgo());
         app.getSessionDetails().setValuesTo(sleepSession);
         app.getSessionDetails().confirm();
         
@@ -150,6 +152,39 @@ public class SessionArchiveFragmentTests
         app.getSessionDetails().assertThat().endDoesNotMatch(newEnd);
     }
     
+    @Test
+    public void overlappingSessionDisplaysErrorDialog()
+    {
+        TimeUtils timeUtils = new TimeUtils();
+        
+        SleepSession overlappedSession = TestUtils.ArbitraryData.getSleepSession();
+        overlappedSession.setDurationMillis(TimeUtils.hoursToMillis(4));
+        SleepSession sleepSession = new SleepSession(
+                timeUtils.addDurationToDate(
+                        overlappedSession.getEnd(),
+                        (int) TimeUtils.hoursToMillis(2)),
+                0);
+        
+        database.addSleepSession(overlappedSession);
+        database.addSleepSession(sleepSession);
+        
+        ApplicationTestDriver app = startAppInArchive();
+        
+        // open sleepSession's details (its the latest, so its the top of the list)
+        app.getSessionArchive().openSessionDetailsFor(0);
+        // this causes an overlap of 2hrs (sleepSession was 2hrs ahead, & overlappedSession
+        // is 4hrs duration
+        app.getSessionDetails().setStart(timeUtils.addDurationToDate(
+                sleepSession.getStart(),
+                -1 * (int) TimeUtils.hoursToMillis(4)));
+        
+        // HACK [21-07-3 2:03AM] -- this method was to get around the app driver listener
+        //  changing the destination and nullifying the session details driver, probably not the
+        //  best way to handle this lol.
+        app.getSessionDetails().confirmSilently();
+        app.getSessionDetails().assertThat().overlapErrorDialogIsDisplayed();
+    }
+    
     // TODO [20-12-17 7:14PM] -- deleteSession_doesNothingOnDialogCancel.
     
     @Test
@@ -179,6 +214,13 @@ public class SessionArchiveFragmentTests
 // private methods
 //*********************************************************
 
+    private Date twoDaysAgo()
+    {
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.add(Calendar.HOUR, -48);
+        return cal.getTime();
+    }
+    
     private SleepSession editSession(SleepSession originalSession)
     {
         TimeUtils timeUtils = new TimeUtils();
@@ -188,7 +230,7 @@ public class SessionArchiveFragmentTests
         
         return new SleepSession(
                 0,
-                timeUtils.addDurationToDate(originalSession.getStart(), -1 * hours25),
+                timeUtils.addDurationToDate(originalSession.getStart(), -2 * hours25),
                 // setting the end date to 25 hours past the original
                 originalSession.getDurationMillis() + hours25 + hours25,
                 null,

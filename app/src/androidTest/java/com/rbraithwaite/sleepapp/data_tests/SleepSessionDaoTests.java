@@ -171,6 +171,50 @@ public class SleepSessionDaoTests
     }
     
     @Test
+    public void getFirstSleepSessionStartingAfter_returnsNullIfNoSleepSession()
+    {
+        SleepSessionEntity entity = TestUtils.ArbitraryData.getSleepSessionEntity();
+        sleepSessionDao.addSleepSession(entity);
+        
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTimeInMillis(entity.startTime.getTime() + 500);
+        
+        assertThat(sleepSessionDao.getFirstSleepSessionStartingAfter(cal.getTimeInMillis()),
+                   is(nullValue()));
+    }
+    
+    @Test
+    public void getFirstSleepSessionStartingAfter_returnsCorrectSleepSession()
+    {
+        // REFACTOR [21-07-3 1:30AM] -- same setup as
+        //  getFirstSleepSessionStartingBefore_returnsCorrectSleepSession
+        //  -
+        //  I should just have a utility for populating the db with arbitrary entities.
+        // 2 entities starting before
+        SleepSessionEntity entity1 = TestUtils.ArbitraryData.getSleepSessionEntity();
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTime(entity1.startTime);
+        
+        cal.add(Calendar.HOUR, 12);
+        SleepSessionEntity entity2 = TestUtils.ArbitraryData.getSleepSessionEntity();
+        entity2.startTime = cal.getTime();
+        
+        // 1 entity starting after
+        cal.add(Calendar.HOUR, 34);
+        SleepSessionEntity expected = TestUtils.ArbitraryData.getSleepSessionEntity();
+        expected.startTime = cal.getTime();
+        
+        sleepSessionDao.addSleepSession(entity1);
+        sleepSessionDao.addSleepSession(entity2);
+        sleepSessionDao.addSleepSession(expected);
+        
+        SleepSessionEntity result = sleepSessionDao.getFirstSleepSessionStartingAfter(
+                entity2.startTime.getTime() + 1234);
+        
+        assertThat(result.startTime, is(equalTo(expected.startTime)));
+    }
+    
+    @Test
     public void getFirstSleepSessionStartingBefore_returnsNullIfNoSleepSession()
     {
         SleepSessionEntity entity = TestUtils.ArbitraryData.getSleepSessionEntity();

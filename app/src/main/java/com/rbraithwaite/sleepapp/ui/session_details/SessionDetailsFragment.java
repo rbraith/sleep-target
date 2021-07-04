@@ -1,5 +1,6 @@
 package com.rbraithwaite.sleepapp.ui.session_details;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -17,10 +18,10 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.material.snackbar.Snackbar;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
 import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
+import com.rbraithwaite.sleepapp.ui.common.dialog.AlertDialogFragment;
 import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.MoodSelectorController;
 import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.MoodSelectorViewModel;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorController;
@@ -69,7 +70,10 @@ public class SessionDetailsFragment
 //*********************************************************
 
     private static final String TAG = "SessionDetailsFragment";
-
+    
+    private static final String DIALOG_ERROR = "DialogError";
+    
+    
 //*********************************************************
 // public constants
 //*********************************************************
@@ -140,13 +144,13 @@ public class SessionDetailsFragment
          */
         public abstract void onAction(SessionDetailsFragment fragment, SleepSessionWrapper result);
     }
-
+    
 //*********************************************************
 // constructors
 //*********************************************************
 
     public SessionDetailsFragment() { setHasOptionsMenu(true); }
-
+    
 //*********************************************************
 // overrides
 //*********************************************************
@@ -242,13 +246,13 @@ public class SessionDetailsFragment
             return super.onOptionsItemSelected(item);
         }
     }
-    
+
     @Override
     protected Properties<SessionDetailsFragmentViewModel> initProperties()
     {
         return new Properties<>(false, SessionDetailsFragmentViewModel.class);
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -282,12 +286,12 @@ public class SessionDetailsFragment
     {
         return mTagSelectorViewModel;
     }
-    
+
     public MoodSelectorViewModel getMoodSelectorViewModel()
     {
         return mMoodSelectorViewModel;
     }
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
@@ -444,7 +448,14 @@ public class SessionDetailsFragment
                                 getViewModel().setStartDate(year, month, dayOfMonth);
                                 return true;
                             } catch (SessionDetailsFragmentViewModel.InvalidDateTimeException e) {
-                                displayErrorSnackbar(R.string.error_session_edit_start_datetime);
+                                displayErrorDialog(R.string.error_session_edit_start_datetime);
+                                return false;
+                            } catch (SessionDetailsFragmentViewModel.FutureDateTimeException e) {
+                                // TODO [21-07-2 2:22AM] -- preferably the user wouldn't even
+                                //  have the option to set future times (this could be tricky
+                                //  though,
+                                //  due to how the Date & Time of Day are set separately).
+                                displayErrorDialog(R.string.session_details_future_time_error);
                                 return false;
                             }
                         }
@@ -452,11 +463,16 @@ public class SessionDetailsFragment
                         @Override
                         public boolean beforeSetTimeOfDay(int hourOfDay, int minute)
                         {
+                            // REFACTOR [21-07-1 9:13PM] -- Is there any way I can DRY these
+                            //  repeated try/catch blocks?.
                             try {
                                 getViewModel().setStartTimeOfDay(hourOfDay, minute);
                                 return true;
                             } catch (SessionDetailsFragmentViewModel.InvalidDateTimeException e) {
-                                displayErrorSnackbar(R.string.error_session_edit_start_datetime);
+                                displayErrorDialog(R.string.error_session_edit_start_datetime);
+                                return false;
+                            } catch (SessionDetailsFragmentViewModel.FutureDateTimeException e) {
+                                displayErrorDialog(R.string.session_details_future_time_error);
                                 return false;
                             }
                         }
@@ -482,7 +498,10 @@ public class SessionDetailsFragment
                                 getViewModel().setEndDate(year, month, dayOfMonth);
                                 return true;
                             } catch (SessionDetailsFragmentViewModel.InvalidDateTimeException e) {
-                                displayErrorSnackbar(R.string.error_session_edit_end_datetime);
+                                displayErrorDialog(R.string.error_session_edit_end_datetime);
+                                return false;
+                            } catch (SessionDetailsFragmentViewModel.FutureDateTimeException e) {
+                                displayErrorDialog(R.string.session_details_future_time_error);
                                 return false;
                             }
                         }
@@ -494,7 +513,10 @@ public class SessionDetailsFragment
                                 getViewModel().setEndTimeOfDay(hourOfDay, minute);
                                 return true;
                             } catch (SessionDetailsFragmentViewModel.InvalidDateTimeException e) {
-                                displayErrorSnackbar(R.string.error_session_edit_end_datetime);
+                                displayErrorDialog(R.string.error_session_edit_end_datetime);
+                                return false;
+                            } catch (SessionDetailsFragmentViewModel.FutureDateTimeException e) {
+                                displayErrorDialog(R.string.session_details_future_time_error);
                                 return false;
                             }
                         }
@@ -517,8 +539,14 @@ public class SessionDetailsFragment
     }
     
     // REFACTOR [21-06-16 10:34PM] this should be extracted somewhere as a common utility.
-    private void displayErrorSnackbar(int messageId)
+    private void displayErrorDialog(int messageId)
     {
-        Snackbar.make(getView(), messageId, Snackbar.LENGTH_SHORT).show();
+        AlertDialogFragment dialog = AlertDialogFragment.createInstance(() -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            builder.setMessage(messageId)
+                    .setPositiveButton(android.R.string.ok, null);
+            return builder.create();
+        });
+        dialog.show(getChildFragmentManager(), DIALOG_ERROR);
     }
 }

@@ -153,7 +153,7 @@ public class SleepSession
         // REFACTOR [21-05-10 10:01PM] -- this should be ctor injected instead probably.
         mTimeUtils = createTimeUtils();
     }
-
+    
 //*********************************************************
 // overrides
 //*********************************************************
@@ -170,7 +170,7 @@ public class SleepSession
         result = 31 * result + (mRating != +0.0f ? Float.floatToIntBits(mRating) : 0);
         return result;
     }
-    
+
     @Override
     public boolean equals(Object o)
     {
@@ -194,10 +194,22 @@ public class SleepSession
     {
         return "SleepSession id:" + getId();
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
+
+    public static SleepSession copyOf(SleepSession sleepSession)
+    {
+        return new SleepSession(
+                sleepSession.getId(),
+                sleepSession.getStart(),
+                sleepSession.getDurationMillis(),
+                sleepSession.getAdditionalComments(),
+                sleepSession.getMood(),
+                sleepSession.getTags(),
+                sleepSession.getRating());
+    }
 
     // SMELL [21-03-29 9:50PM] the id is a storage implementation detail - it is not
     //  relevant to the domain model.

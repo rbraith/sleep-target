@@ -96,6 +96,17 @@ public interface SleepSessionRepository
      */
     SleepSession getFirstSleepSessionStartingBefore(long dateTimeMillis);
     
+    // REFACTOR [21-03-24 10:29PM] This should be a LiveData - the sleep session should
+    //  stay synced with the db.
+    /**
+     * Gets the first sleep session that starts after the provided time from epoch (in reverse
+     * order, that is, the sleep session with the earliest start time while still being after
+     * dateTimeMillis.)
+     * <p>
+     * NOTE: This method is synchronous.
+     */
+    SleepSession getFirstSleepSessionStartingAfter(long dateTimeMillis);
+    
     /**
      * Eh...I need to workshop the name for this. The idea is this will give you 'count' sleep
      * sessions, going back in time and starting from 'offset'. For example, if 'count' is 50 and

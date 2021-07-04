@@ -17,6 +17,7 @@ import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +37,7 @@ public class SessionDetailsFragmentViewModel
     private LiveData<String> mSessionDurationText;
     
     private MutableLiveData<SleepSession> mSleepSession = new MutableLiveData<>();
+    private TimeUtils mTimeUtils;
 
 //*********************************************************
 // public helpers
@@ -49,14 +51,24 @@ public class SessionDetailsFragmentViewModel
             super(message);
         }
     }
+    
+    public static class FutureDateTimeException
+            extends RuntimeException
+    {
+        public FutureDateTimeException(String message)
+        {
+            super(message);
+        }
+    }
 
 //*********************************************************
 // constructors
 //*********************************************************
 
     @ViewModelInject
-    public SessionDetailsFragmentViewModel()
+    public SessionDetailsFragmentViewModel(TimeUtils timeUtils)
     {
+        mTimeUtils = timeUtils;
     }
 
 //*********************************************************
@@ -88,14 +100,18 @@ public class SessionDetailsFragmentViewModel
     
     public void setStartDate(int year, int month, int dayOfMonth)
     {
-        // OPTIMIZE [20-11-30 11:19PM] -- consider doing nothing if the new date
-        //  matches the old.
-        
         GregorianCalendar calendar = new GregorianCalendar();
-        calendar.setTime(mSleepSession.getValue().getStart());
+        Date oldStart = mSleepSession.getValue().getStart();
+        calendar.setTime(oldStart);
         calendar.set(Calendar.YEAR, year);
         calendar.set(Calendar.MONTH, month);
         calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+        
+        if (calendar.getTime().equals(oldStart)) {
+            return;
+        }
+        
+        checkIfDateIsInTheFuture(calendar.getTime());
         
         try {
             mSleepSession.getValue().setStartFixed(calendar);
@@ -109,14 +125,18 @@ public class SessionDetailsFragmentViewModel
     
     public void setEndDate(int year, int month, int dayOfMonth)
     {
-        // OPTIMIZE [20-11-30 11:19PM] -- consider doing nothing if the new date
-        //  matches the old.
-        
         GregorianCalendar calendar = new GregorianCalendar();
-        calendar.setTime(mSleepSession.getValue().getEnd());
+        Date oldEnd = mSleepSession.getValue().getEnd();
+        calendar.setTime(oldEnd);
         calendar.set(Calendar.YEAR, year);
         calendar.set(Calendar.MONTH, month);
         calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+        
+        if (calendar.getTime().equals(oldEnd)) {
+            return;
+        }
+        
+        checkIfDateIsInTheFuture(calendar.getTime());
         
         try {
             mSleepSession.getValue().setEndFixed(calendar);
@@ -130,12 +150,17 @@ public class SessionDetailsFragmentViewModel
     
     public void setStartTimeOfDay(int hourOfDay, int minute)
     {
-        // OPTIMIZE [20-12-6 8:36PM] -- consider doing nothing if the new time matches the old.
-        
         GregorianCalendar calendar = new GregorianCalendar();
-        calendar.setTime(mSleepSession.getValue().getStart());
+        Date oldStart = mSleepSession.getValue().getStart();
+        calendar.setTime(oldStart);
         calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
         calendar.set(Calendar.MINUTE, minute);
+        
+        if (calendar.getTime().equals(oldStart)) {
+            return;
+        }
+        
+        checkIfDateIsInTheFuture(calendar.getTime());
         
         try {
             mSleepSession.getValue().setStartFixed(calendar);
@@ -149,12 +174,17 @@ public class SessionDetailsFragmentViewModel
     
     public void setEndTimeOfDay(int hourOfDay, int minute)
     {
-        // OPTIMIZE [20-12-6 8:36PM] -- consider doing nothing if the new time matches the old.
-        
         GregorianCalendar calendar = new GregorianCalendar();
-        calendar.setTime(mSleepSession.getValue().getEnd());
+        Date oldEnd = mSleepSession.getValue().getEnd();
+        calendar.setTime(oldEnd);
         calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
         calendar.set(Calendar.MINUTE, minute);
+        
+        if (calendar.getTime().equals(oldEnd)) {
+            return;
+        }
+        
+        checkIfDateIsInTheFuture(calendar.getTime());
         
         try {
             mSleepSession.getValue().setEndFixed(calendar);
@@ -305,6 +335,17 @@ public class SessionDetailsFragmentViewModel
 // private methods
 //*********************************************************
 
+    
+    /**
+     * Throw a FutureDateTimeException if the date is in the future.
+     */
+    private void checkIfDateIsInTheFuture(Date date)
+    {
+        if (mTimeUtils.getNow().getTime() < date.getTime()) {
+            throw new FutureDateTimeException(date.toString());
+        }
+    }
+    
     
     /**
      * Note: changes made to the sleep session from this method do not notify observers. Use {@link

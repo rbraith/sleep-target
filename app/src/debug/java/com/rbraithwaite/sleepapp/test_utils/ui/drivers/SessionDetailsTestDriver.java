@@ -31,6 +31,8 @@ import java.util.stream.Collectors;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.RootMatchers.isDialog;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -166,16 +168,16 @@ public class SessionDetailsTestDriver
                                                                                      dayOfMonth))));
         }
         
-        public void invalidStartErrorIsDisplayed()
+        public void invalidStartErrorDialogIsDisplayed()
         {
-            UITestUtils.checkSnackbarIsDisplayedWithMessage(R.string.error_session_edit_start_datetime);
-            UITestUtils.waitForSnackbarToFinish();
+            onView(withText(R.string.error_session_edit_start_datetime)).inRoot(isDialog())
+                    .check(matches(isDisplayed()));
         }
         
-        public void invalidEndErrorIsDisplayed()
+        public void invalidEndErrorDialogIsDisplayed()
         {
-            UITestUtils.checkSnackbarIsDisplayedWithMessage(R.string.error_session_edit_end_datetime);
-            UITestUtils.waitForSnackbarToFinish();
+            onView(withText(R.string.error_session_edit_end_datetime)).inRoot(isDialog())
+                    .check(matches(isDisplayed()));
         }
         
         public void endDoesNotMatch(Date end)
@@ -195,6 +197,18 @@ public class SessionDetailsTestDriver
                     cal.get(Calendar.YEAR),
                     cal.get(Calendar.MONTH),
                     cal.get(Calendar.DAY_OF_MONTH))))));
+        }
+        
+        public void futureTimeErrorDialogIsDisplayed()
+        {
+            onView(withText(R.string.session_details_future_time_error)).inRoot(isDialog())
+                    .check(matches(isDisplayed()));
+        }
+        
+        public void overlapErrorDialogIsDisplayed()
+        {
+            onView(withId(R.id.session_details_overlap_message)).inRoot(isDialog())
+                    .check(matches(isDisplayed()));
         }
         
         // REFACTOR [21-05-14 3:40AM] -- extract this, it duplicates getIdsFromTags()
@@ -285,6 +299,14 @@ public class SessionDetailsTestDriver
         onView(withId(R.id.session_data_action_positive)).perform(click());
     }
     
+    /**
+     * Confirm without notifying the listener. Idk why you would want to use this...
+     */
+    public void confirmSilently()
+    {
+        onView(withId(R.id.session_data_action_positive)).perform(click());
+    }
+    
     public void setStart(Date start)
     {
         GregorianCalendar cal = TimeUtils.getCalendarFrom(start);
@@ -301,8 +323,16 @@ public class SessionDetailsTestDriver
     
     public void setValuesTo(SleepSession sleepSession)
     {
-        setStart(sleepSession.getStart());
+        // set start back one day at first to give the end space to be set
+        GregorianCalendar cal = TimeUtils.getCalendarFrom(sleepSession.getStart());
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+        setStart(cal.getTime());
+        
         setEnd(sleepSession.getEnd());
+        
+        cal.add(Calendar.DAY_OF_MONTH, 1);
+        setStartDay(Day.of(cal));
+        
         setMood(sleepSession.getMood());
         setSelectedTags(sleepSession.getTags());
         setAdditionalComments(sleepSession.getAdditionalComments());
@@ -358,6 +388,11 @@ public class SessionDetailsTestDriver
         setTimeOfDayInPicker(timeOfDay);
     }
     
+    public void closeErrorDialog()
+    {
+        DialogTestUtils.pressPositiveButton();
+    }
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -398,7 +433,7 @@ public class SessionDetailsTestDriver
                 day.dayOfMonth));
         DialogTestUtils.pressPositiveButton();
     }
-
+    
     private ViewInteraction onStartDateTextView()
     {
         return onView(allOf(withParent(withId(R.id.session_details_start_time)),

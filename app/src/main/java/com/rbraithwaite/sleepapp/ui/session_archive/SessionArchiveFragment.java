@@ -1,9 +1,11 @@
 package com.rbraithwaite.sleepapp.ui.session_archive;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -41,7 +43,9 @@ public class SessionArchiveFragment
     private static final String SESSION_DELETE_DIALOG = "SessionDeleteDialog";
     
     private static final int DATA_ICON_DELETE = R.drawable.ic_baseline_delete_forever_24;
-
+    
+    private static final String DIALOG_OVERLAP_ERROR = "SessionDetailsFragmentOverlapErrorDialog";
+    
 //*********************************************************
 // overrides
 //*********************************************************
@@ -62,7 +66,7 @@ public class SessionArchiveFragment
         initRecyclerView(view);
         initFloatingActionButton(view);
     }
-    
+
     @Override
     protected Properties<SessionArchiveFragmentViewModel> initProperties()
     {
@@ -83,7 +87,7 @@ public class SessionArchiveFragment
         }
         return mRecyclerViewAdapter;
     }
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
@@ -103,7 +107,6 @@ public class SessionArchiveFragment
         return (SessionArchiveRecyclerViewAdapter.ItemViewHolder) mRecyclerView.findViewHolderForAdapterPosition(
                 listItemPosition);
     }
-    
     
     private void initFloatingActionButton(View fragmentRoot)
     {
@@ -162,8 +165,14 @@ public class SessionArchiveFragment
                             SessionDetailsFragment fragment,
                             SleepSessionWrapper result)
                     {
-                        getViewModel().updateSleepSession(result);
-                        fragment.completed();
+                        try {
+                            if (getViewModel().checkResultForSessionOverlap(result)) {
+                                getViewModel().updateSleepSession(result);
+                                fragment.completed();
+                            }
+                        } catch (SessionArchiveFragmentViewModel.OverlappingSessionException e) {
+                            displayOverlapErrorDialog(fragment, e);
+                        }
                     }
                 })
                 .setNegativeActionListener(new SessionDetailsFragment.ActionListener()
@@ -178,6 +187,37 @@ public class SessionArchiveFragment
                 });
         return SessionArchiveFragmentDirections.actionSessionArchiveToSessionData(
                 argsBuilder.build());
+    }
+    
+    private void displayOverlapErrorDialog(
+            SessionDetailsFragment fragment,
+            SessionArchiveFragmentViewModel.OverlappingSessionException e)
+    {
+        // TODO [21-07-2 2:04AM] -- figure out how to style dialogs :(
+        //  this dialog's background should be colorError
+        AlertDialogFragment dialog = AlertDialogFragment.createInstance(() -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            builder.setTitle("Error: Overlapping Sleep Session")
+                    .setView(createOverlapErrorDialogContent(e))
+                    .setPositiveButton(android.R.string.ok, null);
+            return builder.create();
+        });
+        
+        dialog.show(fragment.getChildFragmentManager(), DIALOG_OVERLAP_ERROR);
+    }
+    
+    private View createOverlapErrorDialogContent(SessionArchiveFragmentViewModel.OverlappingSessionException e)
+    {
+        View dialogContent =
+                getLayoutInflater().inflate(R.layout.session_details_overlap_error, null);
+        
+        TextView start = dialogContent.findViewById(R.id.session_details_overlap_start_value);
+        start.setText(e.start);
+        
+        TextView end = dialogContent.findViewById(R.id.session_details_overlap_end_value);
+        end.setText(e.end);
+        
+        return dialogContent;
     }
     
     private void displayDeleteSessionDialog(

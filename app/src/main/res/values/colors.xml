@@ -14,6 +14,9 @@
 
     <color name="colorAppBackground">#151515</color>
 
+    <color name="colorError">#B21936</color>
+    <color name="colorOnError">@color/colorOnSecondarySurface</color>
+
     <!-- TODO [21-05-26 9:58PM] - I'm having trouble applying this color to dialogs
             - see comment in values/themes_tracker.xml::TrackerTagSelectorDialogTheme for
             additional details

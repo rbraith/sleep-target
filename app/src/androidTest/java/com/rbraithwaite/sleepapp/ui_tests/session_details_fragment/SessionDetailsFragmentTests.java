@@ -43,11 +43,12 @@ public class SessionDetailsFragmentTests
         sessionDetails.assertThat().displayedValuesMatch(sleepSession);
         
         // offset by 24 hours and 5 minutes so that the date and time are both updated
-        sleepSession.offsetStartFixed(-24, -5);
-        sessionDetails.setStart(sleepSession.getStart());
+        SleepSession editedSession = SleepSession.copyOf(sleepSession);
+        editedSession.offsetStartFixed(-24, -5);
+        sessionDetails.setStart(editedSession.getStart());
         
         // might as well check all values, to make sure nothing else was updated accidentally
-        sessionDetails.assertThat().displayedValuesMatch(sleepSession);
+        sessionDetails.assertThat().displayedValuesMatch(editedSession);
     }
     
     @Test
@@ -58,11 +59,28 @@ public class SessionDetailsFragmentTests
                 SessionDetailsTestDriver.startingWith(sleepSession);
         
         // offset by 24 hours and 5 minutes so that the date and time are both updated
-        sleepSession.offsetEndFixed(24, 5);
-        sessionDetails.setEnd(sleepSession.getEnd());
+        SleepSession editedSession = SleepSession.copyOf(sleepSession);
+        editedSession.offsetEndFixed(24, 5);
+        sessionDetails.setEnd(editedSession.getEnd());
         
         // might as well check all values, to make sure nothing else was updated accidentally
-        sessionDetails.assertThat().displayedValuesMatch(sleepSession);
+        sessionDetails.assertThat().displayedValuesMatch(editedSession);
+    }
+    
+    @Test
+    public void settingFutureTimeShowsError()
+    {
+        TimeUtils timeUtils = new TimeUtils();
+        SleepSession sleepSession = new SleepSession(timeUtils.getNow(), 0);
+        SessionDetailsTestDriver sessionDetails =
+                SessionDetailsTestDriver.startingWith(sleepSession);
+        
+        Day today = Day.of(sleepSession.getEnd());
+        Day tomorrow = today.nextDay();
+        
+        sessionDetails.setEndDay(tomorrow);
+        
+        sessionDetails.assertThat().futureTimeErrorDialogIsDisplayed();
     }
     
     @Test
@@ -81,14 +99,16 @@ public class SessionDetailsFragmentTests
         
         Day invalidDay = Day.of(invalidStart);
         sessionDetails.setStartDay(invalidDay);
-        sessionDetails.assertThat().invalidStartErrorIsDisplayed();
+        sessionDetails.assertThat().invalidStartErrorDialogIsDisplayed();
+        sessionDetails.closeErrorDialog();
         
         // invalid start time of day
         invalidStart.add(Calendar.MINUTE, 123);
         
         TimeOfDay invalidTimeOfDay = TimeOfDay.of(invalidStart);
         sessionDetails.setStartTimeOfDay(invalidTimeOfDay);
-        sessionDetails.assertThat().invalidStartErrorIsDisplayed();
+        sessionDetails.assertThat().invalidStartErrorDialogIsDisplayed();
+        sessionDetails.closeErrorDialog();
         
         // verify that the session was not changed
         sessionDetails.assertThat().displayedValuesMatch(sleepSession);
@@ -110,19 +130,21 @@ public class SessionDetailsFragmentTests
         
         Day invalidDay = Day.of(invalidEnd);
         sessionDetails.setEndDay(invalidDay);
-        sessionDetails.assertThat().invalidEndErrorIsDisplayed();
+        sessionDetails.assertThat().invalidEndErrorDialogIsDisplayed();
+        sessionDetails.closeErrorDialog();
         
         // invalid start time of day
         invalidEnd.add(Calendar.MINUTE, -123);
         
         TimeOfDay invalidTimeOfDay = TimeOfDay.of(invalidEnd);
         sessionDetails.setEndTimeOfDay(invalidTimeOfDay);
-        sessionDetails.assertThat().invalidEndErrorIsDisplayed();
+        sessionDetails.assertThat().invalidEndErrorDialogIsDisplayed();
+        sessionDetails.closeErrorDialog();
         
         // verify that the session was not changed
         sessionDetails.assertThat().displayedValuesMatch(sleepSession);
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

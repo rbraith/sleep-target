@@ -78,6 +78,14 @@ public class SleepSessionRepositoryImplTests
     }
     
     @Test
+    public void getFirstSleepSessionStartingAfter_callsDatabase()
+    {
+        long millis = 12345L;
+        repository.getFirstSleepSessionStartingAfter(millis);
+        verify(mockSleepSessionDao, times(1)).getFirstSleepSessionStartingAfter(millis);
+    }
+    
+    @Test
     public void getSleepSessionsInRange_callsDao()
     {
         GregorianCalendar cal = TestUtils.ArbitraryData.getCalendar();
@@ -161,7 +169,7 @@ public class SleepSessionRepositoryImplTests
         
         assertThat_NewSleepSession_equalTo_SleepSessionEntity(newSleepSession, entity);
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -190,7 +198,7 @@ public class SleepSessionRepositoryImplTests
         sleepSessions.add(sleepSession2);
         return sleepSessions;
     }
-
+    
     private void assertThat_NewSleepSession_equalTo_SleepSessionEntity(
             SleepSessionRepository.NewSleepSessionData newSleepSession,
             SleepSessionEntity entity)

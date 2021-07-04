@@ -1,6 +1,9 @@
 package com.rbraithwaite.sleepapp.utils.time;
 
+import com.rbraithwaite.sleepapp.utils.TimeUtils;
+
 import java.util.Calendar;
+import java.util.Date;
 
 // REFACTOR [21-06-24 9:44PM] --
 //  com/rbraithwaite/sleepapp/ui/session_details/controllers/DateTimeViewModel.java
@@ -13,7 +16,7 @@ public class TimeOfDay
 
     public final int hourOfDay;
     public final int minute;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -23,7 +26,7 @@ public class TimeOfDay
         this.hourOfDay = hourOfDay;
         this.minute = minute;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -33,5 +36,10 @@ public class TimeOfDay
         return new TimeOfDay(
                 cal.get(Calendar.HOUR_OF_DAY),
                 cal.get(Calendar.MINUTE));
+    }
+    
+    public static TimeOfDay of(Date date)
+    {
+        return TimeOfDay.of(TimeUtils.getCalendarFrom(date));
     }
 }

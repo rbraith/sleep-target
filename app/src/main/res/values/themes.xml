@@ -41,6 +41,9 @@
         <item name="appColorSurfaceFloating">@color/colorSurfaceFloating</item>
 
         <item name="appDialogTitleIconColor">?attr/colorSecondary</item>
+        
+        <item name="colorError">@color/colorError</item>
+        <item name="colorOnError">@color/colorOnError</item>
     </style>
 
 </resources>

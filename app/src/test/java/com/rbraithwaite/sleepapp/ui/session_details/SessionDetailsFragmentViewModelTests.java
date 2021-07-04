@@ -47,7 +47,7 @@ public class SessionDetailsFragmentViewModelTests
     @Before
     public void setup()
     {
-        viewModel = new SessionDetailsFragmentViewModel();
+        viewModel = new SessionDetailsFragmentViewModel(new TimeUtils());
     }
     
     @After

@@ -6,6 +6,7 @@ import com.rbraithwaite.sleepapp.ui.common.CommonFormatting;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 
 public class SessionDetailsFormatting
@@ -49,5 +50,10 @@ public class SessionDetailsFormatting
     public static String formatDuration(long durationMillis)
     {
         return CommonFormatting.formatDurationMillis(durationMillis);
+    }
+    
+    public static String formatFullDate(Date date)
+    {
+        return CommonFormatting.formatFullDate(date);
     }
 }
