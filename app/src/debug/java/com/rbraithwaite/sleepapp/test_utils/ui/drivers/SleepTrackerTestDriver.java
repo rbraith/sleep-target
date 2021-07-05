@@ -34,6 +34,7 @@ import java.util.stream.IntStream;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -266,7 +267,18 @@ public class SleepTrackerTestDriver
         {
             onView(withId(R.id.sleep_tracker_start_time)).check(matches(not(isDisplayed())));
         }
-        
+    
+        public void interruptionsCardIsNotDisplayed()
+        {
+            onView(withId(R.id.tracker_interruptions_card)).check(matches(not(isDisplayed())));
+        }
+    
+        public void interruptionsCardIsDisplayed()
+        {
+            onView(withId(R.id.tracker_interruptions_card)).check(matches(isDisplayed()));
+        }
+    
+    
         private void sleepDurationGoalIsDisplayed(SleepDurationGoal expectedSleepDurationGoal)
         {
             onView(withId(R.id.tracker_no_goals_card)).check(matches(not(isDisplayed())));
@@ -464,6 +476,7 @@ public class SleepTrackerTestDriver
     
     public void setDetailsFrom(SleepSession sleepSession)
     {
+        onView(withId(R.id.tracker_details_card)).perform(scrollTo());
         setAdditionalComments(sleepSession.getAdditionalComments());
         addNewMood(sleepSession.getMood().asIndex());
         addTags(sleepSession.getTags().stream().map(Tag::getText).collect(Collectors.toList()));

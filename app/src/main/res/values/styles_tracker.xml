@@ -18,6 +18,17 @@
         <item name="android:paddingBottom">@dimen/tracker_main_btn_padding_vert</item>
     </style>
 
+    <style name="TrackerInterruptButton" parent="TrackerButtonMain">
+        <item name="backgroundTint">?attr/appColorInterruption</item>
+
+        <item name="android:textSize">16sp</item>
+
+        <item name="android:paddingLeft">32dp</item>
+        <item name="android:paddingRight">32dp</item>
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingBottom">14dp</item>
+    </style>
+
     <style name="TrackerSessionTime" parent="AppTextView">
         <item name="android:textColor">?attr/colorSecondary</item>
         <item name="android:textSize">38sp</item>

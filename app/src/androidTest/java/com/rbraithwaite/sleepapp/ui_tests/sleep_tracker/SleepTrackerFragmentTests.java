@@ -62,6 +62,16 @@ public class SleepTrackerFragmentTests
     }
     
     @Test
+    public void interruptionsDisplayProperly()
+    {
+        sleepTracker.assertThat().interruptionsCardIsNotDisplayed();
+        
+        sleepTracker.startSessionManually();
+        
+        sleepTracker.assertThat().interruptionsCardIsDisplayed();
+    }
+    
+    @Test
     public void postSleepDialogDisplaysCorrectValuesWhenDetailsAreUnset()
     {
         // details are unset by default, so you just need to stop a session

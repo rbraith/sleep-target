@@ -17,5 +17,7 @@
         <attr name="appColorComplementary" format="color"/>
 
         <attr name="appDialogTitleIconColor" format="color"/>
+
+        <attr name="appColorInterruption" format="color"/>
     </declare-styleable>
 </resources>

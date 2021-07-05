@@ -315,17 +315,23 @@ public class SleepTrackerFragment
                 fragmentRoot.findViewById(R.id.sleep_tracker_session_time);
         Button sleepTrackingButton = fragmentRoot.findViewById(R.id.sleep_tracker_button);
         
+        CardView interruptionsCard = fragmentRoot.findViewById(R.id.tracker_interruptions_card);
+        
         viewModel.inSleepSession().observe(lifecycleOwner, inSleepSession -> {
             if (inSleepSession) {
                 mAnimations.transitionIntoTrackingSession();
                 startTimeGroup.setVisibility(View.VISIBLE);
                 currentSessionTimeText.setVisibility(View.VISIBLE);
                 sleepTrackingButton.setText(R.string.sleep_tracker_button_stop);
+    
+                interruptionsCard.setVisibility(View.VISIBLE);
             } else {
                 mAnimations.transitionOutOfTrackingSession();
                 startTimeGroup.setVisibility(View.GONE);
                 currentSessionTimeText.setVisibility(View.GONE);
                 sleepTrackingButton.setText(R.string.sleep_tracker_button_start);
+    
+                interruptionsCard.setVisibility(View.GONE);
             }
         });
         

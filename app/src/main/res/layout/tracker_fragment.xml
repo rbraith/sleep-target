@@ -15,25 +15,6 @@
         android:layout_height="wrap_content">
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/tracker_no_goals_card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tracker_tracking_card">
-
-            <include
-                layout="@layout/tracker_content_no_goal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
             android:id="@+id/tracker_tracking_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -54,7 +35,45 @@
                 android:layout_height="wrap_content" />
         </androidx.cardview.widget.CardView>
 
-<!--        This nested ConstraintLayout holding the goal cards is so that the cards scale properly-->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/tracker_interruptions_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tracker_tracking_card">
+
+            <include
+                layout="@layout/tracker_interruptions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/tracker_no_goals_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tracker_interruptions_card">
+
+            <include
+                layout="@layout/tracker_content_no_goal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </androidx.cardview.widget.CardView>
+
+        <!--        This nested ConstraintLayout holding the goal cards is so that the cards scale properly-->
 <!--        when only one of them is present - the nested layout handles the edge margins and the cards-->
 <!--        expand to fill the nested layout. Before, what was happening was each card had their outer-->
 <!--        edge constrained to the parent, so that edge had the correct margins when only one card-->
