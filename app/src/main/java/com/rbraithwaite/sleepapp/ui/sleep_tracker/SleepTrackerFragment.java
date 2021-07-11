@@ -3,7 +3,6 @@ package com.rbraithwaite.sleepapp.ui.sleep_tracker;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,7 +31,6 @@ import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.MoodSelectorViewM
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorController;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorViewModel;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.StoppedSessionData;
-import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -91,6 +89,7 @@ public class SleepTrackerFragment
         mAnimations = new SleepTrackerAnimations(requireContext(), view);
         
         initSessionTrackingDisplay(view);
+        initInterruptions(view);
         
         initGoalsDisplay(view);
         
@@ -187,10 +186,8 @@ public class SleepTrackerFragment
                 getChildFragmentManager());
         
         // initialize the tag selector's selected tags
-        LiveDataFuture.getValue(
-                viewModel.getPersistedSelectedTagIds(),
-                getViewLifecycleOwner(),
-                mTagSelectorViewModel::setSelectedTagIds);
+        viewModel.getPersistedSelectedTagIds().observe(
+                getViewLifecycleOwner(), mTagSelectorViewModel::setSelectedTagIds);
     }
     
     private void initMoodSelector(View fragmentRoot)
@@ -220,24 +217,16 @@ public class SleepTrackerFragment
         });
         
         // initialize the mood selector's selected mood
-        LiveDataFuture.getValue(
-                getViewModel().getPersistedMood(),
-                getViewLifecycleOwner(),
-                mMoodSelectorViewModel::setMood);
+        getViewModel().getPersistedMood()
+                .observe(getViewLifecycleOwner(), mMoodSelectorViewModel::setMood);
     }
     
     private void initAdditionalCommentsText(View fragmentRoot)
     {
         mAdditionalComments = fragmentRoot.findViewById(R.id.additional_comments);
         
-        mAdditionalComments.addTextChangedListener(new TextWatcher()
+        mAdditionalComments.addTextChangedListener(new AfterTextChangedWatcher()
         {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-            
             @Override
             public void afterTextChanged(Editable s)
             {
@@ -246,8 +235,7 @@ public class SleepTrackerFragment
         });
         
         // initialize the additional comments value
-        LiveDataFuture.getValue(
-                getViewModel().getPersistedAdditionalComments(),
+        getViewModel().getPersistedAdditionalComments().observe(
                 getViewLifecycleOwner(),
                 additionalComments -> {
                     mAdditionalComments.getText().clear();
@@ -310,12 +298,9 @@ public class SleepTrackerFragment
         LifecycleOwner lifecycleOwner = getViewLifecycleOwner();
         
         Group startTimeGroup = fragmentRoot.findViewById(R.id.started_text_group);
-        TextView startTimeText = fragmentRoot.findViewById(R.id.sleep_tracker_start_time);
         TextView currentSessionTimeText =
                 fragmentRoot.findViewById(R.id.sleep_tracker_session_time);
         Button sleepTrackingButton = fragmentRoot.findViewById(R.id.sleep_tracker_button);
-        
-        CardView interruptionsCard = fragmentRoot.findViewById(R.id.tracker_interruptions_card);
         
         viewModel.inSleepSession().observe(lifecycleOwner, inSleepSession -> {
             if (inSleepSession) {
@@ -323,18 +308,15 @@ public class SleepTrackerFragment
                 startTimeGroup.setVisibility(View.VISIBLE);
                 currentSessionTimeText.setVisibility(View.VISIBLE);
                 sleepTrackingButton.setText(R.string.sleep_tracker_button_stop);
-    
-                interruptionsCard.setVisibility(View.VISIBLE);
             } else {
                 mAnimations.transitionOutOfTrackingSession();
                 startTimeGroup.setVisibility(View.GONE);
                 currentSessionTimeText.setVisibility(View.GONE);
                 sleepTrackingButton.setText(R.string.sleep_tracker_button_start);
-    
-                interruptionsCard.setVisibility(View.GONE);
             }
         });
         
+        TextView startTimeText = fragmentRoot.findViewById(R.id.sleep_tracker_start_time);
         viewModel.getSessionStartTime().observe(lifecycleOwner, startTimeText::setText);
         
         getViewModel().getCurrentSleepSessionDuration().observe(
@@ -344,8 +326,7 @@ public class SleepTrackerFragment
         // REFACTOR [21-07-4 1:08AM] -- consider extracting this to a new method -
         //  maybe createSleepTrackingButtonClickListener.
         sleepTrackingButton.setOnClickListener(v -> {
-            Boolean inSleepSession = viewModel.inSleepSession().getValue();
-            if (inSleepSession) {
+            if (viewModel.inSleepSession().getValue()) {
                 viewModel.stopSleepSession();
                 clearDetailsValues();
                 displayPostSleepDialog(viewModel.getStoppedSessionData());
@@ -353,6 +334,50 @@ public class SleepTrackerFragment
                 viewModel.startSleepSession();
             }
         });
+    }
+    
+    private void initInterruptions(View fragmentRoot)
+    {
+        SleepTrackerFragmentViewModel viewModel = getViewModel();
+        
+        // card
+        CardView interruptionsCard = fragmentRoot.findViewById(R.id.tracker_interruptions_card);
+        viewModel.inSleepSession().observe(
+                getViewLifecycleOwner(),
+                inSleepSession -> {
+                    interruptionsCard.setVisibility(inSleepSession ? View.VISIBLE : View.GONE);
+                });
+        
+        // button
+        Button interruptButton = fragmentRoot.findViewById(R.id.tracker_interrupt_button);
+        viewModel.isSleepSessionInterrupted().observe(
+                getViewLifecycleOwner(),
+                isSleepSessionInterrupted -> {
+                    interruptButton.setOnClickListener(isSleepSessionInterrupted ?
+                                                               v -> viewModel.resumeSleepSession() :
+                                                               v -> viewModel.interruptSleepSession());
+                });
+        
+        // reason text field
+        EditText interruptionReasonText = fragmentRoot.findViewById(R.id.tracker_interrupt_reason);
+        
+        interruptionReasonText.addTextChangedListener(new AfterTextChangedWatcher()
+        {
+            @Override
+            public void afterTextChanged(Editable s)
+            {
+                getViewModel().setLocalInterruptionReason(s.toString());
+            }
+        });
+        
+        // initialize the interrupt reason from storage
+        getViewModel().getPersistedInterruptionReason().observe(
+                getViewLifecycleOwner(), reason -> {
+                    interruptionReasonText.getText().clear();
+                    if (reason != null) {
+                        interruptionReasonText.getText().append(reason);
+                    }
+                });
     }
     
     private void displayPostSleepDialog(StoppedSessionData stoppedSession)

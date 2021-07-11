@@ -1,6 +1,7 @@
 package com.rbraithwaite.sleepapp.core.entities;
 
 import com.rbraithwaite.sleepapp.core.models.CurrentSession;
+import com.rbraithwaite.sleepapp.core.models.Interruption;
 import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
@@ -23,6 +24,80 @@ public class CurrentSessionTests
 // api
 //*********************************************************
 
+    @Test
+    public void isInterrupted_matchesInterruptionState()
+    {
+        TimeUtils timeUtils = new TimeUtils();
+        
+        CurrentSession currentSession = new CurrentSession(timeUtils.getNow());
+        
+        assertThat(currentSession.isInterrupted(), is(false));
+        
+        currentSession.interrupt(timeUtils);
+        
+        assertThat(currentSession.isInterrupted(), is(true));
+        
+        currentSession.resume(timeUtils);
+        
+        assertThat(currentSession.isInterrupted(), is(false));
+    }
+    
+    @Test
+    public void resume_savesCurrentInterruption()
+    {
+        TimeUtils timeUtils = new TimeUtils();
+        
+        CurrentSession currentSession = new CurrentSession(timeUtils.getNow());
+        assertThat(currentSession.getInterruptions().isEmpty(), is(true));
+        
+        currentSession.interrupt(timeUtils);
+        
+        currentSession.resume(timeUtils);
+        
+        assertThat(currentSession.getInterruptions().size(), is(1));
+    }
+    
+    @Test
+    public void getCurrentInterruptionSnapshot_returnsCorrectInterruption()
+    {
+        // setup
+        GregorianCalendar cal = TestUtils.ArbitraryData.getCalendar();
+        Date sessionStart = cal.getTime();
+        
+        CurrentSession currentSession = new CurrentSession(sessionStart);
+        
+        cal.add(Calendar.MINUTE, 5);
+        Date interruptionStart = cal.getTime();
+        cal.add(Calendar.MINUTE, 5);
+        Date snapshotTime = cal.getTime();
+        
+        TimeUtils timeUtils = new TimeUtils()
+        {
+            boolean firstCall = true;
+            
+            @Override
+            public Date getNow()
+            {
+                if (firstCall) {
+                    firstCall = false;
+                    return interruptionStart;
+                }
+                return snapshotTime;
+            }
+        };
+        
+        // SUT
+        currentSession.interrupt(timeUtils);
+        
+        String expectedReason = "reason";
+        currentSession.setInterruptionReason(expectedReason);
+        
+        Interruption interruption = currentSession.createCurrentInterruptionSnapshot(timeUtils);
+        
+        assertThat(interruption.getStart(), is(equalTo(interruptionStart)));
+        assertThat(interruption.getReason(), is(equalTo(expectedReason)));
+    }
+    
     @Test
     public void createSnapshot_createsCorrectSnapshot()
     {
@@ -48,6 +123,7 @@ public class CurrentSessionTests
         };
         
         // SUT
+        currentSession.interrupt(stubTimeUtils);
         CurrentSession.Snapshot snapshot = currentSession.createSnapshot(stubTimeUtils);
         
         assertThat(snapshot.start, is(equalTo(start)));
@@ -57,6 +133,7 @@ public class CurrentSessionTests
                    is(equalTo(currentSession.getAdditionalComments())));
         assertThat(snapshot.mood, is(equalTo(currentSession.getMood())));
         assertThat(snapshot.selectedTagIds, is(equalTo(currentSession.getSelectedTagIds())));
+        assertThat(snapshot.interruptions.size(), is(1));
     }
     
     @Test

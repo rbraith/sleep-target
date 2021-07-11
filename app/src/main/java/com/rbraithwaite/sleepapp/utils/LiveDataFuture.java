@@ -46,8 +46,10 @@ public class LiveDataFuture
             @Override
             public void onChanged(T t)
             {
-                onValueListener.onValue(t);
+                // remove the observer first, in case the client does something like refreshing
+                // liveData inside the listener
                 liveData.removeObserver(this);
+                onValueListener.onValue(t);
             }
         };
         

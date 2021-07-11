@@ -7,6 +7,7 @@ import androidx.lifecycle.Transformations;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.core.models.Tag;
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
+import com.rbraithwaite.sleepapp.data.convert.ConvertInterruption;
 import com.rbraithwaite.sleepapp.data.convert.ConvertSleepSession;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionDao;
 
@@ -55,9 +56,12 @@ public class SleepSessionRepositoryImpl
     @Override
     public void addSleepSession(final NewSleepSessionData newSleepSession)
     {
-        mExecutor.execute(() -> mSleepSessionDao.addSleepSessionWithTags(
+        mExecutor.execute(() -> mSleepSessionDao.addSleepSessionWithExtras(
                 newSleepSession.toEntity(),
-                newSleepSession.tagIds));
+                newSleepSession.tagIds,
+                newSleepSession.interruptions.stream()
+                        .map(ConvertInterruption::toEntity)
+                        .collect(Collectors.toList())));
     }
     
     @Override

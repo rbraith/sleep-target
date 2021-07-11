@@ -12,6 +12,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.rbraithwaite.sleepapp.core.models.CurrentSession;
+import com.rbraithwaite.sleepapp.core.models.Interruption;
 import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
@@ -248,7 +249,16 @@ public class TestUtils
                     "arbitrary comments",
                     TestUtils.ArbitraryData.getMood(),
                     Arrays.asList(1, 2, 3),
+                    Arrays.asList(getInterruption()),
                     3.5f);
+        }
+        
+        public static Interruption getInterruption()
+        {
+            return new Interruption(
+                    TestUtils.ArbitraryData.getDate(),
+                    (int) ArbitraryData.getDurationMillis(),
+                    "arbitrary reason");
         }
     }
 

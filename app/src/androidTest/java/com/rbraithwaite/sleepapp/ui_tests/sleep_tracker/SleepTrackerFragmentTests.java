@@ -20,6 +20,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import static com.rbraithwaite.sleepapp.test_utils.value_matchers.SleepInterruptionEntityMatchers.interruptionWithReason;
+
 // REFACTOR [21-05-1 5:00PM] -- Putting this here, but this is a general refactoring:
 //  - I should hide Espresso details behind more descriptive interfaces
 //  - as a general rule I should not allow any Espresso dependencies in any test classes
@@ -200,6 +202,21 @@ public class SleepTrackerFragmentTests
                 SleepTrackerTestDriver.Assertions.TrackerButtonState.NOT_STARTED);
         sleepTracker.assertThat().sessionStartTimeIsNotDisplayed();
         sleepTracker.assertThat().sessionTimerIsNotDisplayed();
+    }
+    
+    @Test
+    public void interruptionIsAddedToTheDatabase()
+    {
+        database.assertThat.interruptionCountIs(0);
+        
+        sleepTracker.startSessionManually();
+        
+        String expectedReason = "reason";
+        sleepTracker.startInterruptionWithReason(expectedReason);
+        
+        sleepTracker.stopAndKeepSessionManually();
+        
+        database.assertThat.interruptionWithId(1).matches(interruptionWithReason(expectedReason));
     }
     
     @Test

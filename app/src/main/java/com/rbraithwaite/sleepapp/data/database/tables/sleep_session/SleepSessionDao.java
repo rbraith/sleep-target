@@ -10,6 +10,8 @@ import androidx.room.Update;
 
 import com.rbraithwaite.sleepapp.data.database.junctions.sleep_session_tags.SleepSessionTagContract;
 import com.rbraithwaite.sleepapp.data.database.junctions.sleep_session_tags.SleepSessionTagJunction;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_interruptions.SleepInterruptionEntity;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.data.SleepSessionWithExtras;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.data.SleepSessionWithTags;
 
 import java.util.ArrayList;
@@ -39,6 +41,13 @@ public abstract class SleepSessionDao
            " WHERE " + SleepSessionContract.Columns.ID + " = :sleepSessionId")
     public abstract LiveData<SleepSessionEntity> getSleepSession(int sleepSessionId);
     
+    @Transaction
+    @Query("SELECT * FROM " + SleepSessionContract.TABLE_NAME +
+           " WHERE " + SleepSessionContract.Columns.ID + " = :sleepSessionId")
+    public abstract LiveData<SleepSessionWithExtras> getSleepSessionWithExtras(int sleepSessionId);
+    
+    // REFACTOR [21-07-8 11:38PM] -- replace this with getSleepSessionWithExtras.
+    @Deprecated
     @Transaction
     @Query("SELECT * FROM " + SleepSessionContract.TABLE_NAME +
            " WHERE " + SleepSessionContract.Columns.ID + " = :sleepSessionId")
@@ -102,6 +111,9 @@ public abstract class SleepSessionDao
     @Query("DELETE FROM " + SleepSessionTagContract.TABLE_NAME +
            " WHERE " + SleepSessionTagContract.Columns.SESSION_ID + " = :sleepSessionId")
     protected abstract void deleteAllTagsFromSleepSession(int sleepSessionId);
+    
+    @Insert
+    protected abstract void addInterruptionsToSleepSession(List<SleepInterruptionEntity> interruptions);
 
 
 
@@ -118,12 +130,42 @@ public abstract class SleepSessionDao
      *
      * @return The id of the new sleep session
      */
+    // REFACTOR [21-07-8 10:02PM] delete this.
+    @Deprecated
     @Transaction
     public long addSleepSessionWithTags(SleepSessionEntity sleepSession, List<Integer> tagIds)
     {
         long newSessionId = addSleepSession(sleepSession);
         
         _addTagsToSleepSession((int) newSessionId, tagIds);
+        
+        return newSessionId;
+    }
+    
+    /**
+     * Adds a new sleep session with its associated tag and interruption data.
+     *
+     * @param sleepSession  The new sleep session to add
+     * @param tagIds        The ids of the tags associated with the new sleep session
+     * @param interruptions The interruptions associated with the new sleep session
+     *
+     * @return The id of the new sleep session
+     */
+    public long addSleepSessionWithExtras(
+            SleepSessionEntity sleepSession,
+            List<Integer> tagIds,
+            List<SleepInterruptionEntity> interruptions)
+    {
+        long newSessionId = addSleepSession(sleepSession);
+        
+        // REFACTOR [21-07-8 10:17PM] -- I should switch the names of these functions -
+        //  the Room function should have the leading underscore instead.
+        _addTagsToSleepSession((int) newSessionId, tagIds);
+        
+        for (SleepInterruptionEntity interruption : interruptions) {
+            interruption.sessionId = newSessionId;
+        }
+        addInterruptionsToSleepSession(interruptions);
         
         return newSessionId;
     }

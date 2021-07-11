@@ -267,18 +267,18 @@ public class SleepTrackerTestDriver
         {
             onView(withId(R.id.sleep_tracker_start_time)).check(matches(not(isDisplayed())));
         }
-    
+        
         public void interruptionsCardIsNotDisplayed()
         {
             onView(withId(R.id.tracker_interruptions_card)).check(matches(not(isDisplayed())));
         }
-    
+        
         public void interruptionsCardIsDisplayed()
         {
             onView(withId(R.id.tracker_interruptions_card)).check(matches(isDisplayed()));
         }
-    
-    
+        
+        
         private void sleepDurationGoalIsDisplayed(SleepDurationGoal expectedSleepDurationGoal)
         {
             onView(withId(R.id.tracker_no_goals_card)).check(matches(not(isDisplayed())));
@@ -302,8 +302,8 @@ public class SleepTrackerTestDriver
         private void thereIsNoCurrentSession()
         {
             // check UI
-            onView(withId(R.id.sleep_tracker_session_time)).check(matches(withText(
-                    SleepTrackerFormatting.formatDuration(0))));
+            // REFACTOR [21-07-11 3:21AM] -- hardcoded string.
+            onView(withId(R.id.sleep_tracker_session_time)).check(matches(withText("Error")));
             
             // check ViewModel
             LiveData<Boolean> inSleepSession = getViewModel().inSleepSession();
@@ -483,6 +483,18 @@ public class SleepTrackerTestDriver
         // REFACTOR [21-05-11 11:47PM] -- call this ListUtils.asIndices().
         toggleTagSelections(IntStream.range(0, sleepSession.getTags().size()).boxed().collect(
                 Collectors.toList()));
+    }
+    
+    public void startInterruptionWithReason(String reason)
+    {
+        onView(withId(R.id.tracker_interrupt_button)).perform(click());
+        UITestUtils.typeOnMultilineEditText(reason, onView(withId(R.id.tracker_interrupt_reason)));
+    }
+    
+    public void stopAndKeepSessionManually()
+    {
+        stopSessionManually();
+        DialogTestUtils.pressPositiveButton();
     }
 
 //*********************************************************

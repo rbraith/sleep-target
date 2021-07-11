@@ -19,8 +19,11 @@ public class CurrentSession
     private String mAdditionalComments;
     private Mood mMood;
     private List<Integer> mSelectedTagIds;
-
-
+    
+    
+    private CurrentInterruption mCurrentInterruption;
+    
+    private ArrayList<Interruption> mRecordedInterruptions = new ArrayList<>();
 
 //*********************************************************
 // public helpers
@@ -39,12 +42,16 @@ public class CurrentSession
         public Mood mood;
         public String additionalComments;
         public List<Integer> selectedTagIds;
+        public List<Interruption> interruptions;
         
         public Snapshot(
                 Date start,
                 Date end,
                 long durationMillis,
-                Mood mood, String additionalComments, List<Integer> selectedTagIds)
+                Mood mood,
+                String additionalComments,
+                List<Integer> selectedTagIds,
+                List<Interruption> interruptions)
         {
             this.start = start;
             this.end = end;
@@ -52,9 +59,10 @@ public class CurrentSession
             this.mood = mood;
             this.additionalComments = additionalComments;
             this.selectedTagIds = selectedTagIds;
+            this.interruptions = interruptions;
         }
     }
-
+    
 //*********************************************************
 // constructors
 //*********************************************************
@@ -64,11 +72,12 @@ public class CurrentSession
         this(null);
     }
     
+    
     public CurrentSession(@Nullable Date start)
     {
         this(start, null);
     }
-    
+
     public CurrentSession(
             @Nullable Date start,
             @Nullable String additionalComments)
@@ -76,7 +85,6 @@ public class CurrentSession
         // TODO [21-06-14 1:30AM] -- mood shouldn't ever be null, only unset.
         this(start, additionalComments, null, null);
     }
-    
     
     public CurrentSession(
             @Nullable Date start,
@@ -90,7 +98,7 @@ public class CurrentSession
         mMood = mood;
         mSelectedTagIds = selectedTagIds == null ? new ArrayList<>() : selectedTagIds;
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -149,8 +157,16 @@ public class CurrentSession
         mSelectedTagIds = selectedTagIds;
     }
     
+    /**
+     * Note: if there is an ongoing interruption, a snapshot of that interruption will be appended
+     * to the interruptions field of the returned Snapshot.
+     */
     public Snapshot createSnapshot(TimeUtils timeUtils)
     {
+        if (!isStarted()) {
+            return null;
+        }
+        
         Date start = getStart();
         int durationMillis = (int) getOngoingDurationMillis(timeUtils);
         // HACK [21-05-25 3:35PM] -- this is a temporary bandaid here for a larger app-wide issue.
@@ -164,12 +180,114 @@ public class CurrentSession
         
         Date end = timeUtils.addDurationToDate(start, durationMillis);
         
+        // SMELL [21-07-8 9:47PM] -- It's weird that everything else is primitives while this is
+        //  a list of Interruptions - tbh I think createSnapshot should maybe just return a
+        //  SleepSession? similar to how createCurrentInterruptionSnapshot returns an Interruption.
+        List<Interruption> interruptions = new ArrayList<>(getInterruptions());
+        if (isInterrupted()) {
+            interruptions.add(createCurrentInterruptionSnapshot(timeUtils));
+        }
+        
         return new Snapshot(
                 start,
                 end,
                 durationMillis,
                 getMood(),
                 getAdditionalComments(),
-                getSelectedTagIds());
+                getSelectedTagIds(),
+                interruptions);
+    }
+    
+    public void setInterruptionReason(String reason)
+    {
+        if (isInterrupted()) {
+            mCurrentInterruption.reason = reason;
+        }
+    }
+    
+    public Interruption createCurrentInterruptionSnapshot(TimeUtils timeUtils)
+    {
+        if (!isInterrupted()) {
+            return null;
+        }
+        
+        return mCurrentInterruption.getSnapshot(timeUtils);
+    }
+    
+    public List<Interruption> getInterruptions()
+    {
+        return mRecordedInterruptions;
+    }
+    
+    /**
+     * Interrupt this CurrentSession if that is possible. It is not possible if this session is not
+     * started, or if it is already interrupted.
+     *
+     * @param timeUtils Needed to start the interruption
+     *
+     * @return true if a new interruption was started, false if nothing happened.
+     */
+    public boolean interrupt(TimeUtils timeUtils)
+    {
+        if (isStarted() && !isInterrupted()) {
+            mCurrentInterruption = new CurrentInterruption(timeUtils.getNow(), null);
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Save the ongoing interruption and resume the session. This only does anything if this
+     * CurrentSession was already interrupted.
+     *
+     * @param timeUtils Needed to save the interruption.
+     *
+     * @return true if the session resumed, false if nothing happened.
+     */
+    public boolean resume(TimeUtils timeUtils)
+    {
+        if (isInterrupted()) {
+            mRecordedInterruptions.add(mCurrentInterruption.getSnapshot(timeUtils));
+            clearCurrentInterruption();
+            return true;
+        }
+        return false;
+    }
+    
+    public boolean isInterrupted()
+    {
+        return mCurrentInterruption != null;
+    }
+    
+//*********************************************************
+// private methods
+//*********************************************************
+
+    private void clearCurrentInterruption()
+    {
+        mCurrentInterruption = null;
+    }
+    
+//*********************************************************
+// private helpers
+//*********************************************************
+
+    private static class CurrentInterruption
+    {
+        Date startTime;
+        String reason;
+        
+        public CurrentInterruption(Date startTime, String reason)
+        {
+            this.startTime = startTime;
+            this.reason = reason;
+        }
+        
+        public Interruption getSnapshot(TimeUtils timeUtils)
+        {
+            int duration = (int) (timeUtils.getNow().getTime() - startTime.getTime());
+            
+            return new Interruption(startTime, duration, reason);
+        }
     }
 }

@@ -8,7 +8,7 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.core.models.CurrentSession;
-import com.rbraithwaite.sleepapp.core.models.Mood;
+import com.rbraithwaite.sleepapp.core.models.Interruption;
 import com.rbraithwaite.sleepapp.core.repositories.CurrentGoalsRepository;
 import com.rbraithwaite.sleepapp.core.repositories.CurrentSessionRepository;
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
@@ -19,11 +19,13 @@ import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.PostSleepData;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.StoppedSessionData;
 import com.rbraithwaite.sleepapp.utils.CommonUtils;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
+import com.rbraithwaite.sleepapp.utils.LiveDataSingle;
+import com.rbraithwaite.sleepapp.utils.LiveDataUtils;
 import com.rbraithwaite.sleepapp.utils.TickingLiveData;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
-import com.rbraithwaite.sleepapp.utils.interfaces.ProviderOf;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -43,22 +45,15 @@ public class SleepTrackerFragmentViewModel
     
     private TimeUtils mTimeUtils;
     
-    /**
-     * This is used to hold comment values that the user has entered without needing to persist
-     * these values to storage every time they change. These new local values take precedence over
-     * older values from storage.
-     */
-    private ActiveValue<String> mLocalAdditionalComments = new ActiveValue<>();
-    private ActiveValue<Mood> mLocalMood = new ActiveValue<>();
-    private ActiveValue<List<TagUiData>> mLocalSelectedTags = new ActiveValue<>();
-    
     private MutableLiveData<Boolean> mIsCurrentSessionStopped = new MutableLiveData<>(false);
     private MutableLiveData<CurrentSession.Snapshot> mStoppedSessionSnapshot =
             new MutableLiveData<>();
     private PostSleepData mPostSleepData;
-    private LiveData<CurrentSession> mCurrentSession;
+    private MutableLiveData<CurrentSession> mCurrentSession;
     
     private LiveData<Boolean> mHasAnyGoal;
+    
+    private LiveData<CurrentSession> mRepoCurrentSession;
 
 //*********************************************************
 // public helpers
@@ -89,7 +84,7 @@ public class SleepTrackerFragmentViewModel
         mCurrentGoalsRepository = currentGoalsRepository;
         mTimeUtils = createTimeUtils();
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -109,8 +104,7 @@ public class SleepTrackerFragmentViewModel
         if (mInSleepSession == null) {
             mInSleepSession = Transformations.map(
                     getCurrentSession(),
-                    CurrentSession::isStarted
-            );
+                    CurrentSession::isStarted);
         }
         return mInSleepSession;
     }
@@ -127,9 +121,8 @@ public class SleepTrackerFragmentViewModel
         LiveDataFuture.getValue(
                 getCurrentSession(),
                 currentSession -> {
-                    updateCurrentSessionWithLocalValues(currentSession);
                     currentSession.setStart(mTimeUtils.getNow());
-                    mCurrentSessionRepository.setCurrentSession(currentSession);
+                    LiveDataUtils.refresh(getCurrentSession());
                 });
     }
     
@@ -168,12 +161,11 @@ public class SleepTrackerFragmentViewModel
                 getCurrentSession(),
                 currentSession -> {
                     if (!currentSession.isStarted()) {
-                        // TODO [21-06-27 3:13AM] -- change this text to "Error" - this will
-                        //  reflect the intent that the timer shouldn't be visible when not in a
-                        //  session.
                         // OPTIMIZE [21-06-27 3:13AM] -- I don't need to be returning a new instance
                         //  of this every time.
-                        return new MutableLiveData<>(SleepTrackerFormatting.formatDuration(0));
+                        return new MutableLiveData<>("Error");
+                        // TODO [21-07-6 4:05AM] else if currentSession.isInterrupted...
+                        //  (pause the timer).
                     } else {
                         return new TickingLiveData<String>()
                         {
@@ -194,6 +186,8 @@ public class SleepTrackerFragmentViewModel
     {
         return Transformations.map(
                 getCurrentSession(),
+                // REFACTOR [21-07-8 8:57PM] formatSessionStartTime should just return null if
+                //  getStart is null.
                 currentSession -> currentSession.isStarted() ?
                         SleepTrackerFormatting.formatSessionStartTime(currentSession.getStart()) :
                         null);
@@ -210,8 +204,6 @@ public class SleepTrackerFragmentViewModel
                     return SleepTrackerFormatting.formatWakeTimeGoal(wakeTimeGoal);
                 });
     }
-    
-    // REFACTOR [21-03-31 1:05AM] -- extract everything relating to the local additional comments.
     
     public LiveData<String> getSleepDurationGoalText()
     {
@@ -230,7 +222,7 @@ public class SleepTrackerFragmentViewModel
      */
     public LiveData<String> getPersistedAdditionalComments()
     {
-        return Transformations.map(
+        return LiveDataSingle.withSource(
                 getCurrentSession(),
                 CurrentSession::getAdditionalComments);
     }
@@ -240,7 +232,11 @@ public class SleepTrackerFragmentViewModel
         if (additionalComments != null && additionalComments.equals("")) {
             additionalComments = null;
         }
-        mLocalAdditionalComments.set(additionalComments);
+        String finalAdditionalComments = additionalComments;
+        LiveDataFuture.getValue(getCurrentSession(), currentSession -> {
+            currentSession.setAdditionalComments(finalAdditionalComments);
+            LiveDataUtils.refresh(getCurrentSession());
+        });
     }
     
     /**
@@ -251,17 +247,14 @@ public class SleepTrackerFragmentViewModel
         if (!mIsCurrentSessionStopped.getValue()) {
             LiveDataFuture.getValue(
                     getCurrentSession(),
-                    currentSession -> {
-                        updateCurrentSessionWithLocalValues(currentSession);
-                        mCurrentSessionRepository.setCurrentSession(currentSession);
-                    });
+                    mCurrentSessionRepository::setCurrentSession);
         }
     }
     
     public LiveData<MoodUiData> getPersistedMood()
     {
-        return Transformations.map(
-                getCurrentSession(),
+        return LiveDataSingle.withSource(
+                getRepoCurrentSession(),
                 currentSession -> ConvertMood.toUiData(currentSession.getMood()));
     }
     
@@ -272,7 +265,10 @@ public class SleepTrackerFragmentViewModel
     {
         // It's easier to convert here and store as a Mood, since CurrentSession stores a Mood,
         //  so the eventual getElse() call works better.
-        mLocalMood.set(ConvertMood.fromUiData(mood));
+        LiveDataFuture.getValue(getCurrentSession(), currentSession -> {
+            currentSession.setMood(ConvertMood.fromUiData(mood));
+            LiveDataUtils.refresh(getCurrentSession());
+        });
     }
     
     /**
@@ -285,20 +281,16 @@ public class SleepTrackerFragmentViewModel
     
     public void setLocalSelectedTags(List<TagUiData> selectedTags)
     {
-        mLocalSelectedTags.set(selectedTags);
-    }
-    
-    public LiveData<InitialTagData> getInitialTagData()
-    {
-        return Transformations.map(
-                getCurrentSession(),
-                currentSession -> new InitialTagData(currentSession.getSelectedTagIds()));
+        LiveDataFuture.getValue(getCurrentSession(), currentSession -> {
+            currentSession.setSelectedTagIds(getIdsFromTags(selectedTags));
+            LiveDataUtils.refresh(getCurrentSession());
+        });
     }
     
     public LiveData<List<Integer>> getPersistedSelectedTagIds()
     {
-        return Transformations.map(
-                getCurrentSession(),
+        return LiveDataSingle.withSource(
+                getRepoCurrentSession(),
                 CurrentSession::getSelectedTagIds);
     }
     
@@ -311,6 +303,7 @@ public class SleepTrackerFragmentViewModel
     
     public LiveData<Boolean> hasAnyGoal()
     {
+        // REFACTOR [21-07-8 9:03PM] -- I need to make a better LiveDataUtils.merge.
         // REFACTOR [21-06-27 9:29PM] -- replace TestUtils.DoubleRef w/ AtomicReference I guess lol.
         AtomicReference<Boolean> hasWakeTimeGoal = new AtomicReference<>(false);
         AtomicReference<Boolean> hasSleepDurationGoal = new AtomicReference<>(false);
@@ -332,6 +325,63 @@ public class SleepTrackerFragmentViewModel
         
         return mHasAnyGoal;
     }
+    
+    /**
+     * @return Whether or not the ongoing sleep session is interrupted. (This will also return false
+     * if there is no ongoing sleep session)
+     */
+    public LiveData<Boolean> isSleepSessionInterrupted()
+    {
+        return Transformations.map(
+                getCurrentSession(),
+                CurrentSession::isInterrupted);
+    }
+    
+    public LiveData<String> getPersistedInterruptionReason()
+    {
+        return LiveDataSingle.withSource(
+                getRepoCurrentSession(),
+                currentSession -> Optional
+                        .ofNullable(currentSession.createCurrentInterruptionSnapshot(mTimeUtils))
+                        .map(Interruption::getReason)
+                        .orElse(null));
+    }
+    
+    public void setLocalInterruptionReason(String interruptionReason)
+    {
+        LiveDataFuture.getValue(getCurrentSession(), currentSession -> {
+            if (currentSession.isInterrupted()) {
+                currentSession.setInterruptionReason(interruptionReason);
+                LiveDataUtils.refresh(getCurrentSession());
+            }
+        });
+    }
+    
+    /**
+     * Stop & save the previously ongoing interruption, and resume the session. If the session was
+     * not currently interrupted or there was no session, this does nothing.
+     */
+    public void resumeSleepSession()
+    {
+        LiveDataFuture.getValue(getCurrentSession(), currentSession -> {
+            if (currentSession.resume(mTimeUtils)) {
+                LiveDataUtils.refresh(getCurrentSession());
+            }
+        });
+    }
+
+    /**
+     * Begin an interruption for an ongoing session. If there is no ongoing session, on that session
+     * is already interrupted, this does nothing.
+     */
+    public void interruptSleepSession()
+    {
+        LiveDataFuture.getValue(getCurrentSession(), currentSession -> {
+            if (currentSession.interrupt(mTimeUtils)) {
+                LiveDataUtils.refresh(getCurrentSession());
+            }
+        });
+    }
 
 //*********************************************************
 // protected api
@@ -341,7 +391,7 @@ public class SleepTrackerFragmentViewModel
     {
         return new TimeUtils();
     }
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
@@ -356,13 +406,6 @@ public class SleepTrackerFragmentViewModel
         mPostSleepData = postSleepData;
     }
     
-    private void clearLocalValues()
-    {
-        mLocalMood.clear();
-        mLocalAdditionalComments.clear();
-        mLocalSelectedTags.clear();
-    }
-    
     /**
      * Sets mIsCurrentSessionStopped, and takes a current session snapshot or clears the last
      * snapshot, depending on true or false input respectively.
@@ -371,42 +414,34 @@ public class SleepTrackerFragmentViewModel
     {
         mIsCurrentSessionStopped.setValue(isCurrentSessionStopped);
         if (isCurrentSessionStopped) {
-            mStoppedSessionSnapshot.setValue(createCurrentSessionSnapshot());
-            mCurrentSessionRepository.clearCurrentSession();
-            clearLocalValues();
+            LiveDataFuture.getValue(createCurrentSessionSnapshot(), snapshot -> {
+                mStoppedSessionSnapshot.setValue(snapshot);
+                clearCurrentSession();
+            });
         } else {
             mStoppedSessionSnapshot.setValue(null);
         }
     }
     
-    private CurrentSession.Snapshot createCurrentSessionSnapshot()
+    private void clearCurrentSession()
     {
-        CurrentSession currentSession = getCurrentSession().getValue();
-        if (currentSession == null) {
-            currentSession = new CurrentSession();
-        }
-        
-        updateCurrentSessionWithLocalValues(currentSession);
-        
-        return currentSession.createSnapshot(mTimeUtils);
+        mCurrentSessionRepository.clearCurrentSession();
+        // HACK [21-07-10 3:49PM] -- This is a little bit hacky - this is setting the local current
+        //  session to the same value that clearCurrentSession() above is setting to the repo
+        //  session.
+        //  I'm doing it this way because there was an async problem here when I tried to re-sync
+        //  to the repo value (basically the re-sync happened too fast and I got the old value) and
+        //  I'm lazy. I could fix that re-sync problem, or a lazy but maybe equally clean solution
+        //  might be to have a factory method in CurrentSession shared between here and the repo -
+        //  something like CurrentSession.createUnset() or createEmpty()
+        getCurrentSession().setValue(new CurrentSession());
     }
     
-    private void updateCurrentSessionWithLocalValues(CurrentSession currentSession)
+    private LiveData<CurrentSession.Snapshot> createCurrentSessionSnapshot()
     {
-        currentSession.setAdditionalComments(
-                mLocalAdditionalComments.getElse(currentSession::getAdditionalComments));
-        currentSession.setMood(
-                mLocalMood.getElse(currentSession::getMood));
-        currentSession.setSelectedTagIds(
-                chooseSelectedTagIds(mLocalSelectedTags, currentSession));
-    }
-    
-    private List<Integer> chooseSelectedTagIds(
-            ActiveValue<List<TagUiData>> localSelectedTags,
-            CurrentSession fallback)
-    {
-        List<TagUiData> tagList = localSelectedTags.getElse(() -> null);
-        return tagList == null ? fallback.getSelectedTagIds() : getIdsFromTags(tagList);
+        return Transformations.map(
+                getCurrentSession(),
+                currentSession -> currentSession.createSnapshot(mTimeUtils));
     }
     
     private SleepSessionRepository.NewSleepSessionData prepareNewSleepSession(
@@ -420,6 +455,7 @@ public class SleepTrackerFragmentViewModel
                 currentSessionSnapshot.additionalComments,
                 currentSessionSnapshot.mood,
                 currentSessionSnapshot.selectedTagIds,
+                currentSessionSnapshot.interruptions,
                 postSleepData == null ? 0f : postSleepData.rating);
     }
     
@@ -428,56 +464,17 @@ public class SleepTrackerFragmentViewModel
         return tags.stream().map(tagUiData -> tagUiData.tagId).collect(Collectors.toList());
     }
     
-    private LiveData<CurrentSession> getCurrentSession()
+    private synchronized MutableLiveData<CurrentSession> getCurrentSession()
     {
-        if (mCurrentSession == null) {
-            mCurrentSession = mCurrentSessionRepository.getCurrentSession();
-        }
+        mCurrentSession = CommonUtils.lazyInit(mCurrentSession,
+                                               () -> LiveDataSingle.withSource(getRepoCurrentSession()));
         return mCurrentSession;
     }
     
-    // REFACTOR [21-05-2 3:20AM] -- extract this.
-
-//*********************************************************
-// private helpers
-//*********************************************************
-
-    // SMELL [21-05-6 4:00AM] -- .
-    //  This is used to distinguish between local values which are null because they are unset,
-    //  and local values which are set to null. Some sort of "null object" pattern would be better.
-    private static class ActiveValue<T>
+    private synchronized LiveData<CurrentSession> getRepoCurrentSession()
     {
-        private T mValue;
-        private boolean mIsActive = false;
-        
-        public void set(T value)
-        {
-            mValue = value;
-            mIsActive = true;
-        }
-        
-        /**
-         * If this value is active, return that value, otherwise return the fallback.
-         *
-         * @param fallback The value to return if this value is not active.
-         *
-         * @return The active value or the fallback.
-         */
-        public T getElse(ProviderOf<T> fallback)
-        {
-            if (mIsActive) {
-                return mValue;
-            }
-            return fallback.provide();
-        }
-        
-        /**
-         * Clear this active value, resetting it to its initial state.
-         */
-        public void clear()
-        {
-            mValue = null;
-            mIsActive = false;
-        }
+        mRepoCurrentSession = CommonUtils.lazyInit(mRepoCurrentSession,
+                                                   mCurrentSessionRepository::getCurrentSession);
+        return mRepoCurrentSession;
     }
 }

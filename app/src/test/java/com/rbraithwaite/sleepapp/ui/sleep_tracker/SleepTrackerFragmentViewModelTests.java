@@ -1,7 +1,5 @@
 package com.rbraithwaite.sleepapp.ui.sleep_tracker;
 
-import android.os.Looper;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -13,6 +11,7 @@ import com.rbraithwaite.sleepapp.core.models.WakeTimeGoal;
 import com.rbraithwaite.sleepapp.core.repositories.CurrentGoalsRepository;
 import com.rbraithwaite.sleepapp.core.repositories.CurrentSessionRepository;
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
+import com.rbraithwaite.sleepapp.test_helpers.RobolectricUtils;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.data.MockRepositoryUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.assertion_utils.AssertOn;
@@ -30,11 +29,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.robolectric.shadow.api.Shadow;
-import org.robolectric.shadows.ShadowLooper;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -43,14 +39,11 @@ import java.util.stream.Collectors;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(AndroidJUnit4.class)
 public class SleepTrackerFragmentViewModelTests
@@ -102,6 +95,30 @@ public class SleepTrackerFragmentViewModelTests
     }
     
     @Test
+    public void isSleepSessionInterrupted_matchesInterruptionState()
+    {
+        // setup
+        MutableLiveData<CurrentSession> currentSession = new MutableLiveData<>(
+                TestUtils.ArbitraryData.getCurrentSession());
+        when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(currentSession);
+        
+        LiveData<Boolean> isSleepSessionInterrupted = viewModel.isSleepSessionInterrupted();
+        TestUtils.activateLocalLiveData(isSleepSessionInterrupted);
+        
+        // test
+        assertThat(isSleepSessionInterrupted.getValue(), is(false));
+        
+        viewModel.startSleepSession();
+        viewModel.interruptSleepSession();
+        
+        assertThat(isSleepSessionInterrupted.getValue(), is(true));
+        
+        viewModel.resumeSleepSession();
+        
+        assertThat(isSleepSessionInterrupted.getValue(), is(false));
+    }
+    
+    @Test
     public void hasAnyGoal_returnsCorrectValue()
     {
         MutableLiveData<WakeTimeGoal> wakeTimeGoalLive = new MutableLiveData<>(null);
@@ -148,13 +165,17 @@ public class SleepTrackerFragmentViewModelTests
     @Test
     public void getStoppedSessionData_usesLocalValues()
     {
-        when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(new MutableLiveData<>(
-                new CurrentSession(
-                        TestUtils.ArbitraryData.getDate(),
-                        "persisted comment",
-                        new Mood(1),
-                        Arrays.asList(1, 2))));
+        CurrentSession currentSession = new CurrentSession(
+                TestUtils.ArbitraryData.getDate(),
+                "persisted comment",
+                new Mood(1),
+                Arrays.asList(1, 2));
+        currentSession.interrupt(new TimeUtils());
         
+        when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(
+                new MutableLiveData<>(currentSession));
+        
+        // local tags
         List<TagUiData> tags = Arrays.asList(
                 new TagUiData(3, "meh"),
                 new TagUiData(4, "meh"));
@@ -163,11 +184,17 @@ public class SleepTrackerFragmentViewModelTests
                 .collect(Collectors.toList());
         viewModel.setLocalSelectedTags(tags);
         
+        // local comment
         String expectedComment = "local comment";
         viewModel.setLocalAdditionalComments(expectedComment);
         
+        // local mood
         MoodUiData expectedMood = new MoodUiData(7);
         viewModel.setLocalMood(expectedMood);
+        
+        // local interruption reason
+        String expectedInterruptionReason = "local interruption reason";
+        viewModel.setLocalInterruptionReason(expectedInterruptionReason);
         
         // SUT
         viewModel.stopSleepSession();
@@ -180,20 +207,10 @@ public class SleepTrackerFragmentViewModelTests
                    is(equalTo(expectedComment)));
         assertThat(stoppedSession.currentSessionSnapshot.selectedTagIds,
                    is(equalTo(expectedTagIds)));
-    }
-    
-    @Test
-    public void getInitialTagData_getsTagDataFromCurrentSession()
-    {
-        List<Integer> expectedIdsList = Arrays.asList(1, 2, 3);
-        when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(new MutableLiveData<>(
-                new CurrentSession(null, null, null, expectedIdsList)));
         
-        LiveData<SleepTrackerFragmentViewModel.InitialTagData> initialTagData =
-                viewModel.getInitialTagData();
-        TestUtils.activateLocalLiveData(initialTagData);
-        
-        assertThat(initialTagData.getValue().selectedTagIds, is(equalTo(expectedIdsList)));
+        assertThat(stoppedSession.currentSessionSnapshot.interruptions.size(), is(1));
+        assertThat(stoppedSession.currentSessionSnapshot.interruptions.get(0).getReason(),
+                   is(equalTo(expectedInterruptionReason)));
     }
     
     @Test
@@ -231,6 +248,26 @@ public class SleepTrackerFragmentViewModelTests
         assertOnPersistingCurrentSession(currentSession -> {
             assertThat(currentSession.getMood(), is(nullValue()));
         });
+    }
+    
+    @Test
+    public void getPersistedInterruptionReason_returnsCorrectValues()
+    {
+        TimeUtils timeUtils = new TimeUtils();
+        
+        CurrentSession currentSession = new CurrentSession(timeUtils.getNow());
+        currentSession.interrupt(timeUtils); // begin interrupting so that setting the reason works
+        
+        String expectedReason = "reason";
+        currentSession.setInterruptionReason(expectedReason);
+        
+        when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(new MutableLiveData<>(
+                currentSession));
+        
+        LiveData<String> persistedReason = viewModel.getPersistedInterruptionReason();
+        
+        TestUtils.activateLocalLiveData(persistedReason);
+        assertThat(persistedReason.getValue(), is(equalTo(expectedReason)));
     }
     
     @Test
@@ -334,66 +371,53 @@ public class SleepTrackerFragmentViewModelTests
     }
     
     @Test
-    public void getCurrentSessionDuration_isZeroWhenNoSession()
+    public void getCurrentSessionDuration_isErrorWhenNoSession()
     {
-        String expected = SleepTrackerFormatting.formatDuration(0);
-        
         when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(
-                new MutableLiveData<>(new CurrentSession(null)));
+                new MutableLiveData<>(new CurrentSession()));
         
         LiveData<String> currentSessionDuration = viewModel.getCurrentSleepSessionDuration();
         TestUtils.activateLocalLiveData(currentSessionDuration);
         
-        assertThat(currentSessionDuration.getValue(), is(equalTo(expected)));
+        // REFACTOR [21-07-11 3:06AM] -- hardcoded string.
+        assertThat(currentSessionDuration.getValue(), is(equalTo("Error")));
     }
     
-    // SMELL [20-11-18 9:03PM] -- tests shouldn't be this complex.
     @Test
     public void getCurrentSessionDuration_updatesWhenInSession()
     {
-        final MutableLiveData<CurrentSession> mockCurrentSessionStart =
-                new MutableLiveData<>(new CurrentSession(null));
+        // setup
+        MutableLiveData<CurrentSession> currentSessionLive =
+                new MutableLiveData<>(new CurrentSession());
+        when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(currentSessionLive);
         
-        when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(mockCurrentSessionStart);
-        
-        LiveData<String> currentSessionDuration = viewModel.getCurrentSleepSessionDuration();
-        TestUtils.LocalLiveDataSynchronizer<String> currentSessionDurationSynchronizer =
-                new TestUtils.LocalLiveDataSynchronizer<>(currentSessionDuration);
-        
-        // start sleep session
-        mockCurrentSessionStart.setValue(
-                new CurrentSession(TestUtils.ArbitraryData.getDate()));
-        
-        // REFACTOR [20-11-18 9:04PM] -- call this TestUtils.getShadowLooper(threadName).
-        // It was necessary to manually manipulate the TickingLiveData's looper like this,
-        // as it was not looping otherwise - it was not running the posted tick runnable, and
-        // as a result mockCurrentSessionStart was never updated, meaning the sync() call below
-        // would block forever.
-        // ---
-        // more information:
-        // http://robolectric.org/blog/2019/06/04/paused-looper/
-        // https://github.com/robolectric/robolectric/blob
-        // /e197c5b9ed83dfd0d2ea6a74cf189f7b39463adc/robolectric/src/test/java/org/robolectric
-        // /shadows/ShadowPausedLooperTest.java#L95
-        // https://github.com/robolectric/robolectric/issues/1993
-        // https://stackoverflow.com/a/39122515
-        Collection<Looper> loopers = ShadowLooper.getAllLoopers();
-        ShadowLooper shadowLooper = null;
-        for (Looper looper : loopers) {
-            if (looper.getThread().getName().equals(TickingLiveData.THREAD_NAME)) {
-                shadowLooper = Shadow.extract(looper);
-                break;
+        Date fakeNow = new GregorianCalendar(2021, 6, 11).getTime();
+        TimeUtils stubTimeUtils = new TimeUtils()
+        {
+            @Override
+            public Date getNow()
+            {
+                return fakeNow;
             }
-        }
-        assertThat(shadowLooper, is(notNullValue()));
-        // no need to tick constantly, only need first runnable to update the value (first task)
-        shadowLooper.runOneTask();
-        shadowOf(Looper.getMainLooper()).idle(); // idk why this makes this test work but it does
+        };
+        viewModel.setTimeUtils(stubTimeUtils);
         
-        // assert current session duration reflects state of being in a session
-        currentSessionDurationSynchronizer.sync();
-        assertThat(currentSessionDuration.getValue(),
-                   is(not(equalTo(SleepTrackerFormatting.formatDuration(0)))));
+        // SUT
+        LiveData<String> currentDuration = viewModel.getCurrentSleepSessionDuration();
+        TestUtils.activateLocalLiveData(currentDuration);
+        
+        // REFACTOR [21-07-11 2:53AM] -- hardcoded string.
+        assertThat(currentDuration.getValue(), is(equalTo("Error")));
+        
+        viewModel.startSleepSession();
+        
+        // verify
+        // update the ticking duration text once
+        RobolectricUtils.getLooperForThread(TickingLiveData.THREAD_NAME).runOneTask();
+        RobolectricUtils.idleMainLooper(); // idk why this makes this test work but it does
+        
+        assertThat(currentDuration.getValue(),
+                   is(equalTo(SleepTrackerFormatting.formatDuration(0))));
     }
     
     @Test
@@ -420,38 +444,6 @@ public class SleepTrackerFragmentViewModelTests
         
         viewModel.stopSleepSession();
         assertThat(inSleepSession.getValue(), is(false));
-    }
-    
-    @Test
-    public void startSleepSession_startsSession()
-    {
-        // setup
-        String expectedComments = "test!";
-        when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(new MutableLiveData<>(
-                new CurrentSession(
-                        new GregorianCalendar(2021, 2, 30).getTime(),
-                        expectedComments)));
-        TimeUtils stubTimeUtils = new TimeUtils()
-        {
-            @Override
-            public Date getNow()
-            {
-                return TestUtils.ArbitraryData.getDate();
-            }
-        };
-        viewModel.setTimeUtils(stubTimeUtils);
-        
-        // SUT
-        viewModel.startSleepSession();
-        
-        // verify
-        ArgumentCaptor<CurrentSession> arg = ArgumentCaptor.forClass(CurrentSession.class);
-        verify(mockCurrentSessionRepository, times(1))
-                .setCurrentSession(arg.capture());
-        
-        CurrentSession currentSession = arg.getValue();
-        assertThat(currentSession.getStart(), is(equalTo(stubTimeUtils.getNow())));
-        assertThat(currentSession.getAdditionalComments(), is(equalTo(expectedComments)));
     }
     
     @Test

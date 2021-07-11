@@ -6,6 +6,8 @@ import androidx.room.Relation;
 
 import com.rbraithwaite.sleepapp.data.database.junctions.sleep_session_tags.SleepSessionTagContract;
 import com.rbraithwaite.sleepapp.data.database.junctions.sleep_session_tags.SleepSessionTagJunction;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_interruptions.SleepInterruptionContract;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_interruptions.SleepInterruptionEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionContract;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.tag.TagContract;
@@ -13,9 +15,7 @@ import com.rbraithwaite.sleepapp.data.database.tables.tag.TagEntity;
 
 import java.util.List;
 
-// REFACTOR [21-07-8 11:32PM] delete this class & replace its uses with SleepSessionWithExtras.
-@Deprecated
-public class SleepSessionWithTags
+public class SleepSessionWithExtras
 {
 //*********************************************************
 // public properties
@@ -35,20 +35,10 @@ public class SleepSessionWithTags
             )
     )
     public List<TagEntity> tags;
-
-//*********************************************************
-// constructors
-//*********************************************************
-
-    public SleepSessionWithTags()
-    {
-    }
     
-    public SleepSessionWithTags(
-            SleepSessionEntity sleepSession,
-            List<TagEntity> tags)
-    {
-        this.sleepSession = sleepSession;
-        this.tags = tags;
-    }
+    @Relation(
+            parentColumn = SleepSessionContract.Columns.ID,
+            entityColumn = SleepInterruptionContract.Columns.SESSION_ID
+    )
+    public List<SleepInterruptionEntity> interruptions;
 }

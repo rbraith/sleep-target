@@ -12,10 +12,14 @@ import com.rbraithwaite.sleepapp.data.convert.ConvertSleepSession;
 import com.rbraithwaite.sleepapp.data.convert.ConvertTag;
 import com.rbraithwaite.sleepapp.data.convert.ConvertWakeTimeGoal;
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_interruptions.SleepInterruptionEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
+import com.rbraithwaite.sleepapp.test_utils.ui.assertion_utils.AssertionFailed;
+import com.rbraithwaite.sleepapp.test_utils.ui.assertion_utils.ValueAssertions;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -56,6 +60,31 @@ public class DatabaseTestDriver
             TestUtils.activateInstrumentationLiveData(sessions);
             
             assertThat(sessions.getValue().size(), is(equalTo(count)));
+        }
+        
+        public void interruptionCountIs(int count)
+        {
+            List<SleepInterruptionEntity> interruptions =
+                    mOwner.mDatabase.getSleepInterruptionDao().getAll();
+            
+            assertThat(interruptions.size(), is(count));
+        }
+        
+        public ValueAssertions<SleepInterruptionEntity> interruptionWithId(int id)
+        {
+            List<SleepInterruptionEntity> interruptions =
+                    mOwner.mDatabase.getSleepInterruptionDao().getAll();
+            
+            // REFACTOR [21-07-9 12:42AM] -- this would be easier w/ just a getInterruption method
+            //  in the dao lol.
+            for (SleepInterruptionEntity interruption : interruptions) {
+                if (interruption.id == id) {
+                    return new ValueAssertions<>(interruption);
+                }
+            }
+            throw new AssertionFailed(String.format(Locale.ROOT,
+                                                    "No interruption found with id: %d",
+                                                    id));
         }
     }
 

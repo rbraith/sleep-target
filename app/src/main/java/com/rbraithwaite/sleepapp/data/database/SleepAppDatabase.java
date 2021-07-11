@@ -11,6 +11,8 @@ import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDu
 import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDurationGoalEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalDao;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalEntity;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_interruptions.SleepInterruptionDao;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_interruptions.SleepInterruptionEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionDao;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.tag.TagDao;
@@ -23,7 +25,8 @@ import com.rbraithwaite.sleepapp.data.database.tables.tag.TagEntity;
                 WakeTimeGoalEntity.class,
                 SleepDurationGoalEntity.class,
                 TagEntity.class,
-                SleepSessionTagJunction.class
+                SleepSessionTagJunction.class,
+                SleepInterruptionEntity.class
         })
 @TypeConverters({ConvertDate.class})
 public abstract class SleepAppDatabase
@@ -48,4 +51,6 @@ public abstract class SleepAppDatabase
     public abstract TagDao getTagDao();
     
     public abstract SleepSessionTagJunctionDao getSleepSessionTagsDao();
+    
+    public abstract SleepInterruptionDao getSleepInterruptionDao();
 }

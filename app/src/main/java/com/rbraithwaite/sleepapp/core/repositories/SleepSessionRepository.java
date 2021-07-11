@@ -2,6 +2,7 @@ package com.rbraithwaite.sleepapp.core.repositories;
 
 import androidx.lifecycle.LiveData;
 
+import com.rbraithwaite.sleepapp.core.models.Interruption;
 import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
@@ -25,6 +26,7 @@ public interface SleepSessionRepository
         // REFACTOR [21-05-10 3:45PM] -- this should be the mood index instead.
         public Mood mood;
         public List<Integer> tagIds;
+        public List<Interruption> interruptions;
         
         public float rating;
         
@@ -32,7 +34,11 @@ public interface SleepSessionRepository
                 Date start,
                 Date end,
                 long durationMillis,
-                String additionalComments, Mood mood, List<Integer> tagIds, float rating)
+                String additionalComments,
+                Mood mood,
+                List<Integer> tagIds,
+                List<Interruption> interruptions,
+                float rating)
         {
             this.start = start;
             this.end = end;
@@ -40,6 +46,7 @@ public interface SleepSessionRepository
             this.additionalComments = additionalComments;
             this.mood = mood;
             this.tagIds = tagIds;
+            this.interruptions = interruptions;
             this.rating = rating;
         }
         

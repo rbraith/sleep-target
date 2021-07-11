@@ -15,6 +15,7 @@ import com.rbraithwaite.sleepapp.ui.session_details.SessionDetailsFormatting;
 import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -99,6 +100,11 @@ public class SessionArchiveFragmentViewModel
                         model.getAdditionalComments(),
                         model.getMood(),
                         model.getTags().stream().map(Tag::getTagId).collect(Collectors.toList()),
+                        // TODO [21-07-8 11:58PM] -- this new list is a placeholder so that things
+                        //  don't break - SleepSession needs a list of its interruptions (this
+                        //  feature will be a part of adding interruptions manually in the
+                        //  details screen).
+                        new ArrayList<>(),
                         model.getRating());
         
         mSleepSessionRepository.addSleepSession(newSleepSession);
@@ -179,7 +185,7 @@ public class SessionArchiveFragmentViewModel
     
     // SMELL [21-07-2 12:52AM] -- this algo generally feels kind of clunky, revisit this &
     //  search for a more elegant solution maybe.
-    
+
 //*********************************************************
 // protected api
 //*********************************************************
@@ -190,6 +196,7 @@ public class SessionArchiveFragmentViewModel
     {
         return new TimeUtils();
     }
+
 
 //*********************************************************
 // private methods

@@ -31,7 +31,7 @@ public class SleepTrackerFragmentRotationTests
 //*********************************************************
 // api
 //*********************************************************
-
+    
     // regression test for #42
     @Test
     public void currentSessionPersistsAcrossOrientationChange()

@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.core.models.Tag;
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_interruptions.SleepInterruptionEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionDao;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.data.SleepSessionWithTags;
@@ -161,11 +162,14 @@ public class SleepSessionRepositoryImplTests
         // SUT
         repository.addSleepSession(newSleepSession);
         
-        ArgumentCaptor<SleepSessionEntity> arg = ArgumentCaptor.forClass(SleepSessionEntity.class);
-        verify(mockSleepSessionDao, times(1))
-                .addSleepSessionWithTags(arg.capture(), eq(newSleepSession.tagIds));
+        ArgumentCaptor<SleepSessionEntity> sleepSessionArg =
+                ArgumentCaptor.forClass(SleepSessionEntity.class);
+        verify(mockSleepSessionDao, times(1)).addSleepSessionWithExtras(
+                sleepSessionArg.capture(),
+                eq(newSleepSession.tagIds),
+                anyListOf(SleepInterruptionEntity.class));
         
-        SleepSessionEntity entity = arg.getValue();
+        SleepSessionEntity entity = sleepSessionArg.getValue();
         
         assertThat_NewSleepSession_equalTo_SleepSessionEntity(newSleepSession, entity);
     }

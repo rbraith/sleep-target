@@ -10,8 +10,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.data.convert.ConvertSleepSession;
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_interruptions.SleepInterruptionEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionDao;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.data.SleepSessionWithExtras;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.data.SleepSessionWithTags;
 import com.rbraithwaite.sleepapp.data.database.tables.tag.TagDao;
 import com.rbraithwaite.sleepapp.data.database.tables.tag.TagEntity;
@@ -40,24 +42,12 @@ import static org.junit.Assert.assertThat;
 @RunWith(AndroidJUnit4.class)
 public class SleepSessionDaoTests
 {
-//*********************************************************
-// private properties
-//*********************************************************
-
     private SleepAppDatabase database;
     private SleepSessionDao sleepSessionDao;
-
-//*********************************************************
-// public properties
-//*********************************************************
 
     @Rule
     // protection against potentially infinitely blocked threads
     public Timeout timeout = new Timeout(10, TimeUnit.SECONDS);
-
-//*********************************************************
-// api
-//*********************************************************
 
     @Before
     public void setup()
@@ -133,9 +123,14 @@ public class SleepSessionDaoTests
         assertThat(result.getValue(), is(nullValue()));
     }
     
+//*********************************************************
+// api
+//*********************************************************
+
     @Test
-    public void getSleepSessionWithTags_returnsCorrectData()
+    public void getSleepSessionWithExtras_returnsCorrectData()
     {
+        // tags
         TagEntity tag1 = new TagEntity();
         tag1.text = "tag1";
         TagEntity tag2 = new TagEntity();
@@ -147,27 +142,53 @@ public class SleepSessionDaoTests
         tag1.id = tag1Id;
         tag2.id = tag2Id;
         
-        int sessionId = (int) sleepSessionDao.addSleepSessionWithTags(
+        // interruptions
+        SleepInterruptionEntity interruption1 = new SleepInterruptionEntity(
+                TestUtils.ArbitraryData.getDate().getTime(),
+                12345,
+                "reason 1");
+    
+        SleepInterruptionEntity interruption2 = new SleepInterruptionEntity(
+                TestUtils.ArbitraryData.getDate().getTime(),
+                54321,
+                "reason 2");
+        
+        // SUT
+        int sessionId = (int) sleepSessionDao.addSleepSessionWithExtras(
                 TestUtils.ArbitraryData.getSleepSessionEntity(),
-                Arrays.asList(tag1Id, tag2Id));
+                Arrays.asList(tag1Id, tag2Id),
+                Arrays.asList(interruption1, interruption2));
         
-        LiveData<SleepSessionWithTags> result = sleepSessionDao.getSleepSessionWithTags(sessionId);
-        TestUtils.activateInstrumentationLiveData(result);
+        // addSleepSessionWithExtras generates ids for the interruptions
+        // it also sets the sessionId of the interruption entities (otherwise I would do that
+        // manually here also)
+        // SMELL [21-07-8 11:31PM] -- setting the sessionId is a side effect.
+        interruption1.id = 1;
+        interruption2.id = 2;
         
-        assertThat(result.getValue().tags.size(), is(2));
-        assertThat(result.getValue().tags.get(0), is(equalTo(tag1)));
-        assertThat(result.getValue().tags.get(1), is(equalTo(tag2)));
+        LiveData<SleepSessionWithExtras> resultLive = sleepSessionDao.getSleepSessionWithExtras(sessionId);
+        TestUtils.activateInstrumentationLiveData(resultLive);
+        SleepSessionWithExtras result = resultLive.getValue();
+        
+        assertThat(result.tags.size(), is(2));
+        assertThat(result.tags.get(0), is(equalTo(tag1)));
+        assertThat(result.tags.get(1), is(equalTo(tag2)));
+        
+        assertThat(result.interruptions.size(), is(2));
+        assertThat(result.interruptions.get(0), is(equalTo(interruption1)));
+        assertThat(result.interruptions.get(1), is(equalTo(interruption2)));
     }
     
     @Test
-    public void getSleepSessionWithTags_returnsEmptyTagListIfNoTags()
+    public void getSleepSessionWithExtras_returnsEmptyListsIfNoExtras()
     {
         int newId =
                 (int) sleepSessionDao.addSleepSession(TestUtils.ArbitraryData.getSleepSessionEntity());
-        LiveData<SleepSessionWithTags> result = sleepSessionDao.getSleepSessionWithTags(newId);
+        LiveData<SleepSessionWithExtras> result = sleepSessionDao.getSleepSessionWithExtras(newId);
         TestUtils.activateInstrumentationLiveData(result);
         
         assertThat(result.getValue().tags.isEmpty(), is(true));
+        assertThat(result.getValue().interruptions.isEmpty(), is(true));
     }
     
     @Test
