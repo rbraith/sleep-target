@@ -372,6 +372,46 @@ public class SleepTrackerFragmentViewModelTests
     }
     
     @Test
+    public void getOngoingInterruptionDuration_isErrorWhenNotInterrupted()
+    {
+        when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(
+                new MutableLiveData<>(new CurrentSession()));
+        
+        LiveData<String> interruptionDuration = viewModel.getOngoingInterruptionDuration();
+        TestUtils.activateLocalLiveData(interruptionDuration);
+        
+        // REFACTOR [21-07-12 9:41PM] -- hardcoded string.
+        assertThat(interruptionDuration.getValue(), is(equalTo("Error")));
+    }
+    
+    @Test
+    public void getOngoingInterruptionDuration_updatesWhenInterrupted()
+    {
+        // setup
+        MutableLiveData<CurrentSession> currentSessionLive =
+                new MutableLiveData<>(new CurrentSession());
+        when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(currentSessionLive);
+        
+        Date fakeNow = new GregorianCalendar(2021, 6, 11).getTime();
+        viewModel.setTimeUtils(TestUtils.timeUtilsFixedAt(fakeNow));
+        
+        // SUT
+        LiveData<String> interruptionDuration = viewModel.getOngoingInterruptionDuration();
+        TestUtils.activateLocalLiveData(interruptionDuration);
+        
+        viewModel.startSleepSession();
+        viewModel.interruptSleepSession();
+        
+        // verify
+        // update the ticking duration text once
+        RobolectricUtils.getLooperForThread(TickingLiveData.THREAD_NAME).runOneTask();
+        RobolectricUtils.idleMainLooper(); // idk why this makes this test work but it does
+        
+        assertThat(interruptionDuration.getValue(),
+                   is(equalTo(SleepTrackerFormatting.formatDuration(0))));
+    }
+    
+    @Test
     public void getCurrentSessionDuration_isErrorWhenNoSession()
     {
         when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(

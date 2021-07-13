@@ -25,6 +25,7 @@ public class CurrentSession
     
     private ArrayList<Interruption> mRecordedInterruptions = new ArrayList<>();
 
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -62,7 +63,7 @@ public class CurrentSession
             this.interruptions = interruptions;
         }
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -77,7 +78,7 @@ public class CurrentSession
     {
         this(start, null);
     }
-
+    
     public CurrentSession(
             @Nullable Date start,
             @Nullable String additionalComments)
@@ -98,7 +99,7 @@ public class CurrentSession
         mMood = mood;
         mSelectedTagIds = selectedTagIds == null ? new ArrayList<>() : selectedTagIds;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -259,6 +260,14 @@ public class CurrentSession
         return mCurrentInterruption != null;
     }
     
+    public long getOngoingInterruptionDurationMillis(TimeUtils timeUtils)
+    {
+        if (!isInterrupted()) {
+            return 0;
+        }
+        return timeUtils.getNow().getTime() - mCurrentInterruption.startTime.getTime();
+    }
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -267,7 +276,7 @@ public class CurrentSession
     {
         mCurrentInterruption = null;
     }
-    
+
 //*********************************************************
 // private helpers
 //*********************************************************

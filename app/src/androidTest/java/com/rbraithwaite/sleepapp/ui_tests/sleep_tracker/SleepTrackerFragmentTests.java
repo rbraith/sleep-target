@@ -210,11 +210,17 @@ public class SleepTrackerFragmentTests
         int duration = 5 * 60 * 1000; // 5 min
         sleepTracker.startPausedSession(duration);
         
+        // verify 'before' state
         sleepTracker.assertThat()
                 .interruptionButtonIsInState(SleepTrackerTestDriver.Assertions.InterruptButtonState.RESUMED);
+        sleepTracker.assertThat().interruptionTimerIsNotDisplayed();
+        
         sleepTracker.pressInterruptButton();
+        
+        // verify 'after' state
         sleepTracker.assertThat()
                 .interruptionButtonIsInState(SleepTrackerTestDriver.Assertions.InterruptButtonState.INTERRUPTED);
+        sleepTracker.assertThat().interruptionTimerMatches(0);
         
         // press the interrupt button, *then* unpause, so that we can be sure the timer should
         // have the paused duration value.

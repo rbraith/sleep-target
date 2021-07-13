@@ -76,6 +76,7 @@ public class AppColors
     public static AppColors from(Context context)
     {
         AppColors appColors = new AppColors();
+        // REFACTOR [21-07-12 10:02PM] -- this should all be in a try/finally block.
         TypedArray ta = context.obtainStyledAttributes(AppColors.attrArray);
         appColors.colorPrimary = ta.getColor(0, AppColors.NOT_FOUND);
         appColors.colorOnPrimary = ta.getColor(1, AppColors.NOT_FOUND);

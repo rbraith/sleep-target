@@ -157,6 +157,7 @@ public class CurrentSessionTests
         assertThat(currentSession.isStarted(), is(false));
     }
     
+    // REFACTOR [21-07-12 9:52PM] -- this is a badly designed test.
     @Test
     public void getOngoingDurationMillis_isDynamic()
     {
@@ -175,5 +176,21 @@ public class CurrentSessionTests
         long duration2 = currentSession.getOngoingDurationMillis(timeUtils);
         
         assertThat(duration2, is(greaterThan(duration1)));
+    }
+    
+    @Test
+    public void getOngoingInterruptionDurationMillis_returnsCorrectDuration()
+    {
+        GregorianCalendar cal = TestUtils.ArbitraryData.getCalendar();
+        
+        CurrentSession currentSession = new CurrentSession(cal.getTime());
+        currentSession.interrupt(TestUtils.timeUtilsFixedAt(cal.getTime()));
+        
+        int expectedSeconds = 5;
+        cal.add(Calendar.SECOND, expectedSeconds);
+        long interruptionDuration = currentSession.getOngoingInterruptionDurationMillis(
+                TestUtils.timeUtilsFixedAt(cal.getTime()));
+        
+        assertThat(interruptionDuration, is(equalTo((long) (expectedSeconds * 1000))));
     }
 }

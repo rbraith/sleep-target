@@ -35,7 +35,6 @@ import com.rbraithwaite.sleepapp.ui.utils.AppColors;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
-
 @AndroidEntryPoint
 public class SleepTrackerFragment
         extends BaseFragment<SleepTrackerFragmentViewModel>
@@ -357,19 +356,29 @@ public class SleepTrackerFragment
                     interruptionsCard.setVisibility(inSleepSession ? View.VISIBLE : View.GONE);
                 });
         
-        // button
+        // button & duration timer
         Button interruptButton = fragmentRoot.findViewById(R.id.tracker_interrupt_button);
+        TextView interruptDuration = fragmentRoot.findViewById(R.id.tracker_interrupt_duration);
         viewModel.isSleepSessionInterrupted().observe(
                 getViewLifecycleOwner(),
                 isSleepSessionInterrupted -> {
                     if (isSleepSessionInterrupted) {
+                        mAnimations.transitionIntoInterruptionTimer();
                         interruptButton.setText(R.string.tracker_interrupt_btn_resume);
                         interruptButton.setOnClickListener(v -> viewModel.resumeSleepSession());
                     } else {
+                        // HACK [21-07-12 10:17PM] -- putting setVisibility here first, to hide
+                        //  a visual bug where you can momentarily see "Error" in the duration text.
+                        interruptDuration.setVisibility(View.GONE);
+                        mAnimations.transitionOutOfInterruptionTimer();
                         interruptButton.setText(R.string.tracker_interrupt_btn_interrupt);
                         interruptButton.setOnClickListener(v -> viewModel.interruptSleepSession());
                     }
                 });
+        
+        viewModel.getOngoingInterruptionDuration().observe(
+                getViewLifecycleOwner(),
+                interruptDuration::setText);
         
         // reason text field
         EditText interruptionReasonText = fragmentRoot.findViewById(R.id.tracker_interrupt_reason);

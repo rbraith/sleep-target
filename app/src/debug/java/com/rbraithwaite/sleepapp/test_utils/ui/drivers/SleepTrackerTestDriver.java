@@ -297,7 +297,19 @@ public class SleepTrackerTestDriver
         {
             onView(withId(R.id.tracker_interruptions_card)).check(matches(isDisplayed()));
         }
-        
+    
+        public void interruptionTimerIsNotDisplayed()
+        {
+            onView(withId(R.id.tracker_interrupt_duration)).check(matches(not(isDisplayed())));
+        }
+    
+        public void interruptionTimerMatches(int durationMillis)
+        {
+            onView(withId(R.id.tracker_interrupt_duration)).check(matches(isDisplayed()));
+            onView(withId(R.id.tracker_interrupt_duration)).check(matches(withText(
+                    SleepTrackerFormatting.formatDuration(durationMillis))));
+        }
+    
         private void sleepDurationGoalIsDisplayed(SleepDurationGoal expectedSleepDurationGoal)
         {
             onView(withId(R.id.tracker_no_goals_card)).check(matches(not(isDisplayed())));

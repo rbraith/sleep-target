@@ -42,6 +42,7 @@ public class SleepTrackerFragmentViewModel
     
     private LiveData<Boolean> mInSleepSession;
     private LiveData<String> mCurrentSleepSessionDuration;
+    private LiveData<String> mOngoingInterruptionDuration;
     
     private TimeUtils mTimeUtils;
     
@@ -182,6 +183,32 @@ public class SleepTrackerFragmentViewModel
         
         return mCurrentSleepSessionDuration;
     }
+    
+    public LiveData<String> getOngoingInterruptionDuration()
+    {
+        mOngoingInterruptionDuration = CommonUtils.lazyInit(
+                mOngoingInterruptionDuration,
+                () -> Transformations.switchMap(getCurrentSession(), currentSession -> {
+                    if (!currentSession.isInterrupted()) {
+                        return new MutableLiveData<>("Error");
+                    } else {
+                        // REFACTOR [21-07-12 9:48PM] refactor TickingLiveData so it takes a
+                        //  callable arg instead.
+                        return new TickingLiveData<String>()
+                        {
+                            @Override
+                            public String onTick()
+                            {
+                                return SleepTrackerFormatting.formatDuration(
+                                        currentSession.getOngoingInterruptionDurationMillis(
+                                                mTimeUtils));
+                            }
+                        };
+                    }
+                }));
+        return mOngoingInterruptionDuration;
+    }
+    
     
     public LiveData<String> getSessionStartTime()
     {
