@@ -31,6 +31,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -381,6 +382,36 @@ public class SleepTrackerFragmentViewModelTests
         
         // REFACTOR [21-07-11 3:06AM] -- hardcoded string.
         assertThat(currentSessionDuration.getValue(), is(equalTo("Error")));
+    }
+    
+    @Test
+    public void getCurrentSessionDuration_isPausedWhenSessionIsInterrupted()
+    {
+        when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(
+                new MutableLiveData<>(new CurrentSession()));
+        
+        GregorianCalendar cal = new GregorianCalendar();
+        Date now = cal.getTime();
+        viewModel.setTimeUtils(TestUtils.timeUtilsFixedAt(now));
+        
+        viewModel.startSleepSession();
+        
+        LiveData<String> currentDuration = viewModel.getCurrentSleepSessionDuration();
+        TestUtils.activateLocalLiveData(currentDuration);
+        // have the duration text update at least once
+        RobolectricUtils.getLooperForThread(TickingLiveData.THREAD_NAME).idle();
+        RobolectricUtils.idleMainLooper();
+        
+        viewModel.interruptSleepSession();
+        
+        // if the session weren't paused, this would cause the duration ticker to output 5min ahead
+        // of where the session started. Meanwhile we are expecting it to output 0.
+        cal.add(Calendar.MINUTE, 5);
+        Date updated = cal.getTime();
+        viewModel.setTimeUtils(TestUtils.timeUtilsFixedAt(updated));
+        
+        assertThat(currentDuration.getValue(),
+                   is(equalTo(SleepTrackerFormatting.formatDuration(0))));
     }
     
     @Test

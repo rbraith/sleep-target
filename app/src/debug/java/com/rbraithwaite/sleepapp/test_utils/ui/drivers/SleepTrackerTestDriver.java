@@ -70,6 +70,12 @@ public class SleepTrackerTestDriver
             STARTED
         }
         
+        public enum InterruptButtonState
+        {
+            RESUMED,
+            INTERRUPTED
+        }
+        
         public Assertions(SleepTrackerTestDriver owningDriver)
         {
             super(owningDriver);
@@ -85,6 +91,20 @@ public class SleepTrackerTestDriver
                 break;
             case STARTED:
                 sleepTrackerButton.check(matches(withText(R.string.sleep_tracker_button_stop)));
+                break;
+            }
+        }
+        
+        public void interruptionButtonIsInState(InterruptButtonState state)
+        {
+            ViewInteraction interruptButton = onView(withId(R.id.tracker_interrupt_button));
+            
+            switch (state) {
+            case RESUMED:
+                interruptButton.check(matches(withText(R.string.tracker_interrupt_btn_interrupt)));
+                break;
+            case INTERRUPTED:
+                interruptButton.check(matches(withText(R.string.tracker_interrupt_btn_resume)));
                 break;
             }
         }
@@ -277,7 +297,6 @@ public class SleepTrackerTestDriver
         {
             onView(withId(R.id.tracker_interruptions_card)).check(matches(isDisplayed()));
         }
-        
         
         private void sleepDurationGoalIsDisplayed(SleepDurationGoal expectedSleepDurationGoal)
         {
@@ -474,6 +493,14 @@ public class SleepTrackerTestDriver
         return start;
     }
     
+    /**
+     * Unpause a session started with {@link #startPausedSession(int)}
+     */
+    public void unpause()
+    {
+        resetTimeUtils();
+    }
+    
     public void setDetailsFrom(SleepSession sleepSession)
     {
         onView(withId(R.id.tracker_details_card)).perform(scrollTo());
@@ -487,7 +514,7 @@ public class SleepTrackerTestDriver
     
     public void startInterruptionWithReason(String reason)
     {
-        onView(withId(R.id.tracker_interrupt_button)).perform(click());
+        pressInterruptButton();
         UITestUtils.typeOnMultilineEditText(reason, onView(withId(R.id.tracker_interrupt_reason)));
     }
     
@@ -496,10 +523,20 @@ public class SleepTrackerTestDriver
         stopSessionManually();
         DialogTestUtils.pressPositiveButton();
     }
-
+    
+    public void pressInterruptButton()
+    {
+        onView(withId(R.id.tracker_interrupt_button)).perform(click());
+    }
+    
 //*********************************************************
 // private methods
 //*********************************************************
+
+    private void resetTimeUtils()
+    {
+        injectTimeUtils(new TimeUtils());
+    }
 
     private void performOnPostSleepDialog(Action<PostSleepDialog> action)
     {

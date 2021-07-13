@@ -25,6 +25,7 @@ import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoal
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.data.prefs.SleepAppDataPrefs;
 import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.DateRange;
+import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -444,5 +445,26 @@ public class TestUtils
     public static String getString(int stringId)
     {
         return getContext().getString(stringId);
+    }
+    
+    public static void sleep(float seconds)
+    {
+        try {
+            Thread.sleep((long) (seconds * 1000));
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    public static TimeUtils timeUtilsFixedAt(Date time)
+    {
+        return new TimeUtils()
+        {
+            @Override
+            public Date getNow()
+            {
+                return time;
+            }
+        };
     }
 }

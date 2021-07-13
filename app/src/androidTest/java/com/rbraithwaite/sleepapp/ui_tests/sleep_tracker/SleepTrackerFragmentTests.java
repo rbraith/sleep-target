@@ -205,6 +205,26 @@ public class SleepTrackerFragmentTests
     }
     
     @Test
+    public void screenStateChangesBasedOnInterruption()
+    {
+        int duration = 5 * 60 * 1000; // 5 min
+        sleepTracker.startPausedSession(duration);
+        
+        sleepTracker.assertThat()
+                .interruptionButtonIsInState(SleepTrackerTestDriver.Assertions.InterruptButtonState.RESUMED);
+        sleepTracker.pressInterruptButton();
+        sleepTracker.assertThat()
+                .interruptionButtonIsInState(SleepTrackerTestDriver.Assertions.InterruptButtonState.INTERRUPTED);
+        
+        // press the interrupt button, *then* unpause, so that we can be sure the timer should
+        // have the paused duration value.
+        sleepTracker.unpause();
+        
+        TestUtils.sleep(1.2f); // give the session timer time to update in theory
+        sleepTracker.assertThat().sessionTimerMatches(duration);
+    }
+    
+    @Test
     public void interruptionIsAddedToTheDatabase()
     {
         database.assertThat.interruptionCountIs(0);

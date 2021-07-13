@@ -31,8 +31,10 @@ import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.MoodSelectorViewM
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorController;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorViewModel;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.StoppedSessionData;
+import com.rbraithwaite.sleepapp.ui.utils.AppColors;
 
 import dagger.hilt.android.AndroidEntryPoint;
+
 
 @AndroidEntryPoint
 public class SleepTrackerFragment
@@ -316,6 +318,13 @@ public class SleepTrackerFragment
             }
         });
         
+        AppColors appColors = AppColors.from(requireContext());
+        viewModel.isSleepSessionInterrupted().observe(lifecycleOwner, isSleepSessionInterrupted -> {
+            currentSessionTimeText.setTextColor(isSleepSessionInterrupted ?
+                                                        appColors.appColorOnPrimarySurface2 :
+                                                        appColors.colorSecondary);
+        });
+        
         TextView startTimeText = fragmentRoot.findViewById(R.id.sleep_tracker_start_time);
         viewModel.getSessionStartTime().observe(lifecycleOwner, startTimeText::setText);
         
@@ -353,9 +362,13 @@ public class SleepTrackerFragment
         viewModel.isSleepSessionInterrupted().observe(
                 getViewLifecycleOwner(),
                 isSleepSessionInterrupted -> {
-                    interruptButton.setOnClickListener(isSleepSessionInterrupted ?
-                                                               v -> viewModel.resumeSleepSession() :
-                                                               v -> viewModel.interruptSleepSession());
+                    if (isSleepSessionInterrupted) {
+                        interruptButton.setText(R.string.tracker_interrupt_btn_resume);
+                        interruptButton.setOnClickListener(v -> viewModel.resumeSleepSession());
+                    } else {
+                        interruptButton.setText(R.string.tracker_interrupt_btn_interrupt);
+                        interruptButton.setOnClickListener(v -> viewModel.interruptSleepSession());
+                    }
                 });
         
         // reason text field

@@ -84,7 +84,7 @@ public class SleepTrackerFragmentViewModel
         mCurrentGoalsRepository = currentGoalsRepository;
         mTimeUtils = createTimeUtils();
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -164,8 +164,9 @@ public class SleepTrackerFragmentViewModel
                         // OPTIMIZE [21-06-27 3:13AM] -- I don't need to be returning a new instance
                         //  of this every time.
                         return new MutableLiveData<>("Error");
-                        // TODO [21-07-6 4:05AM] else if currentSession.isInterrupted...
-                        //  (pause the timer).
+                    } else if (currentSession.isInterrupted()) {
+                        String latestDurationValue = mCurrentSleepSessionDuration.getValue();
+                        return new MutableLiveData<>(latestDurationValue);
                     } else {
                         return new TickingLiveData<String>()
                         {
@@ -369,7 +370,7 @@ public class SleepTrackerFragmentViewModel
             }
         });
     }
-
+    
     /**
      * Begin an interruption for an ongoing session. If there is no ongoing session, on that session
      * is already interrupted, this does nothing.
@@ -391,7 +392,7 @@ public class SleepTrackerFragmentViewModel
     {
         return new TimeUtils();
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
