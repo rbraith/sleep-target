@@ -6,6 +6,11 @@
 
     <!--    styles-->
 <!--    tracking section specific-->
+    <style name="TrackerInterruptionsTotal" parent="AppTextView">
+        <item name="android:textColor">?attr/appColorInterruption</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
     <style name="TrackerButtonMain" parent="AppButton.Capsule">
         <item name="backgroundTint">?attr/colorPrimary</item>
 

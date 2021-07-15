@@ -3,11 +3,13 @@ package com.rbraithwaite.sleepapp.core.entities;
 import com.rbraithwaite.sleepapp.core.models.CurrentSession;
 import com.rbraithwaite.sleepapp.core.models.Interruption;
 import com.rbraithwaite.sleepapp.core.models.Mood;
+import com.rbraithwaite.sleepapp.test_utils.NowSequence;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -24,6 +26,58 @@ public class CurrentSessionTests
 // api
 //*********************************************************
 
+    @Test
+    public void getInterruptionsTotalDuration_returnCorrectDuration()
+    {
+        GregorianCalendar cal = TestUtils.ArbitraryData.getCalendar();
+        Date start = cal.getTime();
+        cal.add(Calendar.MINUTE, 5);
+        Date end = cal.getTime();
+        
+        CurrentSession currentSession = new CurrentSession(start);
+        
+        // add 2 interruptions, both with durations of 5 min
+        NowSequence nowSequence = new NowSequence(Arrays.asList(start, end), true);
+        currentSession.interrupt(nowSequence);
+        currentSession.resume(nowSequence);
+        currentSession.interrupt(nowSequence);
+        currentSession.resume(nowSequence);
+        
+        // start a third 5 min interruption
+        currentSession.interrupt(nowSequence);
+        
+        long expectedDuration = 15 * 60 * 1000; // 15 min
+        long duration = currentSession.getInterruptionsTotalDuration(nowSequence);
+        
+        assertThat(duration, is(equalTo(expectedDuration)));
+    }
+    
+    @Test
+    public void getDurationMinusInterruptions_returnsCorrectDuration()
+    {
+        GregorianCalendar cal = TestUtils.ArbitraryData.getCalendar(); // session start
+        
+        CurrentSession currentSession = new CurrentSession(cal.getTime());
+        
+        ArrayList<Date> dates = new ArrayList<>();
+        cal.add(Calendar.MINUTE, 1); // interruption start
+        dates.add(cal.getTime());
+        cal.add(Calendar.MINUTE, 2); // interruption end
+        dates.add(cal.getTime());
+        cal.add(Calendar.MINUTE, 3); // session end
+        dates.add(cal.getTime());
+        
+        NowSequence nowSequence = new NowSequence(dates, false);
+        
+        currentSession.interrupt(nowSequence);
+        currentSession.resume(nowSequence);
+        
+        long expectedDuration = 4 * 60 * 1000; // 4 min
+        long duration = currentSession.getDurationMinusInterruptions(nowSequence);
+        
+        assertThat(duration, is(equalTo(expectedDuration)));
+    }
+    
     @Test
     public void isInterrupted_matchesInterruptionState()
     {

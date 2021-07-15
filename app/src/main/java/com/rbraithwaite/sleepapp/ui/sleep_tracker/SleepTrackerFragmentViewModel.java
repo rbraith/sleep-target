@@ -43,6 +43,7 @@ public class SleepTrackerFragmentViewModel
     private LiveData<Boolean> mInSleepSession;
     private LiveData<String> mCurrentSleepSessionDuration;
     private LiveData<String> mOngoingInterruptionDuration;
+    private LiveData<String> mInterruptionsTotal;
     
     private TimeUtils mTimeUtils;
     
@@ -55,6 +56,8 @@ public class SleepTrackerFragmentViewModel
     private LiveData<Boolean> mHasAnyGoal;
     
     private LiveData<CurrentSession> mRepoCurrentSession;
+    
+    private TickingLiveData<CurrentSession> mTickingCurrentSession = new TickingLiveData<>();
 
 //*********************************************************
 // public helpers
@@ -85,7 +88,7 @@ public class SleepTrackerFragmentViewModel
         mCurrentGoalsRepository = currentGoalsRepository;
         mTimeUtils = createTimeUtils();
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -169,19 +172,37 @@ public class SleepTrackerFragmentViewModel
                         String latestDurationValue = mCurrentSleepSessionDuration.getValue();
                         return new MutableLiveData<>(latestDurationValue);
                     } else {
-                        return new TickingLiveData<String>()
-                        {
-                            @Override
-                            public String onTick()
-                            {
-                                return SleepTrackerFormatting.formatDuration(
-                                        currentSession.getOngoingDurationMillis(mTimeUtils));
-                            }
-                        };
+                        return Transformations.map(getTickingCurrentSession(),
+                                                   tickingCurrentSession -> {
+                                                       return SleepTrackerFormatting.formatDuration(
+                                                               currentSession.getDurationMinusInterruptions(
+                                                                       mTimeUtils));
+                                                   });
                     }
                 });
         
         return mCurrentSleepSessionDuration;
+    }
+    
+    public LiveData<String> getInterruptionsTotal()
+    {
+        mInterruptionsTotal = CommonUtils.lazyInit(
+                mInterruptionsTotal,
+                () -> Transformations.switchMap(getCurrentSession(), currentSession -> {
+                    if (!currentSession.isStarted()) {
+                        // no reason for an update unless the interruptions total is visible
+                        return new MutableLiveData<>(null);
+                    } else if (!currentSession.isInterrupted()) {
+                        return new MutableLiveData<>(mInterruptionsTotal.getValue());
+                    } else {
+                        return Transformations.map(
+                                getTickingCurrentSession(),
+                                tickingCurrentSession -> SleepTrackerFormatting.formatInterruptionsTotal(
+                                        tickingCurrentSession.getInterruptionsTotalDuration(
+                                                mTimeUtils)));
+                    }
+                }));
+        return mInterruptionsTotal;
     }
     
     public LiveData<String> getOngoingInterruptionDuration()
@@ -192,23 +213,16 @@ public class SleepTrackerFragmentViewModel
                     if (!currentSession.isInterrupted()) {
                         return new MutableLiveData<>("Error");
                     } else {
-                        // REFACTOR [21-07-12 9:48PM] refactor TickingLiveData so it takes a
-                        //  callable arg instead.
-                        return new TickingLiveData<String>()
-                        {
-                            @Override
-                            public String onTick()
-                            {
-                                return SleepTrackerFormatting.formatDuration(
-                                        currentSession.getOngoingInterruptionDurationMillis(
-                                                mTimeUtils));
-                            }
-                        };
+                        return Transformations.map(getTickingCurrentSession(),
+                                                   tickingCurrentSession -> {
+                                                       return SleepTrackerFormatting.formatDuration(
+                                                               tickingCurrentSession.getOngoingInterruptionDurationMillis(
+                                                                       mTimeUtils));
+                                                   });
                     }
                 }));
         return mOngoingInterruptionDuration;
     }
-    
     
     public LiveData<String> getSessionStartTime()
     {
@@ -410,7 +424,7 @@ public class SleepTrackerFragmentViewModel
             }
         });
     }
-
+    
 //*********************************************************
 // protected api
 //*********************************************************
@@ -423,6 +437,15 @@ public class SleepTrackerFragmentViewModel
 //*********************************************************
 // private methods
 //*********************************************************
+
+    // SMELL [21-07-14 5:38PM] -- This doesn't seem like a good way to do this - revisit this.
+    private LiveData<CurrentSession> getTickingCurrentSession()
+    {
+        return Transformations.switchMap(getCurrentSession(), currentSession -> {
+            mTickingCurrentSession.setOnTick(() -> currentSession);
+            return mTickingCurrentSession;
+        });
+    }
 
     private PostSleepData getPostSleepData()
     {

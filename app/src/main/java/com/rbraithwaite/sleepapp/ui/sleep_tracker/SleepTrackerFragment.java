@@ -52,6 +52,8 @@ public class SleepTrackerFragment
     private TagSelectorViewModel mTagSelectorViewModel;
     
     private SleepTrackerAnimations mAnimations;
+    
+    private boolean mInSleepSession = false;
 
 //*********************************************************
 // public constants
@@ -69,7 +71,7 @@ public class SleepTrackerFragment
     {
         setHasOptionsMenu(true);
     }
-
+    
 //*********************************************************
 // overrides
 //*********************************************************
@@ -126,13 +128,13 @@ public class SleepTrackerFragment
             return handleNavigationMenuItem(item);
         }
     }
-    
+
     @Override
     protected Properties<SleepTrackerFragmentViewModel> initProperties()
     {
         return new Properties<>(true, SleepTrackerFragmentViewModel.class);
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -141,12 +143,12 @@ public class SleepTrackerFragment
     {
         return mMoodSelectorViewModel;
     }
-    
+
     public TagSelectorViewModel getTagSelectorViewModel()
     {
         return mTagSelectorViewModel;
     }
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
@@ -304,6 +306,7 @@ public class SleepTrackerFragment
         Button sleepTrackingButton = fragmentRoot.findViewById(R.id.sleep_tracker_button);
         
         viewModel.inSleepSession().observe(lifecycleOwner, inSleepSession -> {
+            mInSleepSession = inSleepSession;
             if (inSleepSession) {
                 mAnimations.transitionIntoTrackingSession();
                 startTimeGroup.setVisibility(View.VISIBLE);
@@ -322,6 +325,17 @@ public class SleepTrackerFragment
             currentSessionTimeText.setTextColor(isSleepSessionInterrupted ?
                                                         appColors.appColorOnPrimarySurface2 :
                                                         appColors.colorSecondary);
+        });
+        
+        TextView interruptionsTotalText =
+                fragmentRoot.findViewById(R.id.sleep_tracker_interruptions_total);
+        viewModel.getInterruptionsTotal().observe(lifecycleOwner, interruptionsTotal -> {
+            if (interruptionsTotal != null && mInSleepSession) {
+                interruptionsTotalText.setVisibility(View.VISIBLE);
+                interruptionsTotalText.setText(interruptionsTotal);
+            } else {
+                interruptionsTotalText.setVisibility(View.GONE);
+            }
         });
         
         TextView startTimeText = fragmentRoot.findViewById(R.id.sleep_tracker_start_time);

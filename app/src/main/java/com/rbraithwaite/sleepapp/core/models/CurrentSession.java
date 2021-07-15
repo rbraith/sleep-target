@@ -24,7 +24,13 @@ public class CurrentSession
     private CurrentInterruption mCurrentInterruption;
     
     private ArrayList<Interruption> mRecordedInterruptions = new ArrayList<>();
+    
+    
+//*********************************************************
+// package properties
+//*********************************************************
 
+    int mInterruptionsTotalDurationCache = 0;
 
 //*********************************************************
 // public helpers
@@ -63,7 +69,8 @@ public class CurrentSession
             this.interruptions = interruptions;
         }
     }
-
+    
+    
 //*********************************************************
 // constructors
 //*********************************************************
@@ -72,7 +79,6 @@ public class CurrentSession
     {
         this(null);
     }
-    
     
     public CurrentSession(@Nullable Date start)
     {
@@ -86,7 +92,7 @@ public class CurrentSession
         // TODO [21-06-14 1:30AM] -- mood shouldn't ever be null, only unset.
         this(start, additionalComments, null, null);
     }
-    
+
     public CurrentSession(
             @Nullable Date start,
             @Nullable String additionalComments,
@@ -99,7 +105,7 @@ public class CurrentSession
         mMood = mood;
         mSelectedTagIds = selectedTagIds == null ? new ArrayList<>() : selectedTagIds;
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -248,7 +254,9 @@ public class CurrentSession
     public boolean resume(TimeUtils timeUtils)
     {
         if (isInterrupted()) {
-            mRecordedInterruptions.add(mCurrentInterruption.getSnapshot(timeUtils));
+            Interruption newInterruption = mCurrentInterruption.getSnapshot(timeUtils);
+            mRecordedInterruptions.add(newInterruption);
+            mInterruptionsTotalDurationCache += newInterruption.getDurationMillis();
             clearCurrentInterruption();
             return true;
         }
@@ -266,6 +274,23 @@ public class CurrentSession
             return 0;
         }
         return timeUtils.getNow().getTime() - mCurrentInterruption.startTime.getTime();
+    }
+    
+    /**
+     * @return The total interruption time in milliseconds. If there is a current ongoing
+     * interruption, that time is also added.
+     */
+    public long getInterruptionsTotalDuration(TimeUtils timeUtils)
+    {
+        return mInterruptionsTotalDurationCache + getOngoingInterruptionDurationMillis(timeUtils);
+    }
+    
+    /**
+     * @return the duration minus the total interruption time (in millis)
+     */
+    public long getDurationMinusInterruptions(TimeUtils timeUtils)
+    {
+        return getOngoingDurationMillis(timeUtils) - getInterruptionsTotalDuration(timeUtils);
     }
 
 //*********************************************************

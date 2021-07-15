@@ -36,24 +36,14 @@ public class LiveDataUtils
         liveData.setValue(liveData.getValue());
     }
     
-    public static <T> MutableLiveData<T> lazyInitMutable(MutableLiveData<T> mutable, T initialValue)
-    {
-        return mutable == null ? new MutableLiveData<>(initialValue) : mutable;
-    }
-    
-    /**
-     * Lazy init with no initial value for the MutableLiveData.
-     */
-    public static <T> MutableLiveData<T> lazyInitMutable(MutableLiveData<T> mutable)
-    {
-        return mutable == null ? new MutableLiveData<T>() : mutable;
-    }
+    // REFACTOR [21-07-14 8:56PM] -- replace instances of this with MergedLiveData.
     
     /**
      * Merge the values of 2 LiveData instances into a new LiveData type. Same behavioural rules
      * apply as {@link Transformations#switchMap(LiveData, Function)} (value isn't computed until
      * observed, etc)
      */
+    @Deprecated
     public static <A, B, C> LiveData<C> merge(
             LiveData<A> a,
             final LiveData<B> b,

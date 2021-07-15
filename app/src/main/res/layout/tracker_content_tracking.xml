@@ -30,11 +30,20 @@
         style="?attr/trackerSessionTimeStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/sleep_tracker_button"
+        app:layout_constraintBottom_toTopOf="@id/sleep_tracker_interruptions_total"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
         tools:text="1h 23m 45s" />
+
+    <TextView
+        android:id="@+id/sleep_tracker_interruptions_total"
+        style="@style/TrackerInterruptionsTotal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Error"
+        app:layout_constraintBottom_toTopOf="@id/sleep_tracker_button"
+        app:layout_constraintStart_toStartOf="@id/sleep_tracker_session_time" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/sleep_tracker_start_time"
@@ -58,4 +67,5 @@
         android:text="Started:"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

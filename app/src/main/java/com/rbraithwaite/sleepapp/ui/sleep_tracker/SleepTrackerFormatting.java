@@ -22,6 +22,12 @@ public class SleepTrackerFormatting
 // api
 //*********************************************************
 
+    // TEST NEEDED [21-07-14 11:50PM] -- .
+    public static String formatInterruptionsTotal(long interruptionsTotalDuration)
+    {
+        return "(" + formatDuration(interruptionsTotalDuration) + ")";
+    }
+    
     public static String formatSleepDurationGoal(SleepDurationGoal sleepDurationGoal)
     {
         return CommonFormatting.formatSleepDurationGoal(sleepDurationGoal);

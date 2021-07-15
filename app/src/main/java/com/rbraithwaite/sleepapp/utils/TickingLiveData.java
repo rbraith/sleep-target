@@ -3,10 +3,10 @@ package com.rbraithwaite.sleepapp.utils;
 import android.os.Handler;
 import android.os.HandlerThread;
 
-import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.LiveData;
 
-public abstract class TickingLiveData<T>
-        extends MutableLiveData<T>
+public class TickingLiveData<T>
+        extends LiveData<T>
 {
 //*********************************************************
 // private properties
@@ -15,45 +15,50 @@ public abstract class TickingLiveData<T>
     private HandlerThread mHandlerThread;
     private Handler mHandler;
     private long mFrequencyMillis;
-
+    
+    private OnTick<T> mOnTick;
+    
 //*********************************************************
 // private constants
 //*********************************************************
 
     private static final long DEFAULT_FREQUENCY_MILLIS = 100;
-
+    
 //*********************************************************
 // public constants
 //*********************************************************
 
     public static final String THREAD_NAME = "TickingLiveData";
+    
+//*********************************************************
+// public helpers
+//*********************************************************
 
+    public interface OnTick<T>
+    {
+        T onTick();
+    }
+    
 //*********************************************************
 // constructors
 //*********************************************************
 
     public TickingLiveData()
     {
-        this(DEFAULT_FREQUENCY_MILLIS);
+        this(DEFAULT_FREQUENCY_MILLIS, null);
     }
     
-    public TickingLiveData(long frequencyMillis)
+    public TickingLiveData(OnTick<T> onTick)
+    {
+        this(DEFAULT_FREQUENCY_MILLIS, onTick);
+    }
+    
+    public TickingLiveData(long frequencyMillis, OnTick<T> onTick)
     {
         mFrequencyMillis = frequencyMillis;
+        mOnTick = onTick;
     }
-
-
-
-//*********************************************************
-// abstract
-//*********************************************************
-
     
-    /**
-     * The return value of this method updates the LiveData on each tick.
-     */
-    public abstract T onTick();
-
 //*********************************************************
 // overrides
 //*********************************************************
@@ -63,11 +68,20 @@ public abstract class TickingLiveData<T>
     {
         startTicking();
     }
-    
+
     @Override
     protected void onInactive()
     {
         stopTicking();
+    }
+    
+//*********************************************************
+// api
+//*********************************************************
+
+    public synchronized void setOnTick(OnTick<T> onTick)
+    {
+        mOnTick = onTick;
     }
 
 //*********************************************************
@@ -86,7 +100,9 @@ public abstract class TickingLiveData<T>
             @Override
             public void run()
             {
-                TickingLiveData.this.postValue(onTick());
+                if (mOnTick != null) {
+                    TickingLiveData.this.postValue(mOnTick.onTick());
+                }
                 mHandler.postDelayed(this, mFrequencyMillis);
             }
         });

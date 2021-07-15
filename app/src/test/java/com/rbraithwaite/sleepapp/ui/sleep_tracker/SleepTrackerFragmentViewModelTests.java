@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -93,6 +94,27 @@ public class SleepTrackerFragmentViewModelTests
         mockCurrentSessionRepository = null;
         mockCurrentGoalsRepository = null;
         viewModel = null;
+    }
+    
+    @Test
+    public void getInterruptionsTotal_returnsCorrectValue()
+    {
+        when(mockCurrentSessionRepository.getCurrentSession()).thenReturn(
+                new MutableLiveData<>(new CurrentSession()));
+        
+        LiveData<String> interruptionsTotal = viewModel.getInterruptionsTotal();
+        TestUtils.activateLocalLiveData(interruptionsTotal);
+        
+        assertThat(interruptionsTotal.getValue(), is(nullValue()));
+        
+        viewModel.startSleepSession();
+        viewModel.interruptSleepSession();
+        
+        RobolectricUtils.getLooperForThread(TickingLiveData.THREAD_NAME).runOneTask();
+        RobolectricUtils.idleMainLooper();
+        
+        // SMELL [21-07-14 11:47PM] -- This can be better.
+        assertThat(interruptionsTotal.getValue(), is(not(nullValue())));
     }
     
     @Test
