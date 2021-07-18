@@ -23,14 +23,15 @@ public class CurrentSession
     
     private CurrentInterruption mCurrentInterruption;
     
-    private ArrayList<Interruption> mRecordedInterruptions = new ArrayList<>();
-    
-    
+    private List<Interruption> mRecordedInterruptions = new ArrayList<>();
+
+
 //*********************************************************
 // package properties
 //*********************************************************
 
     int mInterruptionsTotalDurationCache = 0;
+
 
 //*********************************************************
 // public helpers
@@ -69,8 +70,8 @@ public class CurrentSession
             this.interruptions = interruptions;
         }
     }
-    
-    
+
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -92,7 +93,7 @@ public class CurrentSession
         // TODO [21-06-14 1:30AM] -- mood shouldn't ever be null, only unset.
         this(start, additionalComments, null, null);
     }
-
+    
     public CurrentSession(
             @Nullable Date start,
             @Nullable String additionalComments,
@@ -100,12 +101,33 @@ public class CurrentSession
             @Nullable Mood mood,
             @Nullable List<Integer> selectedTagIds)
     {
+        this(start, additionalComments, mood, selectedTagIds, null, null);
+    }
+    
+    public CurrentSession(
+            Date start,
+            String additionalComments,
+            Mood mood,
+            List<Integer> selectedTagIds,
+            List<Interruption> interruptions,
+            Interruption currentInterruption)
+    {
         mStart = start;
         mAdditionalComments = additionalComments;
         mMood = mood;
         mSelectedTagIds = selectedTagIds == null ? new ArrayList<>() : selectedTagIds;
+        
+        if (interruptions != null) {
+            mRecordedInterruptions = interruptions;
+        }
+        
+        if (currentInterruption != null) {
+            mCurrentInterruption = new CurrentInterruption(
+                    currentInterruption.getStart(),
+                    currentInterruption.getReason());
+        }
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -228,7 +250,8 @@ public class CurrentSession
     
     /**
      * Interrupt this CurrentSession if that is possible. It is not possible if this session is not
-     * started, or if it is already interrupted.
+     * started, or if it is already interrupted. This sets the initial reason for the new
+     * interruption as that of the most recent saved interruption.
      *
      * @param timeUtils Needed to start the interruption
      *
@@ -237,7 +260,9 @@ public class CurrentSession
     public boolean interrupt(TimeUtils timeUtils)
     {
         if (isStarted() && !isInterrupted()) {
-            mCurrentInterruption = new CurrentInterruption(timeUtils.getNow(), null);
+            mCurrentInterruption = new CurrentInterruption(
+                    timeUtils.getNow(),
+                    getLatestRecordedInterruptionReason());
             return true;
         }
         return false;
@@ -292,11 +317,31 @@ public class CurrentSession
     {
         return getOngoingDurationMillis(timeUtils) - getInterruptionsTotalDuration(timeUtils);
     }
+    
+    // TEST NEEDED [21-07-17 9:08PM] -- .
+    
+    /**
+     * If there is no current interruption, then the latest reason is the latest recorded
+     * interruption reason if there are any, or else null.
+     */
+    public String getLatestInterruptionReason()
+    {
+        return isInterrupted() ? mCurrentInterruption.reason :
+                getLatestRecordedInterruptionReason();
+    }
 
 //*********************************************************
 // private methods
 //*********************************************************
 
+    private String getLatestRecordedInterruptionReason()
+    {
+        if (!mRecordedInterruptions.isEmpty()) {
+            return mRecordedInterruptions.get(mRecordedInterruptions.size() - 1).getReason();
+        }
+        return null;
+    }
+    
     private void clearCurrentInterruption()
     {
         mCurrentInterruption = null;
@@ -319,7 +364,11 @@ public class CurrentSession
         
         public Interruption getSnapshot(TimeUtils timeUtils)
         {
-            int duration = (int) (timeUtils.getNow().getTime() - startTime.getTime());
+            int duration = 0;
+            
+            if (timeUtils != null) {
+                duration = (int) (timeUtils.getNow().getTime() - startTime.getTime());
+            }
             
             return new Interruption(startTime, duration, reason);
         }

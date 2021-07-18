@@ -10,7 +10,6 @@ import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDu
 import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDurationGoalEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalDao;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalEntity;
-import com.rbraithwaite.sleepapp.data.prefs.SleepAppDataPrefs;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
@@ -42,7 +41,6 @@ public class CurrentGoalsRepositoryImplTests
 // package properties
 //*********************************************************
 
-    SleepAppDataPrefs mockPrefs;
     WakeTimeGoalDao mockWakeTimeGoalDao;
     SleepDurationGoalDao mockSleepDurationGoalDao;
     CurrentGoalsRepositoryImpl repository;
@@ -54,7 +52,6 @@ public class CurrentGoalsRepositoryImplTests
     @Before
     public void setup()
     {
-        mockPrefs = mock(SleepAppDataPrefs.class);
         mockWakeTimeGoalDao = mock(WakeTimeGoalDao.class);
         mockSleepDurationGoalDao = mock(SleepDurationGoalDao.class);
         // REFACTOR [21-03-8 11:15PM] -- time utils should be mocked.
@@ -68,7 +65,6 @@ public class CurrentGoalsRepositoryImplTests
     @After
     public void teardown()
     {
-        mockPrefs = null;
         repository = null;
     }
     

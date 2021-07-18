@@ -23,7 +23,8 @@ import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDurationGoalEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
-import com.rbraithwaite.sleepapp.data.prefs.SleepAppDataPrefs;
+import com.rbraithwaite.sleepapp.data.prefs.CurrentSessionPrefsData;
+import com.rbraithwaite.sleepapp.data.prefs.Prefs;
 import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.DateRange;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
@@ -32,6 +33,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -127,6 +129,17 @@ public class TestUtils
     public static class ArbitraryData
     {
         private ArbitraryData() {/* No instantiation */}
+        
+        public static CurrentSessionPrefsData getCurrentSessionPrefsData()
+        {
+            return new CurrentSessionPrefsData(
+                    12345,
+                    "sup",
+                    3,
+                    new HashSet<>(Arrays.asList("1", "2")),
+                    null,
+                    "");
+        }
         
         public static List<Integer> getIdList() { return Arrays.asList(1, 2, 3, 4, 5); }
         
@@ -382,8 +395,7 @@ public class TestUtils
     {
         SharedPreferences.Editor editor =
                 ApplicationProvider.getApplicationContext()
-                        .getSharedPreferences(SleepAppDataPrefs.PREFS_FILE_KEY,
-                                              Context.MODE_PRIVATE)
+                        .getSharedPreferences(Prefs.PREFS_FILE_KEY, Context.MODE_PRIVATE)
                         .edit();
         
         editor.clear();

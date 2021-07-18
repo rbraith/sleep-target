@@ -248,6 +248,33 @@ public class SleepTrackerFragmentTests
     }
     
     @Test
+    public void lastInterruptionReasonIsRetained()
+    {
+        sleepTracker.startSessionManually();
+        
+        String expectedReason = "expected";
+        sleepTracker.startInterruptionWithReason(expectedReason);
+        
+        // after the interruption ends
+        sleepTracker.resumeSession();
+        sleepTracker.assertThat().interruptionReasonTextMatches(expectedReason);
+        
+        // when the fragment is restarted
+        sleepTracker.restartFragment();
+        sleepTracker.assertThat().interruptionReasonTextMatches(expectedReason);
+        
+        // when the app is restarted
+        sleepTracker.restartApp();
+        sleepTracker.assertThat().interruptionReasonTextMatches(expectedReason);
+        
+        // ending the session clears the reason
+        sleepTracker.stopAndKeepSessionManually();
+        sleepTracker.startSessionManually();
+        sleepTracker.startInterruption();
+        sleepTracker.assertThat().interruptionReasonTextIsEmpty();
+    }
+    
+    @Test
     public void keptSleepSessionIsAddedToTheDatabase()
     {
         database.assertThat.sleepSessionCountIs(0);

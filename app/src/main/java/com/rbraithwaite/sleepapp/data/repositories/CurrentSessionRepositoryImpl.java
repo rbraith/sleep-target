@@ -7,7 +7,7 @@ import androidx.lifecycle.Transformations;
 import com.rbraithwaite.sleepapp.core.models.CurrentSession;
 import com.rbraithwaite.sleepapp.core.repositories.CurrentSessionRepository;
 import com.rbraithwaite.sleepapp.data.convert.ConvertCurrentSession;
-import com.rbraithwaite.sleepapp.data.prefs.SleepAppDataPrefs;
+import com.rbraithwaite.sleepapp.data.prefs.CurrentSessionPrefs;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -17,19 +17,19 @@ public class CurrentSessionRepositoryImpl
         implements CurrentSessionRepository
 {
 //*********************************************************
-// private properties
+// private constants
 //*********************************************************
 
-    private SleepAppDataPrefs mDataPrefs;
+    private final CurrentSessionPrefs mCurrentSessionPrefs;
 
 //*********************************************************
 // constructors
 //*********************************************************
 
     @Inject
-    public CurrentSessionRepositoryImpl(SleepAppDataPrefs dataPrefs)
+    public CurrentSessionRepositoryImpl(CurrentSessionPrefs currentSessionPrefs)
     {
-        mDataPrefs = dataPrefs;
+        mCurrentSessionPrefs = currentSessionPrefs;
     }
 
 //*********************************************************
@@ -39,14 +39,14 @@ public class CurrentSessionRepositoryImpl
     @Override
     public void clearCurrentSession()
     {
-        setCurrentSession(new CurrentSession());
+        mCurrentSessionPrefs.clearCurrentSession();
     }
     
     @Override
     public LiveData<CurrentSession> getCurrentSession()
     {
         return Transformations.map(
-                mDataPrefs.getCurrentSession(),
+                mCurrentSessionPrefs.getCurrentSession(),
                 ConvertCurrentSession::fromPrefsData);
     }
     
@@ -55,6 +55,6 @@ public class CurrentSessionRepositoryImpl
     {
         // REFACTOR [21-03-29 11:15PM] -- should the asynchronicity be here instead of down in the
         //  prefs? Or even higher in the view model?
-        mDataPrefs.setCurrentSession(ConvertCurrentSession.toPrefsData(currentSession));
+        mCurrentSessionPrefs.setCurrentSession(ConvertCurrentSession.toPrefsData(currentSession));
     }
 }

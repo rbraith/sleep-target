@@ -43,6 +43,8 @@ public class SleepTrackerFragment
 // private properties
 //*********************************************************
 
+    private EditText mInterruptionReasonText;
+    
     private EditText mAdditionalComments;
     
     private MoodSelectorController mMoodSelectorController;
@@ -71,7 +73,7 @@ public class SleepTrackerFragment
     {
         setHasOptionsMenu(true);
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -128,13 +130,13 @@ public class SleepTrackerFragment
             return handleNavigationMenuItem(item);
         }
     }
-
+    
     @Override
     protected Properties<SleepTrackerFragmentViewModel> initProperties()
     {
         return new Properties<>(true, SleepTrackerFragmentViewModel.class);
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -143,16 +145,21 @@ public class SleepTrackerFragment
     {
         return mMoodSelectorViewModel;
     }
-
+    
     public TagSelectorViewModel getTagSelectorViewModel()
     {
         return mTagSelectorViewModel;
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
 
+    private void clearInterruptionReason()
+    {
+        mInterruptionReasonText.getText().clear();
+    }
+    
     private void clearDetailsValues()
     {
         mAdditionalComments.getText().clear();
@@ -351,6 +358,7 @@ public class SleepTrackerFragment
             if (viewModel.inSleepSession().getValue()) {
                 viewModel.stopSleepSession();
                 clearDetailsValues();
+                clearInterruptionReason();
                 displayPostSleepDialog(viewModel.getStoppedSessionData());
             } else {
                 viewModel.startSleepSession();
@@ -370,9 +378,10 @@ public class SleepTrackerFragment
                     interruptionsCard.setVisibility(inSleepSession ? View.VISIBLE : View.GONE);
                 });
         
-        // button & duration timer
+        // button, duration timer, reason
         Button interruptButton = fragmentRoot.findViewById(R.id.tracker_interrupt_button);
         TextView interruptDuration = fragmentRoot.findViewById(R.id.tracker_interrupt_duration);
+        mInterruptionReasonText = fragmentRoot.findViewById(R.id.tracker_interrupt_reason);
         viewModel.isSleepSessionInterrupted().observe(
                 getViewLifecycleOwner(),
                 isSleepSessionInterrupted -> {
@@ -380,6 +389,7 @@ public class SleepTrackerFragment
                         mAnimations.transitionIntoInterruptionTimer();
                         interruptButton.setText(R.string.tracker_interrupt_btn_resume);
                         interruptButton.setOnClickListener(v -> viewModel.resumeSleepSession());
+                        mInterruptionReasonText.setVisibility(View.VISIBLE);
                     } else {
                         // HACK [21-07-12 10:17PM] -- putting setVisibility here first, to hide
                         //  a visual bug where you can momentarily see "Error" in the duration text.
@@ -387,6 +397,7 @@ public class SleepTrackerFragment
                         mAnimations.transitionOutOfInterruptionTimer();
                         interruptButton.setText(R.string.tracker_interrupt_btn_interrupt);
                         interruptButton.setOnClickListener(v -> viewModel.interruptSleepSession());
+                        mInterruptionReasonText.setVisibility(View.GONE);
                     }
                 });
         
@@ -394,10 +405,7 @@ public class SleepTrackerFragment
                 getViewLifecycleOwner(),
                 interruptDuration::setText);
         
-        // reason text field
-        EditText interruptionReasonText = fragmentRoot.findViewById(R.id.tracker_interrupt_reason);
-        
-        interruptionReasonText.addTextChangedListener(new AfterTextChangedWatcher()
+        mInterruptionReasonText.addTextChangedListener(new AfterTextChangedWatcher()
         {
             @Override
             public void afterTextChanged(Editable s)
@@ -409,9 +417,10 @@ public class SleepTrackerFragment
         // initialize the interrupt reason from storage
         getViewModel().getPersistedInterruptionReason().observe(
                 getViewLifecycleOwner(), reason -> {
-                    interruptionReasonText.getText().clear();
+                    mInterruptionReasonText.getText().clear();
                     if (reason != null) {
-                        interruptionReasonText.getText().append(reason);
+                        mInterruptionReasonText.getText().append(reason);
+                        getViewModel().setLocalInterruptionReason(reason);
                     }
                 });
     }

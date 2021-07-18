@@ -6,8 +6,9 @@ import androidx.lifecycle.LiveData;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.rbraithwaite.sleepapp.data.prefs.CurrentSessionPrefs;
 import com.rbraithwaite.sleepapp.data.prefs.CurrentSessionPrefsData;
-import com.rbraithwaite.sleepapp.data.prefs.SleepAppDataPrefs;
+import com.rbraithwaite.sleepapp.data.prefs.Prefs;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 
 import org.junit.After;
@@ -17,16 +18,14 @@ import org.junit.Test;
 import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 
 @RunWith(AndroidJUnit4.class)
-public class SleepAppDataPrefsTests
+public class CurrentSessionPrefsTests
 {
 //*********************************************************
 // public properties
@@ -37,12 +36,12 @@ public class SleepAppDataPrefsTests
     @Rule
     // protection against potentially infinitely blocked threads
     public Timeout timeout = new Timeout(10, TimeUnit.SECONDS);
-
+    
 //*********************************************************
 // package properties
 //*********************************************************
 
-    SleepAppDataPrefs prefs;
+    CurrentSessionPrefs prefs;
 
 //*********************************************************
 // api
@@ -55,7 +54,7 @@ public class SleepAppDataPrefsTests
         // probably a race condition - shouldn't be a problem in source where the view doesn't care
         // when its updated
         Context context = ApplicationProvider.getApplicationContext();
-        prefs = new SleepAppDataPrefs(context, new TestUtils.SynchronizedExecutor());
+        prefs = new CurrentSessionPrefs(new Prefs(context), new TestUtils.SynchronizedExecutor());
     }
     
     @After
@@ -66,15 +65,18 @@ public class SleepAppDataPrefsTests
     }
     
     @Test
-    public void getCurrentSession_nullWhenNew()
+    public void clearCurrentSession_clearsSession()
     {
         LiveData<CurrentSessionPrefsData> currentSession = prefs.getCurrentSession();
+        TestUtils.InstrumentationLiveDataSynchronizer<CurrentSessionPrefsData> synchronizer =
+                new TestUtils.InstrumentationLiveDataSynchronizer<>(currentSession);
         
-        TestUtils.activateInstrumentationLiveData(currentSession);
-        assertThat(currentSession.getValue().start, is(nullValue()));
-        assertThat(currentSession.getValue().additionalComments, is(nullValue()));
-        assertThat(currentSession.getValue().moodIndex, is(CurrentSessionPrefsData.NO_MOOD));
-        assertThat(currentSession.getValue().selectedTagIds.isEmpty(), is(true));
+        prefs.setCurrentSession(TestUtils.ArbitraryData.getCurrentSessionPrefsData());
+        
+        prefs.clearCurrentSession();
+        
+        synchronizer.sync();
+        assertThat(currentSession.getValue(), is(equalTo(CurrentSessionPrefsData.empty())));
     }
     
     @Test
@@ -84,11 +86,9 @@ public class SleepAppDataPrefsTests
         TestUtils.InstrumentationLiveDataSynchronizer<CurrentSessionPrefsData> synchronizer =
                 new TestUtils.InstrumentationLiveDataSynchronizer<>(currentSession);
         
-        CurrentSessionPrefsData expected = new CurrentSessionPrefsData(
-                TestUtils.ArbitraryData.getDate(),
-                "test",
-                2,
-                Arrays.asList(1, 2, 3));
+        assertThat(currentSession.getValue(), is(equalTo(CurrentSessionPrefsData.empty())));
+        
+        CurrentSessionPrefsData expected = TestUtils.ArbitraryData.getCurrentSessionPrefsData();
         prefs.setCurrentSession(expected);
         
         synchronizer.sync();

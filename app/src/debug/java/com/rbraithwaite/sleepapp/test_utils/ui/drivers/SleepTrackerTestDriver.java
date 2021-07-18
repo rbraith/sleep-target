@@ -58,6 +58,7 @@ public class SleepTrackerTestDriver
     private TagSelectorDriver mTagSelectorDriver;
     private Boolean mInSession = false;
 
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -297,31 +298,41 @@ public class SleepTrackerTestDriver
         {
             onView(withId(R.id.tracker_interruptions_card)).check(matches(isDisplayed()));
         }
-    
+        
         public void interruptionTimerIsNotDisplayed()
         {
             onView(withId(R.id.tracker_interrupt_duration)).check(matches(not(isDisplayed())));
         }
-    
+        
         public void interruptionTimerMatches(int durationMillis)
         {
             onView(withId(R.id.tracker_interrupt_duration)).check(matches(isDisplayed()));
             onView(withId(R.id.tracker_interrupt_duration)).check(matches(withText(
                     SleepTrackerFormatting.formatDuration(durationMillis))));
         }
-    
+        
         public void interruptionsTotalIsNotDisplayed()
         {
             onView(withId(R.id.sleep_tracker_interruptions_total)).check(matches(not(isDisplayed())));
         }
-    
+        
         public void interruptionsTotalMatches(int totalDurationMillis)
         {
             onView(withId(R.id.sleep_tracker_interruptions_total)).check(matches(isDisplayed()));
             onView(withId(R.id.sleep_tracker_interruptions_total)).check(matches(withText(
                     SleepTrackerFormatting.formatInterruptionsTotal(totalDurationMillis))));
         }
-    
+        
+        public void interruptionReasonTextMatches(String expectedReason)
+        {
+            onView(withId(R.id.tracker_interrupt_reason)).check(matches(withText(expectedReason)));
+        }
+        
+        public void interruptionReasonTextIsEmpty()
+        {
+            interruptionReasonTextMatches("");
+        }
+        
         private void sleepDurationGoalIsDisplayed(SleepDurationGoal expectedSleepDurationGoal)
         {
             onView(withId(R.id.tracker_no_goals_card)).check(matches(not(isDisplayed())));
@@ -553,6 +564,16 @@ public class SleepTrackerTestDriver
         onView(withId(R.id.tracker_interrupt_button)).perform(click());
     }
     
+    public void resumeSession()
+    {
+        pressInterruptButton();
+    }
+    
+    public void startInterruption()
+    {
+        pressInterruptButton();
+    }
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -561,7 +582,7 @@ public class SleepTrackerTestDriver
     {
         injectTimeUtils(new TimeUtils());
     }
-
+    
     private void performOnPostSleepDialog(Action<PostSleepDialog> action)
     {
         getHelper().performSyncedFragmentAction(fragment -> {

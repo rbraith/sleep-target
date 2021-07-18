@@ -8,7 +8,6 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.core.models.CurrentSession;
-import com.rbraithwaite.sleepapp.core.models.Interruption;
 import com.rbraithwaite.sleepapp.core.repositories.CurrentGoalsRepository;
 import com.rbraithwaite.sleepapp.core.repositories.CurrentSessionRepository;
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
@@ -25,7 +24,6 @@ import com.rbraithwaite.sleepapp.utils.TickingLiveData;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -88,7 +86,7 @@ public class SleepTrackerFragmentViewModel
         mCurrentGoalsRepository = currentGoalsRepository;
         mTimeUtils = createTimeUtils();
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -127,6 +125,7 @@ public class SleepTrackerFragmentViewModel
                 currentSession -> {
                     currentSession.setStart(mTimeUtils.getNow());
                     LiveDataUtils.refresh(getCurrentSession());
+                    // TODO [21-07-17 8:23PM] -- I should probably persist here.
                 });
     }
     
@@ -383,10 +382,7 @@ public class SleepTrackerFragmentViewModel
     {
         return LiveDataSingle.withSource(
                 getRepoCurrentSession(),
-                currentSession -> Optional
-                        .ofNullable(currentSession.createCurrentInterruptionSnapshot(mTimeUtils))
-                        .map(Interruption::getReason)
-                        .orElse(null));
+                CurrentSession::getLatestInterruptionReason);
     }
     
     public void setLocalInterruptionReason(String interruptionReason)
@@ -402,12 +398,16 @@ public class SleepTrackerFragmentViewModel
     /**
      * Stop & save the previously ongoing interruption, and resume the session. If the session was
      * not currently interrupted or there was no session, this does nothing.
+     * <p>
+     * This is an important state change, so the current session is persisted here (to avoid missing
+     * that state change on an application crash)
      */
     public void resumeSleepSession()
     {
         LiveDataFuture.getValue(getCurrentSession(), currentSession -> {
             if (currentSession.resume(mTimeUtils)) {
                 LiveDataUtils.refresh(getCurrentSession());
+                mCurrentSessionRepository.setCurrentSession(currentSession);
             }
         });
     }
@@ -415,16 +415,20 @@ public class SleepTrackerFragmentViewModel
     /**
      * Begin an interruption for an ongoing session. If there is no ongoing session, on that session
      * is already interrupted, this does nothing.
+     * <p>
+     * This is an important state change, so the current session is persisted here (to avoid missing
+     * that state change on an application crash)
      */
     public void interruptSleepSession()
     {
         LiveDataFuture.getValue(getCurrentSession(), currentSession -> {
             if (currentSession.interrupt(mTimeUtils)) {
                 LiveDataUtils.refresh(getCurrentSession());
+                mCurrentSessionRepository.setCurrentSession(currentSession);
             }
         });
     }
-    
+
 //*********************************************************
 // protected api
 //*********************************************************
@@ -446,7 +450,7 @@ public class SleepTrackerFragmentViewModel
             return mTickingCurrentSession;
         });
     }
-
+    
     private PostSleepData getPostSleepData()
     {
         return mPostSleepData;
