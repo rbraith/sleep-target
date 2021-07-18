@@ -43,7 +43,6 @@
         android:id="@+id/tracker_interrupt_duration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Error"
         android:textColor="?attr/appColorInterruption"
         android:textSize="32sp"
         android:visibility="gone"

@@ -18,9 +18,11 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.Group;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
 import androidx.navigation.NavDirections;
 import androidx.navigation.ui.NavigationUI;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.rbraithwaite.sleepapp.BuildConfig;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
@@ -32,6 +34,9 @@ import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorControl
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorViewModel;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.StoppedSessionData;
 import com.rbraithwaite.sleepapp.ui.utils.AppColors;
+import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
+
+import java.util.Locale;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -388,16 +393,19 @@ public class SleepTrackerFragment
                     if (isSleepSessionInterrupted) {
                         mAnimations.transitionIntoInterruptionTimer();
                         interruptButton.setText(R.string.tracker_interrupt_btn_resume);
-                        interruptButton.setOnClickListener(v -> viewModel.resumeSleepSession());
-                        mInterruptionReasonText.setVisibility(View.VISIBLE);
+                        interruptButton.setOnClickListener(v -> {
+                            viewModel.resumeSleepSession();
+                            showInterruptionRecordedMessage(v);
+                        });
                     } else {
-                        // HACK [21-07-12 10:17PM] -- putting setVisibility here first, to hide
-                        //  a visual bug where you can momentarily see "Error" in the duration text.
+                        // TODO [21-07-17 11:52PM] -- this is animating in a broken way right now, so I'm not
+                        //  using animations for this transition currently :(
+//                        mAnimations.transitionOutOfInterruptionTimer();
+                        mInterruptionReasonText.setVisibility(View.GONE);
                         interruptDuration.setVisibility(View.GONE);
-                        mAnimations.transitionOutOfInterruptionTimer();
+                        
                         interruptButton.setText(R.string.tracker_interrupt_btn_interrupt);
                         interruptButton.setOnClickListener(v -> viewModel.interruptSleepSession());
-                        mInterruptionReasonText.setVisibility(View.GONE);
                     }
                 });
         
@@ -423,6 +431,19 @@ public class SleepTrackerFragment
                         getViewModel().setLocalInterruptionReason(reason);
                     }
                 });
+    }
+    
+    private void showInterruptionRecordedMessage(View v)
+    {
+        LiveDataFuture.getValue(
+                getViewModel().getLastInterruptionDuration(),
+                getViewLifecycleOwner(),
+                durationText -> Snackbar.make(
+                        v,
+                        // REFACTOR [21-07-18 12:01AM] -- hardcoded text.
+                        String.format(Locale.CANADA, "%s interruption recorded.", durationText),
+                        Snackbar.LENGTH_SHORT)
+                        .show());
     }
     
     private void displayPostSleepDialog(StoppedSessionData stoppedSession)

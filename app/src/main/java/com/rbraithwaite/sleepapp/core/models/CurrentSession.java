@@ -329,6 +329,15 @@ public class CurrentSession
         return isInterrupted() ? mCurrentInterruption.reason :
                 getLatestRecordedInterruptionReason();
     }
+    
+    // TEST NEEDED [21-07-18 12:05AM] -- .
+    public Interruption getLastRecordedInterruption()
+    {
+        if (mRecordedInterruptions == null || mRecordedInterruptions.isEmpty()) {
+            return null;
+        }
+        return mRecordedInterruptions.get(mRecordedInterruptions.size() - 1);
+    }
 
 //*********************************************************
 // private methods
@@ -336,10 +345,8 @@ public class CurrentSession
 
     private String getLatestRecordedInterruptionReason()
     {
-        if (!mRecordedInterruptions.isEmpty()) {
-            return mRecordedInterruptions.get(mRecordedInterruptions.size() - 1).getReason();
-        }
-        return null;
+        Interruption lastInterruption = getLastRecordedInterruption();
+        return lastInterruption == null ? null : lastInterruption.getReason();
     }
     
     private void clearCurrentInterruption()

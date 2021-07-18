@@ -8,6 +8,7 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.core.models.CurrentSession;
+import com.rbraithwaite.sleepapp.core.models.Interruption;
 import com.rbraithwaite.sleepapp.core.repositories.CurrentGoalsRepository;
 import com.rbraithwaite.sleepapp.core.repositories.CurrentSessionRepository;
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
@@ -426,6 +427,15 @@ public class SleepTrackerFragmentViewModel
                 LiveDataUtils.refresh(getCurrentSession());
                 mCurrentSessionRepository.setCurrentSession(currentSession);
             }
+        });
+    }
+    
+    // TEST NEEDED [21-07-18 12:05AM] -- .
+    public LiveData<String> getLastInterruptionDuration()
+    {
+        return Transformations.map(getCurrentSession(), currentSession -> {
+            Interruption interruption = currentSession.getLastRecordedInterruption();
+            return interruption == null ? null : SleepTrackerFormatting.formatDuration(interruption.getDurationMillis());
         });
     }
 

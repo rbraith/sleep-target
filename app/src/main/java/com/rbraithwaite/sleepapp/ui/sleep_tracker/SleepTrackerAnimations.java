@@ -3,9 +3,13 @@ package com.rbraithwaite.sleepapp.ui.sleep_tracker;
 import android.content.Context;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.transition.AutoTransition;
+import androidx.transition.Transition;
 import androidx.transition.TransitionManager;
+import androidx.transition.TransitionValues;
 
 import com.rbraithwaite.sleepapp.R;
 
@@ -52,13 +56,18 @@ public class SleepTrackerAnimations
     
     public void transitionIntoInterruptionTimer()
     {
-        transitionLayoutToKeyframe(mInterruptionsLayout,
-                                   R.layout.tracker_interruptions_interrupted);
+        ConstraintSet set = loadConstraintSet(R.layout.tracker_interruptions_interrupted);
+        set.setVisibility(R.id.tracker_interrupt_duration, View.VISIBLE);
+        set.setVisibility(R.id.tracker_interrupt_reason, View.VISIBLE);
+        transitionToKeyframeSet(mInterruptionsLayout, set);
     }
     
     public void transitionOutOfInterruptionTimer()
     {
-        transitionLayoutToKeyframe(mInterruptionsLayout, R.layout.tracker_interruptions);
+        ConstraintSet set = loadConstraintSet(R.layout.tracker_interruptions);
+        set.setVisibility(R.id.tracker_interrupt_duration, View.GONE);
+        set.setVisibility(R.id.tracker_interrupt_reason, View.GONE);
+        transitionToKeyframeSet(mInterruptionsLayout, set);
     }
     
 //*********************************************************
@@ -70,9 +79,19 @@ public class SleepTrackerAnimations
         // TODO [21-07-4 1:56AM] -- This is ok for now, but later on switch over to MotionLayout for
         //  more animation control (eg speed, colour, visibility, etc)
         //  https://developer.android.com/training/constraint-layout/motionlayout
+        transitionToKeyframeSet(layout, loadConstraintSet(keyframeId));
+    }
+    
+    private ConstraintSet loadConstraintSet(int keyframeId)
+    {
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.load(mContext, keyframeId);
+        return constraintSet;
+    }
+    
+    private void transitionToKeyframeSet(ConstraintLayout layout, ConstraintSet keyframe)
+    {
         TransitionManager.beginDelayedTransition(layout);
-        constraintSet.applyTo(layout);
+        keyframe.applyTo(layout);
     }
 }
