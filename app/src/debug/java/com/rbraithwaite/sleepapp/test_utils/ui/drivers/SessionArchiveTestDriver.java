@@ -14,6 +14,7 @@ import androidx.test.espresso.matcher.BoundedMatcher;
 
 import com.google.android.material.textview.MaterialTextView;
 import com.rbraithwaite.sleepapp.R;
+import com.rbraithwaite.sleepapp.core.models.Interruptions;
 import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.core.models.Tag;
@@ -102,6 +103,21 @@ public class SessionArchiveTestDriver
             hasMoodMatching(sleepSession.getMood());
             hasAdditionalComments(sleepSession.getAdditionalComments() != null &&
                                   !sleepSession.getAdditionalComments().isEmpty());
+            hasInterruptionsMatching(sleepSession.getInterruptions());
+        }
+        
+        public void hasInterruptionsMatching(Interruptions interruptions)
+        {
+            ViewInteraction onInterruptionsText =
+                    onView(withId(R.id.session_archive_list_item_interruptions_VALUE));
+            
+            if (interruptions == null || interruptions.isEmpty()) {
+                onInterruptionsText.check(matches(not(isDisplayed())));
+            } else {
+                onInterruptionsText.check(matches(allOf(
+                        isDisplayed(),
+                        withText(SessionArchiveFormatting.formatInterruptions(interruptions)))));
+            }
         }
         
         public void hasAdditionalComments(boolean shouldHaveAdditionalComments)
@@ -358,6 +374,7 @@ public class SessionArchiveTestDriver
     {
         this(helper, null);
     }
+
 
 
 //*********************************************************

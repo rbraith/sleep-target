@@ -7,8 +7,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginLeft="8dp"
+    android:layout_marginTop="4dp"
     android:layout_marginRight="8dp"
-    android:layout_marginBottom="8dp"
+    android:layout_marginBottom="4dp"
     android:theme="@style/ArchiveListItemTheme">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -71,11 +72,23 @@
             android:layout_marginStart="16dp"
             android:layout_marginLeft="16dp"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="16dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/session_archive_list_item_interruptions_VALUE"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/session_archive_list_item_stop"
+            app:layout_goneMarginBottom="16dp"
             tools:text="1h 23m 45s" />
+
+        <TextView
+            android:id="@+id/session_archive_list_item_interruptions_VALUE"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="Error"
+            android:textColor="?attr/appColorInterruption"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/session_archive_list_item_duration_VALUE"
+            tools:text="3h 45m 45s (4)" />
 
         <ImageView
             android:id="@+id/session_archive_list_item_comment_icon"
@@ -95,11 +108,12 @@
             android:layout_marginTop="16dp"
             app:layout_constraintStart_toEndOf="@+id/session_archive_list_item_comment_icon"
             app:layout_constraintTop_toTopOf="parent">
+
             <com.rbraithwaite.sleepapp.ui.common.views.mood_selector.TEMP.MoodView
                 android:id="@+id/session_archive_list_item_mood"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:tint="?attr/colorPrimary"/>
+                android:tint="?attr/colorPrimary" />
         </FrameLayout>
 
         <LinearLayout

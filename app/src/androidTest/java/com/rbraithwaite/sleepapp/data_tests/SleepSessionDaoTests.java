@@ -42,12 +42,24 @@ import static org.junit.Assert.assertThat;
 @RunWith(AndroidJUnit4.class)
 public class SleepSessionDaoTests
 {
+//*********************************************************
+// private properties
+//*********************************************************
+
     private SleepAppDatabase database;
     private SleepSessionDao sleepSessionDao;
+    
+//*********************************************************
+// public properties
+//*********************************************************
 
     @Rule
     // protection against potentially infinitely blocked threads
     public Timeout timeout = new Timeout(10, TimeUnit.SECONDS);
+    
+//*********************************************************
+// api
+//*********************************************************
 
     @Before
     public void setup()
@@ -122,10 +134,6 @@ public class SleepSessionDaoTests
         
         assertThat(result.getValue(), is(nullValue()));
     }
-    
-//*********************************************************
-// api
-//*********************************************************
 
     @Test
     public void getSleepSessionWithExtras_returnsCorrectData()
@@ -144,12 +152,12 @@ public class SleepSessionDaoTests
         
         // interruptions
         SleepInterruptionEntity interruption1 = new SleepInterruptionEntity(
-                TestUtils.ArbitraryData.getDate().getTime(),
+                TestUtils.ArbitraryData.getDate(),
                 12345,
                 "reason 1");
-    
+        
         SleepInterruptionEntity interruption2 = new SleepInterruptionEntity(
-                TestUtils.ArbitraryData.getDate().getTime(),
+                TestUtils.ArbitraryData.getDate(),
                 54321,
                 "reason 2");
         
@@ -166,7 +174,8 @@ public class SleepSessionDaoTests
         interruption1.id = 1;
         interruption2.id = 2;
         
-        LiveData<SleepSessionWithExtras> resultLive = sleepSessionDao.getSleepSessionWithExtras(sessionId);
+        LiveData<SleepSessionWithExtras> resultLive =
+                sleepSessionDao.getSleepSessionWithExtras(sessionId);
         TestUtils.activateInstrumentationLiveData(resultLive);
         SleepSessionWithExtras result = resultLive.getValue();
         

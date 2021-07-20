@@ -10,7 +10,7 @@ import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_interruptions.SleepInterruptionEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionDao;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
-import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.data.SleepSessionWithTags;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.data.SleepSessionWithExtras;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 
 import org.junit.After;
@@ -106,9 +106,12 @@ public class SleepSessionRepositoryImplTests
         int positiveId = 1;
         
         SleepSessionEntity testEntity = TestUtils.ArbitraryData.getSleepSessionEntity();
-        when(mockSleepSessionDao.getSleepSessionWithTags(positiveId))
-                .thenReturn(new MutableLiveData<>(new SleepSessionWithTags(
+        when(mockSleepSessionDao.getSleepSessionWithExtras(positiveId))
+                .thenReturn(new MutableLiveData<>(new SleepSessionWithExtras(
                         testEntity,
+                        // REFACTOR [21-07-20 5:44PM] -- this should test tag & interruption
+                        //  data as well.
+                        new ArrayList<>(),
                         new ArrayList<>())));
         
         LiveData<SleepSession> liveData = repository.getSleepSession(positiveId);

@@ -41,4 +41,22 @@ public class SleepSessionWithExtras
             entityColumn = SleepInterruptionContract.Columns.SESSION_ID
     )
     public List<SleepInterruptionEntity> interruptions;
+    
+//*********************************************************
+// constructors
+//*********************************************************
+
+    public SleepSessionWithExtras()
+    {
+    }
+    
+    public SleepSessionWithExtras(
+            SleepSessionEntity sleepSession,
+            List<TagEntity> tags,
+            List<SleepInterruptionEntity> interruptions)
+    {
+        this.sleepSession = sleepSession;
+        this.tags = tags;
+        this.interruptions = interruptions;
+    }
 }

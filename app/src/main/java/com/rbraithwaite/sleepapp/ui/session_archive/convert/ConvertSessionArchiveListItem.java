@@ -16,8 +16,9 @@ public class ConvertSessionArchiveListItem
 //*********************************************************
 
     private ConvertSessionArchiveListItem() {/* No instantiation */}
+    
+    // TEST NEEDED [21-05-14 5:09PM] -- update tests with rating data, interruption data.
 
-    // TEST NEEDED [21-05-14 5:09PM] -- update tests with rating data.
 
 //*********************************************************
 // api
@@ -36,6 +37,7 @@ public class ConvertSessionArchiveListItem
         if (sleepSession == null) {
             return null;
         }
+        
         return SessionArchiveListItem.create(
                 sleepSession.getId(),
                 SessionArchiveFormatting.formatFullDate(sleepSession.getStart()),
@@ -44,7 +46,8 @@ public class ConvertSessionArchiveListItem
                 (sleepSession.getAdditionalComments() != null),
                 ConvertMood.toUiData(sleepSession.getMood()),
                 convertTags(sleepSession.getTags()),
-                sleepSession.getRating());
+                sleepSession.getRating(),
+                SessionArchiveFormatting.formatInterruptions(sleepSession.getInterruptions()));
     }
 
 //*********************************************************

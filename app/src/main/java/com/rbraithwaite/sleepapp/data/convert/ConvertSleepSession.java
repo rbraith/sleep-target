@@ -2,9 +2,11 @@ package com.rbraithwaite.sleepapp.data.convert;
 
 import android.util.Log;
 
+import com.rbraithwaite.sleepapp.core.models.Interruptions;
 import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.data.SleepSessionWithExtras;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.data.SleepSessionWithTags;
 
 import java.util.List;
@@ -74,6 +76,29 @@ public class ConvertSleepSession
                 .collect(Collectors.toList());
     }
     
+    // TEST NEEDED [21-07-20 5:22PM] -- .
+    public static SleepSession fromEntityWithExtras(SleepSessionWithExtras entityWithExtras)
+    {
+        if (entityWithExtras == null) {
+            return null;
+        }
+        
+        SleepSession sleepSession = fromEntity(entityWithExtras.sleepSession);
+        
+        sleepSession.setTags(entityWithExtras.tags.stream()
+                                     .map(ConvertTag::fromEntity)
+                                     .collect(Collectors.toList()));
+        
+        sleepSession.setInterruptions(new Interruptions(
+                entityWithExtras.interruptions.stream()
+                        .map(ConvertInterruption::fromEntity)
+                        .collect(Collectors.toList())));
+        
+        return sleepSession;
+    }
+    
+    // REFACTOR [21-07-20 2:42PM] -- replace with fromEntityWithExtras.
+    @Deprecated
     public static SleepSession fromEntityWithTags(SleepSessionWithTags entityWithTags)
     {
         if (entityWithTags == null) {

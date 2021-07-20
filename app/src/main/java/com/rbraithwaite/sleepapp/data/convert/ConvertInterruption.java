@@ -20,7 +20,7 @@ public class ConvertInterruption
     private static final String JSON_START = "start";
     private static final String JSON_DURATION = "duration";
     private static final String JSON_REASON = "reason";
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -31,9 +31,18 @@ public class ConvertInterruption
             return null;
         }
         return new SleepInterruptionEntity(
-                interruption.getStart().getTime(),
+                interruption.getStart(),
                 interruption.getDurationMillis(),
                 interruption.getReason());
+    }
+    
+    // TEST NEEDED [21-07-20 5:22PM]
+    public static Interruption fromEntity(SleepInterruptionEntity entity)
+    {
+        return new Interruption(
+                entity.startTime,
+                entity.durationMillis,
+                entity.reason);
     }
     
     // TEST NEEDED [21-07-17 9:08PM] -- .

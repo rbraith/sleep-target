@@ -100,10 +100,19 @@ public abstract class SleepSessionDao
     
     // TEST NEEDED [21-06-30 6:16PM] -- .
     // TODO [21-07-1 1:44AM] -- sorting is currently hardcoded - I can parameterize this.
+    // REFACTOR [21-07-20 3:34PM] -- use getAllSleepSessionsWithExtras instead.
+    @Deprecated
     @Transaction
     @Query("SELECT * FROM " + SleepSessionContract.TABLE_NAME +
            " ORDER BY " + SleepSessionContract.Columns.START_TIME + " DESC")
     public abstract LiveData<List<SleepSessionWithTags>> getAllSleepSessionsWithTags();
+    
+    // TEST NEEDED [21-07-20 3:34PM]
+    // TODO [21-07-20 3:34PM] -- sorting is currently hardcoded - I can parameterize this..
+    @Transaction
+    @Query("SELECT * FROM " + SleepSessionContract.TABLE_NAME +
+           " ORDER BY " + SleepSessionContract.Columns.START_TIME + " DESC")
+    public abstract LiveData<List<SleepSessionWithExtras>> getAllSleepSessionsWithExtras();
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     protected abstract void addTagsToSleepSession(List<SleepSessionTagJunction> junctions);

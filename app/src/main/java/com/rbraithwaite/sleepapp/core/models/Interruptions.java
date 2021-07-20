@@ -3,6 +3,7 @@ package com.rbraithwaite.sleepapp.core.models;
 import java.util.List;
 
 
+
 /**
  * Behaviour relating to an {@link Interruption} collection.
  */
@@ -13,7 +14,7 @@ public class Interruptions
 //*********************************************************
 
     private List<Interruption> mInterruptions;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -22,8 +23,8 @@ public class Interruptions
     {
         mInterruptions = interruptions;
     }
-    
-    
+
+
 //*********************************************************
 // api
 //*********************************************************
@@ -38,5 +39,15 @@ public class Interruptions
     public int getCount()
     {
         return mInterruptions.size();
+    }
+    
+    public boolean isEmpty()
+    {
+        return mInterruptions == null || mInterruptions.isEmpty();
+    }
+    
+    public List<Interruption> asList()
+    {
+        return mInterruptions;
     }
 }

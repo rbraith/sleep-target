@@ -6,6 +6,12 @@ import com.rbraithwaite.sleepapp.test_utils.test_data.builders.InterruptionBuild
 import com.rbraithwaite.sleepapp.test_utils.test_data.builders.MoodBuilder;
 import com.rbraithwaite.sleepapp.test_utils.test_data.builders.PostSleepDataBuilder;
 import com.rbraithwaite.sleepapp.test_utils.test_data.builders.StoppedSessionDataBuilder;
+import com.rbraithwaite.sleepapp.utils.interfaces.BuilderOf;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class TestData
 {
@@ -14,7 +20,7 @@ public class TestData
 //*********************************************************
 
     private TestData() {/* No instantiation */}
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -47,5 +53,12 @@ public class TestData
     public static StoppedSessionDataBuilder aStoppedSessionData()
     {
         return new StoppedSessionDataBuilder();
+    }
+    
+    public static <T> List<T> listOf(BuilderOf<T>... builders)
+    {
+        return new ArrayList<>(Arrays.asList(builders)).stream()
+                .map(BuilderOf::build)
+                .collect(Collectors.toList());
     }
 }

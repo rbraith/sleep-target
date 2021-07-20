@@ -2,6 +2,7 @@ package com.rbraithwaite.sleepapp.ui_tests.session_archive_fragment;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.rbraithwaite.sleepapp.core.models.Interruptions;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.data.database.DatabaseTestDriver;
@@ -20,6 +21,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.anInterruption;
+import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.listOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -55,6 +58,10 @@ public class SessionArchiveFragmentTests
         // REFACTOR [21-05-14 3:36PM] -- put sessionArchive & database in a setup method.
         //  update all tests to use these drivers.
         SleepSession sleepSession = TestUtils.ArbitraryData.getSleepSession();
+        sleepSession.setInterruptions(new Interruptions(listOf(
+                anInterruption(),
+                anInterruption())));
+        
         database.addSleepSession(sleepSession);
         
         // REFACTOR [21-05-14 3:40PM] -- It would be better if the activity didn't launch

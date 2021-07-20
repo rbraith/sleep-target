@@ -13,6 +13,7 @@ public class SessionArchiveListItem
 // public properties
 //*********************************************************
 
+    // REFACTOR [21-07-20 2:30PM] -- these should all be final.
     public int sleepSessionId;
     public String startTime;
     public String endTime;
@@ -21,6 +22,7 @@ public class SessionArchiveListItem
     public MoodUiData mood;
     public List<String> tags;
     public float rating;
+    public String interruptionsText;
 
 //*********************************************************
 // overrides
@@ -36,7 +38,8 @@ public class SessionArchiveListItem
                             mood,
                             tags,
                             rating,
-                            sleepSessionId);
+                            sleepSessionId,
+                            interruptionsText);
     }
     
     @Override
@@ -52,9 +55,10 @@ public class SessionArchiveListItem
                sessionDuration.equals(that.sessionDuration) &&
                Objects.equals(mood, that.mood) &&
                Objects.equals(tags, that.tags) &&
-               sleepSessionId == that.sleepSessionId;
+               sleepSessionId == that.sleepSessionId &&
+               Objects.equals(interruptionsText, that.interruptionsText);
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -68,7 +72,8 @@ public class SessionArchiveListItem
             boolean hasAdditionalComments,
             MoodUiData mood,
             List<String> tags,
-            float rating)
+            float rating,
+            String interruptionsText)
     {
         SessionArchiveListItem listItem = new SessionArchiveListItem();
         listItem.sleepSessionId = sleepSessionId;
@@ -79,6 +84,7 @@ public class SessionArchiveListItem
         listItem.mood = mood;
         listItem.tags = tags == null ? new ArrayList<>() : tags;
         listItem.rating = rating;
+        listItem.interruptionsText = interruptionsText;
         return listItem;
     }
 }

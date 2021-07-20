@@ -29,6 +29,7 @@ public class SleepSession
     private Mood mMood;
     private List<Tag> mTags;
     private float mRating;
+    private Interruptions mInterruptions;
 
 //*********************************************************
 // public constants
@@ -153,7 +154,7 @@ public class SleepSession
         // REFACTOR [21-05-10 10:01PM] -- this should be ctor injected instead probably.
         mTimeUtils = createTimeUtils();
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -170,7 +171,7 @@ public class SleepSession
         result = 31 * result + (mRating != +0.0f ? Float.floatToIntBits(mRating) : 0);
         return result;
     }
-
+    
     @Override
     public boolean equals(Object o)
     {
@@ -194,7 +195,7 @@ public class SleepSession
     {
         return "SleepSession id:" + getId();
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -210,7 +211,7 @@ public class SleepSession
                 sleepSession.getTags(),
                 sleepSession.getRating());
     }
-
+    
     // SMELL [21-03-29 9:50PM] the id is a storage implementation detail - it is not
     //  relevant to the domain model.
     public int getId()
@@ -358,6 +359,16 @@ public class SleepSession
     public void setRating(Float rating)
     {
         mRating = rating == null ? 0f : rating;
+    }
+    
+    public Interruptions getInterruptions()
+    {
+        return mInterruptions;
+    }
+    
+    public void setInterruptions(Interruptions interruptions)
+    {
+        mInterruptions = interruptions;
     }
 
 //*********************************************************

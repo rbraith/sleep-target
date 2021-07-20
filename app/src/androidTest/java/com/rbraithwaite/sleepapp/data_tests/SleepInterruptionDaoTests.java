@@ -69,12 +69,12 @@ public class SleepInterruptionDaoTests
     public void interruptionsRemovedWhenSleepSessionDeleted()
     {
         SleepInterruptionEntity interruption1 = new SleepInterruptionEntity(
-                TestUtils.ArbitraryData.getDate().getTime(),
+                TestUtils.ArbitraryData.getDate(),
                 12345,
                 "reason 1");
         
         SleepInterruptionEntity interruption2 = new SleepInterruptionEntity(
-                TestUtils.ArbitraryData.getDate().getTime(),
+                TestUtils.ArbitraryData.getDate(),
                 54321,
                 "reason 2");
         

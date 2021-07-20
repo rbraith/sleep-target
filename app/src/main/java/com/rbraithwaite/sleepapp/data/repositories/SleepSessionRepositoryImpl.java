@@ -76,8 +76,8 @@ public class SleepSessionRepositoryImpl
     public LiveData<SleepSession> getSleepSession(int id)
     {
         return Transformations.map(
-                mSleepSessionDao.getSleepSessionWithTags(id),
-                ConvertSleepSession::fromEntityWithTags);
+                mSleepSessionDao.getSleepSessionWithExtras(id),
+                ConvertSleepSession::fromEntityWithExtras);
     }
     
     @Override
@@ -169,9 +169,9 @@ public class SleepSessionRepositoryImpl
     public LiveData<List<SleepSession>> getAllSleepSessions()
     {
         return Transformations.map(
-                mSleepSessionDao.getAllSleepSessionsWithTags(),
-                sleepSessionsWithTags -> sleepSessionsWithTags.stream()
-                        .map(ConvertSleepSession::fromEntityWithTags)
+                mSleepSessionDao.getAllSleepSessionsWithExtras(),
+                sleepSessionsWithExtras -> sleepSessionsWithExtras.stream()
+                        .map(ConvertSleepSession::fromEntityWithExtras)
                         .collect(Collectors.toList()));
     }
 }

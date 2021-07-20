@@ -59,7 +59,7 @@ public class SessionArchiveRecyclerViewAdapter
     private static final int VIEW_TYPE_ITEM = 0;
     
     private static final int VIEW_TYPE_NO_DATA = 1;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -68,7 +68,7 @@ public class SessionArchiveRecyclerViewAdapter
     {
         void onClick(View v, int position);
     }
-    
+
 //*********************************************************
 // package helpers
 //*********************************************************
@@ -81,7 +81,7 @@ public class SessionArchiveRecyclerViewAdapter
             super(itemView);
         }
     }
-
+    
     static class NoDataViewHolder
             extends ViewHolder
     {
@@ -90,7 +90,7 @@ public class SessionArchiveRecyclerViewAdapter
             super(itemView);
         }
     }
-
+    
     static class ItemViewHolder
             extends ViewHolder
     {
@@ -111,6 +111,7 @@ public class SessionArchiveRecyclerViewAdapter
         LinearLayout tagsLineTwo;
         TextView tagsMore;
         RatingBar ratingIndicator;
+        TextView interruptions;
         
         public ItemViewHolder(
                 @NonNull View itemView,
@@ -132,6 +133,8 @@ public class SessionArchiveRecyclerViewAdapter
             this.tagsLineTwo = this.tagsFrame.findViewById(R.id.tags_line_two);
             this.tagsMore = this.tagsFrame.findViewById(R.id.tags_more);
             this.ratingIndicator = itemView.findViewById(R.id.session_archive_list_item_rating);
+            this.interruptions =
+                    itemView.findViewById(R.id.session_archive_list_item_interruptions_VALUE);
             
             itemView.setOnClickListener(v -> {
                 if (onListItemClickListener != null) {
@@ -140,7 +143,7 @@ public class SessionArchiveRecyclerViewAdapter
             });
         }
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -156,7 +159,7 @@ public class SessionArchiveRecyclerViewAdapter
         
         viewModel.getAllListItems().observe(getLifecycleOwner(), this::setItems);
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -211,7 +214,7 @@ public class SessionArchiveRecyclerViewAdapter
         }
         return mItems.size();
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -226,7 +229,7 @@ public class SessionArchiveRecyclerViewAdapter
         mItems = items;
         notifyDataSetChanged();
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -238,7 +241,7 @@ public class SessionArchiveRecyclerViewAdapter
                 .from(parent.getContext())
                 .inflate(layoutId, parent, false);
     }
-
+    
     private LifecycleOwner getLifecycleOwner()
     {
         return mFragmentProvider.provide();
@@ -278,6 +281,13 @@ public class SessionArchiveRecyclerViewAdapter
         }
         
         itemViewHolder.ratingIndicator.setRating(item.rating);
+        
+        if (item.interruptionsText != null) {
+            itemViewHolder.interruptions.setVisibility(View.VISIBLE);
+            itemViewHolder.interruptions.setText(item.interruptionsText);
+        } else {
+            itemViewHolder.interruptions.setVisibility(View.GONE);
+        }
     }
     
     // REFACTOR [21-06-29 4:49PM] -- All these methods relating to the tag display should be

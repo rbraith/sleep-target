@@ -1,9 +1,15 @@
 package com.rbraithwaite.sleepapp.ui.session_archive;
 
+import com.rbraithwaite.sleepapp.core.models.Interruption;
+import com.rbraithwaite.sleepapp.core.models.Interruptions;
+
 import org.junit.Test;
 
 import java.util.GregorianCalendar;
+import java.util.List;
 
+import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.anInterruption;
+import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.listOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -14,6 +20,17 @@ public class SessionArchiveFormattingTests
 //*********************************************************
 // api
 //*********************************************************
+    
+    @Test
+    public void formatInterruptions_positiveInput()
+    {
+        Interruptions interruptions = new Interruptions(listOf(
+                anInterruption().withDuration(1, 10, 10),
+                anInterruption().withDuration(2, 5, 5)));
+        
+        assertThat(SessionArchiveFormatting.formatInterruptions(interruptions),
+                   is(equalTo("3h 15m 15s (2)")));
+    }
 
     @Test(expected = IllegalArgumentException.class)
     public void formatDuration_throwsOnNegativeInput()

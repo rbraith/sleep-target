@@ -7,6 +7,7 @@ import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.core.models.Tag;
 import com.rbraithwaite.sleepapp.core.models.WakeTimeGoal;
+import com.rbraithwaite.sleepapp.data.convert.ConvertInterruption;
 import com.rbraithwaite.sleepapp.data.convert.ConvertSleepDurationGoal;
 import com.rbraithwaite.sleepapp.data.convert.ConvertSleepSession;
 import com.rbraithwaite.sleepapp.data.convert.ConvertTag;
@@ -18,6 +19,7 @@ import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.assertion_utils.AssertionFailed;
 import com.rbraithwaite.sleepapp.test_utils.ui.assertion_utils.ValueAssertions;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -102,6 +104,10 @@ public class DatabaseTestDriver
 // api
 //*********************************************************
 
+    // REFACTOR [21-05-14 3:58PM] -- This duplicates the SleepSessionRepository code, it
+    //  would be better to use that repo directly
+    //  see https://developer.android.com/training/dependency-injection/hilt-testing#testing
+    //  -dependencies.
     public void addSleepSession(SleepSession sleepSession)
     {
         // make sure the tags exist in the db before adding the sleep session w/ tags
@@ -109,14 +115,18 @@ public class DatabaseTestDriver
             mDatabase.getTagDao().addTag(ConvertTag.toEntity(tag));
         }
         
-        // REFACTOR [21-05-14 3:58PM] -- This duplicates the SleepSessionRepository code, it
-        //  would be
-        //  better to use that repo directly
-        //  see https://developer.android.com/training/dependency-injection/hilt-testing#testing
-        //  -dependencies.
-        mDatabase.getSleepSessionDao().addSleepSessionWithTags(
+        List<SleepInterruptionEntity> interruptionEntities = new ArrayList<>();
+        if (sleepSession.getInterruptions() != null) {
+            interruptionEntities = sleepSession.getInterruptions().asList().stream()
+                    .map(ConvertInterruption::toEntity)
+                    .collect(Collectors.toList());
+        }
+        
+        mDatabase.getSleepSessionDao().addSleepSessionWithExtras(
                 ConvertSleepSession.toEntity(sleepSession),
-                sleepSession.getTags().stream().map(Tag::getTagId).collect(Collectors.toList()));
+                sleepSession.getTags().stream()
+                        .map(Tag::getTagId).collect(Collectors.toList()),
+                interruptionEntities);
     }
     
     public void setWakeTimeGoal(WakeTimeGoal wakeTimeGoal)

@@ -31,7 +31,7 @@ public class ConvertInterruptionTests
         
         assertThat(entity.id, is(equalTo(0)));
         assertThat(entity.sessionId, is(equalTo(0L)));
-        assertThat(entity.startTime, is(start.getTime()));
+        assertThat(entity.startTime, is(equalTo(start)));
         assertThat(entity.durationMillis, is(durationMillis));
         assertThat(entity.reason, is(equalTo(reason)));
     }
