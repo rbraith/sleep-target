@@ -14,6 +14,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.DialogFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
@@ -50,14 +52,17 @@ public class PostSleepDialog
     private OnDiscardSessionListener mOnDiscardSessionListener;
     private PostSleepDialogViewModel mViewModel;
     private TagScrollController mTagScrollController;
+    
+    private RecyclerView mInterruptionsRecycler;
 
 //*********************************************************
 // package properties
 //*********************************************************
 
     ConstraintLayout mRoot;
+    
     RatingBar mRatingBar;
-
+    
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -66,7 +71,7 @@ public class PostSleepDialog
     {
         void onKeepSession(StoppedSessionData stoppedSession);
     }
-    
+
     public interface OnDiscardSessionListener
     {
         void onDiscardSession();
@@ -88,7 +93,7 @@ public class PostSleepDialog
         initSessionDetails(mRoot);
         
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setView(mRoot)
+        builder.setView(wrapInScrollView(mRoot))
                 .setTitle(R.string.postsleepdialog_title)
                 .setPositiveButton(R.string.keep, (dialog, which) -> {
                     if (mOnKeepSessionListener != null) {
@@ -124,7 +129,7 @@ public class PostSleepDialog
         
         return alertDialog;
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -162,10 +167,24 @@ public class PostSleepDialog
         return mTagScrollController;
     }
 
+    public RecyclerView getInterruptionsRecycler()
+    {
+        return mInterruptionsRecycler;
+    }
+    
 //*********************************************************
 // private methods
 //*********************************************************
 
+    // REFACTOR [21-07-19 8:07PM] -- this should be extracted to a general utility - lots of stuff
+    //  needs to be wrapped in scroll views.
+    private View wrapInScrollView(View v)
+    {
+        ScrollView scrollView = new ScrollView(requireContext());
+        scrollView.addView(v);
+        return scrollView;
+    }
+    
     private void initSessionDetails(View dialogRoot)
     {
         TextView startText = dialogRoot.findViewById(R.id.postsleep_start_value);
@@ -182,6 +201,39 @@ public class PostSleepDialog
         initTags(dialogRoot);
         
         initAdditionalComments(dialogRoot);
+        
+        initInterruptions(dialogRoot);
+    }
+    
+    private void initInterruptions(View dialogRoot)
+    {
+        FrameLayout interruptionsContent =
+                dialogRoot.findViewById(R.id.post_sleep_interruptions_content);
+        
+        if (mViewModel.hasNoInterruptions()) {
+            getLayoutInflater().inflate(R.layout.post_sleep_interruptions_nodata,
+                                        interruptionsContent);
+        } else {
+            initInterruptionsDataDisplay(interruptionsContent);
+        }
+    }
+    
+    private void initInterruptionsDataDisplay(FrameLayout parent)
+    {
+        View interruptionsLayout =
+                getLayoutInflater().inflate(R.layout.post_sleep_interruptions, parent);
+        
+        TextView countText = interruptionsLayout.findViewById(R.id.postsleep_interruptions_count);
+        countText.setText(mViewModel.getInterruptionsCountText());
+        
+        TextView totalTimeText =
+                interruptionsLayout.findViewById(R.id.postsleep_interruptions_total);
+        totalTimeText.setText(mViewModel.getInterruptionsTotalTimeText());
+        
+        mInterruptionsRecycler =
+                interruptionsLayout.findViewById(R.id.postsleep_interruptions_recycler);
+        mInterruptionsRecycler.setLayoutManager(new LinearLayoutManager(requireContext()));
+        mInterruptionsRecycler.setAdapter(new PostSleepInterruptionsAdapter(mViewModel.getInterruptionsListItems()));
     }
     
     private void initAdditionalComments(View dialogRoot)

@@ -6,12 +6,15 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
+import com.rbraithwaite.sleepapp.core.models.Interruption;
+import com.rbraithwaite.sleepapp.core.models.Interruptions;
 import com.rbraithwaite.sleepapp.core.repositories.TagRepository;
 import com.rbraithwaite.sleepapp.ui.common.convert.ConvertMood;
 import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.ConvertTag;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagUiData;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.PostSleepData;
+import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.PostSleepInterruptionListItem;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.StoppedSessionData;
 
 import java.util.List;
@@ -123,6 +126,37 @@ public class PostSleepDialogViewModel
         return new StoppedSessionData(
                 mStoppedSessionData.currentSessionSnapshot,
                 getPostSleepData().getValue());
+    }
+    
+    public boolean hasNoInterruptions()
+    {
+        List<Interruption> interruptions = mStoppedSessionData.currentSessionSnapshot.interruptions;
+        return interruptions == null || interruptions.isEmpty();
+    }
+    
+    public String getInterruptionsCountText()
+    {
+        return PostSleepDialogFormatting.formatInterruptionsCount(
+                mStoppedSessionData.currentSessionSnapshot.interruptions);
+    }
+    
+    public String getInterruptionsTotalTimeText()
+    {
+        return PostSleepDialogFormatting.formatDuration(
+                // REFACTOR [21-07-19 7:02PM] -- CurrentSession.Snapshot should have an
+                //  Interruptions
+                //  instead.
+                new Interruptions(mStoppedSessionData.currentSessionSnapshot.interruptions).getTotalDuration());
+    }
+    
+    public List<PostSleepInterruptionListItem> getInterruptionsListItems()
+    {
+        return mStoppedSessionData.currentSessionSnapshot.interruptions.stream()
+                .map(interruption -> new PostSleepInterruptionListItem(
+                        PostSleepDialogFormatting.formatInterruptionStart(interruption.getStart()),
+                        PostSleepDialogFormatting.formatDuration(interruption.getDurationMillis()),
+                        PostSleepDialogFormatting.formatInterruptionReason(interruption.getReason())))
+                .collect(Collectors.toList());
     }
 
 //*********************************************************

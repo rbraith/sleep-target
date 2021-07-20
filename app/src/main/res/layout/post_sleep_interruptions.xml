@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/postsleep_interruptions_total_title"
+        style="@style/TrackerPostSleepSubtitleStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginLeft="32dp"
+        android:text="Total Time"
+        app:layout_constraintBaseline_toBaselineOf="@+id/postsleep_interruptions_count_title"
+        app:layout_constraintStart_toEndOf="@+id/postsleep_interruptions_count_title" />
+
+    <TextView
+        android:id="@+id/postsleep_interruptions_total"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Error"
+        android:textColor="?attr/appColorInterruption"
+        android:textSize="30sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/postsleep_interruptions_count"
+        app:layout_constraintStart_toStartOf="@+id/postsleep_interruptions_total_title"
+        tools:text="3h 45m 45s" />
+
+    <TextView
+        android:id="@+id/postsleep_interruptions_count_title"
+        style="@style/TrackerPostSleepSubtitleStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Total Count"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/postsleep_interruptions_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Error"
+        android:textColor="?attr/appColorInterruption"
+        android:textSize="30sp"
+        app:layout_constraintStart_toStartOf="@+id/postsleep_interruptions_count_title"
+        app:layout_constraintTop_toBottomOf="@+id/postsleep_interruptions_count_title"
+        tools:text="5" />
+
+    <View
+        android:id="@+id/postsleep_interruptions_div"
+        android:layout_width="match_parent"
+        android:layout_height="2px"
+        android:layout_marginTop="16dp"
+        android:background="?attr/appColorOnBackgroundFloating2"
+        app:layout_constraintTop_toBottomOf="@id/postsleep_interruptions_count" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/postsleep_interruptions_recycler"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_max="200dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/postsleep_interruptions_div" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

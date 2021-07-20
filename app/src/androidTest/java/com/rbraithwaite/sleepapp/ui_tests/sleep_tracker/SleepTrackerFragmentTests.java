@@ -84,6 +84,26 @@ public class SleepTrackerFragmentTests
         sleepTracker.assertThat().postSleepDialogTagsAreUnset();
     }
     
+    @Test
+    public void postSleepDialogDisplaysNoInterruptionsWhenNoInterruptions()
+    {
+        sleepTracker.stopSleepSession(12345); // arbitrary duration
+        sleepTracker.assertThat().postSleepDialogInterruptionsAreUnset();
+    }
+    
+    @Test
+    public void postSleepDialogDisplaysInterruptions()
+    {
+        sleepTracker.startSessionManually();
+        
+        sleepTracker.recordArbitraryInterruption();
+        sleepTracker.recordArbitraryInterruption();
+        
+        sleepTracker.stopSessionManually();
+        
+        sleepTracker.assertThat().postSleepDialogHasInterruptionCount(2);
+    }
+    
     // regression for #14
     @Test
     public void trackerIsClearedAfterKeepingSession()

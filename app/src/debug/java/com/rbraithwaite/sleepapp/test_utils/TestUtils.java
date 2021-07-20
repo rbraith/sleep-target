@@ -126,6 +126,8 @@ public class TestUtils
      * Provides fixed, arbitrary data for cases where the specific details of the data aren't
      * important.
      */
+    // REFACTOR [21-07-19 5:09PM] -- replace used of this with TestData.
+    @Deprecated
     public static class ArbitraryData
     {
         private ArbitraryData() {/* No instantiation */}

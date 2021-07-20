@@ -307,6 +307,7 @@ public class SleepTrackerFragment
                 hasAnyGoal -> noGoalsCard.setVisibility(hasAnyGoal ? View.GONE : View.VISIBLE));
     }
     
+    
     private void initSessionTrackingDisplay(View fragmentRoot)
     {
         SleepTrackerFragmentViewModel viewModel = getViewModel();

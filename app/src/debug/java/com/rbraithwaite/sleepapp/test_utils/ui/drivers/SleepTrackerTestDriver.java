@@ -332,7 +332,21 @@ public class SleepTrackerTestDriver
         {
             interruptionReasonTextMatches("");
         }
-        
+    
+        public void postSleepDialogInterruptionsAreUnset()
+        {
+            onView(withId(R.id.post_sleep_interruptions_content)).perform(scrollTo());
+            onView(withId(R.id.post_sleep_interruptions_nodata)).check(matches(isDisplayed()));
+        }
+    
+        public void postSleepDialogHasInterruptionCount(int interruptionCount)
+        {
+            onView(withId(R.id.post_sleep_interruptions_content)).perform(scrollTo());
+            onView(withId(R.id.postsleep_interruptions_count)).check(matches(withText(String.valueOf(interruptionCount))));
+            assertOnPostSleepDialog(dialog -> hamcrestAssertThat(
+                    dialog.getInterruptionsRecycler().getAdapter().getItemCount(), is(interruptionCount)));
+        }
+    
         private void sleepDurationGoalIsDisplayed(SleepDurationGoal expectedSleepDurationGoal)
         {
             onView(withId(R.id.tracker_no_goals_card)).check(matches(not(isDisplayed())));
@@ -571,6 +585,12 @@ public class SleepTrackerTestDriver
     
     public void startInterruption()
     {
+        pressInterruptButton();
+    }
+    
+    public void recordArbitraryInterruption()
+    {
+        pressInterruptButton();
         pressInterruptButton();
     }
 
