@@ -88,7 +88,7 @@ public class CurrentSessionPrefs
     {
         mExecutor.execute(() -> {
             synchronized (mCurrentSessionLock) {
-                mPrefs.edit().putBoolean(KEY_CURRENT_SESSION_EXISTS, false);
+                mPrefs.edit().putBoolean(KEY_CURRENT_SESSION_EXISTS, false).commit();
             }
         });
         // clear the cache

@@ -67,15 +67,13 @@ public class CurrentSessionPrefsTests
     @Test
     public void clearCurrentSession_clearsSession()
     {
-        LiveData<CurrentSessionPrefsData> currentSession = prefs.getCurrentSession();
-        TestUtils.InstrumentationLiveDataSynchronizer<CurrentSessionPrefsData> synchronizer =
-                new TestUtils.InstrumentationLiveDataSynchronizer<>(currentSession);
-        
         prefs.setCurrentSession(TestUtils.ArbitraryData.getCurrentSessionPrefsData());
         
         prefs.clearCurrentSession();
+    
+        LiveData<CurrentSessionPrefsData> currentSession = prefs.getCurrentSession();
         
-        synchronizer.sync();
+        TestUtils.activateInstrumentationLiveData(currentSession);
         assertThat(currentSession.getValue(), is(equalTo(CurrentSessionPrefsData.empty())));
     }
     
