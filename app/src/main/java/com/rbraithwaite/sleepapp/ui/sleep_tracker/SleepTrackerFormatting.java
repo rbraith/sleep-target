@@ -1,5 +1,6 @@
 package com.rbraithwaite.sleepapp.ui.sleep_tracker;
 
+import com.rbraithwaite.sleepapp.core.models.Interruptions;
 import com.rbraithwaite.sleepapp.core.models.SleepDurationGoal;
 import com.rbraithwaite.sleepapp.core.models.WakeTimeGoal;
 import com.rbraithwaite.sleepapp.ui.Constants;
@@ -23,9 +24,9 @@ public class SleepTrackerFormatting
 //*********************************************************
 
     // TEST NEEDED [21-07-14 11:50PM] -- .
-    public static String formatInterruptionsTotal(long interruptionsTotalDuration)
+    public static String formatInterruptionsTotal(long durationMillis, int interruptionCount)
     {
-        return "(" + formatDuration(interruptionsTotalDuration) + ")";
+        return formatDuration(durationMillis) + " (" + interruptionCount + ")";
     }
     
     public static String formatSleepDurationGoal(SleepDurationGoal sleepDurationGoal)

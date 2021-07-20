@@ -242,7 +242,7 @@ public class SleepTrackerFragmentTests
         sleepTracker.assertThat()
                 .interruptionButtonIsInState(SleepTrackerTestDriver.Assertions.InterruptButtonState.INTERRUPTED);
         sleepTracker.assertThat().interruptionTimerMatches(0);
-        sleepTracker.assertThat().interruptionsTotalMatches(0);
+        sleepTracker.assertThat().interruptionsTotalMatches(0, 1);
         
         // press the interrupt button, *then* unpause, so that we can be sure the timer should
         // have the paused duration value.

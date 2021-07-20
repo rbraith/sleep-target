@@ -34,4 +34,9 @@ public class Interruptions
                 .mapToLong(Interruption::getDurationMillis)
                 .sum();
     }
+    
+    public int getCount()
+    {
+        return mInterruptions.size();
+    }
 }

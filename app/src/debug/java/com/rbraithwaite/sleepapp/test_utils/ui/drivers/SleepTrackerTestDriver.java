@@ -316,11 +316,11 @@ public class SleepTrackerTestDriver
             onView(withId(R.id.sleep_tracker_interruptions_total)).check(matches(not(isDisplayed())));
         }
         
-        public void interruptionsTotalMatches(int totalDurationMillis)
+        public void interruptionsTotalMatches(int totalDurationMillis, int count)
         {
             onView(withId(R.id.sleep_tracker_interruptions_total)).check(matches(isDisplayed()));
             onView(withId(R.id.sleep_tracker_interruptions_total)).check(matches(withText(
-                    SleepTrackerFormatting.formatInterruptionsTotal(totalDurationMillis))));
+                    SleepTrackerFormatting.formatInterruptionsTotal(totalDurationMillis, count))));
         }
         
         public void interruptionReasonTextMatches(String expectedReason)

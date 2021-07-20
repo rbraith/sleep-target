@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.core.models.CurrentSession;
 import com.rbraithwaite.sleepapp.core.models.Interruption;
+import com.rbraithwaite.sleepapp.core.models.Interruptions;
 import com.rbraithwaite.sleepapp.core.repositories.CurrentGoalsRepository;
 import com.rbraithwaite.sleepapp.core.repositories.CurrentSessionRepository;
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
@@ -197,9 +198,14 @@ public class SleepTrackerFragmentViewModel
                     } else {
                         return Transformations.map(
                                 getTickingCurrentSession(),
-                                tickingCurrentSession -> SleepTrackerFormatting.formatInterruptionsTotal(
-                                        tickingCurrentSession.getInterruptionsTotalDuration(
-                                                mTimeUtils)));
+                                tickingCurrentSession -> {
+                                    long duration = tickingCurrentSession.getInterruptionsTotalDuration(mTimeUtils);
+                                    int count = tickingCurrentSession.getInterruptions().size() +
+                                                (tickingCurrentSession.isInterrupted() ? 1 : 0);
+                                    
+                                    return SleepTrackerFormatting.formatInterruptionsTotal(
+                                            duration, count);
+                                });
                     }
                 }));
         return mInterruptionsTotal;
