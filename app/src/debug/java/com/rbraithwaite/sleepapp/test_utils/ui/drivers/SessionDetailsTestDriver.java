@@ -4,6 +4,8 @@ import androidx.test.espresso.ViewInteraction;
 import androidx.test.espresso.contrib.PickerActions;
 
 import com.rbraithwaite.sleepapp.R;
+import com.rbraithwaite.sleepapp.core.models.Interruption;
+import com.rbraithwaite.sleepapp.core.models.Interruptions;
 import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.core.models.Tag;
@@ -12,6 +14,7 @@ import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.ApplicationFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.HiltFragmentTestHelper;
+import com.rbraithwaite.sleepapp.ui.common.interruptions.InterruptionFormatting;
 import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.MoodSelectorViewModel;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorViewModel;
 import com.rbraithwaite.sleepapp.ui.session_details.SessionDetailsFormatting;
@@ -30,6 +33,7 @@ import java.util.stream.Collectors;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -37,6 +41,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoActions.setDatePickerDate;
+import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoMatchers.recyclerViewWithCount;
 import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.onDatePicker;
 import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.onTimePicker;
 import static org.hamcrest.Matchers.allOf;
@@ -89,6 +94,7 @@ public class SessionDetailsTestDriver
             moodMatches(sleepSession.getMood());
             selectedTagsMatch(sleepSession.getTags());
             ratingMatches(sleepSession.getRating());
+            // TODO [21-07-21 2:41PM] -- this should include interruptions.
         }
         
         public void ratingMatches(float rating)
@@ -210,7 +216,54 @@ public class SessionDetailsTestDriver
             onView(withId(R.id.session_details_overlap_message)).inRoot(isDialog())
                     .check(matches(isDisplayed()));
         }
+    
+        public void interruptionDetailsMatch(Interruptions interruptions)
+        {
+            if (interruptions == null || interruptions.isEmpty()) {
+                noInterruptionsAreDisplayed();
+            } else {
+                interruptionsCountMatches(interruptions.getCount());
+                interruptionsTimeMatches(interruptions.getTotalDuration());
+                interruptionsListMatches(interruptions.asList());
+            }
+        }
         
+        public void noInterruptionsAreDisplayed()
+        {
+            getOwningDriver().scrollToInterruptions();
+            
+            interruptionsCountMatches(0);
+            interruptionsTimeMatches(0);
+            
+            onView(withId(R.id.common_interruptions_listitem_start)).check(matches(not(isDisplayed())));
+        }
+        
+        public void interruptionsListMatches(List<Interruption> interruptionsList)
+        {
+            getOwningDriver().scrollToInterruptions();
+            
+            // TODO [21-07-21 2:39PM] -- do better than just checking the count.
+            onView(withId(R.id.common_interruptions_recycler)).check(matches(
+                    // + 1 for add button
+                    recyclerViewWithCount(interruptionsList.size() + 1)));
+        }
+        
+        public void interruptionsCountMatches(int expectedCount)
+        {
+            getOwningDriver().scrollToInterruptions();
+            
+            onView(withId(R.id.common_interruptions_count)).check(matches(withText(
+                    String.valueOf(expectedCount))));
+        }
+        
+        public void interruptionsTimeMatches(long durationMillis)
+        {
+            getOwningDriver().scrollToInterruptions();
+            
+            onView(withId(R.id.common_interruptions_total)).check(matches(withText(
+                    InterruptionFormatting.formatDuration(durationMillis))));
+        }
+    
         // REFACTOR [21-05-14 3:40AM] -- extract this, it duplicates getIdsFromTags()
         //  in SleepTrackerViewModel.
         private List<Integer> getTagIdsOf(List<Tag> tags)
@@ -250,6 +303,11 @@ public class SessionDetailsTestDriver
 //*********************************************************
 // api
 //*********************************************************
+    
+    public void scrollToInterruptions()
+    {
+        onView(withId(R.id.session_details_interruptions_card)).perform(scrollTo());
+    }
 
     public static SessionDetailsTestDriver startingWith(SleepSession sleepSession)
     {

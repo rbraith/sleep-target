@@ -2,6 +2,7 @@ package com.rbraithwaite.sleepapp.ui_tests.session_details_fragment;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.rbraithwaite.sleepapp.core.models.Interruptions;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.drivers.SessionDetailsTestDriver;
@@ -17,6 +18,9 @@ import org.junit.runner.RunWith;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.concurrent.TimeUnit;
+
+import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.anInterruption;
+import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.listOf;
 
 @RunWith(AndroidJUnit4.class)
 public class SessionDetailsFragmentTests
@@ -143,6 +147,19 @@ public class SessionDetailsFragmentTests
         
         // verify that the session was not changed
         sessionDetails.assertThat().displayedValuesMatch(sleepSession);
+    }
+    
+    @Test
+    public void interruptionsDisplayProperly()
+    {
+        SleepSession sleepSession = sleepSessionWithZeroDuration();
+        sleepSession.setInterruptions(new Interruptions(listOf(
+                anInterruption(), anInterruption())));
+    
+        SessionDetailsTestDriver sessionDetails =
+                SessionDetailsTestDriver.startingWith(sleepSession);
+        
+        sessionDetails.assertThat().interruptionDetailsMatch(sleepSession.getInterruptions());
     }
 
 //*********************************************************
