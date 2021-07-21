@@ -1,5 +1,6 @@
 package com.rbraithwaite.sleepapp.core.entities;
 
+import com.rbraithwaite.sleepapp.core.models.Interruptions;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
@@ -10,6 +11,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.anInterruption;
+import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.listOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -20,6 +23,18 @@ public class SleepSessionTests
 // api
 //*********************************************************
 
+    @Test
+    public void hasNoInterruptions_returnsCorrectValue()
+    {
+        SleepSession sleepSession = TestUtils.ArbitraryData.getSleepSession();
+        
+        assertThat(sleepSession.hasNoInterruptions(), is(true));
+        
+        sleepSession.setInterruptions(new Interruptions(listOf(anInterruption())));
+        
+        assertThat(sleepSession.hasNoInterruptions(), is(false));
+    }
+    
     @Test
     public void getRating_isZeroIfSetToNull()
     {

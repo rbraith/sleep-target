@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.rbraithwaite.sleepapp.R;
-import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.PostSleepInterruptionListItem;
+import com.rbraithwaite.sleepapp.ui.common.interruptions.InterruptionListItem;
 
 import java.util.List;
 
@@ -21,8 +21,8 @@ public class PostSleepInterruptionsAdapter
 // private properties
 //*********************************************************
 
-    private List<PostSleepInterruptionListItem> mItems;
-    
+    private List<InterruptionListItem> mItems;
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -37,28 +37,28 @@ public class PostSleepInterruptionsAdapter
         public ViewHolder(@NonNull View itemView)
         {
             super(itemView);
-            start = itemView.findViewById(R.id.postsleep_interruptions_listitem_start);
-            duration = itemView.findViewById(R.id.postsleep_interruptions_listitem_duration);
-            reason = itemView.findViewById(R.id.postsleep_interruptions_listitem_reason);
+            start = itemView.findViewById(R.id.common_interruptions_listitem_start);
+            duration = itemView.findViewById(R.id.common_interruptions_listitem_duration);
+            reason = itemView.findViewById(R.id.common_interruptions_listitem_reason);
         }
         
-        public void bindTo(PostSleepInterruptionListItem item)
+        public void bindTo(InterruptionListItem item)
         {
             start.setText(item.start);
             duration.setText(item.duration);
             reason.setText(item.reason);
         }
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
 
-    public PostSleepInterruptionsAdapter(List<PostSleepInterruptionListItem> items)
+    public PostSleepInterruptionsAdapter(List<InterruptionListItem> items)
     {
         mItems = items;
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -69,7 +69,7 @@ public class PostSleepInterruptionsAdapter
     {
         return new ViewHolder(LayoutInflater
                                       .from(parent.getContext())
-                                      .inflate(R.layout.postsleep_interruptions_listitem,
+                                      .inflate(R.layout.common_interruptions_listitem,
                                                parent,
                                                false));
     }

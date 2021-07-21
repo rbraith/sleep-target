@@ -342,7 +342,7 @@ public class SleepTrackerTestDriver
         public void postSleepDialogHasInterruptionCount(int interruptionCount)
         {
             onView(withId(R.id.post_sleep_interruptions_content)).perform(scrollTo());
-            onView(withId(R.id.postsleep_interruptions_count)).check(matches(withText(String.valueOf(interruptionCount))));
+            onView(withId(R.id.common_interruptions_count)).check(matches(withText(String.valueOf(interruptionCount))));
             assertOnPostSleepDialog(dialog -> hamcrestAssertThat(
                     dialog.getInterruptionsRecycler().getAdapter().getItemCount(), is(interruptionCount)));
         }

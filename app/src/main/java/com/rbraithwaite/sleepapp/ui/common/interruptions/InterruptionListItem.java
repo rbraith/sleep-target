@@ -1,6 +1,6 @@
-package com.rbraithwaite.sleepapp.ui.sleep_tracker.data;
+package com.rbraithwaite.sleepapp.ui.common.interruptions;
 
-public class PostSleepInterruptionListItem
+public class InterruptionListItem
 {
 //*********************************************************
 // public constants
@@ -9,12 +9,12 @@ public class PostSleepInterruptionListItem
     public final String start;
     public final String duration;
     public final String reason;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
 
-    public PostSleepInterruptionListItem(String start, String duration, String reason)
+    public InterruptionListItem(String start, String duration, String reason)
     {
         this.start = start;
         this.duration = duration;

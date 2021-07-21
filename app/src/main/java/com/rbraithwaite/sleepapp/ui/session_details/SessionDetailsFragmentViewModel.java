@@ -7,15 +7,20 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
+import com.rbraithwaite.sleepapp.core.models.Interruptions;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.core.models.Tag;
 import com.rbraithwaite.sleepapp.ui.common.convert.ConvertMood;
 import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
+import com.rbraithwaite.sleepapp.ui.common.interruptions.ConvertInterruption;
+import com.rbraithwaite.sleepapp.ui.common.interruptions.InterruptionFormatting;
+import com.rbraithwaite.sleepapp.ui.common.interruptions.InterruptionListItem;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.ConvertTag;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagUiData;
 import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -319,15 +324,44 @@ public class SessionDetailsFragmentViewModel
     {
         getOptionalSleepSession().ifPresent(sleepSession -> { sleepSession.setRating(rating); });
     }
-
-//*********************************************************
-// protected api
-//*********************************************************
-
-    // REFACTOR [21-03-5 12:53AM] -- consider ctor injecting this instead?
-    protected TimeUtils createTimeUtils()
+    
+    public List<InterruptionListItem> getInterruptionListItems()
     {
-        return new TimeUtils();
+        return getOptionalSleepSession()
+                .map(sleepSession -> {
+                    Interruptions interruptions = sleepSession.getInterruptions();
+                    return interruptions == null || interruptions.isEmpty() ?
+                            new ArrayList<InterruptionListItem>() :
+                            interruptions.asList().stream()
+                                    .map(ConvertInterruption::toListItem)
+                                    .collect(Collectors.toList());
+                })
+                .orElse(new ArrayList<>());
+    }
+    
+    public boolean hasNoInterruptions()
+    {
+        return getOptionalSleepSession()
+                .map(SleepSession::hasNoInterruptions)
+                .orElse(true);
+    }
+    
+    public String getInterruptionsCountText()
+    {
+        return getOptionalSleepSession()
+                .map(sleepSession -> InterruptionFormatting.formatInterruptionsCount(
+                        sleepSession.hasNoInterruptions() ? null :
+                                sleepSession.getInterruptions().asList()))
+                .orElse("0");
+    }
+    
+    public String getInterruptionsTotalTimeText()
+    {
+        return getOptionalSleepSession()
+                .map(sleepSession -> InterruptionFormatting.formatDuration(
+                        sleepSession.hasNoInterruptions() ? 0 :
+                                sleepSession.getInterruptions().getTotalDuration()))
+                .orElseGet(() -> InterruptionFormatting.formatDuration(0));
     }
 
 

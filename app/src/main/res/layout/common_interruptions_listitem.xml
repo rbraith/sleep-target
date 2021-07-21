@@ -8,7 +8,7 @@
     android:layout_marginBottom="8dp">
 
     <TextView
-        android:id="@+id/postsleep_interruptions_listitem_start"
+        android:id="@+id/common_interruptions_listitem_start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -20,18 +20,18 @@
         tools:text="12:00 pm, May 20" />
 
     <TextView
-        android:id="@+id/postsleep_interruptions_listitem_duration"
+        android:id="@+id/common_interruptions_listitem_duration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Error"
         android:textColor="?attr/appColorInterruption"
         android:textSize="20sp"
-        app:layout_constraintStart_toStartOf="@+id/postsleep_interruptions_listitem_start"
-        app:layout_constraintTop_toBottomOf="@+id/postsleep_interruptions_listitem_start"
+        app:layout_constraintStart_toStartOf="@+id/common_interruptions_listitem_start"
+        app:layout_constraintTop_toBottomOf="@+id/common_interruptions_listitem_start"
         tools:text="3h 45m 45s" />
 
     <TextView
-        android:id="@+id/postsleep_interruptions_listitem_reason"
+        android:id="@+id/common_interruptions_listitem_reason"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -39,11 +39,11 @@
         android:text="TextView"
         android:textColor="?attr/colorSecondary"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/postsleep_interruptions_listitem_reason_guide"
+        app:layout_constraintStart_toStartOf="@+id/common_interruptions_listitem_reason_guide"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/postsleep_interruptions_listitem_reason_guide"
+        android:id="@+id/common_interruptions_listitem_reason_guide"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"

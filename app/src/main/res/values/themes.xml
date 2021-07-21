@@ -9,6 +9,11 @@
         <item name="bottomNavigationStyle">@style/AppBottomNav</item>
 
         <item name="android:windowBackground">?attr/appColorBackground</item>
+
+<!--        component defaults-->
+<!--        common_interruptions.xml-->
+        <item name="interruptionsRecyclerMaxHeight">200dp</item>
+        <item name="interruptionsListItem">@layout/common_interruptions_listitem</item>
     </style>
 
 

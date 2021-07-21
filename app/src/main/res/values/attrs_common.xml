@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <declare-styleable name="Interruptions">
+        <attr name="interruptionsRecyclerMaxHeight" format="dimension"/>
+        <attr name="interruptionsListItem" format="reference"/>
+    </declare-styleable>
+
     <declare-styleable name="MoodSelectorComponent">
         <attr name="moodSelectorTitleStyle" format="reference"/>
         <attr name="moodSelectorAddButtonStyle" format="reference"/>

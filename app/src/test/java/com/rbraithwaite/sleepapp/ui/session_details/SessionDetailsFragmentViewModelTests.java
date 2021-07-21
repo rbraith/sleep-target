@@ -3,6 +3,7 @@ package com.rbraithwaite.sleepapp.ui.session_details;
 import androidx.lifecycle.LiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.rbraithwaite.sleepapp.core.models.Interruptions;
 import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.core.models.Tag;
@@ -25,6 +26,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.anInterruption;
+import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.listOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -55,6 +58,29 @@ public class SessionDetailsFragmentViewModelTests
     {
         viewModel = null;
     }
+    
+    @Test
+    public void interruptionsReflectSessionData()
+    {
+        SleepSession sleepSession = TestUtils.ArbitraryData.getSleepSession();
+        viewModel.setSessionData(new SleepSessionWrapper(sleepSession));
+        
+        assertThat(viewModel.hasNoInterruptions(), is(true));
+        assertThat(viewModel.getInterruptionListItems().isEmpty(), is(true));
+        assertThat(viewModel.getInterruptionsCountText(), is(equalTo("0")));
+        assertThat(viewModel.getInterruptionsTotalTimeText(), is(equalTo("0h 00m 00s")));
+        
+        sleepSession.setInterruptions(new Interruptions(listOf(
+                anInterruption().withDuration(1, 10, 0),
+                anInterruption().withDuration(10, 5, 5))));
+        viewModel.setSessionData(new SleepSessionWrapper(sleepSession));
+        
+        assertThat(viewModel.hasNoInterruptions(), is(false));
+        assertThat(viewModel.getInterruptionListItems().size(), is(2));
+        assertThat(viewModel.getInterruptionsCountText(), is(equalTo("2")));
+        assertThat(viewModel.getInterruptionsTotalTimeText(), is(equalTo("11h 15m 05s")));
+    }
+    
     
     @Test
     public void getRating_reflects_setRating()

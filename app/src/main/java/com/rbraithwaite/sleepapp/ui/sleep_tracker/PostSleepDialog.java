@@ -62,7 +62,7 @@ public class PostSleepDialog
     ConstraintLayout mRoot;
     
     RatingBar mRatingBar;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -71,7 +71,7 @@ public class PostSleepDialog
     {
         void onKeepSession(StoppedSessionData stoppedSession);
     }
-
+    
     public interface OnDiscardSessionListener
     {
         void onDiscardSession();
@@ -129,7 +129,7 @@ public class PostSleepDialog
         
         return alertDialog;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -166,12 +166,12 @@ public class PostSleepDialog
     {
         return mTagScrollController;
     }
-
+    
     public RecyclerView getInterruptionsRecycler()
     {
         return mInterruptionsRecycler;
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -221,17 +221,17 @@ public class PostSleepDialog
     private void initInterruptionsDataDisplay(FrameLayout parent)
     {
         View interruptionsLayout =
-                getLayoutInflater().inflate(R.layout.post_sleep_interruptions, parent);
+                getLayoutInflater().inflate(R.layout.common_interruptions, parent);
         
-        TextView countText = interruptionsLayout.findViewById(R.id.postsleep_interruptions_count);
+        TextView countText = interruptionsLayout.findViewById(R.id.common_interruptions_count);
         countText.setText(mViewModel.getInterruptionsCountText());
         
         TextView totalTimeText =
-                interruptionsLayout.findViewById(R.id.postsleep_interruptions_total);
+                interruptionsLayout.findViewById(R.id.common_interruptions_total);
         totalTimeText.setText(mViewModel.getInterruptionsTotalTimeText());
         
         mInterruptionsRecycler =
-                interruptionsLayout.findViewById(R.id.postsleep_interruptions_recycler);
+                interruptionsLayout.findViewById(R.id.common_interruptions_recycler);
         mInterruptionsRecycler.setLayoutManager(new LinearLayoutManager(requireContext()));
         mInterruptionsRecycler.setAdapter(new PostSleepInterruptionsAdapter(mViewModel.getInterruptionsListItems()));
     }

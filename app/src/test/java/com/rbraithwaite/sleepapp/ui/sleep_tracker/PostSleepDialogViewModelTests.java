@@ -12,9 +12,9 @@ import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.test_data.builders.CurrentSessionBuilder;
 import com.rbraithwaite.sleepapp.test_utils.test_data.builders.StoppedSessionDataBuilder;
 import com.rbraithwaite.sleepapp.ui.common.convert.ConvertMood;
+import com.rbraithwaite.sleepapp.ui.common.interruptions.InterruptionListItem;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagUiData;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.PostSleepData;
-import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.PostSleepInterruptionListItem;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.StoppedSessionData;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
@@ -112,11 +112,11 @@ public class PostSleepDialogViewModelTests
         PostSleepDialogViewModel viewModel =
                 createViewModelWith(aStoppedSessionData().with(thisCurrentSession));
         
-        List<PostSleepInterruptionListItem> listItems = viewModel.getInterruptionsListItems();
+        List<InterruptionListItem> listItems = viewModel.getInterruptionsListItems();
         
         assertThat(listItems.size(), is(2));
         
-        PostSleepInterruptionListItem listItem = listItems.get(0);
+        InterruptionListItem listItem = listItems.get(0);
         assertThat(listItem.start, is(equalTo("3:45 PM, Jul 19")));
         assertThat(listItem.duration, is(equalTo("1h 23m 45s")));
         assertThat(listItem.reason, is(equalTo("first reason")));

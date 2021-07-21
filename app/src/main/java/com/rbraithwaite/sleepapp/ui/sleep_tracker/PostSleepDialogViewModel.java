@@ -11,10 +11,11 @@ import com.rbraithwaite.sleepapp.core.models.Interruptions;
 import com.rbraithwaite.sleepapp.core.repositories.TagRepository;
 import com.rbraithwaite.sleepapp.ui.common.convert.ConvertMood;
 import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
+import com.rbraithwaite.sleepapp.ui.common.interruptions.ConvertInterruption;
+import com.rbraithwaite.sleepapp.ui.common.interruptions.InterruptionListItem;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.ConvertTag;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagUiData;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.PostSleepData;
-import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.PostSleepInterruptionListItem;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.StoppedSessionData;
 
 import java.util.List;
@@ -149,13 +150,10 @@ public class PostSleepDialogViewModel
                 new Interruptions(mStoppedSessionData.currentSessionSnapshot.interruptions).getTotalDuration());
     }
     
-    public List<PostSleepInterruptionListItem> getInterruptionsListItems()
+    public List<InterruptionListItem> getInterruptionsListItems()
     {
         return mStoppedSessionData.currentSessionSnapshot.interruptions.stream()
-                .map(interruption -> new PostSleepInterruptionListItem(
-                        PostSleepDialogFormatting.formatInterruptionStart(interruption.getStart()),
-                        PostSleepDialogFormatting.formatDuration(interruption.getDurationMillis()),
-                        PostSleepDialogFormatting.formatInterruptionReason(interruption.getReason())))
+                .map(ConvertInterruption::toListItem)
                 .collect(Collectors.toList());
     }
 

@@ -20,6 +20,8 @@ import com.rbraithwaite.sleepapp.utils.CommonUtils;
 
 import java.util.List;
 
+import static com.rbraithwaite.sleepapp.ui.utils.RecyclerUtils.inflateLayout;
+
 public class TagSelectorRecyclerAdapter
         extends RecyclerView.Adapter<TagSelectorRecyclerAdapter.ViewHolder>
 {
@@ -342,15 +344,6 @@ public class TagSelectorRecyclerAdapter
         mViewModel.getLastTagSelectionChangeIndex().observe(
                 lifecycleOwner,
                 this::notifyItemChanged);
-    }
-    
-    // REFACTOR [21-04-17 2:52PM] -- I could extract this as a general utility for recycler
-    //  adapters.
-    private View inflateLayout(int layoutId, ViewGroup parent)
-    {
-        return LayoutInflater
-                .from(parent.getContext())
-                .inflate(layoutId, parent, false);
     }
     
     private void bindAddCustomButtonViewHolder(AddCustomButtonViewHolder holder)

@@ -15,4 +15,9 @@
     <style name="SessionDetailsMoodTheme" parent="TrackerMoodSelectorTheme">
         <item name="moodSelectorTitleStyle">@style/SessionDetailsTitleStyle</item>
     </style>
+
+    <style name="SessionDetailsInterruptionsTheme">
+        <item name="interruptionsRecyclerMaxHeight">300dp</item>
+        <item name="interruptionsListItem">@layout/session_details_interruptions_listitem</item>
+    </style>
 </resources>

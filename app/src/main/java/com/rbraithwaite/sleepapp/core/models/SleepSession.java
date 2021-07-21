@@ -370,6 +370,11 @@ public class SleepSession
     {
         mInterruptions = interruptions;
     }
+    
+    public boolean hasNoInterruptions()
+    {
+        return mInterruptions == null || mInterruptions.isEmpty();
+    }
 
 //*********************************************************
 // protected api

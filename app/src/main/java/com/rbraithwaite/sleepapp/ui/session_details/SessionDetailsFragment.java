@@ -17,6 +17,8 @@ import android.widget.TextView;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
@@ -29,6 +31,7 @@ import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorViewMod
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragmentDirections;
 import com.rbraithwaite.sleepapp.ui.session_details.controllers.DateTimeController;
 import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
+import com.rbraithwaite.sleepapp.ui.utils.AppColors;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
 
 import java.io.Serializable;
@@ -72,13 +75,14 @@ public class SessionDetailsFragment
     private static final String TAG = "SessionDetailsFragment";
     
     private static final String DIALOG_ERROR = "DialogError";
-    
-    
+
+
 //*********************************************************
 // public constants
 //*********************************************************
 
     public static final int DEFAULT_ICON = -1;
+
 
 //*********************************************************
 // public helpers
@@ -144,13 +148,13 @@ public class SessionDetailsFragment
          */
         public abstract void onAction(SessionDetailsFragment fragment, SleepSessionWrapper result);
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
 
     public SessionDetailsFragment() { setHasOptionsMenu(true); }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -189,6 +193,7 @@ public class SessionDetailsFragment
         initMoodSelector(view);
         initTagSelector(view);
         initRating(view);
+        initInterruptions(view);
         
         // init back press behaviour
         requireActivity().getOnBackPressedDispatcher().addCallback(
@@ -246,13 +251,13 @@ public class SessionDetailsFragment
             return super.onOptionsItemSelected(item);
         }
     }
-
+    
     @Override
     protected Properties<SessionDetailsFragmentViewModel> initProperties()
     {
         return new Properties<>(false, SessionDetailsFragmentViewModel.class);
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -286,16 +291,44 @@ public class SessionDetailsFragment
     {
         return mTagSelectorViewModel;
     }
-
+    
     public MoodSelectorViewModel getMoodSelectorViewModel()
     {
         return mMoodSelectorViewModel;
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
 
+    private void initInterruptions(View fragmentRoot)
+    {
+        SessionDetailsFragmentViewModel viewModel = getViewModel();
+        
+        View card = fragmentRoot.findViewById(R.id.session_details_interruptions_card);
+        
+        // totals
+        // ------------------------------------------------------
+        TextView interruptionsTotalCount = card.findViewById(R.id.common_interruptions_count);
+        TextView interruptionsTotalTime = card.findViewById(R.id.common_interruptions_total);
+        
+        interruptionsTotalCount.setText(viewModel.getInterruptionsCountText());
+        interruptionsTotalTime.setText(viewModel.getInterruptionsTotalTimeText());
+        if (viewModel.hasNoInterruptions()) {
+            // grey out the totals
+            AppColors appColors = AppColors.from(requireContext());
+            interruptionsTotalCount.setTextColor(appColors.appColorOnPrimarySurface2);
+            interruptionsTotalTime.setTextColor(appColors.appColorOnPrimarySurface2);
+        }
+        
+        // recycler
+        // ------------------------------------------------------
+        RecyclerView recycler = fragmentRoot.findViewById(R.id.common_interruptions_recycler);
+        recycler.setLayoutManager(new LinearLayoutManager(requireContext()));
+        recycler.setAdapter(new SessionDetailsInterruptionsAdapter(
+                getViewModel().getInterruptionListItems()));
+    }
+    
     private void initRating(View fragmentRoot)
     {
         mRatingBar = fragmentRoot.findViewById(R.id.session_details_rating);
