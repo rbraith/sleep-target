@@ -23,7 +23,7 @@ public abstract class BaseFragment<V extends ViewModel>
     private V mViewModel;
     
     private Properties<V> mProperties;
-    
+
 //*********************************************************
 // protected helpers
 //*********************************************************
@@ -39,14 +39,14 @@ public abstract class BaseFragment<V extends ViewModel>
             this.viewModelClass = viewModelClass;
         }
     }
-    
+
 //*********************************************************
 // abstract
 //*********************************************************
 
     protected abstract Properties<V> initProperties();
 
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -65,6 +65,7 @@ public abstract class BaseFragment<V extends ViewModel>
         super.onActivityCreated(savedInstanceState);
         setMainActivityBottomNavVisibility(mProperties.isBottomNavVisible);
     }
+
 
 
 //*********************************************************
@@ -88,15 +89,19 @@ public abstract class BaseFragment<V extends ViewModel>
             return null;
         }
     }
-
+    
     public V getViewModel()
     {
         if (mViewModel == null) {
             // REFACTOR [20-12-23 1:57AM] -- should the ViewModelStoreOwner be the fragment instead?
+            //  right now all the view models are behaving like permanent singletons
+            //  (https://developer.android.com/guide/fragments/communicate#fragments)
+            //  I need to be more careful about how I'm accessing these.
             mViewModel = new ViewModelProvider(requireActivity()).get(mProperties.viewModelClass);
         }
         return mViewModel;
     }
+
 
 //*********************************************************
 // protected api

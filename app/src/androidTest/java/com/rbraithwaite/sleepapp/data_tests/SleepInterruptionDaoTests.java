@@ -24,6 +24,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.aListOf;
+import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.aSleepInterruptionEntity;
+import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.aSleepSessionEntity;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -37,6 +40,12 @@ public class SleepInterruptionDaoTests
     private SleepAppDatabase database;
     private SleepInterruptionDao interruptionDao;
     private SleepSessionDao sleepSessionDao;
+    
+//*********************************************************
+// private constants
+//*********************************************************
+
+    private final List<Integer> NO_TAGS = new ArrayList<>();
 
 //*********************************************************
 // public properties
@@ -66,6 +75,27 @@ public class SleepInterruptionDaoTests
     }
     
     @Test
+    public void deleteMany_deletesCorrectValues()
+    {
+        sleepSessionDao.addSleepSessionWithExtras(
+                aSleepSessionEntity().build(),
+                NO_TAGS,
+                aListOf(
+                        aSleepInterruptionEntity(),
+                        aSleepInterruptionEntity(),
+                        aSleepInterruptionEntity()));
+        
+        List<SleepInterruptionEntity> entities = interruptionDao.getAll();
+        assertThat(entities.size(), is(3));
+        
+        interruptionDao.deleteMany(Arrays.asList(1, 2));
+        
+        entities = interruptionDao.getAll();
+        assertThat(entities.size(), is(1));
+        assertThat(entities.get(0).id, is(3));
+    }
+    
+    @Test
     public void interruptionsRemovedWhenSleepSessionDeleted()
     {
         SleepInterruptionEntity interruption1 = new SleepInterruptionEntity(
@@ -77,8 +107,6 @@ public class SleepInterruptionDaoTests
                 TestUtils.ArbitraryData.getDate(),
                 54321,
                 "reason 2");
-        
-        List<Integer> NO_TAGS = new ArrayList<>();
         
         long id = sleepSessionDao.addSleepSessionWithExtras(
                 TestUtils.ArbitraryData.getSleepSessionEntity(),

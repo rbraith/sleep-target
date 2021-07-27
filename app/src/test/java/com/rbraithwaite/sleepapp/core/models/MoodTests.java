@@ -1,6 +1,4 @@
-package com.rbraithwaite.sleepapp.core.entities;
-
-import com.rbraithwaite.sleepapp.core.models.Mood;
+package com.rbraithwaite.sleepapp.core.models;
 
 import org.junit.Test;
 

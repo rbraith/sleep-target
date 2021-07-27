@@ -9,7 +9,7 @@ public class ConvertInterruption
 //*********************************************************
 
     private ConvertInterruption() {/* No instantiation */}
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -17,6 +17,7 @@ public class ConvertInterruption
     public static InterruptionListItem toListItem(Interruption interruption)
     {
         return new InterruptionListItem(
+                interruption.getId(),
                 InterruptionFormatting.formatListItemStart(interruption.getStart()),
                 InterruptionFormatting.formatDuration(interruption.getDurationMillis()),
                 InterruptionFormatting.formatListItemReason(interruption.getReason()));

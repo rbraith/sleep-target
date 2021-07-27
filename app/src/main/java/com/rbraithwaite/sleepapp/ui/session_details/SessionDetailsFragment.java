@@ -5,52 +5,46 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.rbraithwaite.sleepapp.R;
-import com.rbraithwaite.sleepapp.ui.BaseFragment;
 import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.common.dialog.AlertDialogFragment;
+import com.rbraithwaite.sleepapp.ui.common.views.details_fragment.DetailsFragment;
+import com.rbraithwaite.sleepapp.ui.common.views.details_fragment.DetailsResult;
 import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.MoodSelectorController;
 import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.MoodSelectorViewModel;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorController;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorViewModel;
+import com.rbraithwaite.sleepapp.ui.interruption_details.InterruptionDetailsFragment;
+import com.rbraithwaite.sleepapp.ui.interruption_details.InterruptionWrapper;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragmentDirections;
 import com.rbraithwaite.sleepapp.ui.session_details.controllers.DateTimeController;
 import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
 import com.rbraithwaite.sleepapp.ui.utils.AppColors;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
 
-import java.io.Serializable;
 import java.util.GregorianCalendar;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class SessionDetailsFragment
-        extends BaseFragment<SessionDetailsFragmentViewModel>
+        extends DetailsFragment<SleepSessionWrapper, SessionDetailsFragmentViewModel>
 {
 //*********************************************************
 // private properties
 //*********************************************************
-
-    private int mPositiveIcon;
-    private int mNegativeIcon;
-    private ActionListener mPositiveActionListener;
-    private ActionListener mNegativeActionListener;
     
     private RatingBar mRatingBar;
     
@@ -76,85 +70,13 @@ public class SessionDetailsFragment
     
     private static final String DIALOG_ERROR = "DialogError";
 
-
-//*********************************************************
-// public constants
-//*********************************************************
-
-    public static final int DEFAULT_ICON = -1;
-
-
 //*********************************************************
 // public helpers
 //*********************************************************
     
-    public static class Args
-            implements Serializable
-    {
-        public static final long serialVersionUID = 20201230L;
-        
-        public SleepSessionWrapper initialData;
-        public ActionListener positiveActionListener;
-        public ActionListener negativeActionListener;
-        public int positiveIcon = DEFAULT_ICON;
-        public int negativeIcon = DEFAULT_ICON;
-    }
+    public static class Result extends DetailsResult<SleepSessionWrapper> {}
+    public static class Args extends DetailsFragment.Args<SleepSessionWrapper> {}
     
-    public static class ArgsBuilder
-    {
-        private Args mArgs;
-        
-        public ArgsBuilder(SleepSessionWrapper initialData)
-        {
-            mArgs = new Args();
-            mArgs.initialData = initialData;
-        }
-        
-        public ArgsBuilder setPositiveActionListener(ActionListener positiveActionListener)
-        {
-            mArgs.positiveActionListener = positiveActionListener;
-            return this;
-        }
-        
-        public ArgsBuilder setNegativeActionListener(ActionListener negativeActionListener)
-        {
-            mArgs.negativeActionListener = negativeActionListener;
-            return this;
-        }
-        
-        public ArgsBuilder setPositiveIcon(int positiveIcon)
-        {
-            mArgs.positiveIcon = positiveIcon;
-            return this;
-        }
-        
-        public ArgsBuilder setNegativeIcon(int negativeIcon)
-        {
-            mArgs.negativeIcon = negativeIcon;
-            return this;
-        }
-        
-        public Args build() {return mArgs;}
-    }
-    
-    public static abstract class ActionListener
-            implements Serializable
-    {
-        public static final long serialVersionUID = 20201230L;
-        
-        /**
-         * The fragment is passed so that clients can control whether or not the fragment is
-         * completed, among other things.
-         */
-        public abstract void onAction(SessionDetailsFragment fragment, SleepSessionWrapper result);
-    }
-
-//*********************************************************
-// constructors
-//*********************************************************
-
-    public SessionDetailsFragment() { setHasOptionsMenu(true); }
-
 //*********************************************************
 // overrides
 //*********************************************************
@@ -172,18 +94,10 @@ public class SessionDetailsFragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
     {
-        SessionDetailsFragmentArgs safeArgs = SessionDetailsFragmentArgs.fromBundle(getArguments());
-        Args args = safeArgs.getArgs();
-        // init members
-        mPositiveIcon = args.positiveIcon;
-        mNegativeIcon = args.negativeIcon;
-        mPositiveActionListener = args.positiveActionListener;
-        mNegativeActionListener = args.negativeActionListener;
+        super.onViewCreated(view, savedInstanceState);
         
-        // init view model
-        getViewModel().setSessionData(args.initialData);
+        handleInterruptionDetailsResult(getInterruptionDetailsResult().consumeResult());
         
-        // init views
         // REFACTOR [21-03-31 2:13AM] -- make initStartDateTime and initEndDateTime take the
         //  view only, to make things consistent.
         initStartDateTime(view.findViewById(R.id.session_details_start_time));
@@ -194,62 +108,6 @@ public class SessionDetailsFragment
         initTagSelector(view);
         initRating(view);
         initInterruptions(view);
-        
-        // init back press behaviour
-        requireActivity().getOnBackPressedDispatcher().addCallback(
-                getViewLifecycleOwner(),
-                new OnBackPressedCallback(true)
-                {
-                    @Override
-                    public void handleOnBackPressed()
-                    {
-                        clearSessionDataThenNavigateUp();
-                    }
-                });
-    }
-    
-    @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater)
-    {
-        inflater.inflate(R.menu.session_details_menu, menu);
-        if (mPositiveIcon != DEFAULT_ICON) {
-            menu.findItem(R.id.session_data_action_positive).setIcon(mPositiveIcon);
-        }
-        if (mNegativeIcon != DEFAULT_ICON) {
-            menu.findItem(R.id.session_data_action_negative).setIcon(mNegativeIcon);
-        }
-    }
-    
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item)
-    {
-        // The viewmodel session is cleared here to distinguish cases where the fragment is
-        // destroyed on a user action vs by the system (eg an orientation change, where the session
-        // should be preserved and the UI re-initialized)
-        switch (item.getItemId()) {
-        case android.R.id.home: // up button
-            clearSessionDataThenNavigateUp();
-            return true;
-        case R.id.session_data_action_negative:
-            if (mNegativeActionListener != null) {
-                mNegativeActionListener.onAction(this, getViewModel().getResult());
-            } else {
-                clearSessionDataThenNavigateUp();
-            }
-            return true;
-        case R.id.session_data_action_positive:
-            // REFACTOR [20-12-16 5:56PM] -- should getResult be returning
-            //  LiveData<SleepSessionData>? should the implementation be a transformation?
-            //  leaving this for now since things seem to be working.
-            if (mPositiveActionListener != null) {
-                mPositiveActionListener.onAction(this, getViewModel().getResult());
-            } else {
-                clearSessionDataThenNavigateUp();
-            }
-            return true;
-        default:
-            return super.onOptionsItemSelected(item);
-        }
     }
     
     @Override
@@ -257,29 +115,67 @@ public class SessionDetailsFragment
     {
         return new Properties<>(false, SessionDetailsFragmentViewModel.class);
     }
-
-//*********************************************************
-// api
-//*********************************************************
-
-    public static Bundle createArguments(Args args)
+    
+    @Override
+    protected DetailsFragment.Args<SleepSessionWrapper> getDetailsArgs()
     {
-        // use SafeArgs action so that the Bundle works when it is eventually used with
-        // SessionDataFragmentArgs.fromBundle()
-        // REFACTOR [20-11-28 10:30PM] -- SafeArgs uses the argument names defined in the
-        //  navgraph as the Bundle keys - consider redefining those keys here and just making my
-        //  own Bundle? problem: the argument names would be hardcoded though, I can't seem to find
-        //  a way to get a reference to the names defined in the navgraph, but I should
-        //  investigate more.
-        return SessionArchiveFragmentDirections
-                .actionSessionArchiveToSessionData(args)
-                .getArguments();
+        SessionDetailsFragmentArgs safeArgs = SessionDetailsFragmentArgs.fromBundle(getArguments());
+        return safeArgs.getArgs();
     }
     
-    // TODO [21-12-31 1:54AM] -- I should think more about possible ways of unit testing this.
-    public void completed()
+    @Override
+    protected Class<? extends DetailsResult<SleepSessionWrapper>> getResultClass()
     {
-        clearSessionDataThenNavigateUp();
+        return SessionDetailsFragment.Result.class;
+    }
+    
+    @Override
+    protected DeleteDialogParams getDeleteDialogParams()
+    {
+        DeleteDialogParams params = new DeleteDialogParams();
+        params.titleId = R.string.session_archive_delete_dialog_title;
+        params.messageId = R.string.permanent_operation_message;
+        return params;
+    }
+    
+    @Override
+    protected void onUpdate()
+    {
+        try {
+            if (getViewModel().checkResultForSessionOverlap()) {
+                super.onUpdate();
+            }
+        } catch (SessionDetailsFragmentViewModel.OverlappingSessionException e) {
+            displayOverlapErrorDialog(e);
+        }
+    }
+    
+    private static final String DIALOG_OVERLAP_ERROR = "SessionDetailsFragmentOverlapErrorDialog";
+    
+    private void displayOverlapErrorDialog(SessionDetailsFragmentViewModel.OverlappingSessionException e)
+    {
+        AlertDialogFragment dialog = AlertDialogFragment.createInstance(() -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            builder.setTitle("Error: Overlapping Sleep Session")
+                    .setView(createOverlapErrorDialogContent(e))
+                    .setPositiveButton(android.R.string.ok, null);
+            return builder.create();
+        });
+        
+        dialog.show(getChildFragmentManager(), DIALOG_OVERLAP_ERROR);
+    }
+    
+    private View createOverlapErrorDialogContent(SessionDetailsFragmentViewModel.OverlappingSessionException e)
+    {
+        View dialogContent = getLayoutInflater().inflate(R.layout.session_details_overlap_error, null);
+        
+        TextView start = dialogContent.findViewById(R.id.session_details_overlap_start_value);
+        start.setText(e.start);
+        
+        TextView end = dialogContent.findViewById(R.id.session_details_overlap_end_value);
+        end.setText(e.end);
+        
+        return dialogContent;
     }
     
     public RatingBar getRatingBar()
@@ -298,8 +194,45 @@ public class SessionDetailsFragment
     }
 
 //*********************************************************
+// api
+//*********************************************************
+    
+    public static Bundle createArguments(Args args)
+    {
+        // use SafeArgs action so that the Bundle works when it is eventually used with
+        // SessionDataFragmentArgs.fromBundle()
+        // REFACTOR [20-11-28 10:30PM] -- SafeArgs uses the argument names defined in the
+        //  navgraph as the Bundle keys - consider redefining those keys here and just making my
+        //  own Bundle? problem: the argument names would be hardcoded though, I can't seem to find
+        //  a way to get a reference to the names defined in the navgraph, but I should
+        //  investigate more.
+        return SessionArchiveFragmentDirections
+                .actionSessionArchiveToSessionData(args)
+                .getArguments();
+    }
+
+//*********************************************************
 // private methods
 //*********************************************************
+    
+    private InterruptionDetailsFragment.Result getInterruptionDetailsResult()
+    {
+        return new ViewModelProvider(requireActivity()).get(InterruptionDetailsFragment.Result.class);
+    }
+    
+    private void handleInterruptionDetailsResult(DetailsResult.Result<InterruptionWrapper> result)
+    {
+        if (result == null) {
+            // we are not returning from the interruption details fragment, so do nothing
+            return;
+        }
+        
+        switch (result.action) {
+        case DELETED:
+            getViewModel().deleteInterruption(result.data);
+            // TODO [21-07-23 5:38PM] -- remaining cases.
+        }
+    }
 
     private void initInterruptions(View fragmentRoot)
     {
@@ -325,8 +258,27 @@ public class SessionDetailsFragment
         // ------------------------------------------------------
         RecyclerView recycler = fragmentRoot.findViewById(R.id.common_interruptions_recycler);
         recycler.setLayoutManager(new LinearLayoutManager(requireContext()));
-        recycler.setAdapter(new SessionDetailsInterruptionsAdapter(
-                getViewModel().getInterruptionListItems()));
+        
+        SessionDetailsInterruptionsAdapter adapter = new SessionDetailsInterruptionsAdapter(
+                getViewModel().getInterruptionListItems(),
+                viewHolder -> navigateToEditInterruptionScreen(viewHolder.data.interruptionId));
+        
+        recycler.setAdapter(adapter);
+    }
+    
+    private void navigateToEditInterruptionScreen(int interruptionId)
+    {
+        getNavController().navigate(toEditScreenFor(getViewModel().getInterruption(interruptionId)));
+    }
+    
+    private SessionDetailsFragmentDirections.ActionSessionDetailsToInterruptionDetails toEditScreenFor(
+            InterruptionWrapper interruption)
+    {
+        InterruptionDetailsFragment.Args args = new InterruptionDetailsFragment.Args();
+        args.mode = Mode.UPDATE;
+        args.initialData = interruption;
+        
+        return SessionDetailsFragmentDirections.actionSessionDetailsToInterruptionDetails(args);
     }
     
     private void initRating(View fragmentRoot)
@@ -393,12 +345,6 @@ public class SessionDetailsFragment
         });
     }
     
-    private void clearSessionDataThenNavigateUp()
-    {
-        getViewModel().clearSessionData();
-        getNavController().navigateUp();
-    }
-    
     private void initAdditionalComments(View fragmentRoot)
     {
         mAdditionalComments = fragmentRoot.findViewById(R.id.session_details_comments);
@@ -410,6 +356,7 @@ public class SessionDetailsFragment
                         mAdditionalComments.getText().append(s);
                     }
                 });
+        // REFACTOR [21-07-22 12:51AM] -- this can be an AfterTextChangedWatcher.
         mAdditionalComments.addTextChangedListener(new TextWatcher()
         {
             @Override

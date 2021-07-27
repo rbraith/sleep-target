@@ -1,8 +1,5 @@
-package com.rbraithwaite.sleepapp.core.entities;
+package com.rbraithwaite.sleepapp.core.models;
 
-import com.rbraithwaite.sleepapp.core.models.CurrentSession;
-import com.rbraithwaite.sleepapp.core.models.Interruption;
-import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.test_utils.NowSequence;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;

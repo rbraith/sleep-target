@@ -1,6 +1,5 @@
-package com.rbraithwaite.sleepapp.core.entities;
+package com.rbraithwaite.sleepapp.core.models;
 
-import com.rbraithwaite.sleepapp.core.models.WakeTimeGoal;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 
 import org.junit.Test;

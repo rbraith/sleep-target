@@ -21,8 +21,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.aListOf;
+import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.aSleepSession;
 import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.anInterruption;
-import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.listOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -58,7 +59,7 @@ public class SessionArchiveFragmentTests
         // REFACTOR [21-05-14 3:36PM] -- put sessionArchive & database in a setup method.
         //  update all tests to use these drivers.
         SleepSession sleepSession = TestUtils.ArbitraryData.getSleepSession();
-        sleepSession.setInterruptions(new Interruptions(listOf(
+        sleepSession.setInterruptions(new Interruptions(aListOf(
                 anInterruption(),
                 anInterruption())));
         
@@ -212,6 +213,34 @@ public class SessionArchiveFragmentTests
         app.getSessionDetails().cancel();
         
         app.getSessionArchive().assertThat().listIsEmpty();
+    }
+    
+    @Test
+    public void interruptionsCrudTest()
+    {
+        // TODO [21-07-27 1:35AM] -- this test will need eventually need to test the full flow
+        //  of add -> update -> delete.
+        
+        // default sleep session has an interruption
+        SleepSession sleepSession = aSleepSession().build();
+        database.addSleepSession(sleepSession);
+        database.assertThat.interruptionCountIs(1);
+        
+        ApplicationTestDriver app = startAppInArchive();
+        app.getSessionArchive().openSessionDetailsFor(0);
+        
+        app.getSessionDetails().assertThat().interruptionDetailsMatch(
+                sleepSession.getInterruptions());
+        
+        app.getSessionDetails().openInterruptionDetailsFor(0);
+        
+        app.getInterruptionDetails().deleteInterruption();
+        
+        app.getSessionDetails().assertThat().noInterruptionsAreDisplayed();
+        
+        app.getSessionDetails().confirm();
+        
+        database.assertThat.interruptionCountIs(0);
     }
     
     // TODO [20-12-16 9:01PM] -- addSession_hasCorrectValuesAfterBackPress

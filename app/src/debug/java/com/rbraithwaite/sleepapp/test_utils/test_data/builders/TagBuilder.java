@@ -1,61 +1,51 @@
 package com.rbraithwaite.sleepapp.test_utils.test_data.builders;
 
+import com.rbraithwaite.sleepapp.core.models.Tag;
 import com.rbraithwaite.sleepapp.utils.interfaces.BuilderOf;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-
-public class DateBuilder
-        implements BuilderOf<Date>
+public class TagBuilder
+        implements BuilderOf<Tag>
 {
 //*********************************************************
 // private properties
 //*********************************************************
 
-    private GregorianCalendar mCal;
-
+    private int mId;
+    private String mText;
+    
 //*********************************************************
 // constructors
 //*********************************************************
 
-    public DateBuilder()
+    public TagBuilder()
     {
-        mCal = new GregorianCalendar(2021, 8, 19, 12, 34);
+        mId = 0;
+        mText = "some tag";
     }
-
+    
 //*********************************************************
 // overrides
 //*********************************************************
 
     @Override
-    public Date build()
+    public Tag build()
     {
-        return mCal.getTime();
+        return new Tag(mId, mText);
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
 
-    public DateBuilder addMinutes(int minutes)
+    public TagBuilder withId(int id)
     {
-        mCal.add(Calendar.MINUTE, minutes);
+        mId = id;
         return this;
     }
     
-    /**
-     * month starts from 1, hourOfDay is 24 hrs.
-     */
-    public DateBuilder withValue(int year, int month, int dayOfMonth, int hourOfDay, int minute)
+    public TagBuilder withText(String text)
     {
-        mCal.set(year, month - 1, dayOfMonth, hourOfDay, minute);
-        return this;
-    }
-    
-    public DateBuilder copying(Date date)
-    {
-        mCal.setTime(date);
+        mText = text;
         return this;
     }
 }

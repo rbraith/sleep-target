@@ -4,11 +4,14 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
+import com.rbraithwaite.sleepapp.core.models.Interruption;
+import com.rbraithwaite.sleepapp.core.models.Interruptions;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.core.models.Tag;
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.data.convert.ConvertInterruption;
 import com.rbraithwaite.sleepapp.data.convert.ConvertSleepSession;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_interruptions.SleepInterruptionDao;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionDao;
 
 import java.util.Date;
@@ -28,6 +31,7 @@ public class SleepSessionRepositoryImpl
 //*********************************************************
 
     private SleepSessionDao mSleepSessionDao;
+    private SleepInterruptionDao mInterruptionsDao;
     private Executor mExecutor;
 
 //*********************************************************
@@ -43,8 +47,10 @@ public class SleepSessionRepositoryImpl
     @Inject
     public SleepSessionRepositoryImpl(
             SleepSessionDao sleepSessionDao,
+            SleepInterruptionDao sleepInterruptionDao,
             Executor executor)
     {
+        mInterruptionsDao = sleepInterruptionDao;
         mSleepSessionDao = sleepSessionDao;
         mExecutor = executor;
     }
@@ -67,9 +73,28 @@ public class SleepSessionRepositoryImpl
     @Override
     public void updateSleepSession(final SleepSession sleepSession)
     {
-        mExecutor.execute(() -> mSleepSessionDao.updateSleepSessionWithTags(
-                ConvertSleepSession.toEntity(sleepSession),
-                sleepSession.getTags().stream().map(Tag::getTagId).collect(Collectors.toList())));
+        mExecutor.execute(() -> {
+            mSleepSessionDao.updateSleepSessionWithTags(
+                    ConvertSleepSession.toEntity(sleepSession),
+                    sleepSession.getTags()
+                            .stream()
+                            .map(Tag::getTagId)
+                            .collect(Collectors.toList()));
+            
+            Interruptions interruptions = sleepSession.getInterruptions();
+            if (interruptions.hasUpdates()) {
+                Interruptions.Updates updates = interruptions.consumeUpdates();
+                // TODO [21-07-23 5:24PM] -- got ahead of myself.
+//                mSleepSessionDao.addInterruptionsToSleepSession(
+//                        sleepSession.getId(),
+//                        ConvertInterruption.listToEntityList(updates.added));
+//
+//                mInterruptionsDao.updateMany(ConvertInterruption.listToEntityList(updates
+//                .updated));
+                
+                mInterruptionsDao.deleteMany(getIdsOf(updates.deleted));
+            }
+        });
     }
     
     @Override
@@ -173,5 +198,14 @@ public class SleepSessionRepositoryImpl
                 sleepSessionsWithExtras -> sleepSessionsWithExtras.stream()
                         .map(ConvertSleepSession::fromEntityWithExtras)
                         .collect(Collectors.toList()));
+    }
+    
+//*********************************************************
+// private methods
+//*********************************************************
+
+    private List<Integer> getIdsOf(List<Interruption> interruptions)
+    {
+        return interruptions.stream().map(Interruption::getId).collect(Collectors.toList());
     }
 }

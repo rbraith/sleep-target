@@ -31,6 +31,7 @@ public class ConvertInterruption
             return null;
         }
         return new SleepInterruptionEntity(
+                interruption.getId(),
                 interruption.getStart(),
                 interruption.getDurationMillis(),
                 interruption.getReason());
@@ -40,6 +41,7 @@ public class ConvertInterruption
     public static Interruption fromEntity(SleepInterruptionEntity entity)
     {
         return new Interruption(
+                entity.id,
                 entity.startTime,
                 entity.durationMillis,
                 entity.reason);
@@ -101,4 +103,11 @@ public class ConvertInterruption
                 .map(ConvertInterruption::fromJson)
                 .collect(Collectors.toList());
     }
+    
+    // TODO [21-07-23 5:25PM] -- got ahead of myself.
+//    public static List<SleepInterruptionEntity> listToEntityList(List<Interruption> interruptions)
+//    {
+//        return interruptions.stream().map(ConvertInterruption::toEntity).collect(Collectors
+//        .toList());
+//    }
 }

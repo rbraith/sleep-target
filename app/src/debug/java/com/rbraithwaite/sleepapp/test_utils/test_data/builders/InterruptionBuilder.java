@@ -14,21 +14,23 @@ public class InterruptionBuilder
 // private properties
 //*********************************************************
 
+    private int mId;
     private Date mStart;
     private int mDuration;
     private String mReason;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
 
     public InterruptionBuilder()
     {
+        mId = 0;
         mStart = aDate().build();
         mDuration = 5 * 60 * 1000; // 5 min
         mReason = "some reason";
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -36,9 +38,9 @@ public class InterruptionBuilder
     @Override
     public Interruption build()
     {
-        return new Interruption(mStart, mDuration, mReason);
+        return new Interruption(mId, mStart, mDuration, mReason);
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -67,6 +69,12 @@ public class InterruptionBuilder
                 hours * 60 * 60 * 1000 +
                 minutes * 60 * 1000 +
                 seconds * 1000;
+        return this;
+    }
+    
+    public InterruptionBuilder withId(int id)
+    {
+        mId = id;
         return this;
     }
 }

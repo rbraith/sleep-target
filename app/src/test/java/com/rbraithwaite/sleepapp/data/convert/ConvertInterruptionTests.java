@@ -21,15 +21,16 @@ public class ConvertInterruptionTests
     @Test
     public void toEntity_positiveInput()
     {
+        int id = 2;
         Date start = TestUtils.ArbitraryData.getDate();
         int durationMillis = 500;
         String reason = "reason";
         
-        Interruption interruption = new Interruption(start, durationMillis, reason);
+        Interruption interruption = new Interruption(id, start, durationMillis, reason);
         
         SleepInterruptionEntity entity = ConvertInterruption.toEntity(interruption);
         
-        assertThat(entity.id, is(equalTo(0)));
+        assertThat(entity.id, is(equalTo(id)));
         assertThat(entity.sessionId, is(equalTo(0L)));
         assertThat(entity.startTime, is(equalTo(start)));
         assertThat(entity.durationMillis, is(durationMillis));

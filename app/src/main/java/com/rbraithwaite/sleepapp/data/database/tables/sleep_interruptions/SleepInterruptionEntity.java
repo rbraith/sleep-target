@@ -53,6 +53,12 @@ public class SleepInterruptionEntity
     
     public SleepInterruptionEntity(Date startTime, int durationMillis, String reason)
     {
+        this(0, startTime, durationMillis, reason);
+    }
+    
+    public SleepInterruptionEntity(int id, Date startTime, int durationMillis, String reason)
+    {
+        this.id = id;
         this.startTime = startTime;
         this.durationMillis = durationMillis;
         this.reason = reason;

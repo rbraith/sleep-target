@@ -7,7 +7,8 @@
     <string name="error_session_edit_start_datetime">The start time cannot be after the end time.</string>
     <string name="error_session_edit_end_datetime">The end time cannot be before the start time.</string>
     <string name="session_archive_delete_dialog_title">Delete session?</string>
-    <string name="session_archive_delete_dialog_message">This operation cannot be undone.</string>
+    <string name="permanent_operation_message">This operation cannot be undone.</string>
+    <string name="interruption_details_delete_title">Delete Interruption?</string>
     <string name="session_archive_delete_dialog_negative">Cancel</string>
     <string name="session_archive_delete_dialog_positive">Delete</string>
     <string name="cancel">Cancel</string>

@@ -3,15 +3,21 @@ package com.rbraithwaite.sleepapp.ui.session_details;
 import androidx.lifecycle.LiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.rbraithwaite.sleepapp.core.models.Interruption;
 import com.rbraithwaite.sleepapp.core.models.Interruptions;
 import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
+import com.rbraithwaite.sleepapp.core.models.SleepSessionOverlapChecker;
 import com.rbraithwaite.sleepapp.core.models.Tag;
+import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
+import com.rbraithwaite.sleepapp.test_utils.test_data.builders.InterruptionBuilder;
+import com.rbraithwaite.sleepapp.test_utils.test_data.builders.SleepSessionBuilder;
 import com.rbraithwaite.sleepapp.ui.common.convert.ConvertMood;
 import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.ConvertTag;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagUiData;
+import com.rbraithwaite.sleepapp.ui.interruption_details.InterruptionWrapper;
 import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
@@ -26,12 +32,14 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.aListOf;
+import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.aSleepSession;
 import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.anInterruption;
-import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.listOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Mockito.mock;
 
 // REFACTOR [20-12-8 8:52PM] -- consider splitting this into separate test classes?
 @RunWith(AndroidJUnit4.class)
@@ -42,6 +50,8 @@ public class SessionDetailsFragmentViewModelTests
 //*********************************************************
 
     SessionDetailsFragmentViewModel viewModel;
+    SleepSessionRepository mockSleepSessionRepository;
+    SleepSessionOverlapChecker sleepSessionOverlapChecker;
 
 //*********************************************************
 // api
@@ -50,30 +60,89 @@ public class SessionDetailsFragmentViewModelTests
     @Before
     public void setup()
     {
-        viewModel = new SessionDetailsFragmentViewModel(new TimeUtils());
+        mockSleepSessionRepository = mock(SleepSessionRepository.class);
+        sleepSessionOverlapChecker = new SleepSessionOverlapChecker(mockSleepSessionRepository);
+        viewModel = new SessionDetailsFragmentViewModel(
+                new TimeUtils(),
+                sleepSessionOverlapChecker,
+                new TestUtils.SynchronizedExecutor());
     }
     
     @After
     public void teardown()
     {
         viewModel = null;
+        sleepSessionOverlapChecker = null;
+        mockSleepSessionRepository = null;
+    }
+    
+    @Test
+    public void deleteInterruption_affects_getInterruption()
+    {
+        int expectedId = 123;
+        InterruptionBuilder expected = anInterruption().withId(expectedId);
+        Interruption expectedInterruption = expected.build();
+        viewModel.initData(new SleepSessionWrapper(
+                aSleepSession().withInterruptions(expected).build()));
+        
+        assertThat(viewModel.getInterruption(expectedId).getData(),
+                   is(equalTo(expectedInterruption)));
+        
+        viewModel.deleteInterruption(new InterruptionWrapper(expectedInterruption));
+        
+        assertThat(viewModel.getInterruption(expectedId).getData(), is(nullValue()));
+    }
+    
+    @Test
+    public void getResult_isNullWhenNotInitialized()
+    {
+        // starts null when not init'd
+        assertThat(viewModel.getResult().getModel(), is(nullValue()));
+        
+        // result matches data
+        SleepSession expected = aSleepSession().build();
+        viewModel.initData(new SleepSessionWrapper(expected));
+        assertThat(viewModel.getResult().getModel(), is(equalTo(expected)));
+        
+        // clearing makes the result null
+        viewModel.clearData();
+        assertThat(viewModel.getResult().getModel(), is(nullValue()));
+    }
+    
+    @Test
+    public void initData_onlyWorksWhenNotInitialized()
+    {
+        SleepSessionBuilder sleepSession = aSleepSession();
+        SleepSession expected = sleepSession.build();
+        viewModel.initData(new SleepSessionWrapper(expected));
+        
+        viewModel.initData(new SleepSessionWrapper(
+                sleepSession.withComments("not expected").build()));
+        // result should not have changed, and still match expected
+        assertThat(viewModel.getResult().getModel(), is(equalTo(expected)));
+        
+        // clear the data, now we can re-initialized
+        viewModel.clearData();
+        SleepSession expected2 = sleepSession.withComments("expected 2").build();
+        viewModel.initData(new SleepSessionWrapper(expected2));
+        assertThat(viewModel.getResult().getModel(), is(equalTo(expected2)));
     }
     
     @Test
     public void interruptionsReflectSessionData()
     {
         SleepSession sleepSession = TestUtils.ArbitraryData.getSleepSession();
-        viewModel.setSessionData(new SleepSessionWrapper(sleepSession));
+        viewModel.initData(new SleepSessionWrapper(sleepSession));
         
         assertThat(viewModel.hasNoInterruptions(), is(true));
         assertThat(viewModel.getInterruptionListItems().isEmpty(), is(true));
         assertThat(viewModel.getInterruptionsCountText(), is(equalTo("0")));
         assertThat(viewModel.getInterruptionsTotalTimeText(), is(equalTo("0h 00m 00s")));
         
-        sleepSession.setInterruptions(new Interruptions(listOf(
+        sleepSession.setInterruptions(new Interruptions(aListOf(
                 anInterruption().withDuration(1, 10, 0),
                 anInterruption().withDuration(10, 5, 5))));
-        viewModel.setSessionData(new SleepSessionWrapper(sleepSession));
+        viewModel.setData(new SleepSessionWrapper(sleepSession));
         
         assertThat(viewModel.hasNoInterruptions(), is(false));
         assertThat(viewModel.getInterruptionListItems().size(), is(2));
@@ -86,7 +155,7 @@ public class SessionDetailsFragmentViewModelTests
     public void getRating_reflects_setRating()
     {
         SleepSession sleepSession = TestUtils.ArbitraryData.getSleepSession();
-        viewModel.setSessionData(new SleepSessionWrapper(sleepSession));
+        viewModel.initData(new SleepSessionWrapper(sleepSession));
         
         assertThat(viewModel.getRating(), is(equalTo(sleepSession.getRating())));
         
@@ -100,7 +169,7 @@ public class SessionDetailsFragmentViewModelTests
     @Test
     public void setTags_affectsResult()
     {
-        viewModel.setSessionData(new SleepSessionWrapper(
+        viewModel.initData(new SleepSessionWrapper(
                 TestUtils.ArbitraryData.getSleepSession()));
         
         List<TagUiData> expected = Arrays.asList(new TagUiData(2, "what"));
@@ -121,7 +190,7 @@ public class SessionDetailsFragmentViewModelTests
                 new Tag(1, "arbitrary"),
                 new Tag(2, "arbitrary")));
         
-        viewModel.setSessionData(new SleepSessionWrapper(sleepSession));
+        viewModel.initData(new SleepSessionWrapper(sleepSession));
         
         // SUT
         List<Integer> tagIds = viewModel.getTagIds();
@@ -137,7 +206,7 @@ public class SessionDetailsFragmentViewModelTests
     {
         SleepSession initialData = TestUtils.ArbitraryData.getSleepSession();
         initialData.setMood(Mood.fromIndex(1));
-        viewModel.setSessionData(new SleepSessionWrapper(initialData));
+        viewModel.initData(new SleepSessionWrapper(initialData));
         
         viewModel.clearMood();
         
@@ -149,7 +218,7 @@ public class SessionDetailsFragmentViewModelTests
     {
         SleepSession initialData = TestUtils.ArbitraryData.getSleepSession();
         initialData.setMood(Mood.fromIndex(1));
-        viewModel.setSessionData(new SleepSessionWrapper(initialData));
+        viewModel.initData(new SleepSessionWrapper(initialData));
         
         assertThat(viewModel.getMood(), is(equalTo(ConvertMood.toUiData(initialData.getMood()))));
         
@@ -163,7 +232,7 @@ public class SessionDetailsFragmentViewModelTests
     public void initSessionData_initializesDataOnValidInput()
     {
         SleepSession initialData = TestUtils.ArbitraryData.getSleepSession();
-        viewModel.setSessionData(new SleepSessionWrapper(initialData));
+        viewModel.initData(new SleepSessionWrapper(initialData));
         
         LiveData<GregorianCalendar> start = viewModel.getStartCalendar();
         LiveData<GregorianCalendar> end = viewModel.getEndCalendar();
@@ -175,12 +244,12 @@ public class SessionDetailsFragmentViewModelTests
     }
     
     @Test
-    public void clearSessionData_clearsData()
+    public void clearData_clearsData()
     {
-        viewModel.setSessionData(
+        viewModel.initData(
                 new SleepSessionWrapper(TestUtils.ArbitraryData.getSleepSession()));
         
-        viewModel.clearSessionData();
+        viewModel.clearData();
         
         LiveData<GregorianCalendar> startDateTime = viewModel.getStartCalendar();
         LiveData<GregorianCalendar> endDateTime = viewModel.getEndCalendar();
@@ -196,7 +265,7 @@ public class SessionDetailsFragmentViewModelTests
         TimeUtils timeUtils = new TimeUtils();
         
         SleepSession initial = new SleepSession(TestUtils.ArbitraryData.getDate(), 0);
-        viewModel.setSessionData(new SleepSessionWrapper(initial));
+        viewModel.initData(new SleepSessionWrapper(initial));
         
         // set the view model state
         SleepSession expected = new SleepSession(
@@ -238,7 +307,7 @@ public class SessionDetailsFragmentViewModelTests
     {
         GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
         
-        viewModel.setSessionData(new SleepSessionWrapper(
+        viewModel.initData(new SleepSessionWrapper(
                 new SleepSession(calendar.getTime(), 0)));
         
         // set end before start
@@ -253,7 +322,7 @@ public class SessionDetailsFragmentViewModelTests
     {
         // set end datetime
         GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
-        viewModel.setSessionData(new SleepSessionWrapper(
+        viewModel.initData(new SleepSessionWrapper(
                 new SleepSession(calendar.getTime(), 0)));
         
         // begin watching end date
@@ -278,7 +347,7 @@ public class SessionDetailsFragmentViewModelTests
     {
         // set end datetime
         GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
-        viewModel.setSessionData(new SleepSessionWrapper(
+        viewModel.initData(new SleepSessionWrapper(
                 new SleepSession(calendar.getTime(), 0)));
         
         // watch end datetime
@@ -300,7 +369,7 @@ public class SessionDetailsFragmentViewModelTests
     public void setEndDate_updatesEnd()
     {
         GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
-        viewModel.setSessionData(new SleepSessionWrapper(
+        viewModel.initData(new SleepSessionWrapper(
                 new SleepSession(calendar.getTime(), 0)));
         
         LiveData<GregorianCalendar> endDateTime = viewModel.getEndCalendar();
@@ -321,7 +390,7 @@ public class SessionDetailsFragmentViewModelTests
     public void setEndDate_leavesTimeOfDayUnchanged()
     {
         GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
-        viewModel.setSessionData(new SleepSessionWrapper(
+        viewModel.initData(new SleepSessionWrapper(
                 new SleepSession(calendar.getTime(), 0)));
         
         LiveData<GregorianCalendar> endTime = viewModel.getEndCalendar();
@@ -345,7 +414,7 @@ public class SessionDetailsFragmentViewModelTests
     public void setEndDate_throwsIfEndIsBeforeStart()
     {
         GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
-        viewModel.setSessionData(new SleepSessionWrapper(
+        viewModel.initData(new SleepSessionWrapper(
                 new SleepSession(calendar.getTime(), 0)));
         
         // set end before start
@@ -362,7 +431,7 @@ public class SessionDetailsFragmentViewModelTests
         GregorianCalendar calendar = new GregorianCalendar();
         calendar.setTime(TestUtils.ArbitraryData.getDate());
         
-        viewModel.setSessionData(new SleepSessionWrapper(
+        viewModel.initData(new SleepSessionWrapper(
                 new SleepSession(calendar.getTime(), 0)));
         
         LiveData<GregorianCalendar> start = viewModel.getStartCalendar();
@@ -387,7 +456,7 @@ public class SessionDetailsFragmentViewModelTests
     {
         GregorianCalendar calendar = new GregorianCalendar();
         calendar.setTime(TestUtils.ArbitraryData.getDate());
-        viewModel.setSessionData(new SleepSessionWrapper(
+        viewModel.initData(new SleepSessionWrapper(
                 new SleepSession(calendar.getTime(), 0)));
         
         LiveData<GregorianCalendar> startDate = viewModel.getStartCalendar();
@@ -410,7 +479,7 @@ public class SessionDetailsFragmentViewModelTests
         GregorianCalendar calendar = new GregorianCalendar();
         calendar.setTime(TestUtils.ArbitraryData.getDate());
         
-        viewModel.setSessionData(new SleepSessionWrapper(
+        viewModel.initData(new SleepSessionWrapper(
                 new SleepSession(calendar.getTime(), 0)));
         
         // set start after end
@@ -426,7 +495,7 @@ public class SessionDetailsFragmentViewModelTests
     {
         // set startDateTime
         GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
-        viewModel.setSessionData(new SleepSessionWrapper(
+        viewModel.initData(new SleepSessionWrapper(
                 new SleepSession(calendar.getTime(), 0)));
         
         // begin watching getStartDate
@@ -453,7 +522,7 @@ public class SessionDetailsFragmentViewModelTests
         GregorianCalendar calendar = new GregorianCalendar();
         calendar.setTime(TestUtils.ArbitraryData.getDate());
         
-        viewModel.setSessionData(new SleepSessionWrapper(
+        viewModel.initData(new SleepSessionWrapper(
                 new SleepSession(calendar.getTime(), 0)));
         
         // watch start time
@@ -482,7 +551,7 @@ public class SessionDetailsFragmentViewModelTests
         GregorianCalendar calendar = new GregorianCalendar();
         calendar.setTime(TestUtils.ArbitraryData.getDate());
         
-        viewModel.setSessionData(new SleepSessionWrapper(
+        viewModel.initData(new SleepSessionWrapper(
                 new SleepSession(calendar.getTime(), 0)));
         
         // set start after end
@@ -498,7 +567,7 @@ public class SessionDetailsFragmentViewModelTests
         GregorianCalendar calendar = TestUtils.ArbitraryData.getCalendar();
         Date start = calendar.getTime(); // saving this here, as the calendar is moved to the end
         
-        viewModel.setSessionData(new SleepSessionWrapper(
+        viewModel.initData(new SleepSessionWrapper(
                 new SleepSession(calendar.getTime(), 0)));
         
         LiveData<String> sessionDurationText = viewModel.getSessionDurationText();
@@ -537,7 +606,7 @@ public class SessionDetailsFragmentViewModelTests
         
         int testDurationMillis = 300000; // 5 min
         
-        viewModel.setSessionData(new SleepSessionWrapper(
+        viewModel.initData(new SleepSessionWrapper(
                 new SleepSession(startDateTime, testDurationMillis)));
         
         LiveData<String> sessionDuration = viewModel.getSessionDurationText();

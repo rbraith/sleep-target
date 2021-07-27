@@ -1,7 +1,9 @@
 package com.rbraithwaite.sleepapp.core.models;
 
-import java.util.List;
+import com.rbraithwaite.sleepapp.utils.CommonUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -14,7 +16,20 @@ public class Interruptions
 //*********************************************************
 
     private List<Interruption> mInterruptions;
+    
+    private Updates mUpdates;
+    
+//*********************************************************
+// public helpers
+//*********************************************************
 
+    public static class Updates
+    {
+        public List<Interruption> added = new ArrayList<>();
+        public List<Interruption> updated = new ArrayList<>();
+        public List<Interruption> deleted = new ArrayList<>();
+    }
+    
 //*********************************************************
 // constructors
 //*********************************************************
@@ -23,7 +38,6 @@ public class Interruptions
     {
         mInterruptions = interruptions;
     }
-
 
 //*********************************************************
 // api
@@ -49,5 +63,49 @@ public class Interruptions
     public List<Interruption> asList()
     {
         return mInterruptions;
+    }
+    
+    public Interruption get(int interruptionId)
+    {
+        return mInterruptions.stream()
+                .filter(interruption -> interruption.getId() == interruptionId)
+                .findFirst()
+                .orElse(null);
+    }
+    
+    public void delete(int interruptionId)
+    {
+        if (mInterruptions.isEmpty()) {
+            return;
+        }
+        
+        for (int i = 0; i < mInterruptions.size(); i++) {
+            if (mInterruptions.get(i).getId() == interruptionId) {
+                getUpdates().deleted.add(mInterruptions.remove(i));
+                break;
+            }
+        }
+    }
+    
+    public boolean hasUpdates()
+    {
+        return mUpdates != null;
+    }
+    
+    public Updates consumeUpdates()
+    {
+        Updates temp = mUpdates;
+        mUpdates = null;
+        return temp;
+    }
+    
+//*********************************************************
+// private methods
+//*********************************************************
+
+    private Updates getUpdates()
+    {
+        mUpdates = CommonUtils.lazyInit(mUpdates, Updates::new);
+        return mUpdates;
     }
 }

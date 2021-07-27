@@ -28,6 +28,7 @@ public class ApplicationTestDriver
     private SleepTrackerTestDriver mSleepTracker;
     private SessionArchiveTestDriver mSessionArchive;
     private SessionDetailsTestDriver mSessionDetails;
+    private InterruptionDetailsTestDriver mInterruptionDetails;
 
 //*********************************************************
 // package properties
@@ -44,7 +45,8 @@ public class ApplicationTestDriver
     {
         ARCHIVE,
         SLEEP_TRACKER,
-        SESSION_DETAILS
+        SESSION_DETAILS,
+        INTERRUPTION_DETAILS
     }
 
 //*********************************************************
@@ -82,12 +84,30 @@ public class ApplicationTestDriver
             SessionDetailsTestDriver sessionDetails =
                     SessionDetailsTestDriver.inApplication(new ApplicationFragmentTestHelper<>(
                             mScenarioCallbacks));
+            
             sessionDetails.setOnConfirmListener(() -> mCurrentLocation = Destination.ARCHIVE);
             sessionDetails.setOnNegativeActionListener(() -> mCurrentLocation =
                     Destination.ARCHIVE);
+            
+            sessionDetails.setOpenInterruptionDetailsListener(() -> {
+                mCurrentLocation = Destination.INTERRUPTION_DETAILS;
+            });
+            
             return sessionDetails;
         });
         return mCurrentLocation == Destination.SESSION_DETAILS ? mSessionDetails : null;
+    }
+    
+    public InterruptionDetailsTestDriver getInterruptionDetails()
+    {
+        mInterruptionDetails = CommonUtils.lazyInit(mInterruptionDetails, () -> {
+            InterruptionDetailsTestDriver driver = InterruptionDetailsTestDriver.inApplication(
+                    new ApplicationFragmentTestHelper<>(mScenarioCallbacks));
+            driver.setOnNegativeActionListener(() -> mCurrentLocation =
+                    Destination.SESSION_DETAILS);
+            return driver;
+        });
+        return mCurrentLocation == Destination.INTERRUPTION_DETAILS ? mInterruptionDetails : null;
     }
     
     public void navigateTo(Destination destination)

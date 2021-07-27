@@ -64,6 +64,9 @@ public class SessionArchiveRecyclerViewAdapter
 // public helpers
 //*********************************************************
 
+    // REFACTOR [21-07-23 3:33PM] change this to be more like SessionDetailsInterruptionsAdapter
+    //  - return viewmodel, & viewmodel contains the session id (it contains list item data which
+    //  contains the id).
     public interface OnListItemClickListener
     {
         void onClick(View v, int position);

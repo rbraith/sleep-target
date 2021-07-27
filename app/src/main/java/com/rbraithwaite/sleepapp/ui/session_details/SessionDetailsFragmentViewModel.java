@@ -5,18 +5,20 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
-import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.core.models.Interruptions;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
+import com.rbraithwaite.sleepapp.core.models.SleepSessionOverlapChecker;
 import com.rbraithwaite.sleepapp.core.models.Tag;
 import com.rbraithwaite.sleepapp.ui.common.convert.ConvertMood;
 import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.common.interruptions.ConvertInterruption;
 import com.rbraithwaite.sleepapp.ui.common.interruptions.InterruptionFormatting;
 import com.rbraithwaite.sleepapp.ui.common.interruptions.InterruptionListItem;
+import com.rbraithwaite.sleepapp.ui.common.views.details_fragment.DetailsFragmentViewModel;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.ConvertTag;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagUiData;
+import com.rbraithwaite.sleepapp.ui.interruption_details.InterruptionWrapper;
 import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
@@ -25,7 +27,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.FutureTask;
 import java.util.stream.Collectors;
 
 // REFACTOR [21-01-5 2:30AM] -- passing around Dates and longs for times-of-day or dates is too
@@ -33,7 +39,7 @@ import java.util.stream.Collectors;
 //  contain eg hourOfDay & minute fields. Then I can use Date & Calendar in the impls to convert
 //  for storage or display
 public class SessionDetailsFragmentViewModel
-        extends ViewModel
+        extends DetailsFragmentViewModel<SleepSessionWrapper>
 {
 //*********************************************************
 // private properties
@@ -43,7 +49,12 @@ public class SessionDetailsFragmentViewModel
     
     private MutableLiveData<SleepSession> mSleepSession = new MutableLiveData<>();
     private TimeUtils mTimeUtils;
-
+    
+    private SleepSessionOverlapChecker mOverlapChecker;
+    private Executor mExecutor;
+    
+    private boolean mInitialized = false;
+    
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -66,25 +77,78 @@ public class SessionDetailsFragmentViewModel
         }
     }
 
+    public static class OverlappingSessionException
+            extends RuntimeException
+    {
+        public final String start;
+        public final String end;
+        
+        public OverlappingSessionException(String start, String end)
+        {
+            super(OverlappingSessionException.composeSuperMessage(start, end));
+            
+            this.start = start;
+            this.end = end;
+        }
+        
+        private static String composeSuperMessage(String start, String end)
+        {
+            return String.format(
+                    Locale.CANADA,
+                    "Overlap of session with start='%s' and end='%s'",
+                    start, end);
+        }
+    }
+
 //*********************************************************
 // constructors
 //*********************************************************
 
     @ViewModelInject
-    public SessionDetailsFragmentViewModel(TimeUtils timeUtils)
+    public SessionDetailsFragmentViewModel(
+            TimeUtils timeUtils,
+            SleepSessionOverlapChecker overlapChecker,
+            Executor executor)
     {
+        mOverlapChecker = overlapChecker;
+        mExecutor = executor;
         mTimeUtils = timeUtils;
     }
-
+    
 //*********************************************************
-// api
+// overrides
 //*********************************************************
 
+    @Override
     public SleepSessionWrapper getResult()
     {
         return new SleepSessionWrapper(mSleepSession.getValue());
     }
     
+    /**
+     * Set the data only if the view model is clear (ie no data has been set yet, or clearData was
+     * called).
+     */
+    @Override
+    public void initData(SleepSessionWrapper data)
+    {
+        if (!mInitialized) {
+            mSleepSession.setValue(data.getModel());
+            mInitialized = true;
+        }
+    }
+    
+    @Override
+    public void clearData()
+    {
+        mSleepSession.setValue(null);
+        mInitialized = false;
+    }
+    
+//*********************************************************
+// api
+//*********************************************************
+
     public LiveData<String> getSessionDurationText()
     {
         if (mSessionDurationText == null) {
@@ -199,16 +263,6 @@ public class SessionDetailsFragmentViewModel
             //  alright to have the view handle a domain exception?
             throw new InvalidDateTimeException((e.getMessage()));
         }
-    }
-    
-    public void clearSessionData()
-    {
-        mSleepSession.setValue(null);
-    }
-    
-    public void setSessionData(SleepSessionWrapper sessionData)
-    {
-        mSleepSession.setValue(sessionData.getModel());
     }
     
     public LiveData<GregorianCalendar> getStartCalendar()
@@ -363,6 +417,62 @@ public class SessionDetailsFragmentViewModel
                                 sleepSession.getInterruptions().getTotalDuration()))
                 .orElseGet(() -> InterruptionFormatting.formatDuration(0));
     }
+    
+    /**
+     * This will throw an OverlappingSessionException if there is an overlapping session. This will
+     * return false if the check failed for a reason related to an execution problem, or true if the
+     * check passed.
+     */
+    public boolean checkResultForSessionOverlap()
+    {
+        FutureTask<SleepSession> overlapTask = new FutureTask<>(
+                () -> mOverlapChecker.checkForOverlap(getResult().getModel()));
+        mExecutor.execute(overlapTask);
+        
+        SleepSession overlappingSession;
+        try {
+            overlappingSession = overlapTask.get();
+        } catch (ExecutionException e) {
+            // TODO [21-07-3 1:20AM] -- I need a proper logging system lol!
+            e.printStackTrace();
+            return false;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return false;
+        }
+        if (overlappingSession != null) {
+            throw new OverlappingSessionException(
+                    SessionDetailsFormatting.formatFullDate(overlappingSession.getStart()),
+                    SessionDetailsFormatting.formatFullDate(overlappingSession.getEnd()));
+        }
+        return true;
+    }
+    
+    public InterruptionWrapper getInterruption(int interruptionId)
+    {
+        return getOptionalSleepSession()
+                .map(sleepSession -> new InterruptionWrapper(sleepSession.getInterruption(
+                        interruptionId)))
+                .orElse(null);
+    }
+    
+    public void deleteInterruption(InterruptionWrapper interruption)
+    {
+        getOptionalSleepSession().ifPresent(sleepSession -> {
+            sleepSession.deleteInterruption(interruption.getData().getId());
+            notifySessionChanged();
+        });
+    }
+    
+    /**
+     * Simple convenience method which clears then re-initializes the data.
+     */
+    public void setData(SleepSessionWrapper data)
+    {
+        clearData();
+        initData(data);
+    }
+
 
 
 //*********************************************************

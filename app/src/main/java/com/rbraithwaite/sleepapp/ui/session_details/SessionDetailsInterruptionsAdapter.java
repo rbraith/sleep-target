@@ -23,18 +23,28 @@ public class SessionDetailsInterruptionsAdapter
 //*********************************************************
 
     private List<InterruptionListItem> mItems;
+    
+    private OnListItemClickListener mOnListItemClickListener;
 
 //*********************************************************
 // private constants
 //*********************************************************
 
     private static final int VIEWTYPE_ITEM = 0;
+    
     private static final int VIEWTYPE_ADD_BUTTON = 1;
     
 //*********************************************************
 // public helpers
 //*********************************************************
 
+    // REFACTOR [21-07-23 3:12PM] -- this list item clicking system is duplicated in
+    //  SessionArchiveRecyclerviewAdapter.
+    public interface OnListItemClickListener
+    {
+        void onClick(ItemViewHolder viewHolder);
+    }
+    
     public static class ViewHolder
             extends RecyclerView.ViewHolder
     {
@@ -50,21 +60,33 @@ public class SessionDetailsInterruptionsAdapter
     public static class ItemViewHolder
             extends ViewHolder
     {
+        InterruptionListItem data;
+        
         TextView start;
         TextView duration;
         TextView reason;
         
-        public ItemViewHolder(@NonNull View itemView)
+        public ItemViewHolder(
+                @NonNull View itemView,
+                OnListItemClickListener onListItemClickListener)
         {
             super(itemView);
             
             start = itemView.findViewById(R.id.common_interruptions_listitem_start);
             duration = itemView.findViewById(R.id.common_interruptions_listitem_duration);
             reason = itemView.findViewById(R.id.common_interruptions_listitem_reason);
+            
+            itemView.setOnClickListener(v -> {
+                if (onListItemClickListener != null) {
+                    onListItemClickListener.onClick(this);
+                }
+            });
         }
         
         public void bindTo(InterruptionListItem item)
         {
+            data = item;
+            
             start.setText(item.start);
             duration.setText(item.duration);
             reason.setText(item.reason);
@@ -87,17 +109,20 @@ public class SessionDetailsInterruptionsAdapter
             // TODO [21-07-21 1:00AM] -- add click listener here.
         }
     }
-    
+
 
 //*********************************************************
 // constructors
 //*********************************************************
 
-    public SessionDetailsInterruptionsAdapter(List<InterruptionListItem> items)
+    public SessionDetailsInterruptionsAdapter(
+            List<InterruptionListItem> items,
+            OnListItemClickListener onListItemClickListener)
     {
         mItems = items;
+        mOnListItemClickListener = onListItemClickListener;
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -109,7 +134,7 @@ public class SessionDetailsInterruptionsAdapter
         switch (viewType) {
         case VIEWTYPE_ITEM:
             View item = inflateLayout(R.layout.session_details_interruptions_listitem, parent);
-            return new ItemViewHolder(item);
+            return new ItemViewHolder(item, mOnListItemClickListener);
         
         case VIEWTYPE_ADD_BUTTON:
             View addButton = inflateLayout(R.layout.session_details_interruptions_addbtn, parent);

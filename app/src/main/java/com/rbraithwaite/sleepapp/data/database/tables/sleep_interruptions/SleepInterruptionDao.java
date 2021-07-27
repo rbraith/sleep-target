@@ -14,4 +14,12 @@ public abstract class SleepInterruptionDao
 
     @Query("SELECT * FROM " + SleepInterruptionContract.TABLE_NAME)
     public abstract List<SleepInterruptionEntity> getAll();
+    
+    // TODO [21-07-23 5:24PM] -- got ahead of myself.
+//    @Update
+//    public abstract void updateMany(List<SleepInterruptionEntity> entities);
+    
+    @Query("DELETE FROM " + SleepInterruptionContract.TABLE_NAME +
+           " WHERE " + SleepInterruptionContract.Columns.ID + " IN (:ids)")
+    public abstract void deleteMany(List<Integer> ids);
 }

@@ -2,6 +2,7 @@ package com.rbraithwaite.sleepapp.test_utils.ui.drivers;
 
 import androidx.test.espresso.ViewInteraction;
 import androidx.test.espresso.contrib.PickerActions;
+import androidx.test.espresso.contrib.RecyclerViewActions;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.core.models.Interruption;
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
+import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -60,7 +62,9 @@ public class SessionDetailsTestDriver
     private MoodSelectorDriver mMoodSelector;
     private OnConfirmListener mOnConfirmListener;
     private OnNegativeActionListener mOnNegativeActionListener;
-
+    
+    private OpenInterruptionDetailsListener mOpenInterruptionDetailsListener;
+    
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -75,7 +79,12 @@ public class SessionDetailsTestDriver
     {
         void onNegativeAction();
     }
-    
+
+    public interface OpenInterruptionDetailsListener
+    {
+        void onOpenInterruptionDetails();
+    }
+
     public static class Assertions
             extends BaseFragmentTestDriver.BaseAssertions<SessionDetailsTestDriver,
             SessionDetailsFragmentViewModel>
@@ -216,7 +225,7 @@ public class SessionDetailsTestDriver
             onView(withId(R.id.session_details_overlap_message)).inRoot(isDialog())
                     .check(matches(isDisplayed()));
         }
-    
+        
         public void interruptionDetailsMatch(Interruptions interruptions)
         {
             if (interruptions == null || interruptions.isEmpty()) {
@@ -235,7 +244,7 @@ public class SessionDetailsTestDriver
             interruptionsCountMatches(0);
             interruptionsTimeMatches(0);
             
-            onView(withId(R.id.common_interruptions_listitem_start)).check(matches(not(isDisplayed())));
+            onView(withId(R.id.common_interruptions_listitem_start)).check(doesNotExist());
         }
         
         public void interruptionsListMatches(List<Interruption> interruptionsList)
@@ -263,7 +272,7 @@ public class SessionDetailsTestDriver
             onView(withId(R.id.common_interruptions_total)).check(matches(withText(
                     InterruptionFormatting.formatDuration(durationMillis))));
         }
-    
+        
         // REFACTOR [21-05-14 3:40AM] -- extract this, it duplicates getIdsFromTags()
         //  in SleepTrackerViewModel.
         private List<Integer> getTagIdsOf(List<Tag> tags)
@@ -291,7 +300,7 @@ public class SessionDetailsTestDriver
             return getOwningDriver().onEndTimeTextView();
         }
     }
-
+    
 //*********************************************************
 // constructors
 //*********************************************************
@@ -299,27 +308,22 @@ public class SessionDetailsTestDriver
     private SessionDetailsTestDriver()
     {
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
-    
-    public void scrollToInterruptions()
-    {
-        onView(withId(R.id.session_details_interruptions_card)).perform(scrollTo());
-    }
 
     public static SessionDetailsTestDriver startingWith(SleepSession sleepSession)
     {
+        SessionDetailsFragment.Args args = new SessionDetailsFragment.Args();
+        args.initialData = new SleepSessionWrapper(sleepSession);
+        
         SessionDetailsTestDriver sessionDetails = new SessionDetailsTestDriver();
         // REFACTOR [21-05-11 10:57PM] -- maybe I should just generally inject the helper.
         HiltFragmentTestHelper<SessionDetailsFragment> helper =
                 HiltFragmentTestHelper.launchFragmentWithArgs(
                         SessionDetailsFragment.class,
-                        SessionDetailsFragment.createArguments(
-                                new SessionDetailsFragment.ArgsBuilder(new SleepSessionWrapper(
-                                        sleepSession))
-                                        .build()));
+                        SessionDetailsFragment.createArguments(args));
         sessionDetails.init(helper, new SessionDetailsTestDriver.Assertions(sessionDetails));
         sessionDetails.initSelectors();
         return sessionDetails;
@@ -331,6 +335,11 @@ public class SessionDetailsTestDriver
         sessionDetails.init(helper, new SessionDetailsTestDriver.Assertions(sessionDetails));
         sessionDetails.initSelectors();
         return sessionDetails;
+    }
+    
+    public void scrollToInterruptions()
+    {
+        onView(withId(R.id.session_details_interruptions_card)).perform(scrollTo());
     }
     
     public void setRating(float rating)
@@ -354,7 +363,7 @@ public class SessionDetailsTestDriver
         if (mOnConfirmListener != null) {
             mOnConfirmListener.onConfirm();
         }
-        onView(withId(R.id.session_data_action_positive)).perform(click());
+        onView(withId(R.id.action_positive)).perform(click());
     }
     
     /**
@@ -362,7 +371,7 @@ public class SessionDetailsTestDriver
      */
     public void confirmSilently()
     {
-        onView(withId(R.id.session_data_action_positive)).perform(click());
+        onView(withId(R.id.action_positive)).perform(click());
     }
     
     public void setStart(Date start)
@@ -450,6 +459,25 @@ public class SessionDetailsTestDriver
     {
         DialogTestUtils.pressPositiveButton();
     }
+    
+    public void setOpenInterruptionDetailsListener(OpenInterruptionDetailsListener openInterruptionDetailsListener)
+    {
+        mOpenInterruptionDetailsListener = openInterruptionDetailsListener;
+    }
+    
+    /**
+     * Don't call this unless you're in an {@link ApplicationTestDriver}. 0 is the first
+     * interruptions index (i.e. you don't need to account for the add button)
+     */
+    public void openInterruptionDetailsFor(int interruptionsListIndex)
+    {
+        if (mOpenInterruptionDetailsListener != null) {
+            mOpenInterruptionDetailsListener.onOpenInterruptionDetails();
+        }
+        onView(withId(R.id.common_interruptions_recycler)).perform(RecyclerViewActions.actionOnItemAtPosition(
+                interruptionsListIndex + 1,
+                click()));
+    }
 
 //*********************************************************
 // private methods
@@ -457,7 +485,7 @@ public class SessionDetailsTestDriver
 
     private void pressNegativeButton()
     {
-        onView(withId(R.id.session_data_action_negative)).perform(click());
+        onView(withId(R.id.action_negative)).perform(click());
     }
     
     private void setMood(Mood mood)

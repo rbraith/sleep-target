@@ -9,7 +9,6 @@ import com.rbraithwaite.sleepapp.core.models.Tag;
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
-import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import org.junit.After;
 import org.junit.Before;
@@ -17,9 +16,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -48,9 +44,7 @@ public class SessionArchiveFragmentViewModelTests
     public void setup()
     {
         mockSleepSessionRepository = mock(SleepSessionRepository.class);
-        viewModel = new SessionArchiveFragmentViewModel(
-                mockSleepSessionRepository,
-                new TestUtils.SynchronizedExecutor());
+        viewModel = new SessionArchiveFragmentViewModel(mockSleepSessionRepository);
     }
     
     @After
@@ -58,41 +52,6 @@ public class SessionArchiveFragmentViewModelTests
     {
         viewModel = null;
         mockSleepSessionRepository = null;
-    }
-    
-    @Test(expected = SessionArchiveFragmentViewModel.OverlappingSessionException.class)
-    public void checkResultForSessionOverlap_throwsIfThereIsAnOverlapBehind()
-    {
-        GregorianCalendar cal = TestUtils.ArbitraryData.getCalendar();
-        Date existingSessionStart = cal.getTime();
-        // the existing session will have a duration of 4hrs, so this overlaps by 2
-        cal.add(Calendar.HOUR_OF_DAY, 2);
-        Date overlappingSessionStart = cal.getTime();
-        
-        when(mockSleepSessionRepository.getFirstSleepSessionStartingBefore(overlappingSessionStart.getTime()))
-                .thenReturn(new SleepSession(1, existingSessionStart, TimeUtils.hoursToMillis(4)));
-        
-        viewModel.checkResultForSessionOverlap(new SleepSessionWrapper(new SleepSession(
-                overlappingSessionStart, 1234)));
-    }
-    
-    @Test(expected = SessionArchiveFragmentViewModel.OverlappingSessionException.class)
-    public void checkResultForSessionOverlap_throwsIfThereIsAnOverlapAhead()
-    {
-        GregorianCalendar cal = TestUtils.ArbitraryData.getCalendar();
-        Date existingSessionStart = cal.getTime();
-        cal.add(Calendar.HOUR_OF_DAY, -2);
-        Date overlappingSessionStart = cal.getTime();
-        
-        when(mockSleepSessionRepository.getFirstSleepSessionStartingBefore(overlappingSessionStart.getTime()))
-                .thenReturn(null);
-        
-        when(mockSleepSessionRepository.getFirstSleepSessionStartingBefore(overlappingSessionStart.getTime()))
-                .thenReturn(new SleepSession(1, existingSessionStart, TimeUtils.hoursToMillis(4)));
-        
-        // two 4hr sessions, this one is set 2hrs back, so it overlaps w/ the one ahead by 2hrs
-        viewModel.checkResultForSessionOverlap(new SleepSessionWrapper(new SleepSession(
-                overlappingSessionStart, TimeUtils.hoursToMillis(4))));
     }
     
     @Test

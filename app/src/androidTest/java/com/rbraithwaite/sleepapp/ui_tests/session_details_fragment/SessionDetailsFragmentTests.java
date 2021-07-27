@@ -19,8 +19,8 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.concurrent.TimeUnit;
 
+import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.aListOf;
 import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.anInterruption;
-import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.listOf;
 
 @RunWith(AndroidJUnit4.class)
 public class SessionDetailsFragmentTests
@@ -153,9 +153,9 @@ public class SessionDetailsFragmentTests
     public void interruptionsDisplayProperly()
     {
         SleepSession sleepSession = sleepSessionWithZeroDuration();
-        sleepSession.setInterruptions(new Interruptions(listOf(
+        sleepSession.setInterruptions(new Interruptions(aListOf(
                 anInterruption(), anInterruption())));
-    
+        
         SessionDetailsTestDriver sessionDetails =
                 SessionDetailsTestDriver.startingWith(sleepSession);
         

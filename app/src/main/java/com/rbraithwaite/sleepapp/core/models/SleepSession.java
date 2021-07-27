@@ -375,6 +375,24 @@ public class SleepSession
     {
         return mInterruptions == null || mInterruptions.isEmpty();
     }
+    
+    public Interruption getInterruption(int interruptionId)
+    {
+        if (mInterruptions == null) {
+            return null;
+        }
+        
+        return mInterruptions.get(interruptionId);
+    }
+    
+    public void deleteInterruption(int interruptionId)
+    {
+        if (mInterruptions == null) {
+            return;
+        }
+        
+        mInterruptions.delete(interruptionId);
+    }
 
 //*********************************************************
 // protected api

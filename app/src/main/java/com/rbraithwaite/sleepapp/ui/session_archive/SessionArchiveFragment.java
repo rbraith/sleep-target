@@ -1,23 +1,21 @@
 package com.rbraithwaite.sleepapp.ui.session_archive;
 
-import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
-import com.rbraithwaite.sleepapp.ui.common.dialog.AlertDialogFragment;
-import com.rbraithwaite.sleepapp.ui.common.dialog.DialogUtils;
+import com.rbraithwaite.sleepapp.ui.common.views.details_fragment.DetailsFragment;
+import com.rbraithwaite.sleepapp.ui.common.views.details_fragment.DetailsResult;
 import com.rbraithwaite.sleepapp.ui.session_details.SessionDetailsFragment;
 import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
@@ -40,12 +38,7 @@ public class SessionArchiveFragment
 //*********************************************************
 
     private static final String TAG = "SessionArchiveFragment";
-    private static final String SESSION_DELETE_DIALOG = "SessionDeleteDialog";
-    
-    private static final int DATA_ICON_DELETE = R.drawable.ic_baseline_delete_forever_24;
-    
-    private static final String DIALOG_OVERLAP_ERROR = "SessionDetailsFragmentOverlapErrorDialog";
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -63,10 +56,12 @@ public class SessionArchiveFragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
     {
+        handleSessionDetailsResult(getSessionDetailsResult().consumeResult());
+        
         initRecyclerView(view);
         initFloatingActionButton(view);
     }
-
+    
     @Override
     protected Properties<SessionArchiveFragmentViewModel> initProperties()
     {
@@ -87,11 +82,36 @@ public class SessionArchiveFragment
         }
         return mRecyclerViewAdapter;
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
 
+    private void handleSessionDetailsResult(DetailsResult.Result<SleepSessionWrapper> result)
+    {
+        if (result == null) {
+            // we are not returning from the session details fragment, so do nothing
+            return;
+        }
+        
+        switch (result.action) {
+        case ADDED:
+            getViewModel().addSleepSession(result.data);
+            break;
+        case UPDATED:
+            getViewModel().updateSleepSession(result.data);
+            break;
+        case DELETED:
+            getViewModel().deleteSession(result.data);
+            break;
+        }
+    }
+    
+    private SessionDetailsFragment.Result getSessionDetailsResult()
+    {
+        return new ViewModelProvider(requireActivity()).get(SessionDetailsFragment.Result.class);
+    }
+    
     private void navigateToEditSessionScreen(final int listItemPosition)
     {
         int sessionId = getViewHolderFor(listItemPosition).data.sleepSessionId;
@@ -115,29 +135,20 @@ public class SessionArchiveFragment
         floatingActionButton.setOnClickListener(v -> navigateToAddSessionScreen());
     }
     
+    
     private void navigateToAddSessionScreen()
     {
         LiveDataFuture.getValue(
                 getViewModel().getInitialAddSessionData(),
                 getViewLifecycleOwner(),
                 initialData -> {
-                    SessionDetailsFragment.ArgsBuilder argsBuilder =
-                            new SessionDetailsFragment.ArgsBuilder(initialData)
-                                    .setPositiveActionListener(new SessionDetailsFragment.ActionListener()
-                                    {
-                                        @Override
-                                        public void onAction(
-                                                SessionDetailsFragment fragment,
-                                                SleepSessionWrapper result)
-                                        {
-                                            getViewModel().addSleepSession(result);
-                                            fragment.completed();
-                                        }
-                                    });
+                    SessionDetailsFragment.Args args = new SessionDetailsFragment.Args();
+                    args.mode = DetailsFragment.Mode.ADD;
+                    args.initialData = initialData;
+                    
                     SessionArchiveFragmentDirections.ActionSessionArchiveToSessionData
                             toAddSessionScreen =
-                            SessionArchiveFragmentDirections.actionSessionArchiveToSessionData(
-                                    argsBuilder.build());
+                            SessionArchiveFragmentDirections.actionSessionArchiveToSessionData(args);
                     
                     getNavController().navigate(toAddSessionScreen);
                 });
@@ -146,103 +157,11 @@ public class SessionArchiveFragment
     private SessionArchiveFragmentDirections.ActionSessionArchiveToSessionData toEditSessionScreen(
             SleepSessionWrapper initialEditData)
     {
-        // SMELL [21-12-31 1:50AM] -- IDK if I like this solution, it feels over-engineered,
-        //  and I don't like the clients being responsible for handling the fragment completion.
-        //  another possible solution:
-        //      create derived fragment classes AddSessionFragment & SessionInfoFragment, which
-        //      derive from the same base SessionDateFragment
-        //      The derived fragments would handle action behaviour & icons, the base would handle
-        //      args, results, & up/back button behaviour.
-        //  The reason I didn't go with that solution is because I figured safeargs & nav component
-        //  would be a massive headache with it.
-        SessionDetailsFragment.ArgsBuilder argsBuilder = new SessionDetailsFragment.ArgsBuilder(
-                initialEditData)
-                .setNegativeIcon(DATA_ICON_DELETE)
-                .setPositiveActionListener(new SessionDetailsFragment.ActionListener()
-                {
-                    @Override
-                    public void onAction(
-                            SessionDetailsFragment fragment,
-                            SleepSessionWrapper result)
-                    {
-                        try {
-                            if (getViewModel().checkResultForSessionOverlap(result)) {
-                                getViewModel().updateSleepSession(result);
-                                fragment.completed();
-                            }
-                        } catch (SessionArchiveFragmentViewModel.OverlappingSessionException e) {
-                            displayOverlapErrorDialog(fragment, e);
-                        }
-                    }
-                })
-                .setNegativeActionListener(new SessionDetailsFragment.ActionListener()
-                {
-                    @Override
-                    public void onAction(
-                            final SessionDetailsFragment fragment,
-                            final SleepSessionWrapper result)
-                    {
-                        displayDeleteSessionDialog(fragment, result);
-                    }
-                });
-        return SessionArchiveFragmentDirections.actionSessionArchiveToSessionData(
-                argsBuilder.build());
-    }
-    
-    private void displayOverlapErrorDialog(
-            SessionDetailsFragment fragment,
-            SessionArchiveFragmentViewModel.OverlappingSessionException e)
-    {
-        // TODO [21-07-2 2:04AM] -- figure out how to style dialogs :(
-        //  this dialog's background should be colorError
-        AlertDialogFragment dialog = AlertDialogFragment.createInstance(() -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-            builder.setTitle("Error: Overlapping Sleep Session")
-                    .setView(createOverlapErrorDialogContent(e))
-                    .setPositiveButton(android.R.string.ok, null);
-            return builder.create();
-        });
+        SessionDetailsFragment.Args args = new SessionDetailsFragment.Args();
+        args.mode = DetailsFragment.Mode.UPDATE;
+        args.initialData = initialEditData;
         
-        dialog.show(fragment.getChildFragmentManager(), DIALOG_OVERLAP_ERROR);
-    }
-    
-    private View createOverlapErrorDialogContent(SessionArchiveFragmentViewModel.OverlappingSessionException e)
-    {
-        View dialogContent =
-                getLayoutInflater().inflate(R.layout.session_details_overlap_error, null);
-        
-        TextView start = dialogContent.findViewById(R.id.session_details_overlap_start_value);
-        start.setText(e.start);
-        
-        TextView end = dialogContent.findViewById(R.id.session_details_overlap_end_value);
-        end.setText(e.end);
-        
-        return dialogContent;
-    }
-    
-    private void displayDeleteSessionDialog(
-            SessionDetailsFragment fragment,
-            SleepSessionWrapper result)
-    {
-        AlertDialogFragment deleteDialog = DialogUtils.createDeleteDialog(
-                requireContext(),
-                R.string.session_archive_delete_dialog_title,
-                R.string.session_archive_delete_dialog_message,
-                (dialog, which) -> {
-                    // this is alright since SessionArchiveFragment's
-                    // view model is lifecycle-owned by the activity
-                    int deletedId =
-                            getViewModel().deleteSession(result);
-                    Snackbar.make(
-                            fragment.getView(),
-                            "Deleted session #" + deletedId,
-                            Snackbar.LENGTH_SHORT)
-                            .show();
-                    fragment.completed();
-                });
-        
-        deleteDialog.show(fragment.getChildFragmentManager(),
-                          SESSION_DELETE_DIALOG);
+        return SessionArchiveFragmentDirections.actionSessionArchiveToSessionData(args);
     }
     
     private void initRecyclerView(@NonNull View fragmentRoot)

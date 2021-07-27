@@ -7,6 +7,7 @@ import androidx.room.Room;
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDurationGoalDao;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalDao;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_interruptions.SleepInterruptionDao;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionDao;
 import com.rbraithwaite.sleepapp.data.database.tables.tag.TagDao;
 
@@ -55,6 +56,13 @@ public class DatabaseDependenciesModule
     public static SleepDurationGoalDao provideSleepDurationGoalDao(SleepAppDatabase database)
     {
         return database.getSleepDurationGoalDao();
+    }
+    
+    @Singleton
+    @Provides
+    public static SleepInterruptionDao provideSleepInterruptionDao(SleepAppDatabase database)
+    {
+        return database.getSleepInterruptionDao();
     }
     
     @Singleton

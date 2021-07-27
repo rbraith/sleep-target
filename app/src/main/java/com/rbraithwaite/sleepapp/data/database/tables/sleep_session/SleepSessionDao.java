@@ -122,15 +122,23 @@ public abstract class SleepSessionDao
     protected abstract void deleteAllTagsFromSleepSession(int sleepSessionId);
     
     @Insert
-    protected abstract void addInterruptionsToSleepSession(List<SleepInterruptionEntity> interruptions);
-
-
-
+    protected abstract void addInterruptions(List<SleepInterruptionEntity> interruptions);
+    
 //*********************************************************
 // api
 //*********************************************************
 
-    
+    public void addInterruptionsToSleepSession(
+            long sleepSessionId,
+            List<SleepInterruptionEntity> interruptions)
+    {
+        for (SleepInterruptionEntity interruption : interruptions) {
+            interruption.sessionId = sleepSessionId;
+        }
+        addInterruptions(interruptions);
+    }
+
+
     /**
      * Adds a new sleep session and its associated tags.
      *
@@ -171,10 +179,7 @@ public abstract class SleepSessionDao
         //  the Room function should have the leading underscore instead.
         _addTagsToSleepSession((int) newSessionId, tagIds);
         
-        for (SleepInterruptionEntity interruption : interruptions) {
-            interruption.sessionId = newSessionId;
-        }
-        addInterruptionsToSleepSession(interruptions);
+        addInterruptionsToSleepSession(newSessionId, interruptions);
         
         return newSessionId;
     }

@@ -5,7 +5,11 @@ import com.rbraithwaite.sleepapp.test_utils.test_data.builders.DateBuilder;
 import com.rbraithwaite.sleepapp.test_utils.test_data.builders.InterruptionBuilder;
 import com.rbraithwaite.sleepapp.test_utils.test_data.builders.MoodBuilder;
 import com.rbraithwaite.sleepapp.test_utils.test_data.builders.PostSleepDataBuilder;
+import com.rbraithwaite.sleepapp.test_utils.test_data.builders.SleepInterruptionEntityBuilder;
+import com.rbraithwaite.sleepapp.test_utils.test_data.builders.SleepSessionBuilder;
+import com.rbraithwaite.sleepapp.test_utils.test_data.builders.SleepSessionEntityBuilder;
 import com.rbraithwaite.sleepapp.test_utils.test_data.builders.StoppedSessionDataBuilder;
+import com.rbraithwaite.sleepapp.test_utils.test_data.builders.TagBuilder;
 import com.rbraithwaite.sleepapp.utils.interfaces.BuilderOf;
 
 import java.util.ArrayList;
@@ -55,7 +59,27 @@ public class TestData
         return new StoppedSessionDataBuilder();
     }
     
-    public static <T> List<T> listOf(BuilderOf<T>... builders)
+    public static SleepSessionBuilder aSleepSession()
+    {
+        return new SleepSessionBuilder();
+    }
+    
+    public static TagBuilder aTag()
+    {
+        return new TagBuilder();
+    }
+    
+    public static SleepSessionEntityBuilder aSleepSessionEntity()
+    {
+        return new SleepSessionEntityBuilder();
+    }
+    
+    public static SleepInterruptionEntityBuilder aSleepInterruptionEntity()
+    {
+        return new SleepInterruptionEntityBuilder();
+    }
+    
+    public static <T> List<T> aListOf(BuilderOf<T>... builders)
     {
         return new ArrayList<>(Arrays.asList(builders)).stream()
                 .map(BuilderOf::build)

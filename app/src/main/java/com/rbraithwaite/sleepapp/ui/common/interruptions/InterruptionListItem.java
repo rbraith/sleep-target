@@ -6,6 +6,7 @@ public class InterruptionListItem
 // public constants
 //*********************************************************
 
+    public final int interruptionId;
     public final String start;
     public final String duration;
     public final String reason;
@@ -14,8 +15,9 @@ public class InterruptionListItem
 // constructors
 //*********************************************************
 
-    public InterruptionListItem(String start, String duration, String reason)
+    public InterruptionListItem(int interruptionId, String start, String duration, String reason)
     {
+        this.interruptionId = interruptionId;
         this.start = start;
         this.duration = duration;
         this.reason = reason;

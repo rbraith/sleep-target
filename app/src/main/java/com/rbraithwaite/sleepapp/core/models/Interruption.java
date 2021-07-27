@@ -12,16 +12,23 @@ public class Interruption
     private Date mStartTime;
     private int mDurationMillis;
     private String mReason;
-    
+    private int mId;
+
 //*********************************************************
 // constructors
 //*********************************************************
 
     public Interruption(Date startTime, int durationMillis, String reason)
     {
+        this(0, startTime, durationMillis, reason);
+    }
+    
+    public Interruption(int id, Date startTime, int durationMillis, String reason)
+    {
         mStartTime = startTime;
         mDurationMillis = durationMillis;
         mReason = reason;
+        mId = id;
     }
     
 //*********************************************************
@@ -34,6 +41,7 @@ public class Interruption
         int result = mStartTime.hashCode();
         result = 31 * result + mDurationMillis;
         result = 31 * result + (mReason != null ? mReason.hashCode() : 0);
+        result = 31 * result + mId;
         return result;
     }
     
@@ -45,6 +53,7 @@ public class Interruption
         
         Interruption that = (Interruption) o;
         
+        if (mId != that.mId) { return false; }
         if (mDurationMillis != that.mDurationMillis) { return false; }
         if (!mStartTime.equals(that.mStartTime)) { return false; }
         return Objects.equals(mReason, that.mReason);
@@ -59,7 +68,7 @@ public class Interruption
                ", mReason='" + mReason + '\'' +
                '}';
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -77,5 +86,10 @@ public class Interruption
     public int getDurationMillis()
     {
         return mDurationMillis;
+    }
+    
+    public int getId()
+    {
+        return mId;
     }
 }
