@@ -122,7 +122,18 @@ public class SessionDetailsFragment
         initInterruptions(view);
     }
     
-    // BUG [21-07-29 7:52PM] -- oops, doesn't adding need the same check?
+    @Override
+    protected void onAdd()
+    {
+        try {
+            if (getViewModel().checkResultForSessionOverlap()) {
+                super.onAdd();
+            }
+        } catch (SessionDetailsFragmentViewModel.OverlappingSessionException e) {
+            displayOverlapErrorDialog(e);
+        }
+    }
+    
     @Override
     protected void onUpdate()
     {
