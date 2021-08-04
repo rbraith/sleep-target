@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
+import com.rbraithwaite.sleepapp.ui.common.views.datetime.DateTimeViewModel;
 
 import org.junit.After;
 import org.junit.Before;
@@ -22,7 +23,7 @@ public class DateTimeViewModelTests
 //*********************************************************
 
     private DateTimeViewModel viewModel;
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -69,7 +70,7 @@ public class DateTimeViewModelTests
         LiveData<String> timeOfDayText = viewModel.getTimeOfDayText();
         TestUtils.activateLocalLiveData(timeOfDay);
         TestUtils.activateLocalLiveData(timeOfDayText);
-
+        
         viewModel.setFormatter(createFormatter());
         
         int expectedHourOfDay = 23;
@@ -81,7 +82,7 @@ public class DateTimeViewModelTests
         assertThat(timeOfDay.getValue().minute, is(expectedMinute));
         assertThat(timeOfDayText.getValue(), is(equalTo("23 45")));
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -95,7 +96,7 @@ public class DateTimeViewModelTests
             {
                 return String.format("%d %d", hourOfDay, minute);
             }
-
+            
             @Override
             public String formatDate(int year, int month, int dayOfMonth)
             {

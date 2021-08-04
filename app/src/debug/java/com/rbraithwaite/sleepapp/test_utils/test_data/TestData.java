@@ -1,10 +1,12 @@
 package com.rbraithwaite.sleepapp.test_utils.test_data;
 
+import com.rbraithwaite.sleepapp.test_utils.test_data.builders.CalendarBuilder;
 import com.rbraithwaite.sleepapp.test_utils.test_data.builders.CurrentSessionBuilder;
 import com.rbraithwaite.sleepapp.test_utils.test_data.builders.DateBuilder;
 import com.rbraithwaite.sleepapp.test_utils.test_data.builders.InterruptionBuilder;
 import com.rbraithwaite.sleepapp.test_utils.test_data.builders.MoodBuilder;
 import com.rbraithwaite.sleepapp.test_utils.test_data.builders.PostSleepDataBuilder;
+import com.rbraithwaite.sleepapp.test_utils.test_data.builders.SessionBuilder;
 import com.rbraithwaite.sleepapp.test_utils.test_data.builders.SleepInterruptionEntityBuilder;
 import com.rbraithwaite.sleepapp.test_utils.test_data.builders.SleepSessionBuilder;
 import com.rbraithwaite.sleepapp.test_utils.test_data.builders.SleepSessionEntityBuilder;
@@ -79,10 +81,29 @@ public class TestData
         return new SleepInterruptionEntityBuilder();
     }
     
+    public static SessionBuilder aSession()
+    {
+        return new SessionBuilder();
+    }
+    
+    public static CalendarBuilder aCalendar()
+    {
+        return new CalendarBuilder();
+    }
+    
     public static <T> List<T> aListOf(BuilderOf<T>... builders)
     {
         return new ArrayList<>(Arrays.asList(builders)).stream()
                 .map(BuilderOf::build)
                 .collect(Collectors.toList());
+    }
+    
+    /**
+     * Some better syntax for getting the actual value of a test data builder (the syntax flows
+     * better in the tests imo)
+     */
+    public static <T> T valueOf(BuilderOf<T> builder)
+    {
+        return builder.build();
     }
 }

@@ -12,8 +12,11 @@
 
 <!--        component defaults-->
 <!--        common_interruptions.xml-->
+        <!-- REFACTOR [21-07-28 2:52AM] these values should be contained in a default style value. -->
         <item name="interruptionsRecyclerMaxHeight">200dp</item>
         <item name="interruptionsListItem">@layout/common_interruptions_listitem</item>
+
+        <item name="datetimeComponentStyle">@style/DefaultDateTimeComponentStyle</item>
     </style>
 
 

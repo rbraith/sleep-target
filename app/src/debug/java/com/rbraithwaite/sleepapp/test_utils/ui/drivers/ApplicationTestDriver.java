@@ -103,8 +103,12 @@ public class ApplicationTestDriver
         mInterruptionDetails = CommonUtils.lazyInit(mInterruptionDetails, () -> {
             InterruptionDetailsTestDriver driver = InterruptionDetailsTestDriver.inApplication(
                     new ApplicationFragmentTestHelper<>(mScenarioCallbacks));
-            driver.setOnNegativeActionListener(() -> mCurrentLocation =
-                    Destination.SESSION_DETAILS);
+            driver.setOnNegativeActionListener(() -> {
+                mCurrentLocation = Destination.SESSION_DETAILS;
+            });
+            driver.setOnPositiveActionListener(() -> {
+                mCurrentLocation = Destination.SESSION_DETAILS;
+            });
             return driver;
         });
         return mCurrentLocation == Destination.INTERRUPTION_DETAILS ? mInterruptionDetails : null;

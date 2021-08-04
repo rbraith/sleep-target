@@ -1,8 +1,11 @@
 package com.rbraithwaite.sleepapp.test_utils.ui.drivers;
 
+import android.view.View;
+import android.widget.TextView;
+
 import androidx.test.espresso.ViewInteraction;
-import androidx.test.espresso.contrib.PickerActions;
 import androidx.test.espresso.contrib.RecyclerViewActions;
+import androidx.test.espresso.matcher.BoundedMatcher;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.core.models.Interruption;
@@ -11,7 +14,9 @@ import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.core.models.Tag;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
+import com.rbraithwaite.sleepapp.test_utils.test_data.builders.InterruptionBuilder;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
+import com.rbraithwaite.sleepapp.test_utils.ui.assertion_utils.RecyclerListItemAssertions;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.ApplicationFragmentTestHelper;
 import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.HiltFragmentTestHelper;
@@ -25,6 +30,9 @@ import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 import com.rbraithwaite.sleepapp.utils.time.Day;
 import com.rbraithwaite.sleepapp.utils.time.TimeOfDay;
+
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -42,10 +50,9 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoActions.setDatePickerDate;
 import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoMatchers.recyclerViewWithCount;
-import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.onDatePicker;
-import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.onTimePicker;
+import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.setDatePickerTo;
+import static com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils.setTimeOfDayPickerTo;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -64,7 +71,7 @@ public class SessionDetailsTestDriver
     private OnNegativeActionListener mOnNegativeActionListener;
     
     private OpenInterruptionDetailsListener mOpenInterruptionDetailsListener;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -79,12 +86,12 @@ public class SessionDetailsTestDriver
     {
         void onNegativeAction();
     }
-
+    
     public interface OpenInterruptionDetailsListener
     {
         void onOpenInterruptionDetails();
     }
-
+    
     public static class Assertions
             extends BaseFragmentTestDriver.BaseAssertions<SessionDetailsTestDriver,
             SessionDetailsFragmentViewModel>
@@ -131,7 +138,7 @@ public class SessionDetailsTestDriver
         
         public void durationMatches(long durationMillis)
         {
-            onView(withId(R.id.session_details_duration)).check(matches(withText(
+            onView(withId(R.id.common_session_times_duration)).check(matches(withText(
                     SessionDetailsFormatting.formatDuration(durationMillis))));
         }
         
@@ -216,7 +223,7 @@ public class SessionDetailsTestDriver
         
         public void futureTimeErrorDialogIsDisplayed()
         {
-            onView(withText(R.string.session_details_future_time_error)).inRoot(isDialog())
+            onView(withText(R.string.session_future_time_error)).inRoot(isDialog())
                     .check(matches(isDisplayed()));
         }
         
@@ -251,10 +258,20 @@ public class SessionDetailsTestDriver
         {
             getOwningDriver().scrollToInterruptions();
             
-            // TODO [21-07-21 2:39PM] -- do better than just checking the count.
             onView(withId(R.id.common_interruptions_recycler)).check(matches(
                     // + 1 for add button
                     recyclerViewWithCount(interruptionsList.size() + 1)));
+            
+            for (int i = 0; i < interruptionsList.size(); i++) {
+                interruptionAtPosition(i).matches(interruptionsList.get(i));
+            }
+        }
+        
+        public InterruptionListItemAssertions interruptionAtPosition(int position)
+        {
+            // +1 to account for the add button
+            return new InterruptionListItemAssertions(position + 1,
+                                                      R.id.common_interruptions_recycler);
         }
         
         public void interruptionsCountMatches(int expectedCount)
@@ -301,6 +318,83 @@ public class SessionDetailsTestDriver
         }
     }
     
+    public static class InterruptionListItemAssertions
+            extends RecyclerListItemAssertions
+    {
+        public InterruptionListItemAssertions(int listItemIndex, int recyclerId)
+        {
+            super(listItemIndex, recyclerId);
+        }
+        
+        public void matches(InterruptionBuilder interruption)
+        {
+            matches(interruption.build());
+        }
+        
+        public void matches(Interruption interruption)
+        {
+            hasStartMatching(interruption.getStart());
+            // REFACTOR [21-07-31 12:05AM] this should all just be longs.
+            hasDurationMatching((int) interruption.getDurationMillis());
+            hasReasonMatching(interruption.getReason());
+        }
+        
+        public void hasStartMatching(Date start)
+        {
+            checkThatThisListItemHasContentsMatching(listItemWithStart(start));
+        }
+        
+        public void hasDurationMatching(int durationMillis)
+        {
+            checkThatThisListItemHasContentsMatching(allOf(
+                    withId(R.id.common_interruptions_listitem_duration),
+                    withText(InterruptionFormatting.formatDuration(durationMillis))));
+        }
+        
+        public void hasReasonMatching(String reason)
+        {
+            checkThatThisListItemHasContentsMatching(listItemWithReason(reason));
+        }
+        
+        private Matcher<View> listItemWithStart(Date start)
+        {
+            return new BoundedMatcher<View, TextView>(TextView.class)
+            {
+                @Override
+                protected boolean matchesSafely(TextView item)
+                {
+                    return item.getText().equals(InterruptionFormatting.formatListItemStart(start));
+                }
+                
+                @Override
+                public void describeTo(Description description)
+                {
+                    description.appendText("has start '" + start.toString() + "'");
+                }
+            };
+        }
+        
+        private Matcher<View> listItemWithReason(String reason)
+        {
+            return new BoundedMatcher<View, TextView>(TextView.class)
+            {
+                @Override
+                protected boolean matchesSafely(TextView item)
+                {
+                    return item.getText()
+                            .equals(InterruptionFormatting.formatListItemReason(reason));
+                }
+                
+                @Override
+                public void describeTo(Description description)
+                {
+                    description.appendText("has reason '" + reason + "'");
+                }
+            };
+        }
+    }
+
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -308,7 +402,7 @@ public class SessionDetailsTestDriver
     private SessionDetailsTestDriver()
     {
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -390,6 +484,8 @@ public class SessionDetailsTestDriver
     
     public void setValuesTo(SleepSession sleepSession)
     {
+        // REFACTOR [21-07-29 3:22PM] -- use InterruptionDetailsTestDriver.setValuesTo's strat
+        //  for safely setting the times instead.
         // set start back one day at first to give the end space to be set
         GregorianCalendar cal = TimeUtils.getCalendarFrom(sleepSession.getStart());
         cal.add(Calendar.DAY_OF_MONTH, -1);
@@ -434,25 +530,25 @@ public class SessionDetailsTestDriver
     public void setStartDay(Day day)
     {
         onStartDateTextView().perform(click());
-        setDayInPicker(day);
+        setDatePickerTo(day);
     }
     
     public void setStartTimeOfDay(TimeOfDay timeOfDay)
     {
         onStartTimeTextView().perform(click());
-        setTimeOfDayInPicker(timeOfDay);
+        setTimeOfDayPickerTo(timeOfDay);
     }
     
     public void setEndDay(Day day)
     {
         onEndDateTextView().perform(click());
-        setDayInPicker(day);
+        setDatePickerTo(day);
     }
     
     public void setEndTimeOfDay(TimeOfDay timeOfDay)
     {
         onEndTimeTextView().perform(click());
-        setTimeOfDayInPicker(timeOfDay);
+        setTimeOfDayPickerTo(timeOfDay);
     }
     
     public void closeErrorDialog()
@@ -505,41 +601,26 @@ public class SessionDetailsTestDriver
                                             onView(withId(R.id.session_details_comments)));
     }
     
-    private void setTimeOfDayInPicker(TimeOfDay timeOfDay)
-    {
-        onTimePicker().perform(PickerActions.setTime(timeOfDay.hourOfDay, timeOfDay.minute));
-        DialogTestUtils.pressPositiveButton();
-    }
-    
-    private void setDayInPicker(Day day)
-    {
-        onDatePicker().perform(setDatePickerDate(
-                day.year,
-                day.month,
-                day.dayOfMonth));
-        DialogTestUtils.pressPositiveButton();
-    }
-    
     private ViewInteraction onStartDateTextView()
     {
-        return onView(allOf(withParent(withId(R.id.session_details_start_time)),
+        return onView(allOf(withParent(withId(R.id.common_session_times_start)),
                             withId(R.id.date)));
     }
     
     private ViewInteraction onEndDateTextView()
     {
-        return onView(allOf(withParent(withId(R.id.session_details_end_time)), withId(R.id.date)));
+        return onView(allOf(withParent(withId(R.id.common_session_times_end)), withId(R.id.date)));
     }
     
     private ViewInteraction onStartTimeTextView()
     {
-        return onView(allOf(withParent(withId(R.id.session_details_start_time)),
+        return onView(allOf(withParent(withId(R.id.common_session_times_start)),
                             withId(R.id.time)));
     }
     
     private ViewInteraction onEndTimeTextView()
     {
-        return onView(allOf(withParent(withId(R.id.session_details_end_time)), withId(R.id.time)));
+        return onView(allOf(withParent(withId(R.id.common_session_times_end)), withId(R.id.time)));
     }
     
     private MoodSelectorViewModel getMoodSelectorViewModel()

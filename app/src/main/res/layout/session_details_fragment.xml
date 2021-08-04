@@ -68,44 +68,11 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/session_details_rating_card">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <com.rbraithwaite.sleepapp.ui.common.views.session_times.SessionTimesComponent
+                android:id="@+id/session_details_datetime_content"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent" />
 
-                <include
-                    android:id="@+id/session_details_start_time"
-                    layout="@layout/session_details_datetime"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:theme="@style/SessionDetailsDateTimeTheme"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <include
-                    android:id="@+id/session_details_end_time"
-                    layout="@layout/session_details_datetime"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:theme="@style/SessionDetailsDateTimeTheme"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/session_details_start_time" />
-
-                <TextView
-                    android:id="@+id/session_details_duration"
-                    style="@style/SessionDetailsDurationStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginBottom="8dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/session_details_end_time"
-                    tools:text="6h 54m 32s" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView

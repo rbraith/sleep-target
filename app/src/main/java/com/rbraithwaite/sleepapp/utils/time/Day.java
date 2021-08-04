@@ -31,6 +31,32 @@ public class Day
     }
 
 //*********************************************************
+// overrides
+//*********************************************************
+
+    @Override
+    public int hashCode()
+    {
+        int result = year;
+        result = 31 * result + month;
+        result = 31 * result + dayOfMonth;
+        return result;
+    }
+    
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        
+        Day day = (Day) o;
+        
+        if (year != day.year) { return false; }
+        if (month != day.month) { return false; }
+        return dayOfMonth == day.dayOfMonth;
+    }
+    
+//*********************************************************
 // api
 //*********************************************************
 

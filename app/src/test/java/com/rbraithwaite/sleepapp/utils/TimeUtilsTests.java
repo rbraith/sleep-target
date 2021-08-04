@@ -76,8 +76,8 @@ public class TimeUtilsTests
         long expectedTimeOfDay = timeUtils.timeToMillis(1, 2, 3, 4);
         timeUtils.setCalendarTimeOfDay(cal, expectedTimeOfDay);
         
-        assertThat(timeUtils.getTimeOfDay(cal), is(expectedTimeOfDay));
-        assertThat(timeUtils.getTimeOfDay(cal.getTime()), is(expectedTimeOfDay));
+        assertThat(timeUtils.getTimeOfDayOf(cal), is(expectedTimeOfDay));
+        assertThat(timeUtils.getTimeOfDayOf(cal.getTime()), is(expectedTimeOfDay));
     }
     
     @Test

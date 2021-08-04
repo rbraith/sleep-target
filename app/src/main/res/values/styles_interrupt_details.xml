@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="InterruptionDetailsDateTimeStyle" parent="DefaultDateTimeComponentStyle">
+        <item name="datetimeValuesColor">?attr/appColorInterruption</item>
+    </style>
+</resources>

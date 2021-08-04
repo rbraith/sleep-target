@@ -5,10 +5,7 @@ import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.test.espresso.ViewAssertion;
 import androidx.test.espresso.ViewInteraction;
-import androidx.test.espresso.assertion.ViewAssertions;
 import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.espresso.matcher.BoundedMatcher;
 
@@ -18,6 +15,7 @@ import com.rbraithwaite.sleepapp.core.models.Interruptions;
 import com.rbraithwaite.sleepapp.core.models.Mood;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.core.models.Tag;
+import com.rbraithwaite.sleepapp.test_utils.ui.assertion_utils.RecyclerListItemAssertions;
 import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.FragmentTestHelper;
 import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.TEMP.MoodView;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFormatting;
@@ -35,7 +33,6 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -72,7 +69,7 @@ public class SessionArchiveTestDriver
         
         public ListItemAssertions listItemAtIndex(int listItemIndex)
         {
-            return new ListItemAssertions(listItemIndex, getOwningDriver());
+            return new ListItemAssertions(listItemIndex, R.id.session_archive_list);
         }
         
         public void listIsEmpty()
@@ -83,14 +80,11 @@ public class SessionArchiveTestDriver
     }
     
     public static class ListItemAssertions
+            extends RecyclerListItemAssertions
     {
-        private int mListItemIndex;
-        private SessionArchiveTestDriver mOwner;
-        
-        private ListItemAssertions(int listItemIndex, SessionArchiveTestDriver owner)
+        private ListItemAssertions(int listItemIndex, int recyclerId)
         {
-            mListItemIndex = listItemIndex;
-            mOwner = owner;
+            super(listItemIndex, recyclerId);
         }
         
         public void hasValuesMatching(SleepSession sleepSession)
@@ -125,36 +119,36 @@ public class SessionArchiveTestDriver
             Matcher<View> displayedMatcher = shouldHaveAdditionalComments ?
                     isDisplayed() : not(isDisplayed());
             
-            checkThatThisListItemMatches(hasDescendant(allOf(
-                    withId(R.id.session_archive_list_item_comment_icon), displayedMatcher)));
+            checkThatThisListItemHasContentsMatching(allOf(
+                    withId(R.id.session_archive_list_item_comment_icon), displayedMatcher));
         }
         
         public void hasStartMatching(Date start)
         {
-            checkThatThisListItemMatches(hasDescendant(allOf(
+            checkThatThisListItemHasContentsMatching(allOf(
                     withId(R.id.session_archive_list_item_start_VALUE),
-                    withText(SessionArchiveFormatting.formatFullDate(start)))));
+                    withText(SessionArchiveFormatting.formatFullDate(start))));
         }
         
         public void hasEndMatching(Date end)
         {
-            checkThatThisListItemMatches(hasDescendant(allOf(
+            checkThatThisListItemHasContentsMatching(allOf(
                     withId(R.id.session_archive_list_item_stop_VALUE),
-                    withText(SessionArchiveFormatting.formatFullDate(end)))));
+                    withText(SessionArchiveFormatting.formatFullDate(end))));
         }
         
         public void hasDurationMatching(long durationMillis)
         {
-            checkThatThisListItemMatches(hasDescendant(allOf(
+            checkThatThisListItemHasContentsMatching(allOf(
                     withId(R.id.session_archive_list_item_duration_VALUE),
-                    withText(SessionArchiveFormatting.formatDuration(durationMillis)))));
+                    withText(SessionArchiveFormatting.formatDuration(durationMillis))));
         }
         
         public void hasRatingMatching(float rating)
         {
-            checkThatThisListItemMatches(hasDescendant(allOf(
+            checkThatThisListItemHasContentsMatching(allOf(
                     withId(R.id.session_archive_list_item_rating),
-                    withRating(rating))));
+                    withRating(rating)));
         }
         
         public void hasMoodMatching(Mood mood)
@@ -162,38 +156,32 @@ public class SessionArchiveTestDriver
             if (mood == null) {
                 hasNoMood();
             } else {
-                checkThatThisListItemMatches(hasDescendant(allOf(
+                checkThatThisListItemHasContentsMatching(allOf(
                         withId(R.id.session_archive_list_item_mood),
                         isDisplayed(),
-                        withMoodIndex(mood.asIndex()))));
+                        withMoodIndex(mood.asIndex())));
             }
         }
         
         public void hasNoMood()
         {
-            checkThatThisListItemMatches(hasDescendant(allOf(
+            checkThatThisListItemHasContentsMatching(allOf(
                     withId(R.id.session_archive_list_item_mood),
-                    not(isDisplayed()))));
+                    not(isDisplayed())));
         }
         
         public void hasTagsMatching(List<Tag> tags)
         {
             if (tags == null || tags.isEmpty()) {
-                checkThatThisListItemMatches(hasDescendant(allOf(
+                checkThatThisListItemHasContentsMatching(allOf(
                         withId(R.id.session_archive_list_item_tags),
-                        not(isDisplayed()))));
+                        not(isDisplayed())));
             } else {
-                checkThatThisListItemMatches(hasDescendant(allOf(
+                checkThatThisListItemHasContentsMatching(allOf(
                         withId(R.id.session_archive_list_item_tags),
                         isDisplayed(),
-                        withTags(tags))));
+                        withTags(tags)));
             }
-        }
-        
-        private void checkThatThisListItemMatches(Matcher<View> listItemContentsMatcher)
-        {
-            mOwner.onRecyclerView()
-                    .check(listItemAt(mListItemIndex).matches(listItemContentsMatcher));
         }
         
         private Matcher<View> withTags(List<Tag> tags)
@@ -313,48 +301,6 @@ public class SessionArchiveTestDriver
                     description.appendText("rating matches: " + rating);
                 }
             };
-        }
-        
-        private ListItemMatchAssertion listItemAt(int index)
-        {
-            return new ListItemMatchAssertion(index);
-        }
-        
-        // https://stackoverflow.com/a/34795431
-        private static class ListItemMatchAssertion
-        {
-            private int mListItemIndex;
-            
-            public ListItemMatchAssertion(int listItemIndex)
-            {
-                mListItemIndex = listItemIndex;
-            }
-            
-            public ViewAssertion matches(Matcher<View> listItemMatcher)
-            {
-                return ViewAssertions.matches(new BoundedMatcher<View, RecyclerView>(RecyclerView.class)
-                {
-                    @Override
-                    protected boolean matchesSafely(RecyclerView item)
-                    {
-                        RecyclerView.ViewHolder viewHolder =
-                                item.findViewHolderForAdapterPosition(mListItemIndex);
-                        if (viewHolder == null) {
-                            // There is no item with matching index (possibly because it isn't
-                            // visible)
-                            return false;
-                        }
-                        return listItemMatcher.matches(viewHolder.itemView);
-                    }
-                    
-                    @Override
-                    public void describeTo(Description description)
-                    {
-                        description.appendText("has item at position " + mListItemIndex + ": ");
-                        listItemMatcher.describeTo(description);
-                    }
-                });
-            }
         }
     }
 

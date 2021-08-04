@@ -2,30 +2,29 @@ package com.rbraithwaite.sleepapp.ui.session_details;
 
 import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
 import com.rbraithwaite.sleepapp.core.models.Interruptions;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
-import com.rbraithwaite.sleepapp.core.models.SleepSessionOverlapChecker;
 import com.rbraithwaite.sleepapp.core.models.Tag;
+import com.rbraithwaite.sleepapp.core.models.overlap_checker.SleepSessionOverlapChecker;
 import com.rbraithwaite.sleepapp.ui.common.convert.ConvertMood;
 import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.common.interruptions.ConvertInterruption;
 import com.rbraithwaite.sleepapp.ui.common.interruptions.InterruptionFormatting;
 import com.rbraithwaite.sleepapp.ui.common.interruptions.InterruptionListItem;
 import com.rbraithwaite.sleepapp.ui.common.views.details_fragment.DetailsFragmentViewModel;
+import com.rbraithwaite.sleepapp.ui.common.views.session_times.SessionTimesViewModel;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.ConvertTag;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagUiData;
-import com.rbraithwaite.sleepapp.ui.interruption_details.InterruptionWrapper;
+import com.rbraithwaite.sleepapp.ui.interruption_details.InterruptionDetailsData;
 import com.rbraithwaite.sleepapp.ui.session_details.data.SleepSessionWrapper;
+import com.rbraithwaite.sleepapp.utils.LiveDataUtils;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -45,8 +44,6 @@ public class SessionDetailsFragmentViewModel
 // private properties
 //*********************************************************
 
-    private LiveData<String> mSessionDurationText;
-    
     private MutableLiveData<SleepSession> mSleepSession = new MutableLiveData<>();
     private TimeUtils mTimeUtils;
     
@@ -54,28 +51,10 @@ public class SessionDetailsFragmentViewModel
     private Executor mExecutor;
     
     private boolean mInitialized = false;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
-
-    public static class InvalidDateTimeException
-            extends RuntimeException
-    {
-        public InvalidDateTimeException(String message)
-        {
-            super(message);
-        }
-    }
-    
-    public static class FutureDateTimeException
-            extends RuntimeException
-    {
-        public FutureDateTimeException(String message)
-        {
-            super(message);
-        }
-    }
 
     public static class OverlappingSessionException
             extends RuntimeException
@@ -114,7 +93,7 @@ public class SessionDetailsFragmentViewModel
         mExecutor = executor;
         mTimeUtils = timeUtils;
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -144,156 +123,11 @@ public class SessionDetailsFragmentViewModel
         mSleepSession.setValue(null);
         mInitialized = false;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
 
-    public LiveData<String> getSessionDurationText()
-    {
-        if (mSessionDurationText == null) {
-            final MediatorLiveData<String> mediatorLiveData = new MediatorLiveData<>();
-            mediatorLiveData.addSource(getSleepSession(), sleepSession -> {
-                if (sleepSession == null) {
-                    mediatorLiveData.setValue(null);
-                } else {
-                    mediatorLiveData.setValue(
-                            SessionDetailsFormatting.formatDuration(sleepSession.getDurationMillis()));
-                }
-            });
-            mSessionDurationText = mediatorLiveData;
-        }
-        
-        return mSessionDurationText;
-    }
-    
-    public void setStartDate(int year, int month, int dayOfMonth)
-    {
-        GregorianCalendar calendar = new GregorianCalendar();
-        Date oldStart = mSleepSession.getValue().getStart();
-        calendar.setTime(oldStart);
-        calendar.set(Calendar.YEAR, year);
-        calendar.set(Calendar.MONTH, month);
-        calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-        
-        if (calendar.getTime().equals(oldStart)) {
-            return;
-        }
-        
-        checkIfDateIsInTheFuture(calendar.getTime());
-        
-        try {
-            mSleepSession.getValue().setStartFixed(calendar);
-            notifySessionChanged();
-        } catch (SleepSession.InvalidDateError e) {
-            // REFACTOR [21-03-25 12:55AM] -- Is this exception conversion necessary, or is it
-            //  alright to have the view handle a domain exception?
-            throw new InvalidDateTimeException((e.getMessage()));
-        }
-    }
-    
-    public void setEndDate(int year, int month, int dayOfMonth)
-    {
-        GregorianCalendar calendar = new GregorianCalendar();
-        Date oldEnd = mSleepSession.getValue().getEnd();
-        calendar.setTime(oldEnd);
-        calendar.set(Calendar.YEAR, year);
-        calendar.set(Calendar.MONTH, month);
-        calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-        
-        if (calendar.getTime().equals(oldEnd)) {
-            return;
-        }
-        
-        checkIfDateIsInTheFuture(calendar.getTime());
-        
-        try {
-            mSleepSession.getValue().setEndFixed(calendar);
-            notifySessionChanged();
-        } catch (SleepSession.InvalidDateError e) {
-            // REFACTOR [21-03-25 12:55AM] -- Is this exception conversion necessary, or is it
-            //  alright to have the view handle a domain exception?
-            throw new InvalidDateTimeException((e.getMessage()));
-        }
-    }
-    
-    public void setStartTimeOfDay(int hourOfDay, int minute)
-    {
-        GregorianCalendar calendar = new GregorianCalendar();
-        Date oldStart = mSleepSession.getValue().getStart();
-        calendar.setTime(oldStart);
-        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-        calendar.set(Calendar.MINUTE, minute);
-        
-        if (calendar.getTime().equals(oldStart)) {
-            return;
-        }
-        
-        checkIfDateIsInTheFuture(calendar.getTime());
-        
-        try {
-            mSleepSession.getValue().setStartFixed(calendar);
-            notifySessionChanged();
-        } catch (SleepSession.InvalidDateError e) {
-            // REFACTOR [21-03-25 12:55AM] -- Is this exception conversion necessary, or is it
-            //  alright to have the view handle a domain exception?
-            throw new InvalidDateTimeException((e.getMessage()));
-        }
-    }
-    
-    public void setEndTimeOfDay(int hourOfDay, int minute)
-    {
-        GregorianCalendar calendar = new GregorianCalendar();
-        Date oldEnd = mSleepSession.getValue().getEnd();
-        calendar.setTime(oldEnd);
-        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-        calendar.set(Calendar.MINUTE, minute);
-        
-        if (calendar.getTime().equals(oldEnd)) {
-            return;
-        }
-        
-        checkIfDateIsInTheFuture(calendar.getTime());
-        
-        try {
-            mSleepSession.getValue().setEndFixed(calendar);
-            notifySessionChanged();
-        } catch (SleepSession.InvalidDateError e) {
-            // REFACTOR [21-03-25 12:55AM] -- Is this exception conversion necessary, or is it
-            //  alright to have the view handle a domain exception?
-            throw new InvalidDateTimeException((e.getMessage()));
-        }
-    }
-    
-    public LiveData<GregorianCalendar> getStartCalendar()
-    {
-        return Transformations.map(
-                getSleepSession(),
-                sleepSession -> {
-                    if (sleepSession == null) {
-                        return null;
-                    }
-                    // REFACTOR [21-03-31 4:13PM] -- call this ConvertCalendar.fromDate().
-                    GregorianCalendar result = new GregorianCalendar();
-                    result.setTime(sleepSession.getStart());
-                    return result;
-                });
-    }
-    
-    public LiveData<GregorianCalendar> getEndCalendar()
-    {
-        return Transformations.map(
-                getSleepSession(),
-                sleepSession -> {
-                    if (sleepSession == null) {
-                        return null;
-                    }
-                    GregorianCalendar result = new GregorianCalendar();
-                    result.setTime(sleepSession.getEnd());
-                    return result;
-                });
-    }
-    
     public LiveData<String> getAdditionalComments()
     {
         return Transformations.map(
@@ -426,7 +260,7 @@ public class SessionDetailsFragmentViewModel
     public boolean checkResultForSessionOverlap()
     {
         FutureTask<SleepSession> overlapTask = new FutureTask<>(
-                () -> mOverlapChecker.checkForOverlap(getResult().getModel()));
+                () -> mOverlapChecker.checkForOverlapExclusive(getResult().getModel()));
         mExecutor.execute(overlapTask);
         
         SleepSession overlappingSession;
@@ -448,48 +282,56 @@ public class SessionDetailsFragmentViewModel
         return true;
     }
     
-    public InterruptionWrapper getInterruption(int interruptionId)
+    public InterruptionDetailsData getInterruptionDetailsData(int interruptionId)
     {
         return getOptionalSleepSession()
-                .map(sleepSession -> new InterruptionWrapper(sleepSession.getInterruption(
-                        interruptionId)))
+                .map(sleepSession -> new InterruptionDetailsData(
+                        sleepSession.getInterruption(interruptionId),
+                        sleepSession))
                 .orElse(null);
     }
     
-    public void deleteInterruption(InterruptionWrapper interruption)
+    public void deleteInterruption(InterruptionDetailsData interruption)
     {
         getOptionalSleepSession().ifPresent(sleepSession -> {
-            sleepSession.deleteInterruption(interruption.getData().getId());
+            sleepSession.deleteInterruption(interruption.getInterruption().getId());
             notifySessionChanged();
         });
     }
     
-    /**
-     * Simple convenience method which clears then re-initializes the data.
-     */
-    public void setData(SleepSessionWrapper data)
+    public SessionTimesViewModel getSessionTimesViewModel()
     {
-        clearData();
-        initData(data);
+        return new SessionTimesViewModel(getOptionalSleepSession().orElse(null), mTimeUtils);
     }
-
-
+    
+    public void setStart(Date start)
+    {
+        getOptionalSleepSession().ifPresent(sleepSession -> {
+            sleepSession.setStartFixed(start);
+            LiveDataUtils.refresh(mSleepSession);
+        });
+    }
+    
+    public void setEnd(Date end)
+    {
+        getOptionalSleepSession().ifPresent(sleepSession -> {
+            sleepSession.setEndFixed(end);
+            LiveDataUtils.refresh(mSleepSession);
+        });
+    }
+    
+    public void updateInterruption(InterruptionDetailsData interruptionDetailsData)
+    {
+        getOptionalSleepSession().ifPresent(sleepSession -> {
+            sleepSession.updateInterruption(interruptionDetailsData.getInterruption());
+            notifySessionChanged();
+        });
+    }
 
 //*********************************************************
 // private methods
 //*********************************************************
 
-    
-    /**
-     * Throw a FutureDateTimeException if the date is in the future.
-     */
-    private void checkIfDateIsInTheFuture(Date date)
-    {
-        if (mTimeUtils.getNow().getTime() < date.getTime()) {
-            throw new FutureDateTimeException(date.toString());
-        }
-    }
-    
     
     /**
      * Note: changes made to the sleep session from this method do not notify observers. Use {@link

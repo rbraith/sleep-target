@@ -2,6 +2,7 @@ package com.rbraithwaite.sleepapp.data.database.tables.sleep_interruptions;
 
 import androidx.room.Dao;
 import androidx.room.Query;
+import androidx.room.Update;
 
 import java.util.List;
 
@@ -15,9 +16,8 @@ public abstract class SleepInterruptionDao
     @Query("SELECT * FROM " + SleepInterruptionContract.TABLE_NAME)
     public abstract List<SleepInterruptionEntity> getAll();
     
-    // TODO [21-07-23 5:24PM] -- got ahead of myself.
-//    @Update
-//    public abstract void updateMany(List<SleepInterruptionEntity> entities);
+    @Update
+    public abstract void updateMany(List<SleepInterruptionEntity> entities);
     
     @Query("DELETE FROM " + SleepInterruptionContract.TABLE_NAME +
            " WHERE " + SleepInterruptionContract.Columns.ID + " IN (:ids)")

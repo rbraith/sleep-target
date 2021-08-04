@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -112,6 +113,12 @@ public class UiUtils
                     convertDpToPx(marginsDp.bottom, scale));
         }
         view.setLayoutParams(params);
+    }
+    
+    public static void setEditTextValue(EditText editText, String value)
+    {
+        editText.getText().clear();
+        editText.getText().append(value);
     }
 
 //*********************************************************

@@ -83,7 +83,8 @@ public class TimeUtils
         cal.add(Calendar.MILLISECOND, (int) newTimeOfDayMillis);
     }
     
-    public long getTimeOfDay(Calendar cal)
+    // REFACTOR [21-07-31 1:17AM] -- this can return an int.
+    public long getTimeOfDayOf(Calendar cal)
     {
         return timeToMillis(
                 cal.get(Calendar.HOUR_OF_DAY),
@@ -92,11 +93,12 @@ public class TimeUtils
                 cal.get(Calendar.MILLISECOND));
     }
     
-    public long getTimeOfDay(Date date)
+    // REFACTOR [21-07-31 1:17AM] -- this can return an int.
+    public long getTimeOfDayOf(Date date)
     {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTime(date);
-        return getTimeOfDay(cal);
+        return getTimeOfDayOf(cal);
     }
     
     public double millisToHours(long millis)

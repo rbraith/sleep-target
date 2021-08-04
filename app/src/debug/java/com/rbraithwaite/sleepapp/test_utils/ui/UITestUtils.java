@@ -7,12 +7,16 @@ import android.widget.TimePicker;
 import androidx.fragment.app.Fragment;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.ViewInteraction;
+import androidx.test.espresso.contrib.PickerActions;
 import androidx.test.espresso.matcher.ViewMatchers;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.test_utils.SimpleCompletableFuture;
+import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragment;
+import com.rbraithwaite.sleepapp.utils.time.Day;
+import com.rbraithwaite.sleepapp.utils.time.TimeOfDay;
 
 import java.util.concurrent.ExecutionException;
 
@@ -25,6 +29,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoActions.setDatePickerDate;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
@@ -36,7 +41,7 @@ public class UITestUtils
 //*********************************************************
 
     private UITestUtils() {/* No instantiation */}
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -75,7 +80,22 @@ public class UITestUtils
     {
         return onView(withClassName(equalTo(TimePicker.class.getName())));
     }
-
+    
+    public static void setDatePickerTo(Day day)
+    {
+        onDatePicker().perform(setDatePickerDate(
+                day.year,
+                day.month,
+                day.dayOfMonth));
+        DialogTestUtils.pressPositiveButton();
+    }
+    
+    public static void setTimeOfDayPickerTo(TimeOfDay timeOfDay)
+    {
+        onTimePicker().perform(PickerActions.setTime(timeOfDay.hourOfDay, timeOfDay.minute));
+        DialogTestUtils.pressPositiveButton();
+    }
+    
     public static void typeOnMultilineEditText(String text, ViewInteraction editText)
     {
         editText.perform(replaceText(text)).perform(closeSoftKeyboard());

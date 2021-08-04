@@ -2,8 +2,8 @@
     <string name="app_name">SleepApp</string>
     <string name="sleep_tracker_button_start">GOING TO SLEEP</string>
     <string name="sleep_tracker_button_stop">WAKING UP</string>
-    <string name="session_data_start_time_name">Start time:</string>
-    <string name="session_data_end_time_name">End time:</string>
+    <string name="common_session_times_start_title">Start time</string>
+    <string name="common_session_times_end_title">End time</string>
     <string name="error_session_edit_start_datetime">The start time cannot be after the end time.</string>
     <string name="error_session_edit_end_datetime">The end time cannot be before the start time.</string>
     <string name="session_archive_delete_dialog_title">Delete session?</string>
@@ -31,7 +31,11 @@
     <string name="tagscroll_no_selected_tags">No Tags Selected</string>
     <string name="tracker_goal_waketime_title">Wake Time</string>
     <string name="tracker_goal_duration_title">Duration</string>
-    <string name="session_details_future_time_error">Sleep sessions cannot be set to a time in the future (this is to prevent real-time created sessions from causing overlaps).</string>
+    <string name="session_future_time_error">Sessions cannot be set to a time in the future (this is to prevent real-time created sessions from causing overlaps).</string>
     <string name="tracker_interrupt_btn_resume">Resume Sleep</string>
     <string name="tracker_interrupt_btn_interrupt">Interrupt Sleep</string>
+    <string name="interruption_details_overlap_error_title">Error: Overlapping Interruption</string>
+    <string name="interruption_details_oob_error_title">Error: Interruption extends past the sleep session.</string>
+    <string name="interruption_details_overlap_error_message">The set times overlap with an already existing interruption in this session, having these times:</string>
+    <string name="interruption_details_oob_error_message">The interruption times must be within the start and end times of the sleep session:</string>
 </resources>

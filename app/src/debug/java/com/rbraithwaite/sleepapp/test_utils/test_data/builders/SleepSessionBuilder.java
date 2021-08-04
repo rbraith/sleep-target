@@ -17,6 +17,7 @@ import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.aMood;
 import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.aTag;
 import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.anInterruption;
 
+// REFACTOR [21-07-31 3:16AM] -- derive this from SessionBuilder.
 public class SleepSessionBuilder
         implements BuilderOf<SleepSession>
 {
@@ -32,7 +33,7 @@ public class SleepSessionBuilder
     private List<Tag> mTags;
     private float mRating;
     private List<Interruption> mInterruptions;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -53,7 +54,7 @@ public class SleepSessionBuilder
                         .withStart(aDate().copying(mStart))
                         .withDurationMinutes(1));
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -72,7 +73,7 @@ public class SleepSessionBuilder
         sleepSession.setInterruptions(new Interruptions(mInterruptions));
         return sleepSession;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************

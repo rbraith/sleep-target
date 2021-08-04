@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.aListOf;
 import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.anInterruption;
+import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.valueOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -37,6 +38,40 @@ public class InterruptionsTests
         Interruptions.Updates updates = interruptions.consumeUpdates();
         
         assertThat(interruptions.hasUpdates(), is(false));
+    }
+    
+    @Test
+    public void update_updatesUpdatesUpdated()
+    {
+        // Buffalo buffalo Buffalo buffalo buffalo buffalo Buffalo buffalo.
+        
+        int id = 1;
+        InterruptionBuilder interruption = anInterruption().withId(id).withReason("derp");
+        
+        Interruptions interruptions = new Interruptions(aListOf(interruption));
+        
+        String expectedReason = "updated";
+        Interruption expected = valueOf(interruption.withReason(expectedReason));
+        interruptions.update(expected);
+        assertThat(interruptions.get(expected.getId()), is(equalTo(expected)));
+        
+        Interruptions.Updates updates = interruptions.consumeUpdates();
+        assertThat(updates.updated.size(), is(1));
+        assertThat(updates.updated.get(0), is(equalTo(expected)));
+    }
+    
+    @Test
+    public void update_doesNothingIfInterruptionIdNotFound()
+    {
+        InterruptionBuilder interruption = anInterruption().withId(1).withReason("derp");
+        
+        Interruptions interruptions = new Interruptions(aListOf(interruption));
+        
+        interruption.withId(2).withReason("updated");
+        interruptions.update(valueOf(interruption));
+        
+        assertThat(interruptions.hasUpdates(), is(false));
+        assertThat(interruptions.consumeUpdates(), is(nullValue()));
     }
     
     @Test

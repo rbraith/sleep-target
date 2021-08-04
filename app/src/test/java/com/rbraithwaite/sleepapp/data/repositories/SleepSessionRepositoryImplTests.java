@@ -28,6 +28,7 @@ import java.util.concurrent.Executor;
 
 import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.aSleepSession;
 import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.anInterruption;
+import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.valueOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
@@ -42,10 +43,18 @@ import static org.mockito.Mockito.when;
 @RunWith(AndroidJUnit4.class)
 public class SleepSessionRepositoryImplTests
 {
+//*********************************************************
+// package properties
+//*********************************************************
+
     SleepSessionDao mockSleepSessionDao;
     SleepInterruptionDao mockSleepInterruptionDao;
     
     SleepSessionRepositoryImpl repository;
+    
+//*********************************************************
+// api
+//*********************************************************
 
     @Before
     public void setup()
@@ -54,7 +63,9 @@ public class SleepSessionRepositoryImplTests
         mockSleepInterruptionDao = mock(SleepInterruptionDao.class);
         Executor synchronousExecutor = new TestUtils.SynchronizedExecutor();
         repository =
-                new SleepSessionRepositoryImpl(mockSleepSessionDao, mockSleepInterruptionDao, synchronousExecutor);
+                new SleepSessionRepositoryImpl(mockSleepSessionDao,
+                                               mockSleepInterruptionDao,
+                                               synchronousExecutor);
     }
     
     @After
@@ -128,10 +139,6 @@ public class SleepSessionRepositoryImplTests
         
         verify(mockSleepSessionDao).deleteSleepSession(sessionDataId);
     }
-    
-//*********************************************************
-// api
-//*********************************************************
 
     // TODO [21-07-27 2:11AM] -- test tag data here as well.
     @Test
@@ -139,14 +146,18 @@ public class SleepSessionRepositoryImplTests
     {
         SleepSession testSleepSession = aSleepSession()
                 .withId(5)
-                .withInterruptions(anInterruption().withId(2))
+                .withInterruptions(
+                        anInterruption().withId(2),
+                        anInterruption().withId(3))
                 .build();
         
         testSleepSession.deleteInterruption(2);
+        testSleepSession.updateInterruption(valueOf(anInterruption().withId(3)));
         
         repository.updateSleepSession(testSleepSession);
         
-        ArgumentCaptor<SleepSessionEntity> entityArg = ArgumentCaptor.forClass(SleepSessionEntity.class);
+        ArgumentCaptor<SleepSessionEntity> entityArg =
+                ArgumentCaptor.forClass(SleepSessionEntity.class);
         verify(mockSleepSessionDao).updateSleepSessionWithTags(
                 entityArg.capture(),
                 anyListOf(Integer.class));
@@ -155,11 +166,16 @@ public class SleepSessionRepositoryImplTests
         assertThat(sleepSessionEntity.id, is(testSleepSession.getId()));
         assertThat(sleepSessionEntity.startTime, is(testSleepSession.getStart()));
         assertThat(sleepSessionEntity.duration, is(testSleepSession.getDurationMillis()));
-    
-        ArgumentCaptor<List> interruptionIdsArg = ArgumentCaptor.forClass(List.class);
-        verify(mockSleepInterruptionDao).deleteMany(interruptionIdsArg.capture());
-        List<Integer> interruptionIds = interruptionIdsArg.getValue();
+        
+        ArgumentCaptor<List> deleteManyArg = ArgumentCaptor.forClass(List.class);
+        verify(mockSleepInterruptionDao).deleteMany(deleteManyArg.capture());
+        List<Integer> interruptionIds = deleteManyArg.getValue();
         assertThat(interruptionIds, contains(2));
+        
+        ArgumentCaptor<List> updateManyArg = ArgumentCaptor.forClass(List.class);
+        verify(mockSleepInterruptionDao).updateMany(updateManyArg.capture());
+        List<SleepInterruptionEntity> updatedEntities = updateManyArg.getValue();
+        assertThat(updatedEntities.size(), is(1));
     }
     
     @Test
@@ -184,32 +200,13 @@ public class SleepSessionRepositoryImplTests
         
         assertThat_NewSleepSession_equalTo_SleepSessionEntity(newSleepSession, entity);
     }
-
-    private MutableLiveData<List<SleepSessionEntity>> initDaoWithSleepSessions()
-    {
-        List<SleepSessionEntity> sleepSessions = createEntityList();
-        
-        MutableLiveData<List<SleepSessionEntity>> sleepSessionsLive =
-                new MutableLiveData<>(sleepSessions);
-        when(mockSleepSessionDao.getAllSleepSessions()).thenReturn(sleepSessionsLive);
-        
-        return sleepSessionsLive;
-    }
     
     // TODO [20-12-16 12:37AM] -- define updateSleepSession() behaviour on null or invalid args.
     
-    private List<SleepSessionEntity> createEntityList()
-    {
-        SleepSessionEntity sleepSession = TestUtils.ArbitraryData.getSleepSessionEntity();
-        sleepSession.id = 1;
-        SleepSessionEntity sleepSession2 = TestUtils.ArbitraryData.getSleepSessionEntity();
-        sleepSession2.id = 2;
-        ArrayList<SleepSessionEntity> sleepSessions = new ArrayList<>();
-        sleepSessions.add(sleepSession);
-        sleepSessions.add(sleepSession2);
-        return sleepSessions;
-    }
-    
+//*********************************************************
+// private methods
+//*********************************************************
+
     private void assertThat_NewSleepSession_equalTo_SleepSessionEntity(
             SleepSessionRepository.NewSleepSessionData newSleepSession,
             SleepSessionEntity entity)

@@ -27,13 +27,23 @@ public class ConvertInterruption
 
     public static SleepInterruptionEntity toEntity(Interruption interruption)
     {
+        return toEntity(interruption, 0);
+    }
+    
+    public static SleepInterruptionEntity toEntity(
+            Interruption interruption,
+            int parentSleepSessionId)
+    {
         if (interruption == null) {
             return null;
         }
         return new SleepInterruptionEntity(
                 interruption.getId(),
+                parentSleepSessionId,
                 interruption.getStart(),
-                interruption.getDurationMillis(),
+                // REFACTOR [21-07-31 12:04AM] the entity should just use a long instead of this
+                //  cast.
+                (int) interruption.getDurationMillis(),
                 interruption.getReason());
     }
     
@@ -104,10 +114,14 @@ public class ConvertInterruption
                 .collect(Collectors.toList());
     }
     
-    // TODO [21-07-23 5:25PM] -- got ahead of myself.
-//    public static List<SleepInterruptionEntity> listToEntityList(List<Interruption> interruptions)
-//    {
-//        return interruptions.stream().map(ConvertInterruption::toEntity).collect(Collectors
-//        .toList());
-//    }
+    public static List<SleepInterruptionEntity> listToEntityList(
+            List<Interruption> interruptions,
+            int parentSleepSessionId)
+    {
+        return interruptions == null ?
+                null :
+                interruptions.stream()
+                        .map(interruption -> toEntity(interruption, parentSleepSessionId))
+                        .collect(Collectors.toList());
+    }
 }

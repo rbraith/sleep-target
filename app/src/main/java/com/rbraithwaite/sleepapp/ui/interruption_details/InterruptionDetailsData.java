@@ -1,39 +1,47 @@
 package com.rbraithwaite.sleepapp.ui.interruption_details;
 
 import com.rbraithwaite.sleepapp.core.models.Interruption;
+import com.rbraithwaite.sleepapp.core.models.SleepSession;
 
 import java.io.Serializable;
 
-public class InterruptionWrapper
+public class InterruptionDetailsData
         implements Serializable
 {
 //*********************************************************
 // private properties
 //*********************************************************
 
-    private Interruption data;
+    private Interruption mInterruption;
+    private SleepSession mParentSleepSession;
 
 //*********************************************************
 // public constants
 //*********************************************************
 
     public static final long serialVersionUID = 20210115;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
 
-    public InterruptionWrapper(Interruption data)
+    public InterruptionDetailsData(Interruption interruption, SleepSession parentSleepSession)
     {
-        this.data = data;
+        mInterruption = interruption;
+        mParentSleepSession = parentSleepSession;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
 
-    public Interruption getData()
+    public Interruption getInterruption()
     {
-        return data;
+        return mInterruption;
+    }
+    
+    public SleepSession getParentSleepSession()
+    {
+        return mParentSleepSession;
     }
 }

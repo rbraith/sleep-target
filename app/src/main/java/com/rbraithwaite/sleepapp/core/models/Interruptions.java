@@ -1,5 +1,6 @@
 package com.rbraithwaite.sleepapp.core.models;
 
+import com.rbraithwaite.sleepapp.core.models.overlap_checker.InterruptionOverlapChecker;
 import com.rbraithwaite.sleepapp.utils.CommonUtils;
 
 import java.util.ArrayList;
@@ -19,6 +20,8 @@ public class Interruptions
     
     private Updates mUpdates;
     
+    private int ID_NOT_FOUND = -1; // used with getIndexOfIdInList
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -29,7 +32,7 @@ public class Interruptions
         public List<Interruption> updated = new ArrayList<>();
         public List<Interruption> deleted = new ArrayList<>();
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -38,7 +41,7 @@ public class Interruptions
     {
         mInterruptions = interruptions;
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -79,10 +82,27 @@ public class Interruptions
             return;
         }
         
-        for (int i = 0; i < mInterruptions.size(); i++) {
-            if (mInterruptions.get(i).getId() == interruptionId) {
-                getUpdates().deleted.add(mInterruptions.remove(i));
-                break;
+        int i = getIndexOfIdInList(interruptionId, mInterruptions);
+        if (i != ID_NOT_FOUND) {
+            getUpdates().deleted.add(mInterruptions.remove(i));
+        }
+    }
+    
+    public void update(Interruption updated)
+    {
+        if (!mInterruptions.isEmpty()) {
+            int id = updated.getId();
+            int index = getIndexOfIdInList(id, mInterruptions);
+            if (index != ID_NOT_FOUND) {
+                mInterruptions.set(index, updated);
+                // update Updates cache
+                List<Interruption> updatedList = getUpdates().updated;
+                index = getIndexOfIdInList(id, updatedList);
+                if (index == ID_NOT_FOUND) {
+                    updatedList.add(updated);
+                } else {
+                    updatedList.set(index, updated);
+                }
             }
         }
     }
@@ -99,9 +119,36 @@ public class Interruptions
         return temp;
     }
     
+    /**
+     * Check whether the provided interruption overlaps with any existing interruptions. "Exclusive"
+     * means that an existing interruption with the same id as the one to check will be skipped
+     * (this is useful for interruptions which have been updated).
+     *
+     * @param interruptionToCheck The interruption... to check.
+     *
+     * @return The first overlapping interruption found, or null if no interruptions were
+     * overlapping.
+     */
+    public Interruption checkForOverlapExclusive(Interruption interruptionToCheck)
+    {
+        // REFACTOR [21-07-31 9:31PM] -- This should be injected.
+        InterruptionOverlapChecker overlapChecker = new InterruptionOverlapChecker(mInterruptions);
+        return overlapChecker.checkForOverlapExclusive(interruptionToCheck);
+    }
+    
 //*********************************************************
 // private methods
 //*********************************************************
+
+    private int getIndexOfIdInList(int id, List<Interruption> interruptions)
+    {
+        for (int i = 0; i < interruptions.size(); i++) {
+            if (interruptions.get(i).getId() == id) {
+                return i;
+            }
+        }
+        return ID_NOT_FOUND;
+    }
 
     private Updates getUpdates()
     {

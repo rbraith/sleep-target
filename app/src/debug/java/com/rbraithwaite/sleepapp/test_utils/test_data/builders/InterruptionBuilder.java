@@ -7,6 +7,7 @@ import java.util.Date;
 
 import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.aDate;
 
+// REFACTOR [21-07-31 3:16AM] -- derive this from SessionBuilder.
 public class InterruptionBuilder
         implements BuilderOf<Interruption>
 {
@@ -53,7 +54,7 @@ public class InterruptionBuilder
     
     public InterruptionBuilder withDurationMinutes(int minutes)
     {
-        mDuration = minutes * 60 * 1000;
+        withDuration(0, minutes, 0);
         return this;
     }
     
@@ -75,6 +76,12 @@ public class InterruptionBuilder
     public InterruptionBuilder withId(int id)
     {
         mId = id;
+        return this;
+    }
+    
+    public InterruptionBuilder withDurationHours(int hours)
+    {
+        withDuration(hours, 0, 0);
         return this;
     }
 }

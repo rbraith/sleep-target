@@ -28,6 +28,30 @@ public class TimeOfDay
     }
 
 //*********************************************************
+// overrides
+//*********************************************************
+
+    @Override
+    public int hashCode()
+    {
+        int result = hourOfDay;
+        result = 31 * result + minute;
+        return result;
+    }
+    
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        
+        TimeOfDay timeOfDay = (TimeOfDay) o;
+        
+        if (hourOfDay != timeOfDay.hourOfDay) { return false; }
+        return minute == timeOfDay.minute;
+    }
+    
+//*********************************************************
 // api
 //*********************************************************
 

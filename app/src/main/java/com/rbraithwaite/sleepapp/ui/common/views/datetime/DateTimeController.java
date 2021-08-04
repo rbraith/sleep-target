@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui.session_details.controllers;
+package com.rbraithwaite.sleepapp.ui.common.views.datetime;
 
 import android.view.View;
 import android.widget.TextView;

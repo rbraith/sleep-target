@@ -1,6 +1,6 @@
 package com.rbraithwaite.sleepapp.di;
 
-import com.rbraithwaite.sleepapp.core.models.SleepSessionOverlapChecker;
+import com.rbraithwaite.sleepapp.core.models.overlap_checker.SleepSessionOverlapChecker;
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 
 import dagger.Module;

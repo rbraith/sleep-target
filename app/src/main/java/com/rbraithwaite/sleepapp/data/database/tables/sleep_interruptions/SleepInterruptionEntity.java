@@ -58,12 +58,23 @@ public class SleepInterruptionEntity
     
     public SleepInterruptionEntity(int id, Date startTime, int durationMillis, String reason)
     {
+        this(id, 0, startTime, durationMillis, reason);
+    }
+    
+    public SleepInterruptionEntity(
+            int id,
+            long sessionId,
+            Date startTime,
+            int durationMillis,
+            String reason)
+    {
         this.id = id;
+        this.sessionId = sessionId;
         this.startTime = startTime;
         this.durationMillis = durationMillis;
         this.reason = reason;
     }
-
+    
 //*********************************************************
 // overrides
 //*********************************************************

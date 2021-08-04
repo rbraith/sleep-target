@@ -18,4 +18,18 @@ public abstract class DetailsFragmentViewModel<DataType>
     public abstract void initData(DataType data);
     
     public abstract void clearData();
+
+//*********************************************************
+// api
+//*********************************************************
+
+    
+    /**
+     * Simple convenience method which clears then re-initializes the data.
+     */
+    public void setData(DataType data)
+    {
+        clearData();
+        initData(data);
+    }
 }

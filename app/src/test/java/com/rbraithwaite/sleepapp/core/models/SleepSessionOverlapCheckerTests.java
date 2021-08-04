@@ -1,5 +1,6 @@
 package com.rbraithwaite.sleepapp.core.models;
 
+import com.rbraithwaite.sleepapp.core.models.overlap_checker.SleepSessionOverlapChecker;
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.test_utils.test_data.builders.SleepSessionBuilder;
 
@@ -24,7 +25,7 @@ public class SleepSessionOverlapCheckerTests
 
     SleepSessionRepository mockSleepSessionRepository;
     SleepSessionOverlapChecker overlapChecker;
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -62,7 +63,7 @@ public class SleepSessionOverlapCheckerTests
                                                                                   .getTime()))
                 .thenReturn(after);
         
-        assertThat(overlapChecker.checkForOverlap(nonOverlappingSession), is(nullValue()));
+        assertThat(overlapChecker.checkForOverlapExclusive(nonOverlappingSession), is(nullValue()));
     }
     
     @Test
@@ -84,7 +85,8 @@ public class SleepSessionOverlapCheckerTests
                                                                                    .getTime()))
                 .thenReturn(before);
         
-        assertThat(overlapChecker.checkForOverlap(overlappingSession), is(equalTo(before)));
+        assertThat(overlapChecker.checkForOverlapExclusive(overlappingSession),
+                   is(equalTo(before)));
     }
     
     @Test
@@ -105,7 +107,7 @@ public class SleepSessionOverlapCheckerTests
                                                                                   .getTime()))
                 .thenReturn(ahead);
         
-        assertThat(overlapChecker.checkForOverlap(overlappingSession), is(equalTo(ahead)));
+        assertThat(overlapChecker.checkForOverlapExclusive(overlappingSession), is(equalTo(ahead)));
     }
     
     @Test
@@ -123,6 +125,6 @@ public class SleepSessionOverlapCheckerTests
                                                                                    .getTime()))
                 .thenReturn(sameId);
         
-        assertThat(overlapChecker.checkForOverlap(overlappingSession), is(nullValue()));
+        assertThat(overlapChecker.checkForOverlapExclusive(overlappingSession), is(nullValue()));
     }
 }

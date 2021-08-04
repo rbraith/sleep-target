@@ -89,8 +89,9 @@ public class SleepSessionRepositoryImpl
 //                        sleepSession.getId(),
 //                        ConvertInterruption.listToEntityList(updates.added));
 //
-//                mInterruptionsDao.updateMany(ConvertInterruption.listToEntityList(updates
-//                .updated));
+                mInterruptionsDao.updateMany(
+                        ConvertInterruption.listToEntityList(updates.updated,
+                                                             sleepSession.getId()));
                 
                 mInterruptionsDao.deleteMany(getIdsOf(updates.deleted));
             }
@@ -199,7 +200,7 @@ public class SleepSessionRepositoryImpl
                         .map(ConvertSleepSession::fromEntityWithExtras)
                         .collect(Collectors.toList()));
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

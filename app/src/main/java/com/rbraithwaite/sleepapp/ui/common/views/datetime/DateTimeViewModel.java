@@ -1,4 +1,4 @@
-package com.rbraithwaite.sleepapp.ui.session_details.controllers;
+package com.rbraithwaite.sleepapp.ui.common.views.datetime;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -27,9 +27,9 @@ public class DateTimeViewModel
     
     public static class Date
     {
-        int year;
-        int month;
-        int dayOfMonth;
+        public int year;
+        public int month;
+        public int dayOfMonth;
         
         public Date(int year, int month, int dayOfMonth)
         {
@@ -41,8 +41,8 @@ public class DateTimeViewModel
     
     public static class TimeOfDay
     {
-        int hourOfDay;
-        int minute;
+        public int hourOfDay;
+        public int minute;
         
         public TimeOfDay(int hourOfDay, int minute)
         {

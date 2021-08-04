@@ -6,6 +6,8 @@ import com.rbraithwaite.sleepapp.core.models.Interruptions;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.data.database.DatabaseTestDriver;
+import com.rbraithwaite.sleepapp.test_utils.test_data.builders.DateBuilder;
+import com.rbraithwaite.sleepapp.test_utils.test_data.builders.InterruptionBuilder;
 import com.rbraithwaite.sleepapp.test_utils.ui.drivers.ApplicationTestDriver;
 import com.rbraithwaite.sleepapp.test_utils.ui.drivers.SessionArchiveTestDriver;
 import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.HiltFragmentTestHelper;
@@ -21,6 +23,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.aDate;
 import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.aListOf;
 import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.aSleepSession;
 import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.anInterruption;
@@ -221,8 +224,18 @@ public class SessionArchiveFragmentTests
         // TODO [21-07-27 1:35AM] -- this test will need eventually need to test the full flow
         //  of add -> update -> delete.
         
+        DateBuilder date = aDate();
+        
         // default sleep session has an interruption
-        SleepSession sleepSession = aSleepSession().build();
+        SleepSession sleepSession = aSleepSession()
+                .withStart(aDate())
+                .withDurationHours(12)
+                .withInterruptions(
+                        anInterruption()
+                                .withStart(date.addMinutes(15))
+                                .withDuration(1, 23, 0)
+                                .withReason("interruptionsCrudTest"))
+                .build();
         database.addSleepSession(sleepSession);
         database.assertThat.interruptionCountIs(1);
         
@@ -232,14 +245,22 @@ public class SessionArchiveFragmentTests
         app.getSessionDetails().assertThat().interruptionDetailsMatch(
                 sleepSession.getInterruptions());
         
+        // update
         app.getSessionDetails().openInterruptionDetailsFor(0);
+        InterruptionBuilder expectedUpdate = anInterruption()
+                .withStart(date.addMinutes(123))
+                .withDuration(5, 43, 0)
+                .withReason("interruptionsCrudTest updated");
+        app.getInterruptionDetails().setValuesTo(expectedUpdate);
+        app.getInterruptionDetails().assertThat().valuesMatch(expectedUpdate);
+        app.getInterruptionDetails().confirm();
+        app.getSessionDetails().assertThat().interruptionAtPosition(0).matches(expectedUpdate);
         
+        // delete
+        app.getSessionDetails().openInterruptionDetailsFor(0);
         app.getInterruptionDetails().deleteInterruption();
-        
         app.getSessionDetails().assertThat().noInterruptionsAreDisplayed();
-        
         app.getSessionDetails().confirm();
-        
         database.assertThat.interruptionCountIs(0);
     }
     

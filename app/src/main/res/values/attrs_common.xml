@@ -42,4 +42,11 @@
     <declare-styleable name="MoodView">
         <attr name="mood" format="integer"/>
     </declare-styleable>
+
+    <declare-styleable name="DateTimeComponent">
+        <!-- REFACTOR [21-07-28 2:51AM] give other views/components style attrs and default styles. -->
+        <attr name="datetimeComponentStyle" format="reference"/>
+        <attr name="datetimeValuesColor" format="color"/>
+        <attr name="datetimeNameColor" format="color"/>
+    </declare-styleable>
 </resources>

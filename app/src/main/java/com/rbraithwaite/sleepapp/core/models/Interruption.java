@@ -1,18 +1,30 @@
 package com.rbraithwaite.sleepapp.core.models;
 
+import com.rbraithwaite.sleepapp.core.models.session.Session;
+import com.rbraithwaite.sleepapp.utils.TimeUtils;
+
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
+// REFACTOR [21-08-2 5:30PM] -- This and SleepSession should not be implementing Serializable
+//  This is an infrastructure concern & should be dealt with outside the domain layer.
 public class Interruption
+        extends Session
+        implements Serializable
 {
 //*********************************************************
 // private properties
 //*********************************************************
 
-    private Date mStartTime;
-    private int mDurationMillis;
-    private String mReason;
     private int mId;
+    private String mReason;
+
+//*********************************************************
+// public constants
+//*********************************************************
+
+    public static final long serialVersionUID = 20210112L;
 
 //*********************************************************
 // constructors
@@ -25,24 +37,28 @@ public class Interruption
     
     public Interruption(int id, Date startTime, int durationMillis, String reason)
     {
-        mStartTime = startTime;
-        mDurationMillis = durationMillis;
+        super(startTime, durationMillis);
         mReason = reason;
         mId = id;
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
 
     @Override
-    public int hashCode()
+    public String toString()
     {
-        int result = mStartTime.hashCode();
-        result = 31 * result + mDurationMillis;
-        result = 31 * result + (mReason != null ? mReason.hashCode() : 0);
-        result = 31 * result + mId;
-        return result;
+        return "Interruption{" +
+               "mStartTime=" + getStart() +
+               ", mDurationMillis=" + getDurationMillis() +
+               ", mReason='" + mReason + '\'' +
+               '}';
+    }
+    
+    public Date getEnd()
+    {
+        return new TimeUtils().getDateFromMillis(getStart().getTime() + getDurationMillis());
     }
     
     @Override
@@ -54,38 +70,31 @@ public class Interruption
         Interruption that = (Interruption) o;
         
         if (mId != that.mId) { return false; }
-        if (mDurationMillis != that.mDurationMillis) { return false; }
-        if (!mStartTime.equals(that.mStartTime)) { return false; }
+        if (!super.equals(o)) { return false; }
         return Objects.equals(mReason, that.mReason);
     }
-    
-    @Override
-    public String toString()
-    {
-        return "Interruption{" +
-               "mStartTime=" + mStartTime +
-               ", mDurationMillis=" + mDurationMillis +
-               ", mReason='" + mReason + '\'' +
-               '}';
-    }
 
+    @Override
+    public int hashCode()
+    {
+        int result = super.hashCode();
+        result = 31 * result + (mReason != null ? mReason.hashCode() : 0);
+        result = 31 * result + mId;
+        return result;
+    }
+    
 //*********************************************************
 // api
 //*********************************************************
 
-    public Date getStart()
-    {
-        return mStartTime;
-    }
-    
     public String getReason()
     {
         return mReason;
     }
     
-    public int getDurationMillis()
+    public void setReason(String reason)
     {
-        return mDurationMillis;
+        mReason = reason;
     }
     
     public int getId()

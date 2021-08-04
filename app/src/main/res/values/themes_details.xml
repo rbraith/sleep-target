@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="SessionDetailsDateTimeTheme">
-        <item name="sessionDetailsDatetimeNameStyle">@style/SessionDetailsTitleStyle</item>
-        <item name="sessionDetailsDatetimeDateStyle">@style/SessionDetailsDatetimeStyle</item>
-        <item name="sessionDetailsDatetimeTimeStyle">@style/SessionDetailsDatetimeStyle</item>
-    </style>
-
     <style name="SessionDetailsRatingTheme" parent="TrackerPostSleepRatingBarTheme"/>
 
     <style name="SessionDetailsTagTheme" parent="TrackerTagSelectorTheme">
+        <!-- REFACTOR [21-07-28 2:59AM] this style is deprecated. -->
         <item name="tagSelectorTitleStyle">@style/SessionDetailsTitleStyle</item>
     </style>
 
     <style name="SessionDetailsMoodTheme" parent="TrackerMoodSelectorTheme">
+        <!-- REFACTOR [21-07-28 2:59AM] this style is deprecated. -->
         <item name="moodSelectorTitleStyle">@style/SessionDetailsTitleStyle</item>
     </style>
 

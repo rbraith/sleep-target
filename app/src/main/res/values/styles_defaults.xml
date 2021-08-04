@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="DefaultDateTimeComponentStyle">
+        <item name="datetimeNameColor">?attr/colorOnPrimarySurface</item>
+        <item name="datetimeValuesColor">?attr/colorPrimary</item>
+    </style>
+</resources>
