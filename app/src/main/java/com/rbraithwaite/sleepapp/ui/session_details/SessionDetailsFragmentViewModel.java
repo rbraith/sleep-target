@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
+import com.rbraithwaite.sleepapp.core.models.Interruption;
 import com.rbraithwaite.sleepapp.core.models.Interruptions;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.core.models.Tag;
@@ -291,6 +292,15 @@ public class SessionDetailsFragmentViewModel
                 .orElse(null);
     }
     
+    public InterruptionDetailsData getNewInterruptionDetailsData()
+    {
+        return getOptionalSleepSession()
+                .map(sleepSession -> new InterruptionDetailsData(
+                        new Interruption(sleepSession.getStart()),
+                        sleepSession))
+                .orElse(null);
+    }
+    
     public void deleteInterruption(InterruptionDetailsData interruption)
     {
         getOptionalSleepSession().ifPresent(sleepSession -> {
@@ -324,6 +334,14 @@ public class SessionDetailsFragmentViewModel
     {
         getOptionalSleepSession().ifPresent(sleepSession -> {
             sleepSession.updateInterruption(interruptionDetailsData.getInterruption());
+            notifySessionChanged();
+        });
+    }
+    
+    public void addInterruption(InterruptionDetailsData data)
+    {
+        getOptionalSleepSession().ifPresent(sleepSession -> {
+            sleepSession.addInterruption(data.getInterruption());
             notifySessionChanged();
         });
     }

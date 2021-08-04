@@ -84,11 +84,11 @@ public class SleepSessionRepositoryImpl
             Interruptions interruptions = sleepSession.getInterruptions();
             if (interruptions.hasUpdates()) {
                 Interruptions.Updates updates = interruptions.consumeUpdates();
-                // TODO [21-07-23 5:24PM] -- got ahead of myself.
-//                mSleepSessionDao.addInterruptionsToSleepSession(
-//                        sleepSession.getId(),
-//                        ConvertInterruption.listToEntityList(updates.added));
-//
+                
+                mSleepSessionDao.addInterruptionsToSleepSession(
+                        sleepSession.getId(),
+                        ConvertInterruption.listToEntityList(updates.added));
+
                 mInterruptionsDao.updateMany(
                         ConvertInterruption.listToEntityList(updates.updated,
                                                              sleepSession.getId()));

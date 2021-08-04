@@ -6,6 +6,7 @@ import com.rbraithwaite.sleepapp.core.models.Interruptions;
 import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.data.database.DatabaseTestDriver;
+import com.rbraithwaite.sleepapp.test_utils.test_data.TestData;
 import com.rbraithwaite.sleepapp.test_utils.test_data.builders.DateBuilder;
 import com.rbraithwaite.sleepapp.test_utils.test_data.builders.InterruptionBuilder;
 import com.rbraithwaite.sleepapp.test_utils.ui.drivers.ApplicationTestDriver;
@@ -221,31 +222,34 @@ public class SessionArchiveFragmentTests
     @Test
     public void interruptionsCrudTest()
     {
-        // TODO [21-07-27 1:35AM] -- this test will need eventually need to test the full flow
-        //  of add -> update -> delete.
-        
         DateBuilder date = aDate();
         
-        // default sleep session has an interruption
+        // init archive with a sleep session
         SleepSession sleepSession = aSleepSession()
                 .withStart(aDate())
                 .withDurationHours(12)
-                .withInterruptions(
-                        anInterruption()
-                                .withStart(date.addMinutes(15))
-                                .withDuration(1, 23, 0)
-                                .withReason("interruptionsCrudTest"))
+                .withNoInterruptions()
                 .build();
         database.addSleepSession(sleepSession);
-        database.assertThat.interruptionCountIs(1);
+        database.assertThat.interruptionCountIs(0);
         
         ApplicationTestDriver app = startAppInArchive();
-        app.getSessionArchive().openSessionDetailsFor(0);
         
-        app.getSessionDetails().assertThat().interruptionDetailsMatch(
-                sleepSession.getInterruptions());
+        // add
+        app.getSessionArchive().openSessionDetailsFor(0);
+        app.getSessionDetails().pressAddNewInterruptionButton();
+        InterruptionBuilder interruption = anInterruption()
+                .withStart(date.addMinutes(15))
+                .withDuration(1, 23, 0)
+                .withReason("interruptionsCrudTest");
+        app.getInterruptionDetails().setValuesTo(interruption);
+        app.getInterruptionDetails().confirm();
+        app.getSessionDetails().assertThat().interruptionDetailsMatch(new Interruptions(aListOf(interruption)));
+        app.getSessionDetails().confirm();
+        database.assertThat.interruptionCountIs(1);
         
         // update
+        app.getSessionArchive().openSessionDetailsFor(0);
         app.getSessionDetails().openInterruptionDetailsFor(0);
         InterruptionBuilder expectedUpdate = anInterruption()
                 .withStart(date.addMinutes(123))
@@ -255,8 +259,10 @@ public class SessionArchiveFragmentTests
         app.getInterruptionDetails().assertThat().valuesMatch(expectedUpdate);
         app.getInterruptionDetails().confirm();
         app.getSessionDetails().assertThat().interruptionAtPosition(0).matches(expectedUpdate);
+        app.getSessionDetails().confirm();
         
         // delete
+        app.getSessionArchive().openSessionDetailsFor(0);
         app.getSessionDetails().openInterruptionDetailsFor(0);
         app.getInterruptionDetails().deleteInterruption();
         app.getSessionDetails().assertThat().noInterruptionsAreDisplayed();

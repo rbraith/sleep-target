@@ -103,6 +103,14 @@ public class InterruptionDetailsFragment
     }
     
     @Override
+    protected void onAdd()
+    {
+        if (checkForValidResult()) {
+            super.onAdd();
+        }
+    }
+    
+    @Override
     protected void onUpdate()
     {
         if (checkForValidResult()) {

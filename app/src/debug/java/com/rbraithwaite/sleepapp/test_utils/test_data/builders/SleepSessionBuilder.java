@@ -1,5 +1,6 @@
 package com.rbraithwaite.sleepapp.test_utils.test_data.builders;
 
+import com.rbraithwaite.sleepapp.DaggerApp_HiltComponents_ApplicationC;
 import com.rbraithwaite.sleepapp.core.models.Interruption;
 import com.rbraithwaite.sleepapp.core.models.Interruptions;
 import com.rbraithwaite.sleepapp.core.models.Mood;
@@ -70,7 +71,9 @@ public class SleepSessionBuilder
                 mMood,
                 mTags,
                 mRating);
-        sleepSession.setInterruptions(new Interruptions(mInterruptions));
+        if (mInterruptions != null) {
+            sleepSession.setInterruptions(new Interruptions(mInterruptions));
+        }
         return sleepSession;
     }
 
@@ -113,6 +116,12 @@ public class SleepSessionBuilder
     public SleepSessionBuilder withId(int id)
     {
         mId = id;
+        return this;
+    }
+    
+    public SleepSessionBuilder withNoInterruptions()
+    {
+        mInterruptions = null;
         return this;
     }
 }

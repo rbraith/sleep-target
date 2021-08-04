@@ -570,9 +570,19 @@ public class SessionDetailsTestDriver
         if (mOpenInterruptionDetailsListener != null) {
             mOpenInterruptionDetailsListener.onOpenInterruptionDetails();
         }
+        scrollToInterruptions();
         onView(withId(R.id.common_interruptions_recycler)).perform(RecyclerViewActions.actionOnItemAtPosition(
                 interruptionsListIndex + 1,
                 click()));
+    }
+    
+    public void pressAddNewInterruptionButton()
+    {
+        if (mOpenInterruptionDetailsListener != null) {
+            mOpenInterruptionDetailsListener.onOpenInterruptionDetails();
+        }
+        scrollToInterruptions();
+        onView(withId(R.id.session_details_interruptions_addbtn)).perform(click());
     }
 
 //*********************************************************

@@ -29,6 +29,11 @@ public class Interruption
 //*********************************************************
 // constructors
 //*********************************************************
+    
+    public Interruption(Date startTime)
+    {
+        this(startTime, 0, null);
+    }
 
     public Interruption(Date startTime, int durationMillis, String reason)
     {

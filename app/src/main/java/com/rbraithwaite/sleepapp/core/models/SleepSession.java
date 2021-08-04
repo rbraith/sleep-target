@@ -267,6 +267,13 @@ public class SleepSession
         }
     }
     
+    public void addInterruption(Interruption interruption)
+    {
+        if (mInterruptions != null) {
+            mInterruptions.add(interruption);
+        }
+    }
+    
     /**
      * Check whether the provided interruption overlaps with any existing interruptions in this
      * sleep session. "Exclusive" means that an existing interruption with the same id as the one to

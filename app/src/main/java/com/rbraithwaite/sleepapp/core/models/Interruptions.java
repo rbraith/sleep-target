@@ -107,6 +107,13 @@ public class Interruptions
         }
     }
     
+    // TEST NEEDED [21-08-4 4:22PM]
+    public void add(Interruption interruption)
+    {
+        mInterruptions.add(interruption);
+        getUpdates().added.add(interruption);
+    }
+    
     public boolean hasUpdates()
     {
         return mUpdates != null;
@@ -135,7 +142,7 @@ public class Interruptions
         InterruptionOverlapChecker overlapChecker = new InterruptionOverlapChecker(mInterruptions);
         return overlapChecker.checkForOverlapExclusive(interruptionToCheck);
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

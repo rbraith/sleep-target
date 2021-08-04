@@ -25,6 +25,7 @@ public class SessionDetailsInterruptionsAdapter
     private List<InterruptionListItem> mItems;
     
     private OnListItemClickListener mOnListItemClickListener;
+    private OnAddButtonClickListener mOnAddButtonClickListener;
 
 //*********************************************************
 // private constants
@@ -43,6 +44,11 @@ public class SessionDetailsInterruptionsAdapter
     public interface OnListItemClickListener
     {
         void onClick(ItemViewHolder viewHolder);
+    }
+    
+    public interface OnAddButtonClickListener
+    {
+        void onClick();
     }
     
     public static class ViewHolder
@@ -97,16 +103,22 @@ public class SessionDetailsInterruptionsAdapter
             extends ViewHolder
     {
         Button button;
+        OnAddButtonClickListener onAddButtonClickListener;
         
-        public AddButtonViewHolder(@NonNull View itemView)
+        public AddButtonViewHolder(@NonNull View itemView, OnAddButtonClickListener onAddButtonClickListener)
         {
             super(itemView);
             button = itemView.findViewById(R.id.session_details_interruptions_addbtn);
+            this.onAddButtonClickListener = onAddButtonClickListener;
         }
         
         public void init()
         {
-            // TODO [21-07-21 1:00AM] -- add click listener here.
+            button.setOnClickListener(v -> {
+                if (onAddButtonClickListener != null) {
+                    onAddButtonClickListener.onClick();
+                }
+            });
         }
     }
 
@@ -126,7 +138,13 @@ public class SessionDetailsInterruptionsAdapter
 //*********************************************************
 // overrides
 //*********************************************************
-
+    
+    
+    public void setOnAddButtonClickListener(OnAddButtonClickListener onAddButtonClickListener)
+    {
+        mOnAddButtonClickListener = onAddButtonClickListener;
+    }
+    
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
@@ -138,7 +156,7 @@ public class SessionDetailsInterruptionsAdapter
         
         case VIEWTYPE_ADD_BUTTON:
             View addButton = inflateLayout(R.layout.session_details_interruptions_addbtn, parent);
-            return new AddButtonViewHolder(addButton);
+            return new AddButtonViewHolder(addButton, mOnAddButtonClickListener);
         
         default:
             throw new IllegalArgumentException("Invalid viewType: " + viewType);

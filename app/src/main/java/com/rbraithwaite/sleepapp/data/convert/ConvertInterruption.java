@@ -114,6 +114,11 @@ public class ConvertInterruption
                 .collect(Collectors.toList());
     }
     
+    public static List<SleepInterruptionEntity> listToEntityList(List<Interruption> interruptions)
+    {
+        return listToEntityList(interruptions, 0);
+    }
+    
     public static List<SleepInterruptionEntity> listToEntityList(
             List<Interruption> interruptions,
             int parentSleepSessionId)

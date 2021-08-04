@@ -238,7 +238,9 @@ public class SessionDetailsFragment
         case UPDATED:
             getViewModel().updateInterruption(result.data);
             break;
-        // TODO [21-07-31 4:11PM] -- case ADDED.
+        case ADDED:
+            getViewModel().addInterruption(result.data);
+            break;
         }
     }
     
@@ -286,7 +288,21 @@ public class SessionDetailsFragment
                 getViewModel().getInterruptionListItems(),
                 viewHolder -> navigateToEditInterruptionScreen(viewHolder.data.interruptionId));
         
+        adapter.setOnAddButtonClickListener(this::navigateToAddInterruptionScreen);
+        
         recycler.setAdapter(adapter);
+    }
+    
+    private void navigateToAddInterruptionScreen()
+    {
+        InterruptionDetailsFragment.Args args = new InterruptionDetailsFragment.Args();
+        args.mode = Mode.ADD;
+        args.initialData = getViewModel().getNewInterruptionDetailsData();
+        
+        SessionDetailsFragmentDirections.ActionSessionDetailsToInterruptionDetails toAddInterruptionScreen =
+                SessionDetailsFragmentDirections.actionSessionDetailsToInterruptionDetails(args);
+        
+        getNavController().navigate(toAddInterruptionScreen);
     }
     
     private void navigateToEditInterruptionScreen(int interruptionId)
