@@ -8,6 +8,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
+import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.data_set.IntervalDataSetGenerator;
+import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.data_set.IntervalsDataSet;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import org.junit.After;
@@ -41,7 +43,7 @@ public class IntervalsChartViewModelTests
 
     IntervalsChartViewModel viewModel;
     SleepSessionRepository mockSleepSessionRepository;
-    IntervalsDataSet.Generator mockSleepIntervalsDataSetGenerator;
+    IntervalDataSetGenerator mockSleepIntervalsDataSetGenerator;
     Executor executor;
 
 //*********************************************************
@@ -52,7 +54,7 @@ public class IntervalsChartViewModelTests
     public void setup()
     {
         mockSleepSessionRepository = mock(SleepSessionRepository.class);
-        mockSleepIntervalsDataSetGenerator = mock(IntervalsDataSet.Generator.class);
+        mockSleepIntervalsDataSetGenerator = mock(IntervalDataSetGenerator.class);
         executor = new TestUtils.SynchronizedExecutor();
         viewModel = new IntervalsChartViewModel(
                 mockSleepSessionRepository,

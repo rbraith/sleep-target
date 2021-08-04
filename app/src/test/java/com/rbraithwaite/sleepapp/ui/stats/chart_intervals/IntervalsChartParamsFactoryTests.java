@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
+import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.data_set.IntervalsDataSet;
 import com.rbraithwaite.sleepapp.ui.stats.common.CombinedChartViewFactory;
 
 import org.achartengine.model.RangeCategorySeries;
@@ -223,7 +224,7 @@ public class IntervalsChartParamsFactoryTests
         XYMultipleSeriesDataset dataSet = new XYMultipleSeriesDataset();
         dataSet.addSeries(series.toXYSeries());
         intervalsDataSet.config = config;
-        intervalsDataSet.dataSet = dataSet;
+        intervalsDataSet.sleepSessionDataSet = dataSet;
         
         return intervalsDataSet;
     }

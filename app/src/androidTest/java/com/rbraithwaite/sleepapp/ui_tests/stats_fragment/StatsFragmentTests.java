@@ -7,7 +7,7 @@ import com.rbraithwaite.sleepapp.test_utils.data.database.DatabaseTestDriver;
 import com.rbraithwaite.sleepapp.test_utils.ui.drivers.StatsTestDriver;
 import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.HiltFragmentTestHelper;
 import com.rbraithwaite.sleepapp.ui.stats.StatsFragment;
-import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.IntervalsDataSet;
+import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.data_set.IntervalsDataSet;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

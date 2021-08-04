@@ -112,4 +112,11 @@ public class ConvertSleepSession
         
         return sleepSession;
     }
+    
+    public static List<SleepSession> listFromEntityWithExtrasList(List<SleepSessionWithExtras> sleepSessionsWithExtras)
+    {
+        return sleepSessionsWithExtras.stream()
+                .map(ConvertSleepSession::fromEntityWithExtras)
+                .collect(Collectors.toList());
+    }
 }

@@ -30,7 +30,9 @@ public class AppColors
             R.attr.appColorOnBackgroundFloating2,
             R.attr.appColorSurfaceFloating,
             R.attr.appDialogTitleIconColor,
-            R.attr.appColorComplementary
+            R.attr.appColorComplementary,
+            R.attr.appColorInterruption,
+            R.attr.appColorInterruptionDark
     };
 
 //*********************************************************
@@ -56,6 +58,8 @@ public class AppColors
     public int appColorSurfaceFloating;
     public int appDialogTitleIconColor;
     public int appColorComplementary;
+    public int appColorInterruption;
+    public int appColorInterruptionDark;
 
 //*********************************************************
 // public constants
@@ -97,6 +101,8 @@ public class AppColors
         appColors.appColorSurfaceFloating = ta.getColor(16, AppColors.NOT_FOUND);
         appColors.appDialogTitleIconColor = ta.getColor(17, AppColors.NOT_FOUND);
         appColors.appColorComplementary = ta.getColor(18, AppColors.NOT_FOUND);
+        appColors.appColorInterruption = ta.getColor(19, AppColors.NOT_FOUND);
+        appColors.appColorInterruptionDark = ta.getColor(20, AppColors.NOT_FOUND);
         ta.recycle();
         return appColors;
     }

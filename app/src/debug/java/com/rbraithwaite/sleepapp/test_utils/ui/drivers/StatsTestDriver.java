@@ -7,7 +7,7 @@ import com.rbraithwaite.sleepapp.ui.stats.StatsFragment;
 import com.rbraithwaite.sleepapp.ui.stats.StatsFragmentViewModel;
 import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.DateRange;
 import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.IntervalsChartViewModel;
-import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.IntervalsDataSet;
+import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.data_set.IntervalsDataSet;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import java.util.Date;
@@ -33,7 +33,7 @@ public class StatsTestDriver
 
     private static final int OFFSET_MILLIS = (int) TimeUtils.hoursToMillis(
             IntervalsChartViewModel.DEFAULT_INTERVALS_OFFSET_HOURS);
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -85,7 +85,7 @@ public class StatsTestDriver
                                                .getIntervalsDateRange()))));
         }
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -94,7 +94,7 @@ public class StatsTestDriver
     {
         init(helper, new Assertions(this));
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -151,7 +151,7 @@ public class StatsTestDriver
         onView(allOf(isDescendantOfA(withId(R.id.stats_intervals)),
                      withId(R.id.stats_range_selector_forward))).perform(click());
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

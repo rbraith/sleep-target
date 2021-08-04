@@ -8,6 +8,8 @@ import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleepapp.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleepapp.ui.stats.StatsFormatting;
+import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.data_set.IntervalDataSetGenerator;
+import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.data_set.IntervalsDataSet;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
 import java.util.Calendar;
@@ -15,9 +17,9 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.concurrent.Executor;
 
-import static com.rbraithwaite.sleepapp.ui.stats.chart_intervals.IntervalsDataSet.Resolution.MONTH;
-import static com.rbraithwaite.sleepapp.ui.stats.chart_intervals.IntervalsDataSet.Resolution.WEEK;
-import static com.rbraithwaite.sleepapp.ui.stats.chart_intervals.IntervalsDataSet.Resolution.YEAR;
+import static com.rbraithwaite.sleepapp.ui.stats.chart_intervals.data_set.IntervalsDataSet.Resolution.MONTH;
+import static com.rbraithwaite.sleepapp.ui.stats.chart_intervals.data_set.IntervalsDataSet.Resolution.WEEK;
+import static com.rbraithwaite.sleepapp.ui.stats.chart_intervals.data_set.IntervalsDataSet.Resolution.YEAR;
 
 public class IntervalsChartViewModel
         extends ViewModel
@@ -32,7 +34,7 @@ public class IntervalsChartViewModel
     
     private TimeUtils mTimeUtils;
     
-    private IntervalsDataSet.Generator mSleepIntervalsDataSetGenerator;
+    private IntervalDataSetGenerator mSleepIntervalsDataSetGenerator;
     private SleepSessionRepository mSleepSessionRepository;
     
     private Executor mExecutor;
@@ -66,7 +68,7 @@ public class IntervalsChartViewModel
     @ViewModelInject
     public IntervalsChartViewModel(
             SleepSessionRepository sleepSessionRepository,
-            IntervalsDataSet.Generator sleepIntervalsDataSetGenerator,
+            IntervalDataSetGenerator sleepIntervalsDataSetGenerator,
             Executor executor)
     {
         mSleepSessionRepository = sleepSessionRepository;

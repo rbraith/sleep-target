@@ -9,13 +9,16 @@ import androidx.lifecycle.ViewModel;
 import com.rbraithwaite.sleepapp.data.database.SleepAppDatabase;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_sleepduration.SleepDurationGoalEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoalEntity;
+import com.rbraithwaite.sleepapp.data.database.tables.sleep_interruptions.SleepInterruptionEntity;
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.TEMP.MoodView;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Executor;
 
@@ -41,7 +44,7 @@ public class DevToolsFragmentViewModel
     private static final long RANDOM_SEED = 123456L;
     
     // TODO [21-06-14 2:15AM] -- I wonder if the unicode formatting problem is due to these characters: ’.
-    private static final String[] mAdditionalCommentsPool = {
+    private static final String[] mTextPool = {
             "What the fuck did you just fucking say about me, you little bitch?",
             "I’ll have you know I graduated top of my class in the Navy Seals, and I’ve been " +
             "involved in numerous secret raids on Al-Quaeda, and I have over 300 confirmed kills.",
@@ -111,9 +114,16 @@ public class DevToolsFragmentViewModel
                     Random rand = new Random();
                     rand.setSeed(RANDOM_SEED); // keep the random data deterministic
                     for (int i = 0; i < sessionAmount; i++) {
+                        SleepSessionEntity entity = generateRandomSleepSessionEntity(mBaseDay, rand);
+                        List<SleepInterruptionEntity> interruptions = generateRandomInterruptionsForSleepSession(entity, rand);
+                        List<Integer> NO_TAGS = new ArrayList<>();
+                        
                         mDatabase.getSleepSessionDao()
-                                .addSleepSession(generateRandomSleepSessionEntity(mBaseDay,
-                                                                                  rand));
+                                .addSleepSessionWithExtras(
+                                        entity,
+                                        NO_TAGS,
+                                        interruptions);
+                        
                         // one session per day
                         // having the base day as a stored property ensures subsequent
                         // additions of
@@ -211,6 +221,35 @@ public class DevToolsFragmentViewModel
         runAsyncTask(task, null);
     }
     
+    private List<SleepInterruptionEntity> generateRandomInterruptionsForSleepSession(
+            SleepSessionEntity sleepSession, Random rand)
+    {
+        // basic algo:
+        // - split session duration into equal time blocks
+        // - each time block might contain an interruption.
+        
+        List<SleepInterruptionEntity> result = new ArrayList<>();
+        
+        final int DURATION_SPLIT_COUNT = 5;
+        
+        int durationBlockWidth = (int) (sleepSession.duration / DURATION_SPLIT_COUNT);
+        
+        for (int i = 0; i < DURATION_SPLIT_COUNT; i++) {
+            boolean shouldBlockHaveInterruption = rand.nextBoolean();
+            if (shouldBlockHaveInterruption) {
+                SleepInterruptionEntity interruptionEntity = new SleepInterruptionEntity();
+                interruptionEntity.sessionId = sleepSession.id;
+                interruptionEntity.startTime = new TimeUtils().addDurationToDate(sleepSession.startTime, i * durationBlockWidth);
+                interruptionEntity.durationMillis = durationBlockWidth;
+                interruptionEntity.reason = randomText(rand);
+                
+                result.add(interruptionEntity);
+            }
+        }
+        
+        return result;
+    }
+    
     private SleepSessionEntity generateRandomSleepSessionEntity(
             GregorianCalendar baseDay,
             Random rand)
@@ -221,7 +260,7 @@ public class DevToolsFragmentViewModel
         entity.duration = randomDurationHours(5, 10, rand) * 60 * 1000;
         entity.endTime = new TimeUtils().addDurationToDate(entity.startTime, (int) entity.duration);
         entity.moodIndex = randomMoodIndex(rand);
-        entity.additionalComments = randomComments(rand);
+        entity.additionalComments = randomText(rand);
         entity.rating = randomRating(rand);
         return entity;
     }
@@ -231,9 +270,9 @@ public class DevToolsFragmentViewModel
         return rand.nextInt(MoodView.getMoodCount());
     }
     
-    private String randomComments(Random rand)
+    private String randomText(Random rand)
     {
-        return mAdditionalCommentsPool[rand.nextInt(mAdditionalCommentsPool.length)];
+        return mTextPool[rand.nextInt(mTextPool.length)];
     }
     
     private float randomRating(Random rand)

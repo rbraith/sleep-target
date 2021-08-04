@@ -88,7 +88,7 @@ public class SleepSessionRepositoryImpl
                 mSleepSessionDao.addInterruptionsToSleepSession(
                         sleepSession.getId(),
                         ConvertInterruption.listToEntityList(updates.added));
-
+                
                 mInterruptionsDao.updateMany(
                         ConvertInterruption.listToEntityList(updates.updated,
                                                              sleepSession.getId()));
@@ -123,16 +123,17 @@ public class SleepSessionRepositoryImpl
         // switchMap() is used so that I can have a LiveData backend to post values to
         // asynchronously while also handling the asynchronicity of the Dao call
         return Transformations.switchMap(
-                mSleepSessionDao.getSleepSessionsInRange(
+                mSleepSessionDao.getSleepSessionWithExtrasInRange(
                         start.getTime(),
                         end.getTime()),
-                entities -> {
+                sleepSessionsWithExtras -> {
                     final MutableLiveData<List<SleepSession>> liveData =
                             new MutableLiveData<>();
                     // map the input to the SleepSessionModel list asynchronously
                     mExecutor.execute(() -> {
                         List<SleepSession> result =
-                                ConvertSleepSession.fromEntities(entities);
+                                ConvertSleepSession.listFromEntityWithExtrasList(
+                                        sleepSessionsWithExtras);
                         liveData.postValue(result);
                     });
                     return liveData;

@@ -8,6 +8,7 @@ import org.achartengine.chart.CombinedXYChart;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CombinedChartViewFactory
@@ -31,6 +32,11 @@ public class CombinedChartViewFactory
             this.renderer = renderer;
             this.dataSet = dataSet;
             this.types = types;
+        }
+        
+        public Params()
+        {
+            this(new XYMultipleSeriesRenderer(), new XYMultipleSeriesDataset(), new ArrayList<>());
         }
     }
 

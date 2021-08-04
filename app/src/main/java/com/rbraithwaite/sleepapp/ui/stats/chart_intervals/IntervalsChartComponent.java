@@ -14,6 +14,7 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 
 import com.rbraithwaite.sleepapp.R;
+import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.data_set.IntervalsDataSet;
 import com.rbraithwaite.sleepapp.ui.stats.common.CombinedChartViewFactory;
 import com.rbraithwaite.sleepapp.ui.stats.common.RangeSelectorComponent;
 import com.rbraithwaite.sleepapp.utils.CommonUtils;
@@ -50,7 +51,7 @@ public class IntervalsChartComponent
 
     @Inject
     Executor mExecutor;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -76,7 +77,7 @@ public class IntervalsChartComponent
         super(context, attrs, defStyleAttr);
         initComponent(context);
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -90,7 +91,7 @@ public class IntervalsChartComponent
         viewModel.getIntervalsValueText().observe(lifecycleOwner, this::observeValueText);
         mTimePeriodSelector.setCallbacks(createViewModelTimePeriodCallbacks(viewModel));
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

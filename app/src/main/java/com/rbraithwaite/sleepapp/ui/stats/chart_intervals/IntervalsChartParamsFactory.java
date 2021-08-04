@@ -5,19 +5,22 @@ import android.content.Context;
 import androidx.lifecycle.LiveData;
 
 import com.rbraithwaite.sleepapp.ui.stats.StatsFormatting;
+import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.data_set.IntervalsDataSet;
 import com.rbraithwaite.sleepapp.ui.stats.common.CombinedChartViewFactory;
 import com.rbraithwaite.sleepapp.ui.utils.AppColors;
 import com.rbraithwaite.sleepapp.utils.AsyncUtils;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
+import com.rbraithwaite.sleepapp.utils.interfaces.Factory;
 
 import org.achartengine.chart.CombinedXYChart;
 import org.achartengine.chart.LineChart;
 import org.achartengine.chart.RangeStackedBarChart;
+import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.concurrent.Executor;
@@ -50,11 +53,12 @@ public class IntervalsChartParamsFactory
     }
 
 
+
 //*********************************************************
 // api
 //*********************************************************
 
-
+    
     /**
      * Create chart params for a generic ranged data set (commonly one week). The params are created
      * asynchronously.
@@ -66,7 +70,7 @@ public class IntervalsChartParamsFactory
     public LiveData<CombinedChartViewFactory.Params> createRangeParams(IntervalsDataSet dataSet)
     {
         return mParamsAsyncFactory.createAsync(() -> {
-            CombinedChartViewFactory.Params params = initChartParams(dataSet);
+            CombinedChartViewFactory.Params params = createChartParamsFrom(dataSet);
             
             // x-axis
             // REFACTOR [21-06-7 3:26PM] -- I could extract this x-axis setup to a method.
@@ -96,7 +100,7 @@ public class IntervalsChartParamsFactory
             int month)
     {
         return mParamsAsyncFactory.createAsync(() -> {
-            CombinedChartViewFactory.Params params = initChartParams(dataSet);
+            CombinedChartViewFactory.Params params = createChartParamsFrom(dataSet);
             
             // x axis
             DateRange range = dataSet.config.dateRange;
@@ -130,7 +134,7 @@ public class IntervalsChartParamsFactory
             int year)
     {
         return mParamsAsyncFactory.createAsync(() -> {
-            CombinedChartViewFactory.Params params = initChartParams(dataSet);
+            CombinedChartViewFactory.Params params = createChartParamsFrom(dataSet);
             
             // X axis
             // -----------------------------------------------------
@@ -168,17 +172,14 @@ public class IntervalsChartParamsFactory
 // private methods
 //*********************************************************
 
-
+    
     /**
      * Init everything but the x-axis properties for the renderer, so that the x-axis can be
      * customized as needed.
      */
-    private CombinedChartViewFactory.Params initChartParams(IntervalsDataSet dataSet)
+    private CombinedChartViewFactory.Params createChartParamsFrom(IntervalsDataSet dataSet)
     {
-        CombinedChartViewFactory.Params params = new CombinedChartViewFactory.Params(
-                new XYMultipleSeriesRenderer(),
-                dataSet.dataSet,
-                new ArrayList<>());
+        CombinedChartViewFactory.Params params = new CombinedChartViewFactory.Params();
         
         int hoursOffset = computeHoursOffset(dataSet.config.offsetMillis);
         initRendererProperties(
@@ -187,7 +188,9 @@ public class IntervalsChartParamsFactory
                 hoursOffset,
                 dataSet.config.dateRange.getDifferenceInDays());
         styleRenderer(params.renderer);
-        applyData(params);
+        
+        applyIntervalsToParams(dataSet, params);
+        
         addMidnightLine(params, dataSet.config.invert, hoursOffset);
         
         return params;
@@ -271,24 +274,61 @@ public class IntervalsChartParamsFactory
         renderer.setLabelsTextSize(30);
     }
     
-    private void applyData(CombinedChartViewFactory.Params params)
+    private void applyIntervalsToParams(
+            IntervalsDataSet dataSet,
+            CombinedChartViewFactory.Params params)
     {
-        if (params.dataSet.getSeriesCount() > 0) {
-            int[] seriesIndices = new int[params.dataSet.getSeriesCount()];
-            for (int i = 0; i < params.dataSet.getSeriesCount(); i++) {
-                seriesIndices[i] = i;
-                params.renderer.addSeriesRenderer(createIntervalsBarRenderer());
-            }
-            params.types.add(new CombinedXYChart.XYCombinedChartDef(
+        int sleepSessionSeriesCount = dataSet.sleepSessionDataSet.getSeriesCount();
+        if (sleepSessionSeriesCount > 0) {
+            applyDataSetToParams(
+                    dataSet.sleepSessionDataSet,
+                    params,
                     RangeStackedBarChart.TYPE,
-                    seriesIndices));
+                    this::createSleepSessionBarRenderer,
+                    0);
+            
+            // add interruptions second, so that they visually overlap the sleep sessions
+            if (dataSet.hasInterruptionData()) {
+                applyDataSetToParams(
+                        dataSet.interruptionsDataSet,
+                        params,
+                        RangeStackedBarChart.TYPE,
+                        this::createInterruptionsBarRenderer,
+                        sleepSessionSeriesCount);
+            }
         }
     }
     
-    private XYSeriesRenderer createIntervalsBarRenderer()
+    private void applyDataSetToParams(
+            XYMultipleSeriesDataset dataSet,
+            CombinedChartViewFactory.Params params,
+            String chartType,
+            Factory<XYSeriesRenderer> rendererFactory,
+            int seriesStartingIndexOffset)
+    {
+        params.dataSet.addAllSeries(Arrays.asList(dataSet.getSeries()));
+        int[] seriesIndices = new int[dataSet.getSeriesCount()];
+        for (int i = seriesStartingIndexOffset;
+             i < dataSet.getSeriesCount() + seriesStartingIndexOffset; i++) {
+            seriesIndices[i - seriesStartingIndexOffset] = i;
+            params.renderer.addSeriesRenderer(rendererFactory.create());
+        }
+        params.types.add(new CombinedXYChart.XYCombinedChartDef(
+                chartType,
+                seriesIndices));
+    }
+    
+    private XYSeriesRenderer createSleepSessionBarRenderer()
     {
         XYSeriesRenderer renderer = new XYSeriesRenderer();
         renderer.setColor(mAppColors.appColorTriadic3);
+        return renderer;
+    }
+    
+    private XYSeriesRenderer createInterruptionsBarRenderer()
+    {
+        XYSeriesRenderer renderer = new XYSeriesRenderer();
+        renderer.setColor(mAppColors.appColorInterruptionDark);
         return renderer;
     }
     

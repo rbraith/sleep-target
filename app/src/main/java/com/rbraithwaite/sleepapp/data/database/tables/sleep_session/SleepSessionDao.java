@@ -62,6 +62,16 @@ public abstract class SleepSessionDao
             long start,
             long end);
     
+    // REFACTOR [21-08-4 6:34PM] -- this duplicates the query for getSleepSessionsInRange.
+    @Query("SELECT * FROM " + SleepSessionContract.TABLE_NAME +
+           " WHERE " +
+           "(" + SleepSessionContract.Columns.START_TIME + " BETWEEN :start AND :end)" +
+           " OR " +
+           "(" + SleepSessionContract.Columns.END_TIME + " BETWEEN :start AND :end)")
+    public abstract LiveData<List<SleepSessionWithExtras>> getSleepSessionWithExtrasInRange(
+            long start,
+            long end);
+    
     // REFACTOR [21-03-16 3:47PM] -- duplicates getSleepSessionsInRange() query.
     @Query("SELECT * FROM " + SleepSessionContract.TABLE_NAME +
            " WHERE " +
@@ -123,7 +133,7 @@ public abstract class SleepSessionDao
     
     @Insert
     protected abstract void addInterruptions(List<SleepInterruptionEntity> interruptions);
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -137,8 +147,8 @@ public abstract class SleepSessionDao
         }
         addInterruptions(interruptions);
     }
-
-
+    
+    
     /**
      * Adds a new sleep session and its associated tags.
      *

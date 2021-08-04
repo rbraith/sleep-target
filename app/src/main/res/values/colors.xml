@@ -15,6 +15,7 @@
     <color name="colorAppBackground">#151515</color>
 
     <color name="colorInterruption">#DBB275</color>
+    <color name="colorInterruptionDark">#d5a55d</color>
 
     <color name="colorError">#B21936</color>
     <color name="colorOnError">@color/colorOnSecondarySurface</color>

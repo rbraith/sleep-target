@@ -19,5 +19,6 @@
         <attr name="appDialogTitleIconColor" format="color"/>
 
         <attr name="appColorInterruption" format="color"/>
+        <attr name="appColorInterruptionDark" format="color"/>
     </declare-styleable>
 </resources>
