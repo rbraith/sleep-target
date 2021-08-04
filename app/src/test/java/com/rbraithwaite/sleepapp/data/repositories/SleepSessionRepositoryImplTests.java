@@ -103,7 +103,7 @@ public class SleepSessionRepositoryImplTests
         Date end = cal.getTime();
         
         repository.getSleepSessionsInRange(start, end);
-        verify(mockSleepSessionDao, times(1)).getSleepSessionsInRange(
+        verify(mockSleepSessionDao, times(1)).getSleepSessionWithExtrasInRange(
                 start.getTime(),
                 end.getTime());
     }
