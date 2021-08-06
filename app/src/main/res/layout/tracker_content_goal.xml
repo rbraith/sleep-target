@@ -21,8 +21,8 @@
         app:drawableLeftCompat="@drawable/ic_tracker_goal_trophy" />
 
     <TextView
-        style="?attr/trackerGoalValueStyle"
         android:id="@+id/tracker_goal_value"
+        style="?attr/trackerGoalValueStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"

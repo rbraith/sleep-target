@@ -12,7 +12,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/sleep_fragment_root"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp">
 
         <androidx.cardview.widget.CardView
             android:id="@+id/tracker_tracking_card"
@@ -75,10 +76,10 @@
         </androidx.cardview.widget.CardView>
 
         <!--        This nested ConstraintLayout holding the goal cards is so that the cards scale properly-->
-<!--        when only one of them is present - the nested layout handles the edge margins and the cards-->
-<!--        expand to fill the nested layout. Before, what was happening was each card had their outer-->
-<!--        edge constrained to the parent, so that edge had the correct margins when only one card-->
-<!--        existed, but the inner card edges were expanding to a 0dp-margin for the parent on the other side.-->
+        <!--        when only one of them is present - the nested layout handles the edge margins and the cards-->
+        <!--        expand to fill the nested layout. Before, what was happening was each card had their outer-->
+        <!--        edge constrained to the parent, so that edge had the correct margins when only one card-->
+        <!--        existed, but the inner card edges were expanding to a 0dp-margin for the parent on the other side.-->
         <!-- HACK [21-06-27 10:29PM] - There is probably a way to do this flatly with the parent layout. -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/constraintLayout"
@@ -138,6 +139,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
+            android:layout_marginBottom="8dp"
             android:theme="@style/TrackerOptionalDetailsTheme"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
