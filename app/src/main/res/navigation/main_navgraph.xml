@@ -40,7 +40,7 @@
     <fragment
         android:id="@+id/nav_sleepstats"
         android:name="com.rbraithwaite.sleepapp.ui.stats.StatsFragment"
-        android:label="StatsFragment" />
+        android:label="Stats" />
     <fragment
         android:id="@+id/nav_interruption_details"
         android:name="com.rbraithwaite.sleepapp.ui.interruption_details.InterruptionDetailsFragment"
