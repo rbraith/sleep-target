@@ -3,12 +3,10 @@
     <style name="SessionDetailsRatingTheme" parent="TrackerPostSleepRatingBarTheme"/>
 
     <style name="SessionDetailsTagTheme" parent="TrackerTagSelectorTheme">
-        <!-- REFACTOR [21-07-28 2:59AM] this style is deprecated. -->
         <item name="tagSelectorTitleStyle">@style/SessionDetailsTitleStyle</item>
     </style>
 
     <style name="SessionDetailsMoodTheme" parent="TrackerMoodSelectorTheme">
-        <!-- REFACTOR [21-07-28 2:59AM] this style is deprecated. -->
         <item name="moodSelectorTitleStyle">@style/SessionDetailsTitleStyle</item>
     </style>
 

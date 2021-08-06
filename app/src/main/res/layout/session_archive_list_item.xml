@@ -35,7 +35,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginLeft="16dp"
-            android:textStyle="bold"
             app:layout_constraintBaseline_toBaselineOf="@+id/session_archive_list_item_start"
             app:layout_constraintStart_toEndOf="@+id/session_archive_title_barrier"
             tools:text="2:20 am, Feb 20 2020" />
@@ -59,7 +58,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginLeft="16dp"
-            android:textStyle="bold"
             app:layout_constraintBaseline_toBaselineOf="@+id/session_archive_list_item_stop"
             app:layout_constraintStart_toEndOf="@+id/session_archive_title_barrier"
             tools:text="2:20 am, Feb 20 2020" />
@@ -107,7 +105,8 @@
             android:layout_marginLeft="8dp"
             android:layout_marginTop="16dp"
             app:layout_constraintStart_toEndOf="@+id/session_archive_list_item_comment_icon"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_goneMarginLeft="0dp">
 
             <com.rbraithwaite.sleepapp.ui.common.views.mood_selector.TEMP.MoodView
                 android:id="@+id/session_archive_list_item_mood"

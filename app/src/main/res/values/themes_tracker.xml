@@ -1,20 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!--This defines common values for the tracker styles to reference.
-        This is applied to the root view of the tracker fragment.-->
-    <style name="TrackerTheme">
-        <item name="trackerTitleColor">?attr/colorOnPrimarySurface</item>
-    </style>
-
     <style name="TrackerGoalTheme">
-        <item name="trackerGoalTitleStyle">@style/TrackerGoalTitleStyle</item>
         <item name="trackerGoalValueStyle">@style/TrackerGoalValueStyle</item>
     </style>
 
     <style name="TrackerTrackingSectionTheme">
         <item name="trackerStartTimeStyle">@style/TrackerStartTime</item>
-        <item name="trackerMainButtonStyle">@style/TrackerButtonMain</item>
-        <item name="trackerSessionTimeStyle">@style/TrackerSessionTime</item>
     </style>
 
     <style name="TrackerMoodSelectorTheme">
@@ -49,7 +40,6 @@
     <style name="TrackerOptionalDetailsTheme">
         <item name="trackerMoodSelectorTheme">@style/TrackerMoodSelectorTheme</item>
         <item name="trackerTagSelectorTheme">@style/TrackerTagSelectorTheme</item>
-        <item name="trackerDetailsTitleStyle">@style/TrackerTitleStyle</item>
         <item name="trackerAdditionalCommentsStyle">@style/TrackerAdditionalCommentsStyle</item>
     </style>
 

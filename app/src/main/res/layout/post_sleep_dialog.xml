@@ -120,7 +120,15 @@
         android:layout_marginTop="40dp"
         android:text="Additional Comments"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/postsleep_tags_scroll" />
+        app:layout_constraintTop_toBottomOf="@+id/postsleep_mood_tags_barrier" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/postsleep_mood_tags_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="postsleep_mood_frame,postsleep_tags_scroll"
+        tools:layout_editor_absoluteY="469dp" />
 
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/postsleep_mood_barrier"
@@ -134,8 +142,6 @@
         android:id="@+id/postsleep_mood_frame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
         android:layout_marginTop="8dp"
         app:layout_constraintStart_toStartOf="@+id/postsleep_mood_title"
         app:layout_constraintTop_toBottomOf="@+id/postsleep_mood_title">

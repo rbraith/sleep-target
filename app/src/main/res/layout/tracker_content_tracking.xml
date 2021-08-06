@@ -14,7 +14,7 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/sleep_tracker_button"
-        style="?attr/trackerMainButtonStyle"
+        style="@style/TrackerButtonMain"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="56dp"
@@ -27,7 +27,7 @@
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/sleep_tracker_session_time"
-        style="?attr/trackerSessionTimeStyle"
+        style="@style/TrackerSessionTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toTopOf="@id/sleep_tracker_interruptions_total"

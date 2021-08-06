@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 <!--    resources-->
-    <dimen name="tracker_main_btn_padding_horiz">48dp</dimen>
-    <dimen name="tracker_main_btn_padding_vert">18dp</dimen>
+    <dimen name="tracker_main_btn_padding_horiz">54dp</dimen>
+    <dimen name="tracker_main_btn_padding_vert">20dp</dimen>
 
     <!--    styles-->
 <!--    tracking section specific-->
@@ -14,7 +14,7 @@
     <style name="TrackerButtonMain" parent="AppButton.Capsule">
         <item name="backgroundTint">?attr/colorPrimary</item>
 
-        <item name="android:textSize">20sp</item>
+        <item name="android:textSize">16sp</item>
         <item name="android:textStyle">normal</item>
 
         <item name="android:paddingLeft">@dimen/tracker_main_btn_padding_horiz</item>
@@ -26,7 +26,7 @@
     <style name="TrackerInterruptButton" parent="TrackerButtonMain">
         <item name="backgroundTint">?attr/appColorInterruption</item>
 
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">14sp</item>
 
         <item name="android:paddingLeft">32dp</item>
         <item name="android:paddingRight">32dp</item>
@@ -74,11 +74,7 @@
         <item name="android:textColor">?attr/appColorOnBackgroundFloating2</item>
     </style>
 
-    <style name="TrackerPostSleepTitleStyle">
-        <item name="android:textAppearance">@style/TrackerPostSleepTitleTextAppearance</item>
-    </style>
-
-    <style name="TrackerPostSleepTitleTextAppearance" parent="AppTextAppearance.TrackerTitle">
+    <style name="TrackerPostSleepTitleStyle" parent="CommonTitleStyle">
         <item name="android:textColor">?attr/appColorOnBackgroundFloating</item>
     </style>
 
@@ -117,16 +113,8 @@
 
     <style name="TrackerDetailButtonStyle" parent="AppButton.Capsule"/>
 
-    <style name="TrackerTitleStyle" parent="AppTextView">
-        <item name="android:textAppearance">@style/AppTextAppearance.TrackerTitle</item>
-    </style>
-
     <style name="TrackerSubTitleStyle" parent="AppTextView">
         <item name="android:textAppearance">@style/AppTextAppearance.TrackerSubTitle</item>
-    </style>
-
-    <style name="TrackerGoalTitleStyle" parent="TrackerTitleStyle">
-        <item name="drawableTint">?attr/trackerTitleColor</item>
     </style>
 
     <style name="TrackerGoalValueStyle" parent="AppTextView">
@@ -136,11 +124,6 @@
     <style name="AppTextAppearance.TrackerSubTitle">
         <item name="android:textColor">?attr/appColorOnPrimarySurface2</item>
         <item name="android:textSize">14sp</item>
-    </style>
-
-    <style name="AppTextAppearance.TrackerTitle">
-        <item name="android:textColor">?attr/trackerTitleColor</item>
-        <item name="android:textSize">@dimen/appTitleTextSize</item>
     </style>
 
     <style name="AppTextAppearance.TrackerGoalValue">

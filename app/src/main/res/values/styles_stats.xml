@@ -5,10 +5,7 @@
         <item name="android:textSize">22sp</item>
     </style>
 
-    <style name="StatsSectionTitle" parent="Widget.AppCompat.TextView">
-        <item name="android:textColor">?attr/colorSecondary</item>
-        <item name="android:textSize">@dimen/appTitleTextSize</item>
-    </style>
+    <style name="StatsSectionTitle" parent="CommonTitleStyle"/>
 
     <style name="StatsRangeSelectorButton" parent="Widget.AppCompat.ImageButton">
         <item name="backgroundTint">?attr/colorSecondary</item>

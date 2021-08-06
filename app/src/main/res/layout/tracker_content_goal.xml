@@ -6,8 +6,8 @@
     android:layout_height="wrap_content">
 
     <TextView
-        style="?attr/trackerGoalTitleStyle"
         android:id="@+id/tracker_goal_title"
+        style="@style/CommonTitleStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -15,10 +15,10 @@
         android:layout_marginTop="8dp"
         android:drawablePadding="10dp"
         android:text="Wake Time"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:drawableLeftCompat="@drawable/ic_tracker_goal_trophy"
         app:drawableStartCompat="@drawable/ic_tracker_goal_trophy"
-        app:drawableLeftCompat="@drawable/ic_tracker_goal_trophy" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tracker_goal_value"

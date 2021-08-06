@@ -6,14 +6,14 @@
 
     <style name="SleepGoalsDurationValue" parent="Widget.AppCompat.TextView">
         <item name="android:textColor">?attr/sleepGoalsDurationColor</item>
-        <item name="android:textSize">40sp</item>
+        <item name="android:textSize">34sp</item>
     </style>
 
     <style name="SleepGoalsWakeTimeValue" parent="SleepGoalsDurationValue">
         <item name="android:textColor">?attr/sleepGoalsWakeTimeColor</item>
     </style>
 
-    <style name="SleepGoalsTitle" parent="SessionDetailsTitleStyle"/>
+    <style name="SleepGoalsTitle" parent="CommonTitleStyle"/>
 
     <style name="SleepGoalsAddWakeTimeButton" parent="AppButton.Capsule">
         <item name="backgroundTint">?attr/sleepGoalsWakeTimeColor</item>

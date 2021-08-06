@@ -71,7 +71,8 @@
             <com.rbraithwaite.sleepapp.ui.common.views.session_times.SessionTimesComponent
                 android:id="@+id/session_details_datetime_content"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:layout_marginBottom="8dp" />
 
         </androidx.cardview.widget.CardView>
 
@@ -97,12 +98,12 @@
                     style="@style/SessionDetailsCommentsStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginRight="8dp"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_marginBottom="16dp"
                     android:ems="10"
                     android:gravity="start|top"
                     android:hint="Additional comments..."

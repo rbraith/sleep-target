@@ -16,9 +16,10 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/sleep_tracker_button"
-        style="?attr/trackerMainButtonStyle"
+        style="@style/TrackerButtonMain"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
         android:layout_marginBottom="45dp"
         android:text="@string/sleep_tracker_button_stop"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -28,10 +29,10 @@
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/sleep_tracker_session_time"
-        style="?attr/trackerSessionTimeStyle"
+        style="@style/TrackerSessionTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="70dp"
+        android:layout_marginTop="66dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
