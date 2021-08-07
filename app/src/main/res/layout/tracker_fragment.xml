@@ -12,6 +12,8 @@
         android:id="@+id/sleep_fragment_root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:paddingBottom="8dp">
 
         <androidx.cardview.widget.CardView
