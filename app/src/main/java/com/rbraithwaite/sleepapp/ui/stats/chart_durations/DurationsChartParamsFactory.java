@@ -132,7 +132,11 @@ public class DurationsChartParamsFactory
             // The first data point label is added to the right side of the chart, and the last
             // data point is added to the left side.
             params.renderer.addXTextLabel(rangeDistance - 1, dataSet.get(0).label);
-            if (dataSet.size() > 1) {
+            // the rangeDistance check helps prevent visual overlap of the labels
+            // REFACTOR [21-08-10 12:43AM] -- I could call that doesLabelHaveEnoughRoom().
+            if (dataSet.size() > 1 &&
+                (rangeDistance / dataSet.size()) <= 10)
+            {
                 params.renderer.addXTextLabel(rangeDistance - dataSet.size(),
                                               dataSet.get(dataSet.size() - 1).label);
             }
