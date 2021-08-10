@@ -201,6 +201,21 @@ public class SleepSessionRepositoryImpl
                         .map(ConvertSleepSession::fromEntityWithExtras)
                         .collect(Collectors.toList()));
     }
+    
+    /**
+     * @param start The range start.
+     * @param end   The range end.
+     *
+     * @return The sleep session with the latest start time which also ends within the provided
+     * range, or null if no sleep sessions end within that range.
+     */
+    @Override
+    public SleepSession getLatestSleepSessionEndingInRangeSynced(Date start, Date end)
+    {
+        return ConvertSleepSession.fromEntity(
+                mSleepSessionDao.getLatestSleepSessionEndingInRangeSynced(start.getTime(),
+                                                                          end.getTime()));
+    }
 
 //*********************************************************
 // private methods

@@ -1,6 +1,5 @@
 package com.rbraithwaite.sleepapp.test_utils.test_data.builders;
 
-import com.rbraithwaite.sleepapp.DaggerApp_HiltComponents_ApplicationC;
 import com.rbraithwaite.sleepapp.core.models.Interruption;
 import com.rbraithwaite.sleepapp.core.models.Interruptions;
 import com.rbraithwaite.sleepapp.core.models.Mood;
@@ -122,6 +121,18 @@ public class SleepSessionBuilder
     public SleepSessionBuilder withNoInterruptions()
     {
         mInterruptions = null;
+        return this;
+    }
+    
+    public SleepSessionBuilder withStart(Date start)
+    {
+        mStart = start;
+        return this;
+    }
+    
+    public SleepSessionBuilder withDurationMinutes(int minutes)
+    {
+        mDuration = TimeUtils.minutesToMillis(minutes);
         return this;
     }
 }

@@ -55,7 +55,7 @@ public class Day
         if (month != day.month) { return false; }
         return dayOfMonth == day.dayOfMonth;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -86,5 +86,21 @@ public class Day
     public Day nextDay()
     {
         return plus(0, 0, 1);
+    }
+    
+    // TEST NEEDED [21-08-7 5:51PM]
+    public boolean isLessThan(Day other)
+    {
+        if (other == null) { return false; }
+        
+        if (year > other.year) { return false; }
+        if (year < other.year) { return true; }
+        
+        if (month > other.month) { return false; }
+        if (month < other.month) { return true; }
+        
+        if (dayOfMonth > other.dayOfMonth) { return false; }
+        
+        return dayOfMonth < other.dayOfMonth;
     }
 }

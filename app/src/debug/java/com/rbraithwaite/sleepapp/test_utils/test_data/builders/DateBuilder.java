@@ -1,5 +1,6 @@
 package com.rbraithwaite.sleepapp.test_utils.test_data.builders;
 
+import com.rbraithwaite.sleepapp.utils.TimeUtils;
 import com.rbraithwaite.sleepapp.utils.interfaces.BuilderOf;
 
 import java.util.Calendar;
@@ -99,5 +100,17 @@ public class DateBuilder
         copyOfThis.mCal = new GregorianCalendar();
         copyOfThis.mCal.setTime(mCal.getTime());
         return copyOfThis;
+    }
+    
+    public DateBuilder subtractDays(int days)
+    {
+        addDays(-days);
+        return this;
+    }
+    
+    public DateBuilder atMidnight()
+    {
+        new TimeUtils().setCalendarTimeOfDay(mCal, 0);
+        return this;
     }
 }

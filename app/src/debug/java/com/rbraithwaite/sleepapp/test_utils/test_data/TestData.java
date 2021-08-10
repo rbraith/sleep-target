@@ -91,6 +91,11 @@ public class TestData
         return new CalendarBuilder();
     }
     
+    public static WakeTimeGoalBuilder aWakeTimeGoal()
+    {
+        return new WakeTimeGoalBuilder();
+    }
+    
     public static <T> List<T> aListOf(BuilderOf<T>... builders)
     {
         return new ArrayList<>(Arrays.asList(builders)).stream()

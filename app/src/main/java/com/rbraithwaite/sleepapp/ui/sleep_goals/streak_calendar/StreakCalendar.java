@@ -81,7 +81,7 @@ public class StreakCalendar
         }
         return mView;
     }
-
+    
     // TODO [21-03-16 9:36PM] -- this should be tested.
     public void setSucceededGoalDates(
             List<Date> wakeTimeGoalDates,

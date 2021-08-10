@@ -143,12 +143,12 @@ public class DevToolsFragmentViewModel
             // arbitrary.
             Date goalDate = new GregorianCalendar(2019, 10, 11).getTime();
             int wakeTimeGoal = 8; // 8 am
-            int sleepDurationGoal = 8; // 8 hrs
+            int sleepDurationGoalHours = 8; // 8 hrs
             
             mDatabase.getSleepDurationGoalDao().updateSleepDurationGoal(
                     new SleepDurationGoalEntity(
                             goalDate,
-                            sleepDurationGoal * 60 /* 8 hours in minutes */));
+                            sleepDurationGoalHours * 60 /* 8 hours in minutes */));
             
             mDatabase.getWakeTimeGoalDao().updateWakeTimeGoal(
                     new WakeTimeGoalEntity(
@@ -156,9 +156,8 @@ public class DevToolsFragmentViewModel
                             wakeTimeGoal * 60 * 60 * 1000 /* 8am waketime goal */));
             
             // REFACTOR [21-06-1 1:11AM] -- consider moving this to a separate tool.
-            // add some sleep sessions that hit the goals
+            // Add some sleep sessions that hit the goals.
             // -----------------------------------------------------
-            // today will hit both goals
             GregorianCalendar today = new GregorianCalendar();
             // set to 12am... uhh there's probably a better way to do this lol
             today = new GregorianCalendar(
@@ -166,34 +165,38 @@ public class DevToolsFragmentViewModel
                     today.get(Calendar.MONTH),
                     today.get(Calendar.DAY_OF_MONTH));
             
-            // yesterday will only hit waketime goal
             GregorianCalendar yesterday = new GregorianCalendar();
             yesterday.setTime(today.getTime());
             yesterday.add(Calendar.DAY_OF_MONTH, -1);
             
-            // 2 days ago will only hit duration goal
-            GregorianCalendar two_days_ago = new GregorianCalendar();
-            two_days_ago.setTime(yesterday.getTime());
-            two_days_ago.add(Calendar.DAY_OF_MONTH, -1);
+            GregorianCalendar twoDaysAgo = new GregorianCalendar();
+            twoDaysAgo.setTime(yesterday.getTime());
+            twoDaysAgo.add(Calendar.DAY_OF_MONTH, -1);
             
             TimeUtils timeUtils = new TimeUtils();
-            int durationGoalMillis = (int) timeUtils.hoursToMillis(sleepDurationGoal);
+            int durationGoalMillis = (int) TimeUtils.hoursToMillis(sleepDurationGoalHours);
+    
+            // Since the goal success for a day depends on the sleep through that day's night
+            // into the next day, the succeeded days appear one day back of the defined days above
+            // (since they are initialized to 12am of the next day).
             
+            // yesterday will hit both goals (12am - 8am)
             SleepSessionEntity bothGoalsSuccess = new SleepSessionEntity(
                     today.getTime(),
                     timeUtils.addDurationToDate(today.getTime(), durationGoalMillis));
-            
+            // 2 days ago will only hit the wake time (2am - 8am)
             SleepSessionEntity wakeTimeGoalSuccess = new SleepSessionEntity(
                     // move the start forward so the duration goal is missed
                     timeUtils.addDurationToDate(yesterday.getTime(),
-                                                (int) timeUtils.hoursToMillis(2)),
+                                                (int) TimeUtils.hoursToMillis(2)),
                     timeUtils.addDurationToDate(yesterday.getTime(), durationGoalMillis));
             
+            // 3 days ago will only hit the duration (10pm - 6am)
             // set this back so that the wake time goal is missed
-            two_days_ago.add(Calendar.HOUR, -2);
+            twoDaysAgo.add(Calendar.HOUR, -2);
             SleepSessionEntity durationGoalSuccess = new SleepSessionEntity(
-                    two_days_ago.getTime(),
-                    timeUtils.addDurationToDate(two_days_ago.getTime(), durationGoalMillis));
+                    twoDaysAgo.getTime(),
+                    timeUtils.addDurationToDate(twoDaysAgo.getTime(), durationGoalMillis));
             
             mDatabase.getSleepSessionDao().addSleepSession(bothGoalsSuccess);
             mDatabase.getSleepSessionDao().addSleepSession(wakeTimeGoalSuccess);

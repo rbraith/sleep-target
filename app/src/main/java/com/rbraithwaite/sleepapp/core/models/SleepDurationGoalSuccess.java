@@ -9,6 +9,19 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+
+/**
+ * A sleep duration goal for some date succeeds when an eligible sleep session is found whose
+ * duration (minus interruptions) falls within the bounds of the leniency of the goal. Eligible
+ * sleep sessions for a particular date are those which:
+ * <ul>
+ *     <li>Start on that date and end on another (eg from 11pm to 7am the next day)</li>
+ *     <li>Start and end on the next day after that date (eg from 1am to 9am the next morning)</li>
+ * </ul>
+ * <p>
+ * Note that if there are multiple goals defined on one day, only the last goal defined is
+ * considered.
+ */
 public class SleepDurationGoalSuccess
 {
 //*********************************************************
@@ -17,7 +30,6 @@ public class SleepDurationGoalSuccess
 
     private TimeUtils mTimeUtils;
     private SleepSessionRepository mSleepSessionRepository;
-    private List<SleepDurationGoal> mGoalHistory;
     
     private List<Date> mSucceededDates;
 
@@ -31,6 +43,7 @@ public class SleepDurationGoalSuccess
 // constructors
 //*********************************************************
 
+    // SMELL [21-08-9 8:22PM] -- why am I doing it this way lmao
     public SleepDurationGoalSuccess(
             List<SleepDurationGoal> goalHistory,
             TimeUtils timeUtils,
@@ -38,7 +51,6 @@ public class SleepDurationGoalSuccess
     {
         mTimeUtils = timeUtils;
         mSleepSessionRepository = sleepSessionRepository;
-        mGoalHistory = goalHistory;
         
         mSucceededDates = computeSucceededDates(goalHistory);
     }
@@ -47,6 +59,7 @@ public class SleepDurationGoalSuccess
 // api
 //*********************************************************
 
+    // TEST NEEDED [21-08-9 11:08PM]
     public List<Date> getSucceededDates()
     {
         return mSucceededDates;
@@ -68,13 +81,15 @@ public class SleepDurationGoalSuccess
                 continue;
             }
             
+            // REFACTOR [21-08-7 3:42PM] -- I should iterate backwards so I don't need to deal
+            //  with this.
             boolean notLastElem = i != goalHistory.size() - 1;
             
             // Account for multiple goal edits being on the same day - in this case,
             // take the latest edit made on that day (skip past the others)
             if (notLastElem &&
-                (mTimeUtils.asAbsoluteDay(currentGoal.getEditTime()) ==
-                 mTimeUtils.asAbsoluteDay(goalHistory.get(i + 1).getEditTime()))) {
+                (mTimeUtils.toDayInt(currentGoal.getEditTime()) ==
+                 mTimeUtils.toDayInt(goalHistory.get(i + 1).getEditTime()))) {
                 continue;
             }
             
@@ -93,8 +108,8 @@ public class SleepDurationGoalSuccess
             mTimeUtils.setCalendarTimeOfDay(goalCal, 0);
             
             // check each date which uses this goal
-            int absoluteGoalEndDay = mTimeUtils.asAbsoluteDay(end.getTime());
-            while (mTimeUtils.asAbsoluteDay(goalCal.getTime()) < absoluteGoalEndDay) {
+            int absoluteGoalEndDay = mTimeUtils.toDayInt(end.getTime());
+            while (mTimeUtils.toDayInt(goalCal.getTime()) < absoluteGoalEndDay) {
                 if (dateSucceeded(goalCal, currentGoal)) {
                     result.add(goalCal.getTime());
                 }
@@ -141,7 +156,7 @@ public class SleepDurationGoalSuccess
     {
         long longestDurationMillis = sessions.get(0).getDurationMillis();
         for (SleepSession session : sessions) {
-            longestDurationMillis = Math.max(session.getDurationMillis(), longestDurationMillis);
+            longestDurationMillis = Math.max(session.getNetDurationMillis(), longestDurationMillis);
         }
         
         return (int) (longestDurationMillis / 60) / 1000; // convert from millis to minutes

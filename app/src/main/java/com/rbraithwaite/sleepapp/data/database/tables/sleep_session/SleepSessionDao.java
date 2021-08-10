@@ -124,6 +124,16 @@ public abstract class SleepSessionDao
            " ORDER BY " + SleepSessionContract.Columns.START_TIME + " DESC")
     public abstract LiveData<List<SleepSessionWithExtras>> getAllSleepSessionsWithExtras();
     
+    // TEST NEEDED [21-08-7 5:46PM]
+    @Query("SELECT * FROM " + SleepSessionContract.TABLE_NAME +
+           " WHERE " + "(" + SleepSessionContract.Columns.END_TIME +
+           " BETWEEN :rangeStart AND :rangeEnd)" +
+           " ORDER BY " + SleepSessionContract.Columns.START_TIME + " DESC" +
+           " LIMIT 1")
+    public abstract SleepSessionEntity getLatestSleepSessionEndingInRangeSynced(
+            long rangeStart,
+            long rangeEnd);
+    
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     protected abstract void addTagsToSleepSession(List<SleepSessionTagJunction> junctions);
     

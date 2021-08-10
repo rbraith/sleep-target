@@ -31,6 +31,20 @@ public class WakeTimeGoal
         // used for static factories
     }
 
+    
+//*********************************************************
+// overrides
+//*********************************************************
+
+    @Override
+    public String toString()
+    {
+        return "WakeTimeGoal{" +
+               "mEditTime=" + mEditTime +
+               ", mGoalMillis=" + mGoalMillis +
+               '}';
+    }
+    
 //*********************************************************
 // api
 //*********************************************************

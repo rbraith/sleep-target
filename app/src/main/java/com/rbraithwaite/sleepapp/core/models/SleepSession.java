@@ -124,6 +124,18 @@ public class SleepSession
 //*********************************************************
 
     @Override
+    public int hashCode()
+    {
+        int result = mId;
+        result = 31 * result + super.hashCode();
+        result = 31 * result + (mAdditionalComments != null ? mAdditionalComments.hashCode() : 0);
+        result = 31 * result + (mMood != null ? mMood.hashCode() : 0);
+        result = 31 * result + mTags.hashCode();
+        result = 31 * result + (mRating != +0.0f ? Float.floatToIntBits(mRating) : 0);
+        return result;
+    }
+    
+    @Override
     public boolean equals(Object o)
     {
         if (this == o) { return true; }
@@ -137,18 +149,6 @@ public class SleepSession
         if (!Objects.equals(mAdditionalComments, that.mAdditionalComments)) { return false; }
         if (!Objects.equals(mMood, that.mMood)) { return false; }
         return mTags.equals(that.mTags);
-    }
-    
-    @Override
-    public int hashCode()
-    {
-        int result = mId;
-        result = 31 * result + super.hashCode();
-        result = 31 * result + (mAdditionalComments != null ? mAdditionalComments.hashCode() : 0);
-        result = 31 * result + (mMood != null ? mMood.hashCode() : 0);
-        result = 31 * result + mTags.hashCode();
-        result = 31 * result + (mRating != +0.0f ? Float.floatToIntBits(mRating) : 0);
-        return result;
     }
     
     @NonNull
@@ -288,5 +288,14 @@ public class SleepSession
     {
         return mInterruptions == null ? null :
                 mInterruptions.checkForOverlapExclusive(interruptionToCheck);
+    }
+    
+    /**
+     * @return The sleep duration minus the total interruption time.
+     */
+    public long getNetDurationMillis()
+    {
+        Interruptions interruptions = getInterruptions();
+        return getDurationMillis() - (interruptions == null ? 0 : interruptions.getTotalDuration());
     }
 }

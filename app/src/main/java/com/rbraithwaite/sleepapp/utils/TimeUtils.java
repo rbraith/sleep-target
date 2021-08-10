@@ -57,6 +57,17 @@ public class TimeUtils
         return timeToMillis(hours, 0, 0, 0);
     }
     
+    public static GregorianCalendar copyOf(GregorianCalendar calendar)
+    {
+        if (calendar == null) {
+            return null;
+        }
+        
+        GregorianCalendar newCalendar = new GregorianCalendar();
+        newCalendar.setTime(calendar.getTime());
+        return newCalendar;
+    }
+    
     // TODO [20-11-15 1:05AM] -- think about how I could test this.
     //  idk if I could? probably not a huge deal
     // TODO [21-06-27 3:04AM] -- replace this with a Now class.
@@ -106,10 +117,13 @@ public class TimeUtils
         return ((millis / 1000.0) / 60.0) / 60.0;
     }
     
+    
     /**
      * Converts the date to an int yyyymmdd.
      */
-    public int asAbsoluteDay(Date date)
+    // REFACTOR [21-08-7 3:15PM] -- It would be better to just convert Dates to Days.
+    @Deprecated
+    public int toDayInt(Date date)
     {
         return Integer.parseInt(new SimpleDateFormat("yyyyMMdd", Locale.CANADA).format(date));
     }

@@ -137,4 +137,13 @@ public interface SleepSessionRepository
      */
     LiveData<Integer> getTotalSleepSessionCount();
     LiveData<List<SleepSession>> getAllSleepSessions();
+    
+    /**
+     * @param start The range start.
+     * @param end   The range end.
+     *
+     * @return The sleep session with the latest start time which also ends within the provided
+     * range, or null if no sleep sessions end within that range.
+     */
+    SleepSession getLatestSleepSessionEndingInRangeSynced(Date start, Date end);
 }
