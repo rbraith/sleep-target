@@ -18,7 +18,7 @@
     <FrameLayout
         android:id="@+id/stats_intervals_layout"
         android:layout_width="match_parent"
-        android:layout_height="375dp"
+        android:layout_height="320dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp">
 

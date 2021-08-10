@@ -22,7 +22,7 @@
     <FrameLayout
         android:id="@+id/stats_durations_layout"
         android:layout_width="0dp"
-        android:layout_height="375dp"
+        android:layout_height="320dp"
         android:layout_marginTop="16dp"
         app:layout_constraintEnd_toStartOf="@+id/stats_durations_ratings_axis_title"
         app:layout_constraintStart_toEndOf="@+id/stats_durations_durations_axis_title"

@@ -17,7 +17,7 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/stats_intervals_card"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_margin="8dp">
 
             <com.rbraithwaite.sleepapp.ui.stats.chart_intervals.IntervalsChartComponent
@@ -30,7 +30,7 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/stats_durations_card"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginBottom="8dp">
