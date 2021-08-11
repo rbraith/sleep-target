@@ -30,7 +30,6 @@ import com.rbraithwaite.sleepapp.utils.interfaces.Action;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -189,6 +188,11 @@ public class SleepTrackerTestDriver
                     expectedSelectedTagIds);
         }
         
+        public void selectedTagsMatchText(List<String> tagTexts)
+        {
+            tagSelector().selectedTagsMatchText(tagTexts);
+        }
+        
         public void postSleepDialogIsDisplayed()
         {
             assertOnPostSleepDialog(dialog -> {
@@ -281,7 +285,7 @@ public class SleepTrackerTestDriver
             additionalCommentsMatch(sleepSession.getAdditionalComments());
             // TODO [21-06-25 7:55PM] -- this needs to handle mood being null.
             selectedMoodMatches(sleepSession.getMood().asIndex());
-            selectedTagsMatch(sleepSession.getTags().stream().map(Tag::getTagId).collect(Collectors.toList()));
+            selectedTagsMatchText(sleepSession.getTags().stream().map(Tag::getText).collect(Collectors.toList()));
         }
         
         public void sessionTimerIsNotDisplayed()
@@ -332,13 +336,13 @@ public class SleepTrackerTestDriver
         {
             interruptionReasonTextMatches("");
         }
-    
+        
         public void postSleepDialogInterruptionsAreUnset()
         {
             onView(withId(R.id.post_sleep_interruptions_content)).perform(scrollTo());
             onView(withId(R.id.post_sleep_interruptions_nodata)).check(matches(isDisplayed()));
         }
-    
+        
         public void postSleepDialogHasInterruptionCount(int interruptionCount)
         {
             onView(withId(R.id.post_sleep_interruptions_content)).perform(scrollTo());
@@ -346,7 +350,12 @@ public class SleepTrackerTestDriver
             assertOnPostSleepDialog(dialog -> hamcrestAssertThat(
                     dialog.getInterruptionsRecycler().getAdapter().getItemCount(), is(interruptionCount)));
         }
-    
+        
+        public TagSelectorDriver.Assertions tagSelector()
+        {
+            return getOwningDriver().mTagSelectorDriver.assertThat;
+        }
+        
         private void sleepDurationGoalIsDisplayed(SleepDurationGoal expectedSleepDurationGoal)
         {
             onView(withId(R.id.tracker_no_goals_card)).check(matches(not(isDisplayed())));
@@ -384,7 +393,7 @@ public class SleepTrackerTestDriver
             getOwningDriver().performOnPostSleepDialog(assertion::assertOn);
         }
     }
-
+    
 //*********************************************************
 // constructors
 //*********************************************************
@@ -458,6 +467,11 @@ public class SleepTrackerTestDriver
     public void toggleTagSelections(List<Integer> tagIndices)
     {
         mTagSelectorDriver.toggleTagSelections(tagIndices);
+    }
+    
+    public void toggleTagSelectionsById(List<Integer> tagIds)
+    {
+        mTagSelectorDriver.toggleTagSelectionsById(tagIds);
     }
     
     /**
@@ -555,10 +569,10 @@ public class SleepTrackerTestDriver
         onView(withId(R.id.tracker_details_card)).perform(scrollTo());
         setAdditionalComments(sleepSession.getAdditionalComments());
         addNewMood(sleepSession.getMood().asIndex());
-        addTags(sleepSession.getTags().stream().map(Tag::getText).collect(Collectors.toList()));
-        // REFACTOR [21-05-11 11:47PM] -- call this ListUtils.asIndices().
-        toggleTagSelections(IntStream.range(0, sleepSession.getTags().size()).boxed().collect(
-                Collectors.toList()));
+        toggleTagSelectionsById(
+                addTags(sleepSession.getTags().stream()
+                                .map(Tag::getText)
+                                .collect(Collectors.toList())));
     }
     
     public void startInterruptionWithReason(String reason)

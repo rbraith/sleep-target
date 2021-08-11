@@ -39,6 +39,14 @@ android {
         //  https://stackoverflow.com/questions/48249633/errorcannot-fit-requested-classes-in-a-single-dex-file-try-supplying-a-main-dex.
         // method limit fix
         multiDexEnabled true
+
+        // Export db schema to a JSON file at compile time (used to help create pre-populated
+        // db assets)
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
     }
 
     // https://developer.android.com/studio/write/java8-support#library-desugaring

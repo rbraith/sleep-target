@@ -34,7 +34,9 @@ public class DatabaseDependenciesModule
     @Provides
     public static SleepAppDatabase provideSleepAppDatabase(@ApplicationContext Context context)
     {
-        return Room.databaseBuilder(context, SleepAppDatabase.class, SleepAppDatabase.NAME).build();
+        return Room.databaseBuilder(context, SleepAppDatabase.class, SleepAppDatabase.NAME)
+                .createFromAsset("databases/prepopulated.db")
+                .build();
     }
     
     @Singleton

@@ -13,5 +13,7 @@
 .externalNativeBuild
 .cxx
 
+/app/schemas/
+
 # python
 **/__pycache__

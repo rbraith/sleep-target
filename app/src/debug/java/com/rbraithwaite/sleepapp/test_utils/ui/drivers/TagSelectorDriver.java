@@ -39,7 +39,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 
 public class TagSelectorDriver
 {
@@ -50,24 +52,19 @@ public class TagSelectorDriver
     private FragmentTestHelper<?> mOwningFragment;
     private Matcher<View> mTagSelectorView;
     private TagSelectorViewModel mViewModel;
+    
+//*********************************************************
+// private constants
+//*********************************************************
 
+    private static final int TAG_NOT_FOUND = -1;
+    
 //*********************************************************
 // public constants
 //*********************************************************
 
     public final Assertions assertThat;
-
-//*********************************************************
-// package properties
-//*********************************************************
-
-    // HACK [21-05-8 1:08AM] -- This is no good - it makes a strong assumption about how the
-    //  database handles ids. For example, this will become invalid anytime a tag is deleted.
-    //  A better solution would be to somehow access the selected tag id from the db or the
-    //  TagSelectorViewModel.
-    // 0 so that the first time a tag is added this increments to 1 (lowest db id)
-    int greatestTagId = 0;
-
+    
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -89,13 +86,46 @@ public class TagSelectorDriver
         
         public void selectedTagsMatch(List<Integer> expectedSelectedTagIds)
         {
-            List<TagUiData> selectedTags =
-                    mOwningTagSelector.mViewModel.getSelectedTags().getValue();
+            List<TagUiData> selectedTags = mOwningTagSelector.getSelectedTags();
             assertThat(selectedTags, is(notNullValue()));
             assertThat(selectedTags.size(), is(equalTo(expectedSelectedTagIds.size())));
             for (int i = 0; i < selectedTags.size(); i++) {
                 assertThat(selectedTags.get(i).tagId, is(equalTo(expectedSelectedTagIds.get(i))));
             }
+        }
+        
+        public void selectedTagsMatchText(List<String> tagTexts)
+        {
+            List<TagUiData> selectedTags = mOwningTagSelector.getSelectedTags();
+            assertThat(selectedTags.size(), is(tagTexts.size()));
+            for (int i = 0; i < selectedTags.size(); i++) {
+                assertThat(selectedTags.get(i).text, is(equalTo(tagTexts.get(i))));
+            }
+        }
+        
+        /**
+         * Check that there are tags with these texts, in order.
+         */
+        public void hasTagsMatching(String... tagTexts)
+        {
+            mOwningTagSelector.openTagDialog();
+            hasTagCount(tagTexts.length);
+            for (int i = 0; i < tagTexts.length; i++) {
+                tagHasText(tagTexts.length - 1 - i, tagTexts[i]);
+            }
+            mOwningTagSelector.closeTagDialog();
+        }
+        
+        public void hasTagCount(int expectedCount)
+        {
+            assertThat(mOwningTagSelector.getTagCount(), is(expectedCount));
+        }
+        
+        public void tagHasText(int tagIndex, String tagText)
+        {
+            TagUiData tag = mOwningTagSelector.getTagAtIndex(tagIndex);
+            assertThat(tag, is(not(nullValue())));
+            assertThat(tag.text, is(equalTo(tagText)));
         }
     }
 
@@ -113,6 +143,7 @@ public class TagSelectorDriver
         mViewModel = viewModel;
         assertThat = new Assertions(this);
     }
+
 
 
 //*********************************************************
@@ -143,10 +174,24 @@ public class TagSelectorDriver
     public void toggleTagSelections(List<Integer> tagIndices)
     {
         openTagDialog();
-        for (Integer tagIndex : tagIndices) {
-            toggleTagSelectionInDialog(tagIndex);
-        }
+        toggleTagSelectionsInDialog(tagIndices);
         closeTagDialog();
+    }
+    
+    public void toggleTagSelectionsById(List<Integer> tagIds)
+    {
+        openTagDialog();
+        toggleTagSelectionsInDialog(convertIdsToIndices(tagIds));
+        closeTagDialog();
+    }
+    
+//*********************************************************
+// private methods
+//*********************************************************
+
+    private List<TagUiData> getSelectedTags()
+    {
+        return mViewModel.getSelectedTags().getValue();
     }
     
     public void setSelectedTags(List<Tag> tags)
@@ -169,10 +214,32 @@ public class TagSelectorDriver
         closeTagDialog();
     }
     
-//*********************************************************
-// private methods
-//*********************************************************
+    private void toggleTagSelectionsInDialog(List<Integer> tagIndices)
+    {
+        for (Integer tagIndex : tagIndices) {
+            toggleTagSelectionInDialog(tagIndex);
+        }
+    }
+    
+    private List<Integer> convertIdsToIndices(List<Integer> ids)
+    {
+        return ids.stream().map(this::getPositionOfTagId).collect(Collectors.toList());
+    }
 
+    private int getPositionOfTagId(int id)
+    {
+        int[] resultWrapper = {TAG_NOT_FOUND};
+        // OPTIMIZE [21-08-10 5:41PM] -- this iters over all the tags regardless if the id
+        //  has been found.
+        forEachTagInDialog(tagForEachData -> {
+            if (tagForEachData.listItemData.tagUiData.tagId == id) {
+                resultWrapper[0] = tagForEachData.position;
+            }
+        });
+        
+        return resultWrapper[0];
+    }
+    
     private List<Integer> addTagsInDialog(List<String> tagTexts)
     {
         return tagTexts.stream()
@@ -289,12 +356,55 @@ public class TagSelectorDriver
         });
     }
     
+    private TagUiData getTagAtIndex(int tagIndex)
+    {
+        TagUiData[] resultWrapper = {null};
+        
+        performOnTagDialog(dialog -> {
+            RecyclerView tagRecycler = dialog.getTagRecycler();
+            TagSelectorRecyclerAdapter tagAdapter =
+                    (TagSelectorRecyclerAdapter) tagRecycler.getAdapter();
+            
+            if (tagAdapter.getItemViewType(tagIndex) ==
+                TagSelectorRecyclerAdapter.VIEW_TYPE_ADD_CUSTOM_BUTTON) {
+                return;
+            }
+            
+            resultWrapper[0] = ((TagSelectorRecyclerAdapter.TagViewHolder)
+                    tagRecycler.findViewHolderForAdapterPosition(tagIndex)).getListItemData().tagUiData;
+        });
+        
+        return resultWrapper[0];
+    }
+    
+    private int getTagCount()
+    {
+        int[] resultWrapper = {0};
+        
+        performOnTagDialog(dialog -> {
+            RecyclerView tagRecycler = dialog.getTagRecycler();
+            TagSelectorRecyclerAdapter tagAdapter =
+                    (TagSelectorRecyclerAdapter) tagRecycler.getAdapter();
+            
+            resultWrapper[0] = tagAdapter.getItemCount() - 1;
+        });
+        
+        return resultWrapper[0];
+    }
+    
+    private TagUiData getMostRecentTag()
+    {
+        int tagCount = getTagCount();
+        if (tagCount == 0) { return null; }
+        return getTagAtIndex(tagCount - 1);
+    }
+    
     private void toggleTagSelectionInDialog(int tagIndex)
     {
         onView(withTagValue(tagValue(TagSelectorDialogFragment.RECYCLER_TAG)))
                 .perform(RecyclerViewActions.actionOnItemAtPosition(tagIndex, click()));
     }
-
+    
     /**
      * Add a tag in the tag dialog.
      *
@@ -307,8 +417,8 @@ public class TagSelectorDriver
         onView(withId(R.id.tag_add_btn)).perform(click());
         onView(withId(R.id.tag_add_btn_edittext)).perform(typeText(tagText),
                                                           pressImeActionButton());
-        greatestTagId++;
-        return greatestTagId;
+        
+        return getMostRecentTag().tagId;
     }
     
     private void openTagDialog()
@@ -326,7 +436,7 @@ public class TagSelectorDriver
     {
         DialogTestUtils.pressPositiveButton();
     }
-    
+
 //*********************************************************
 // private helpers
 //*********************************************************

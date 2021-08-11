@@ -112,9 +112,9 @@ public class SleepTrackerFragmentTests
         //  problems - ie they should be way more abstract, clear, and simple - I need a better
         //  "test harness".
         sleepTracker.addNewMood(2);
-        List<Integer> tagIndices = sleepTracker.addTags(Arrays.asList("tag1", "tag2"));
+        List<Integer> tagIds = sleepTracker.addTags(Arrays.asList("tag1", "tag2"));
         // BUG [21-06-27 2:43AM] -- this doesn't seem to be toggling the right tags currently?
-        sleepTracker.toggleTagSelections(tagIndices);
+        sleepTracker.toggleTagSelectionsById(tagIds);
         sleepTracker.setAdditionalComments("some comments");
         
         sleepTracker.keepSleepSession(12345); // arbitrary duration
@@ -135,8 +135,7 @@ public class SleepTrackerFragmentTests
         sleepTracker.addNewMood(2);
         
         List<Integer> expectedSelectedTagIds = sleepTracker.addTags(Arrays.asList("tag1", "tag2"));
-        // hard-coded toggle of the 2 tags added above
-        sleepTracker.toggleTagSelections(Arrays.asList(0, 1));
+        sleepTracker.toggleTagSelectionsById(expectedSelectedTagIds);
         
         String expectedComments = "some comments";
         sleepTracker.setAdditionalComments(expectedComments);
@@ -171,6 +170,18 @@ public class SleepTrackerFragmentTests
         sleepTracker.restartApp();
         
         sleepTracker.assertThat().detailsMatch(sleepSession);
+    }
+    
+    @Test
+    public void tagsHaveCorrectPresetValues()
+    {
+        sleepTracker.assertThat().tagSelector().hasTagsMatching(
+                "Caffeine",
+                "Late Night Snack",
+                "Late Workout",
+                "Stressed",
+                "Pain",
+                "Feeling Sick");
     }
     
     @Test

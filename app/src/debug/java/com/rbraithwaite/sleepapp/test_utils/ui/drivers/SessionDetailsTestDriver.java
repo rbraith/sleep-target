@@ -122,7 +122,8 @@ public class SessionDetailsTestDriver
         
         public void selectedTagsMatch(List<Tag> tags)
         {
-            getOwningDriver().mTagSelector.assertThat.selectedTagsMatch(getTagIdsOf(tags));
+            getOwningDriver().mTagSelector.assertThat.selectedTagsMatchText(
+                    tags.stream().map(Tag::getText).collect(Collectors.toList()));
         }
         
         public void moodMatches(Mood mood)
