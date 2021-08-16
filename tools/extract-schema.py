@@ -50,13 +50,10 @@ if __name__ == "__main__":
     with jsonfile.open() as jf:
         json_schema = json.load(jf)
 
-    entity_schemas = [extract_schema_from_entity(entity_json) for entity_json in json_schema["database"]["entities"]]
-    setup_queries = [query + ";" for query in json_schema["database"]["setupQueries"]]
-
-    full_schema = entity_schemas + setup_queries
+    entities_schema = [extract_schema_from_entity(entity_json) for entity_json in json_schema["database"]["entities"]]
 
     with dest.open("w") as dest_file:
-        dest_file.writelines("\n".join(full_schema))
+        dest_file.writelines("\n".join(entities_schema))
 
     print("Done!")
     print(f"Created schema file: {str(dest)}")
