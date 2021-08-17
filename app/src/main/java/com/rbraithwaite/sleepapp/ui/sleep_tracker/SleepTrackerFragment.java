@@ -18,7 +18,6 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.Group;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LiveData;
 import androidx.navigation.NavDirections;
 import androidx.navigation.ui.NavigationUI;
 
@@ -197,7 +196,6 @@ public class SleepTrackerFragment
                 fragmentRoot.findViewById(R.id.more_context_tags),
                 mTagSelectorViewModel,
                 getViewLifecycleOwner(),
-                requireContext(),
                 getChildFragmentManager());
         
         // initialize the tag selector's selected tags
@@ -399,7 +397,8 @@ public class SleepTrackerFragment
                             showInterruptionRecordedMessage(v);
                         });
                     } else {
-                        // TODO [21-07-17 11:52PM] -- this is animating in a broken way right now, so I'm not
+                        // TODO [21-07-17 11:52PM] -- this is animating in a broken way right
+                        //  now, so I'm not
                         //  using animations for this transition currently :(
 //                        mAnimations.transitionOutOfInterruptionTimer();
                         mInterruptionReasonText.setVisibility(View.GONE);

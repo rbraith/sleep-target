@@ -1,6 +1,7 @@
 package com.rbraithwaite.sleepapp.ui.utils;
 
 import android.content.Context;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -119,6 +120,24 @@ public class UiUtils
     {
         editText.getText().clear();
         editText.getText().append(value);
+    }
+    
+    public static void setViewPadding(View view, int leftDp, int rightDp, int topDp, int bottomDp)
+    {
+        Context context = view.getContext();
+        view.setPadding(
+                convertDpToPx(leftDp, context),
+                convertDpToPx(topDp, context),
+                convertDpToPx(rightDp, context),
+                convertDpToPx(bottomDp, context));
+    }
+    
+    public static int convertSpToPx(float sp, Context context)
+    {
+        // https://stackoverflow.com/a/29665208
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP,
+                                               sp,
+                                               context.getResources().getDisplayMetrics());
     }
 
 //*********************************************************

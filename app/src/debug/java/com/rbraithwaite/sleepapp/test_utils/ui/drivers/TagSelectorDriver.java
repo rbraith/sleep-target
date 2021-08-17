@@ -11,7 +11,6 @@ import com.rbraithwaite.sleepapp.test_utils.ui.assertion_utils.AssertionFailed;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.FragmentTestHelper;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
-import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagScrollController;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorController;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorDialogFragment;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorRecyclerAdapter;
@@ -52,19 +51,19 @@ public class TagSelectorDriver
     private FragmentTestHelper<?> mOwningFragment;
     private Matcher<View> mTagSelectorView;
     private TagSelectorViewModel mViewModel;
-    
+
 //*********************************************************
 // private constants
 //*********************************************************
 
     private static final int TAG_NOT_FOUND = -1;
-    
+
 //*********************************************************
 // public constants
 //*********************************************************
 
     public final Assertions assertThat;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -184,7 +183,7 @@ public class TagSelectorDriver
         toggleTagSelectionsInDialog(convertIdsToIndices(tagIds));
         closeTagDialog();
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -225,7 +224,7 @@ public class TagSelectorDriver
     {
         return ids.stream().map(this::getPositionOfTagId).collect(Collectors.toList());
     }
-
+    
     private int getPositionOfTagId(int id)
     {
         int[] resultWrapper = {TAG_NOT_FOUND};
@@ -424,7 +423,9 @@ public class TagSelectorDriver
     private void openTagDialog()
     {
         try {
-            onView(withTagValue(tagValue(TagScrollController.TAGS_TAG))).perform(click());
+            onView(withId(R.id.tag_selector_selected_recycler)).perform(RecyclerViewActions.actionOnItemAtPosition(
+                    0,
+                    click()));
         } catch (RuntimeException e) {
             // In case there were no currently selected tags
             onView(allOf(withParent(mTagSelectorView),

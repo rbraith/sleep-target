@@ -63,17 +63,17 @@ public class SessionDetailsFragment
     private static final String TAG = "SessionDetailsFragment";
     
     private static final String DIALOG_OVERLAP_ERROR = "SessionDetailsFragmentOverlapErrorDialog";
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
 
     public static class Result
             extends DetailsResult<SleepSessionWrapper> {}
-
+    
     public static class Args
             extends DetailsFragment.Args<SleepSessionWrapper> {}
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -154,7 +154,7 @@ public class SessionDetailsFragment
         params.messageId = R.string.permanent_operation_message;
         return params;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -187,7 +187,7 @@ public class SessionDetailsFragment
     {
         return mMoodSelectorViewModel;
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -204,7 +204,7 @@ public class SessionDetailsFragment
         
         dialog.show(getChildFragmentManager(), DIALOG_OVERLAP_ERROR);
     }
-
+    
     private View createOverlapErrorDialogContent(SessionDetailsFragmentViewModel.OverlappingSessionException e)
     {
         View dialogContent =
@@ -218,7 +218,7 @@ public class SessionDetailsFragment
         
         return dialogContent;
     }
-
+    
     private InterruptionDetailsFragment.Result getInterruptionDetailsResult()
     {
         return new ViewModelProvider(requireActivity()).get(InterruptionDetailsFragment.Result.class);
@@ -299,7 +299,8 @@ public class SessionDetailsFragment
         args.mode = Mode.ADD;
         args.initialData = getViewModel().getNewInterruptionDetailsData();
         
-        SessionDetailsFragmentDirections.ActionSessionDetailsToInterruptionDetails toAddInterruptionScreen =
+        SessionDetailsFragmentDirections.ActionSessionDetailsToInterruptionDetails
+                toAddInterruptionScreen =
                 SessionDetailsFragmentDirections.actionSessionDetailsToInterruptionDetails(args);
         
         getNavController().navigate(toAddInterruptionScreen);
@@ -352,7 +353,6 @@ public class SessionDetailsFragment
                 fragmentRoot.findViewById(R.id.session_details_tags),
                 mTagSelectorViewModel,
                 getViewLifecycleOwner(),
-                requireContext(),
                 getChildFragmentManager());
     }
     

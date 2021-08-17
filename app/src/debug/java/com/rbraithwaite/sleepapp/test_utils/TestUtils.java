@@ -190,9 +190,11 @@ public class TestUtils
         public static List<Tag> getTagList()
         {
             List<Tag> tagList = new ArrayList<>();
-            tagList.add(new Tag(1, "tag1"));
-            tagList.add(new Tag(2, "tag2"));
-            tagList.add(new Tag(3, "tag3"));
+            // REFACTOR [21-08-16 11:08PM] -- these are hardcoded as the first preset tags in the
+            //  db.
+            tagList.add(new Tag(1, "Feeling Sick"));
+            tagList.add(new Tag(2, "Pain"));
+            tagList.add(new Tag(3, "Stressed"));
             return tagList;
         }
         

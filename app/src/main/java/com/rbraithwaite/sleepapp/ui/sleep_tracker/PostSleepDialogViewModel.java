@@ -17,6 +17,7 @@ import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.ConvertTag;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagUiData;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.PostSleepData;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.StoppedSessionData;
+import com.rbraithwaite.sleepapp.utils.CommonUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,6 +36,8 @@ public class PostSleepDialogViewModel
     private Context mContext;
     private TagRepository mTagRepository;
     private PostSleepDialogViewModel.EntryPoint mEntryPoint;
+    
+    private LiveData<List<TagUiData>> mSelectedTags;
 
 //*********************************************************
 // private constants
@@ -97,9 +100,12 @@ public class PostSleepDialogViewModel
     
     public LiveData<List<TagUiData>> getTags()
     {
-        return Transformations.map(
-                mTagRepository.getTagsWithIds(mStoppedSessionData.currentSessionSnapshot.selectedTagIds),
-                tags -> tags.stream().map(ConvertTag::toUiData).collect(Collectors.toList()));
+        mSelectedTags = CommonUtils.lazyInit(mSelectedTags, () -> {
+            return Transformations.map(
+                    mTagRepository.getTagsWithIds(mStoppedSessionData.currentSessionSnapshot.selectedTagIds),
+                    tags -> tags.stream().map(ConvertTag::toUiData).collect(Collectors.toList()));
+        });
+        return mSelectedTags;
     }
     
     public String getAdditionalComments()

@@ -1,15 +1,13 @@
 package com.rbraithwaite.sleepapp.test_utils.ui.drivers;
 
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.RatingBar;
-import android.widget.TextView;
 
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.espresso.ViewInteraction;
 import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.espresso.matcher.BoundedMatcher;
 
-import com.google.android.material.textview.MaterialTextView;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.core.models.Interruptions;
 import com.rbraithwaite.sleepapp.core.models.Mood;
@@ -21,13 +19,13 @@ import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.TEMP.MoodView;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFormatting;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragment;
 import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragmentViewModel;
+import com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveListItemTagsAdapter;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -186,34 +184,22 @@ public class SessionArchiveTestDriver
         
         private Matcher<View> withTags(List<Tag> tags)
         {
-            return new BoundedMatcher<View, LinearLayout>(LinearLayout.class)
+            return new BoundedMatcher<View, RecyclerView>(RecyclerView.class)
             {
                 @Override
-                protected boolean matchesSafely(LinearLayout item)
+                protected boolean matchesSafely(RecyclerView item)
                 {
-                    int tagsIndex = 0;
+                    SessionArchiveListItemTagsAdapter adapter =
+                            (SessionArchiveListItemTagsAdapter) item.getAdapter();
                     
-                    LinearLayout tagsLineOne = item.findViewById(R.id.tags_line_one);
-                    if (tagLineDoesNotMatch(tagsLineOne, tagsIndex)) {
-                        return false;
+                    List<String> adapterTags = adapter.getTags();
+                    if (adapterTags.size() != tags.size()) { return false; }
+                    for (Tag tag : tags) {
+                        if (!adapterTags.contains(tag.getText())) {
+                            return false;
+                        }
                     }
-                    
-                    tagsIndex += tagsLineOne.getChildCount();
-                    
-                    LinearLayout tagsLineTwo = item.findViewById(R.id.tags_line_two);
-                    if (tagLineDoesNotMatch(tagsLineTwo, tagsIndex)) {
-                        return false;
-                    }
-                    
-                    tagsIndex += tagsLineTwo.getChildCount();
-                    
-                    int remainingTags = tags.size() - 1 - tagsIndex;
-                    TextView moreText = item.findViewById(R.id.tags_more);
-                    if (remainingTags > 0) {
-                        return moreTextHasCount(moreText, remainingTags);
-                    } else {
-                        return moreText.getText().toString().isEmpty();
-                    }
+                    return true;
                 }
                 
                 @Override
@@ -231,36 +217,6 @@ public class SessionArchiveTestDriver
                         stringBuilder.append(tags.get(tags.size() - 1).getText());
                     }
                     description.appendText(stringBuilder.toString());
-                }
-                
-                private boolean moreTextHasCount(TextView moreText, int remainingCount)
-                {
-                    String expectedText = String.format(
-                            Locale.CANADA,
-                            moreText.getContext()
-                                    .getString(R.string.session_archive_item_more_tags_text),
-                            remainingCount);
-                    return moreText.getText().toString().equals(expectedText);
-                }
-                
-                private boolean tagLineDoesNotMatch(LinearLayout tagLine, int tagsIndex)
-                {
-                    for (int i = 0; i < tagLine.getChildCount(); i++, tagsIndex++) {
-                        // The View has more tags than the list
-                        if (tagsIndex > tags.size() - 1) {
-                            return true;
-                        }
-                        
-                        MaterialTextView tagView = (MaterialTextView) tagLine.getChildAt(i);
-                        Tag tag = tags.get(tagsIndex);
-                        
-                        // The View text doens't match the tag text
-                        if (!tagView.getText().toString().equals(tag.getText())) {
-                            return true;
-                        }
-                    }
-                    
-                    return false;
                 }
             };
         }

@@ -17,10 +17,11 @@ import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.flexbox.FlexboxLayoutManager;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.TEMP.MoodView;
-import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagScrollController;
+import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.SelectedTagAdapter;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagUiData;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.StoppedSessionData;
 import com.rbraithwaite.sleepapp.ui.utils.UiUtils;
@@ -51,7 +52,6 @@ public class PostSleepDialog
     private OnKeepSessionListener mOnKeepSessionListener;
     private OnDiscardSessionListener mOnDiscardSessionListener;
     private PostSleepDialogViewModel mViewModel;
-    private TagScrollController mTagScrollController;
     
     private RecyclerView mInterruptionsRecycler;
 
@@ -154,17 +154,12 @@ public class PostSleepDialog
     
     public List<TagUiData> getTags()
     {
-        return mTagScrollController.getTags();
+        return getViewModel().getTags().getValue();
     }
     
     public PostSleepDialogViewModel getViewModel()
     {
         return mViewModel;
-    }
-    
-    public TagScrollController getTagScrollController()
-    {
-        return mTagScrollController;
     }
     
     public RecyclerView getInterruptionsRecycler()
@@ -300,12 +295,29 @@ public class PostSleepDialog
     
     private void initTags(View dialogRoot)
     {
-        mTagScrollController = new TagScrollController(
-                dialogRoot.findViewById(R.id.postsleep_tags_scroll));
+        FrameLayout tagsFrame = dialogRoot.findViewById(R.id.postsleep_tags_frame);
         
-        LiveDataFuture.getValue(
-                mViewModel.getTags(),
-                this,
-                mTagScrollController::setTags);
+        LiveDataFuture.getValue(getViewModel().getTags(), this, tags -> {
+            if (tags == null || tags.isEmpty()) {
+                TextView noTagsMessage = new TextView(
+                        mRoot.getContext(),
+                        null,
+                        R.attr.trackerPostDialogNullDataMessageStyle);
+                noTagsMessage.setText(R.string.postsleepdialog_no_tags);
+                tagsFrame.addView(noTagsMessage);
+            } else {
+                // REFACTOR [21-08-16 6:53PM] -- This recycler setup code is similar to
+                //  TagSelectorController.initSelectedRecycler()
+                RecyclerView tagsRecycler = new RecyclerView(mRoot.getContext());
+                
+                FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(mRoot.getContext());
+                tagsRecycler.setLayoutManager(layoutManager);
+                
+                SelectedTagAdapter adapter = new SelectedTagAdapter();
+                adapter.setSelectedTags(tags);
+                tagsRecycler.setAdapter(adapter);
+                tagsFrame.addView(tagsRecycler);
+            }
+        });
     }
 }

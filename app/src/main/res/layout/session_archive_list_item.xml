@@ -115,7 +115,7 @@
                 android:tint="?attr/colorPrimary" />
         </FrameLayout>
 
-        <LinearLayout
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/session_archive_list_item_tags"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -125,44 +125,13 @@
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginBottom="16dp"
-            android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_max="75dp"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/session_archive_list_item_start_VALUE"
             app:layout_constraintTop_toBottomOf="@+id/session_archive_comments_mood_barrier"
-            app:layout_constraintVertical_bias="0.0">
-
-            <LinearLayout
-                android:id="@+id/tags_line_one"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-            </LinearLayout>
-
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="2dp" />
-
-            <LinearLayout
-                android:id="@+id/tags_line_two"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:orientation="horizontal"></LinearLayout>
-
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="2dp" />
-
-            <TextView
-                android:id="@+id/tags_more"
-                style="@style/ArchiveListItemMoreTagsStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:text="+ 3 more" />
-
-        </LinearLayout>
+            app:layout_constraintVertical_bias="0.0" />
 
         <RatingBar
             android:id="@+id/session_archive_list_item_rating"

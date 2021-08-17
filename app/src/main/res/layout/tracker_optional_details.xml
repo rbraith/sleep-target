@@ -51,11 +51,15 @@
 
     <com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TEMP.TagSelectorComponent
         android:id="@+id/more_context_tags"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginLeft="32dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
         android:theme="?attr/trackerTagSelectorTheme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/more_context_mood"
         app:layout_constraintTop_toTopOf="@+id/more_context_mood" />
 

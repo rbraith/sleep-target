@@ -4,7 +4,6 @@ import androidx.test.espresso.contrib.RecyclerViewActions;
 
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
-import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagScrollController;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorDialogFragment;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -27,7 +26,9 @@ public class TagSelectorTestUtils
     public static void openTagDialog()
     {
         try {
-            onView(withTagValue(tagValue(TagScrollController.TAGS_TAG))).perform(click());
+            onView(withId(R.id.tag_selector_selected_recycler)).perform(RecyclerViewActions.actionOnItemAtPosition(
+                    0,
+                    click()));
         } catch (RuntimeException e) {
             // In case there were no currently selected tags
             onView(withId(R.id.tag_selector_add_tags_btn)).perform(click());

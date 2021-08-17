@@ -15,7 +15,6 @@ import com.rbraithwaite.sleepapp.test_utils.ui.assertion_utils.AssertionFailed;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.FragmentTestHelper;
 import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.MoodSelectorViewModel;
-import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagScrollController;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorViewModel;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagUiData;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.PostSleepDialog;
@@ -45,6 +44,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 
 public class SleepTrackerTestDriver
         extends BaseFragmentTestDriver<SleepTrackerFragment, SleepTrackerTestDriver.Assertions>
@@ -212,10 +212,7 @@ public class SleepTrackerTestDriver
         
         public void postSleepDialogTagsAreUnset()
         {
-            assertOnPostSleepDialog(dialog -> {
-                TagScrollController tagScrollController = dialog.getTagScrollController();
-                hamcrestAssertThat(tagScrollController.isEmpty(), is(true));
-            });
+            onView(withParent(withId(R.id.postsleep_tags_frame))).check(matches(withText(R.string.postsleepdialog_no_tags)));
         }
         
         /**
@@ -623,10 +620,7 @@ public class SleepTrackerTestDriver
             PostSleepDialog dialog =
                     (PostSleepDialog) fragment.getDialogByTag(SleepTrackerFragment.POST_SLEEP_DIALOG);
             
-            if (dialog == null) {
-                // REFACTOR [21-05-7 11:56PM] -- this could be less generic.
-                throw new AssertionFailed("post sleep dialog does not exist");
-            }
+            hamcrestAssertThat(dialog, is(not(nullValue())));
             
             action.performOn(dialog);
         });

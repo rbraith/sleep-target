@@ -4,11 +4,16 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ScrollView;
 
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.flexbox.AlignItems;
+import com.google.android.flexbox.FlexDirection;
+import com.google.android.flexbox.FlexboxLayoutManager;
 import com.rbraithwaite.sleepapp.R;
 
 import java.util.List;
@@ -22,16 +27,14 @@ public class TagSelectorController
 //*********************************************************
 
     private View mRoot;
-    private ScrollView mSelectedTagsScrollView;
-    private TagScrollController mTagScrollController;
+    private RecyclerView mSelectedRecycler;
+    private SelectedTagAdapter mSelectedTagAdapter;
     private Button mAddTagsButton;
     
     private TagSelectorViewModel mViewModel;
     
     private Context mContext;
     private FragmentManager mFragmentManager;
-    
-    private View.OnClickListener mDisplayDialogListener = v -> displayTagDialog();
 
 //*********************************************************
 // public constants
@@ -47,23 +50,19 @@ public class TagSelectorController
             View root,
             TagSelectorViewModel viewModel,
             LifecycleOwner lifecycleOwner,
-            final Context context,
             FragmentManager fragmentManager)
     {
         mRoot = root;
-        
-        mSelectedTagsScrollView = root.findViewById(R.id.tag_selector_tags_scroll);
-        mTagScrollController = new TagScrollController(mSelectedTagsScrollView);
-        mTagScrollController.setOnClickListener(mDisplayDialogListener);
-        
+        mSelectedRecycler = root.findViewById(R.id.tag_selector_selected_recycler);
         mAddTagsButton = root.findViewById(R.id.tag_selector_add_tags_btn);
         
-        mContext = context;
+        mContext = mRoot.getContext();
         mFragmentManager = fragmentManager;
         mViewModel = viewModel;
         
-        mAddTagsButton.setOnClickListener(mDisplayDialogListener);
-        
+        mAddTagsButton.setOnClickListener(v -> displayTagDialog());
+    
+        initSelectedRecycler();
         bindViewModel(lifecycleOwner);
     }
 
@@ -77,15 +76,25 @@ public class TagSelectorController
                 lifecycleOwner,
                 selectedTags -> {
                     if (selectedTags.isEmpty()) {
-                        mSelectedTagsScrollView.setVisibility(View.GONE);
+                        mSelectedRecycler.setVisibility(View.GONE);
                         mAddTagsButton.setVisibility(View.VISIBLE);
                     } else {
-                        mSelectedTagsScrollView.setVisibility(View.VISIBLE);
+                        mSelectedRecycler.setVisibility(View.VISIBLE);
                         mAddTagsButton.setVisibility(View.GONE);
                         
-                        updateSelectedTagsScrollView(selectedTags);
+                        mSelectedTagAdapter.setSelectedTags(selectedTags);
                     }
                 });
+    }
+    
+    private void initSelectedRecycler()
+    {
+        FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(mContext);
+        mSelectedRecycler.setLayoutManager(layoutManager);
+        
+        mSelectedTagAdapter = new SelectedTagAdapter();
+        mSelectedTagAdapter.setOnItemClickedListener(vh -> displayTagDialog());
+        mSelectedRecycler.setAdapter(mSelectedTagAdapter);
     }
     
     private void displayTagDialog()
@@ -99,13 +108,5 @@ public class TagSelectorController
         TagSelectorDialogFragment
                 .createInstance(mViewModel, dialogThemeId)
                 .show(mFragmentManager, DIALOG_TAG);
-    }
-    
-    /**
-     * This is assumed to only be called if selectedTags has > 0 elems.
-     */
-    private void updateSelectedTagsScrollView(List<TagUiData> selectedTags)
-    {
-        mTagScrollController.setTags(selectedTags);
     }
 }

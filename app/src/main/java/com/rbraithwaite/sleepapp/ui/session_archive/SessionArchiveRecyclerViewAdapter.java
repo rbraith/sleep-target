@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
@@ -16,19 +15,14 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.shape.CornerFamily;
-import com.google.android.material.shape.MaterialShapeDrawable;
-import com.google.android.material.shape.ShapeAppearanceModel;
-import com.google.android.material.textview.MaterialTextView;
+import com.google.android.flexbox.FlexboxLayoutManager;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.TEMP.MoodView;
 import com.rbraithwaite.sleepapp.ui.session_archive.data.SessionArchiveListItem;
-import com.rbraithwaite.sleepapp.utils.CommonUtils;
 import com.rbraithwaite.sleepapp.utils.interfaces.ProviderOf;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 // BUG [21-04-22 2:08AM] -- I think there's a bug in here somewhere related to LiveData updates
 //  causing the recycler to refresh too many times.
@@ -47,8 +41,6 @@ public class SessionArchiveRecyclerViewAdapter
     private List<SessionArchiveListItem> mItems = new ArrayList<>();
     
     private OnListItemClickListener mOnListItemClickListener;
-    
-    private MaterialShapeDrawable mTagBackground;
 
 //*********************************************************
 // private constants
@@ -107,12 +99,7 @@ public class SessionArchiveRecyclerViewAdapter
         ImageView additionalCommentsIcon;
         FrameLayout moodFrame;
         MoodView mood;
-        LinearLayout tagsFrame;
-        // SMELL [21-04-21 8:49PM] -- These explicitly enumerated sub-views don't feel like a great
-        //  solution - take a closer look at this system.
-        LinearLayout tagsLineOne;
-        LinearLayout tagsLineTwo;
-        TextView tagsMore;
+        RecyclerView tagsRecycler;
         RatingBar ratingIndicator;
         TextView interruptions;
         
@@ -131,10 +118,7 @@ public class SessionArchiveRecyclerViewAdapter
                     itemView.findViewById(R.id.session_archive_list_item_comment_icon);
             this.moodFrame = itemView.findViewById(R.id.session_archive_list_item_mood_frame);
             this.mood = itemView.findViewById(R.id.session_archive_list_item_mood);
-            this.tagsFrame = itemView.findViewById(R.id.session_archive_list_item_tags);
-            this.tagsLineOne = this.tagsFrame.findViewById(R.id.tags_line_one);
-            this.tagsLineTwo = this.tagsFrame.findViewById(R.id.tags_line_two);
-            this.tagsMore = this.tagsFrame.findViewById(R.id.tags_more);
+            this.tagsRecycler = itemView.findViewById(R.id.session_archive_list_item_tags);
             this.ratingIndicator = itemView.findViewById(R.id.session_archive_list_item_rating);
             this.interruptions =
                     itemView.findViewById(R.id.session_archive_list_item_interruptions_VALUE);
@@ -274,13 +258,18 @@ public class SessionArchiveRecyclerViewAdapter
         }
         
         if (!item.tags.isEmpty()) {
-            itemViewHolder.tagsFrame.setVisibility(View.VISIBLE);
-            setupListItemTagList(
-                    itemViewHolder,
-                    item.tags,
-                    itemViewHolder.itemView.getContext());
+            RecyclerView tagsRecycler = itemViewHolder.tagsRecycler;
+            Context context = itemViewHolder.itemView.getContext();
+            tagsRecycler.setVisibility(View.VISIBLE);
+            tagsRecycler.post(() -> {
+                // HACK [21-08-16 8:15PM] -- post is needed because the adapter needs info about
+                //  the owner's dimensions
+                tagsRecycler.setAdapter(new SessionArchiveListItemTagsAdapter(tagsRecycler,
+                                                                              item.tags));
+                tagsRecycler.setLayoutManager(new FlexboxLayoutManager(context));
+            });
         } else {
-            itemViewHolder.tagsFrame.setVisibility(View.GONE);
+            itemViewHolder.tagsRecycler.setVisibility(View.GONE);
         }
         
         itemViewHolder.ratingIndicator.setRating(item.rating);
@@ -291,98 +280,5 @@ public class SessionArchiveRecyclerViewAdapter
         } else {
             itemViewHolder.interruptions.setVisibility(View.GONE);
         }
-    }
-    
-    // REFACTOR [21-06-29 4:49PM] -- All these methods relating to the tag display should be
-    //  extracted, likely to a custom component class for that tag display.
-    // REFACTOR [21-04-21 9:18PM] -- the logic in here is very similar to
-    //  TagSelectorController.updateSelectedTagsScrollView - similar lists of tags (though maybe
-    //  there are enough key differences, e.g. no scroll view here)
-    private void setupListItemTagList(
-            ItemViewHolder itemViewHolder,
-            List<String> tags,
-            Context context)
-    {
-        // TODO [21-04-21 9:00PM] figure out some relation between the frame width and
-        //  number of allowed characters per tag line (will depend on the character size - maybe
-        //  pull a consistent size from tags_more?) - this will be important for landscape
-        //  orientation where the list item has more horizontal space.
-//        int frameWidth = viewHolder.tagsFrame.getWidth();
-        int maxLineCharacters = 20;
-        
-        LinearLayout[] lines = {itemViewHolder.tagsLineOne, itemViewHolder.tagsLineTwo};
-        for (LinearLayout line : lines) {
-            line.removeAllViews();
-        }
-        
-        int currentLineCharacters = 0;
-        int lineIndex = 0;
-        LinearLayout currentLine = lines[lineIndex];
-        int displayedTagsCount = 0;
-        for (String tagText : tags) {
-            currentLineCharacters += tagText.length();
-            
-            if (currentLineCharacters >= maxLineCharacters) {
-                lineIndex++;
-                if (lineIndex == lines.length) {
-                    // reached max lines, exit the loop and don't display any more tags
-                    break;
-                } else {
-                    currentLine = lines[lineIndex];
-                    currentLineCharacters = tagText.length();
-                }
-            }
-            
-            // TODO [21-04-21 9:01PM] I need to account for "long tag text" edge cases
-            //      - if a tag exceeds the max allowed characters, cut it off with "..."
-            //      - be careful not to drop down to the next line on tags that are too long anyway.
-            
-            currentLine.addView(generateTagView(tagText, context));
-            displayedTagsCount++;
-        }
-        
-        // If there are more tags than could fit in the available lines, display some text
-        // indicating these extra tags
-        if (displayedTagsCount < tags.size()) {
-            itemViewHolder.tagsMore.setText(String.format(
-                    Locale.CANADA,
-                    context.getString(R.string.session_archive_item_more_tags_text),
-                    tags.size() - displayedTagsCount));
-        }
-    }
-    
-    private MaterialShapeDrawable getTagBackground(Context context)
-    {
-        // https://stackoverflow.com/a/61768682
-        mTagBackground = CommonUtils.lazyInit(mTagBackground, () -> {
-            float cornerRadius = context.getResources()
-                    .getDimension(R.dimen.archive_list_item_tag_corner_radius);
-            ShapeAppearanceModel shapeAppearanceModel = new ShapeAppearanceModel().toBuilder()
-                    .setAllCorners(CornerFamily.ROUNDED, cornerRadius)
-                    .build();
-            return new MaterialShapeDrawable(shapeAppearanceModel);
-        });
-        return mTagBackground;
-    }
-    
-    // REFACTOR [21-04-21 9:16PM] -- various hardcoded values.
-    private View generateTagView(String tagText, Context context)
-    {
-        // OPTIMIZE [21-04-22 10:55PM] -- These params don't need to be instantiated each time
-        //  - use a constant.
-        LinearLayout.LayoutParams tagViewParams = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        tagViewParams.setMargins(0, 0, 15, 0);
-        
-        MaterialTextView tagView =
-                new MaterialTextView(context, null, R.attr.archiveListItemTagStyle);
-        tagView.setText(tagText);
-        tagView.setBackground(getTagBackground(context));
-        
-        tagView.setPadding(15, 5, 15, 5);
-        tagView.setLayoutParams(tagViewParams);
-        
-        return tagView;
     }
 }
