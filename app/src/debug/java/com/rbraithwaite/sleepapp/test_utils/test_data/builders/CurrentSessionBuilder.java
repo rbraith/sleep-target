@@ -28,7 +28,7 @@ public class CurrentSessionBuilder
     private List<Integer> mSelectedTagIds;
     private List<Interruption> mInterruptions;
     private Interruption mCurrentInterruption;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -60,7 +60,7 @@ public class CurrentSessionBuilder
                 .withStart(date.addMinutes(5))
                 .build();
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -76,7 +76,7 @@ public class CurrentSessionBuilder
                 mInterruptions,
                 mCurrentInterruption);
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -132,6 +132,35 @@ public class CurrentSessionBuilder
     public CurrentSessionBuilder withNoCurrentInterruption()
     {
         mCurrentInterruption = null;
+        return this;
+    }
+    
+    public CurrentSessionBuilder withNoDetails()
+    {
+        return withNoMood().withNoComments().withNoTags();
+    }
+    
+    public CurrentSessionBuilder withNoTags()
+    {
+        mSelectedTagIds = new ArrayList<>();
+        return this;
+    }
+    
+    public CurrentSessionBuilder withNoComments()
+    {
+        mAdditionalComments = null;
+        return this;
+    }
+    
+    public CurrentSessionBuilder withNoMood()
+    {
+        mMood = null;
+        return this;
+    }
+    
+    public CurrentSessionBuilder withSelectedTagIds(Integer... ids)
+    {
+        mSelectedTagIds = new ArrayList<>(Arrays.asList(ids));
         return this;
     }
 }

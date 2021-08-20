@@ -3,14 +3,19 @@ package com.rbraithwaite.sleepapp.test_utils.ui.drivers;
 import androidx.test.core.app.ActivityScenario;
 
 import com.rbraithwaite.sleepapp.R;
+import com.rbraithwaite.sleepapp.core.models.SleepSession;
+import com.rbraithwaite.sleepapp.test_utils.test_data.builders.SleepSessionBuilder;
 import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.ApplicationFragmentTestHelper;
 import com.rbraithwaite.sleepapp.ui.MainActivity;
 import com.rbraithwaite.sleepapp.utils.CommonUtils;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.matcher.ViewMatchers.assertThat;
 import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 
 
 
@@ -29,6 +34,7 @@ public class ApplicationTestDriver
     private SessionArchiveTestDriver mSessionArchive;
     private SessionDetailsTestDriver mSessionDetails;
     private InterruptionDetailsTestDriver mInterruptionDetails;
+    private PostSleepTestDriver mPostSleep;
 
 //*********************************************************
 // package properties
@@ -45,6 +51,7 @@ public class ApplicationTestDriver
     {
         ARCHIVE,
         SLEEP_TRACKER,
+        POST_SLEEP,
         SESSION_DETAILS,
         INTERRUPTION_DETAILS
     }
@@ -64,9 +71,14 @@ public class ApplicationTestDriver
 
     public SleepTrackerTestDriver getSleepTracker()
     {
-        mSleepTracker = CommonUtils.lazyInit(mSleepTracker,
-                                             () -> new SleepTrackerTestDriver(new ApplicationFragmentTestHelper<>(
-                                                     mScenarioCallbacks)));
+        mSleepTracker = CommonUtils.lazyInit(mSleepTracker, () -> {
+            SleepTrackerTestDriver driver = new SleepTrackerTestDriver(
+                    new ApplicationFragmentTestHelper<>(mScenarioCallbacks));
+            
+            driver.setOnNavToPostSleepListener(() -> mCurrentLocation = Destination.POST_SLEEP);
+            
+            return driver;
+        });
         return mCurrentLocation == Destination.SLEEP_TRACKER ? mSleepTracker : null;
     }
     
@@ -114,6 +126,41 @@ public class ApplicationTestDriver
         return mCurrentLocation == Destination.INTERRUPTION_DETAILS ? mInterruptionDetails : null;
     }
     
+    public PostSleepTestDriver getPostSleep()
+    {
+        assertThat(mCurrentLocation, is(equalTo(Destination.POST_SLEEP)));
+        
+        mPostSleep = CommonUtils.lazyInit(mPostSleep, () -> {
+            PostSleepTestDriver driver = PostSleepTestDriver.inApplication(
+                    new ApplicationFragmentTestHelper<>(mScenarioCallbacks));
+            
+            driver.setNavCallbacks(new PostSleepTestDriver.NavCallbacks()
+            {
+                @Override
+                public void onKeep()
+                {
+                    mCurrentLocation = Destination.SLEEP_TRACKER;
+                }
+                
+                @Override
+                public void onDiscard()
+                {
+                    mCurrentLocation = Destination.SLEEP_TRACKER;
+                }
+                
+                @Override
+                public void onUp()
+                {
+                    mCurrentLocation = Destination.SLEEP_TRACKER;
+                }
+            });
+            
+            return driver;
+        });
+        
+        return mPostSleep;
+    }
+    
     public void navigateTo(Destination destination)
     {
         if (destination == mCurrentLocation) {
@@ -140,6 +187,36 @@ public class ApplicationTestDriver
         }
         
         onView(withContentDescription(R.string.nav_app_bar_navigate_up_description)).perform(click());
+    }
+    
+    /**
+     * Starting on the tracker screen, record all the details of this session, using the flow of
+     * tracker -> post-sleep -> tracker
+     */
+    public void recordSpecificSession(SleepSessionBuilder sleepSession)
+    {
+        assertThat(mCurrentLocation, is(equalTo(Destination.SLEEP_TRACKER)));
+        
+        SleepSession value = sleepSession.build();
+        
+        getSleepTracker().recordSpecificSession(value);
+        getPostSleep().setRating(value.getRating());
+        getPostSleep().keep();
+    }
+    
+    public void recordArbitrarySleepSession()
+    {
+        assertThat(mCurrentLocation, is(equalTo(Destination.SLEEP_TRACKER)));
+        getSleepTracker().recordArbitrarySession();
+        getPostSleep().keep();
+    }
+    
+    public void stopAndKeepSessionManually()
+    {
+        assertThat(mCurrentLocation, is(equalTo(Destination.SLEEP_TRACKER)));
+        
+        getSleepTracker().stopSessionManually();
+        getPostSleep().keep();
     }
 
 //*********************************************************

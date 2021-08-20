@@ -7,7 +7,7 @@ import com.rbraithwaite.sleepapp.ui.common.interruptions.InterruptionFormatting;
 import java.util.Date;
 import java.util.List;
 
-public class PostSleepDialogFormatting
+public class PostSleepFormatting
 {
 //*********************************************************
 // api

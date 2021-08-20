@@ -27,6 +27,13 @@ public class SelectedTagAdapter
     private OnItemClickListener mOnItemClickListener;
     
 //*********************************************************
+// private constants
+//*********************************************************
+
+    private static final int VIEWTYPE_TAG = 0;
+    private static final int VIEWTYPE_NO_TAGS = 1;
+    
+//*********************************************************
 // public helpers
 //*********************************************************
 
@@ -38,10 +45,19 @@ public class SelectedTagAdapter
     public static class ViewHolder
             extends RecyclerView.ViewHolder
     {
+        public ViewHolder(@NonNull View itemView)
+        {
+            super(itemView);
+        }
+    }
+
+    public static class TagViewHolder
+            extends ViewHolder
+    {
         public TagUiData data;
         public TextView tag;
         
-        public ViewHolder(@NonNull View itemView, OnItemClickListener onItemClickListener)
+        public TagViewHolder(@NonNull View itemView, OnItemClickListener onItemClickListener)
         {
             super(itemView);
             tag = (TextView) itemView;
@@ -60,6 +76,15 @@ public class SelectedTagAdapter
         }
     }
     
+    public static class NoTagsViewHolder
+            extends ViewHolder
+    {
+        public NoTagsViewHolder(@NonNull View itemView)
+        {
+            super(itemView);
+        }
+    }
+    
 //*********************************************************
 // overrides
 //*********************************************************
@@ -68,18 +93,39 @@ public class SelectedTagAdapter
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
     {
-        return new ViewHolder(createTagView(parent.getContext()), mOnItemClickListener);
+        switch (viewType) {
+        case VIEWTYPE_TAG:
+            return new TagViewHolder(createTagView(parent.getContext()), mOnItemClickListener);
+        case VIEWTYPE_NO_TAGS:
+            return new NoTagsViewHolder(createNoTagsMessage(parent.getContext()));
+        default:
+            throw new IllegalArgumentException("Invalid viewType: " + viewType);
+        }
     }
     
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position)
     {
-        holder.bindTo(mSelectedTags.get(position));
+        if (getItemViewType(position) == VIEWTYPE_TAG) {
+            ((TagViewHolder) holder).bindTo(mSelectedTags.get(position));
+        }
+    }
+    
+    @Override
+    public int getItemViewType(int position)
+    {
+        if (mSelectedTags == null || mSelectedTags.isEmpty()) {
+            return VIEWTYPE_NO_TAGS;
+        }
+        return VIEWTYPE_TAG;
     }
     
     @Override
     public int getItemCount()
     {
+        if (mSelectedTags == null || mSelectedTags.isEmpty()) {
+            return 1;
+        }
         return mSelectedTags.size();
     }
     
@@ -97,7 +143,7 @@ public class SelectedTagAdapter
     {
         mOnItemClickListener = onItemClickedListener;
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -109,6 +155,15 @@ public class SelectedTagAdapter
         UiUtils.setViewPadding(tagView, 6, 6, 2, 2);
         tagView.setLayoutParams(createTagViewLayoutParams(context));
         return tagView;
+    }
+    
+    private View createNoTagsMessage(Context context)
+    {
+        // REFACTOR [21-08-17 11:18PM] -- fix this resource reference.
+        TextView noTagsMessage =
+                new TextView(context, null, R.attr.trackerPostDialogNullDataMessageStyle);
+        noTagsMessage.setText(R.string.no_tags);
+        return noTagsMessage;
     }
     
     private FlexboxLayoutManager.LayoutParams createTagViewLayoutParams(Context context)

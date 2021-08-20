@@ -3,10 +3,13 @@ package com.rbraithwaite.sleepapp.test_utils.ui;
 import android.os.Build;
 import android.view.View;
 import android.widget.DatePicker;
+import android.widget.RatingBar;
 import android.widget.TimePicker;
 
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.espresso.matcher.BoundedMatcher;
+
+import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.TEMP.MoodView;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -23,11 +26,53 @@ public class EspressoMatchers
     private EspressoMatchers() {/* No instantiation */}
 
 
-
 //*********************************************************
 // api
 //*********************************************************
 
+    
+    /**
+     * Match a RatingBar to a given rating
+     */
+    public static Matcher<View> withRating(float rating)
+    {
+        return new BoundedMatcher<View, RatingBar>(RatingBar.class)
+        {
+            @Override
+            protected boolean matchesSafely(RatingBar item)
+            {
+                return item.getRating() == rating;
+            }
+            
+            @Override
+            public void describeTo(Description description)
+            {
+                description.appendText("rating matches: " + rating);
+            }
+        };
+    }
+    
+    /**
+     * Match a MoodView against a given index
+     */
+    public static Matcher<View> withMoodIndex(int index)
+    {
+        return new BoundedMatcher<View, MoodView>(MoodView.class)
+        {
+            @Override
+            protected boolean matchesSafely(MoodView item)
+            {
+                return item.getMoodIndex() == index;
+            }
+            
+            @Override
+            public void describeTo(Description description)
+            {
+                description.appendText("MoodView with index: " + index);
+            }
+        };
+    }
+    
     
     /**
      * Matches a view with a particular tag value.

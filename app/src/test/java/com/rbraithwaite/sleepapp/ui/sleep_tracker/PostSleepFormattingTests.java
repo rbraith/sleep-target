@@ -9,7 +9,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
-public class PostSleepDialogFormattingTests
+public class PostSleepFormattingTests
 {
 //*********************************************************
 // api
@@ -18,7 +18,7 @@ public class PostSleepDialogFormattingTests
     @Test
     public void formatDate_returnsNullIfNullInput()
     {
-        assertThat(PostSleepDialogFormatting.formatDate(null), is(nullValue()));
+        assertThat(PostSleepFormatting.formatDate(null), is(nullValue()));
     }
     
     @Test
@@ -26,7 +26,7 @@ public class PostSleepDialogFormattingTests
     {
         GregorianCalendar cal = new GregorianCalendar(2021, 4, 2, 12, 34);
         
-        String formatted = PostSleepDialogFormatting.formatDate(cal.getTime());
+        String formatted = PostSleepFormatting.formatDate(cal.getTime());
         
         assertThat(formatted, is(equalTo("12:34 PM, May 2 2021")));
     }
@@ -48,9 +48,9 @@ public class PostSleepDialogFormattingTests
             
             String expected = (String) d[3];
             
-            assertThat(PostSleepDialogFormatting.formatDuration(toDurationMillis(hour,
-                                                                                 minute,
-                                                                                 second)),
+            assertThat(PostSleepFormatting.formatDuration(toDurationMillis(hour,
+                                                                           minute,
+                                                                           second)),
                        is(equalTo(expected)));
         }
     }

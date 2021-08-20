@@ -119,7 +119,9 @@ public class UiUtils
     public static void setEditTextValue(EditText editText, String value)
     {
         editText.getText().clear();
-        editText.getText().append(value);
+        if (value != null && !value.isEmpty()) {
+            editText.getText().append(value);
+        }
     }
     
     public static void setViewPadding(View view, int leftDp, int rightDp, int topDp, int bottomDp)

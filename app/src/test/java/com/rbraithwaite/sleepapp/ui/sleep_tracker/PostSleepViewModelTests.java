@@ -10,7 +10,6 @@ import com.rbraithwaite.sleepapp.core.repositories.TagRepository;
 import com.rbraithwaite.sleepapp.test_utils.TestEqualities;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.test_data.builders.CurrentSessionBuilder;
-import com.rbraithwaite.sleepapp.test_utils.test_data.builders.StoppedSessionDataBuilder;
 import com.rbraithwaite.sleepapp.ui.common.convert.ConvertMood;
 import com.rbraithwaite.sleepapp.ui.common.interruptions.InterruptionListItem;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagUiData;
@@ -32,6 +31,7 @@ import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.aCurrentSe
 import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.aDate;
 import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.aStoppedSessionData;
 import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.anInterruption;
+import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.valueOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -39,13 +39,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(AndroidJUnit4.class)
-public class PostSleepDialogViewModelTests
+public class PostSleepViewModelTests
 {
 //*********************************************************
 // package properties
 //*********************************************************
 
     TagRepository mockTagRepository;
+    PostSleepViewModel viewModel;
 
 //*********************************************************
 // api
@@ -55,12 +56,14 @@ public class PostSleepDialogViewModelTests
     public void setup()
     {
         mockTagRepository = mock(TagRepository.class);
+        viewModel = new PostSleepViewModel(mockTagRepository);
     }
     
     @After
     public void teardown()
     {
         mockTagRepository = null;
+        viewModel = null;
     }
     
     @Test
@@ -73,8 +76,7 @@ public class PostSleepDialogViewModelTests
                         anInterruption(),
                         anInterruption());
         
-        PostSleepDialogViewModel viewModel =
-                createViewModelWith(aStoppedSessionData().with(thisCurrentSession));
+        viewModel.init(valueOf(aStoppedSessionData().with(thisCurrentSession)));
         
         assertThat(viewModel.getInterruptionsCountText(), is(equalTo("3")));
     }
@@ -88,8 +90,7 @@ public class PostSleepDialogViewModelTests
                         anInterruption().withDuration(1, 20, 0),
                         anInterruption().withDuration(0, 3, 45));
         
-        PostSleepDialogViewModel viewModel =
-                createViewModelWith(aStoppedSessionData().with(thisCurrentSession));
+        viewModel.init(valueOf(aStoppedSessionData().with(thisCurrentSession)));
         
         assertThat(viewModel.getInterruptionsTotalTimeText(), is(equalTo("1h 23m 45s")));
     }
@@ -109,8 +110,7 @@ public class PostSleepDialogViewModelTests
                                 .withDuration(2, 34, 56)
                                 .withReason("second reason"));
         
-        PostSleepDialogViewModel viewModel =
-                createViewModelWith(aStoppedSessionData().with(thisCurrentSession));
+        viewModel.init(valueOf(aStoppedSessionData().with(thisCurrentSession)));
         
         List<InterruptionListItem> listItems = viewModel.getInterruptionsListItems();
         
@@ -130,17 +130,14 @@ public class PostSleepDialogViewModelTests
     @Test
     public void hasNoInterruptions_returnsTrueWhenThereAreNoInterruptions()
     {
-        PostSleepDialogViewModel viewModel = createViewModelWith(
-                aStoppedSessionData().with(aCurrentSession().withNoInterruptions()).build());
-        
+        viewModel.init(valueOf(aStoppedSessionData().with(aCurrentSession().withNoInterruptions())));
         assertThat(viewModel.hasNoInterruptions(), is(true));
     }
     
     @Test
     public void setRating_updates_getPostSleepData()
     {
-        PostSleepDialogViewModel viewModel = createViewModelWith(new StoppedSessionData(
-                null, new PostSleepData(5f)));
+        viewModel.init(new StoppedSessionData(null, new PostSleepData(5f)));
         
         LiveData<PostSleepData> postSleepData = viewModel.getPostSleepData();
         TestUtils.activateLocalLiveData(postSleepData);
@@ -155,8 +152,7 @@ public class PostSleepDialogViewModelTests
     @Test
     public void ratingIsZeroWhenPostSleepDataIsNull()
     {
-        PostSleepDialogViewModel viewModel =
-                createViewModelWith(new StoppedSessionData(null, null));
+        viewModel.init(new StoppedSessionData(null, null));
         assertThat(viewModel.getRating(), is(0f));
     }
     
@@ -166,7 +162,7 @@ public class PostSleepDialogViewModelTests
         CurrentSession currentSession = new CurrentSession(
                 new GregorianCalendar(2021, 5, 27, 3, 45).getTime());
         
-        PostSleepDialogViewModel viewModel = createViewModelWith(new StoppedSessionData(
+        viewModel.init(new StoppedSessionData(
                 currentSession.createSnapshot(new TimeUtils()), null));
         
         assertThat(viewModel.getStartText(), is(equalTo("3:45 AM, Jun 27 2021")));
@@ -187,9 +183,7 @@ public class PostSleepDialogViewModelTests
             }
         };
         
-        PostSleepDialogViewModel viewModel =
-                createViewModelWith(new StoppedSessionData(currentSession.createSnapshot(fakeNow),
-                                                           null));
+        viewModel.init(new StoppedSessionData(currentSession.createSnapshot(fakeNow), null));
         
         assertThat(viewModel.getEndText(), is(equalTo("4:00 AM, Jun 27 2021")));
     }
@@ -209,9 +203,8 @@ public class PostSleepDialogViewModelTests
             }
         };
         
-        PostSleepDialogViewModel viewModel =
-                createViewModelWith(new StoppedSessionData(currentSession.createSnapshot(fakeNow),
-                                                           null));
+        viewModel.init(new StoppedSessionData(currentSession.createSnapshot(fakeNow),
+                                              null));
         
         assertThat(viewModel.getDurationText(), is(equalTo("1h 20m 00s")));
     }
@@ -220,7 +213,8 @@ public class PostSleepDialogViewModelTests
     public void getMood_reflectsSnapshot()
     {
         CurrentSession currentSession = TestUtils.ArbitraryData.getCurrentSession();
-        PostSleepDialogViewModel viewModel = createViewModelWith(new StoppedSessionData(
+        
+        viewModel.init(new StoppedSessionData(
                 currentSession.createSnapshot(new TimeUtils()), null));
         
         assertThat(viewModel.getMood(),
@@ -231,7 +225,8 @@ public class PostSleepDialogViewModelTests
     public void getAdditionalComments_reflectsSnapshot()
     {
         CurrentSession currentSession = TestUtils.ArbitraryData.getCurrentSession();
-        PostSleepDialogViewModel viewModel = createViewModelWith(new StoppedSessionData(
+        
+        viewModel.init(new StoppedSessionData(
                 currentSession.createSnapshot(new TimeUtils()), null));
         
         assertThat(viewModel.getAdditionalComments(),
@@ -252,7 +247,7 @@ public class PostSleepDialogViewModelTests
                 new Tag(3, "tag3")));
         when(mockTagRepository.getTagsWithIds(tagIds)).thenReturn(expected);
         
-        PostSleepDialogViewModel viewModel = createViewModelWith(new StoppedSessionData(
+        viewModel.init(new StoppedSessionData(
                 currentSession.createSnapshot(new TimeUtils()), null));
         
         // SUT
@@ -265,28 +260,5 @@ public class PostSleepDialogViewModelTests
             TagUiData uiData = tagUiDataList.getValue().get(i);
             assertThat(TestEqualities.TagUiData_equals_Tag(uiData, expectedTag), is(true));
         }
-    }
-
-//*********************************************************
-// private methods
-//*********************************************************
-
-    private PostSleepDialogViewModel createViewModelWith(StoppedSessionData stoppedSession)
-    {
-        return new PostSleepDialogViewModel(
-                stoppedSession,
-                TestUtils.getContext())
-        {
-            @Override
-            protected TagRepository createTagRepository()
-            {
-                return mockTagRepository;
-            }
-        };
-    }
-    
-    private PostSleepDialogViewModel createViewModelWith(StoppedSessionDataBuilder stoppedSession)
-    {
-        return createViewModelWith(stoppedSession.build());
     }
 }

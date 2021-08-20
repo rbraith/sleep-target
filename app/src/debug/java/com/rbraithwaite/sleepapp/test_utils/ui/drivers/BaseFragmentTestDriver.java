@@ -18,7 +18,7 @@ public class BaseFragmentTestDriver<FragmentType extends BaseFragment<?>,
 
     private FragmentTestHelper<FragmentType> mHelper;
     private AssertionsType mAssertions;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -54,7 +54,7 @@ public class BaseFragmentTestDriver<FragmentType extends BaseFragment<?>,
     
     // HACK [21-06-25 12:35AM] -- This is to avoid an instantiation error where BaseAssertions
     //  depends on a BaseFragmentTestDriver but BaseFragmentTestDriver depends on a BaseAssertions.
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -90,7 +90,7 @@ public class BaseFragmentTestDriver<FragmentType extends BaseFragment<?>,
     }
     
     // IDEA [21-06-25 12:11AM] -- restartFragmentWithArgs(args).
-    
+
 //*********************************************************
 // protected api
 //*********************************************************

@@ -11,7 +11,7 @@ public class PostSleepDataBuilder
 //*********************************************************
 
     private float mRating;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -20,7 +20,7 @@ public class PostSleepDataBuilder
     {
         mRating = 4.5f;
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -29,5 +29,15 @@ public class PostSleepDataBuilder
     public PostSleepData build()
     {
         return new PostSleepData(mRating);
+    }
+    
+//*********************************************************
+// api
+//*********************************************************
+
+    public PostSleepDataBuilder withRating(float rating)
+    {
+        mRating = rating;
+        return this;
     }
 }

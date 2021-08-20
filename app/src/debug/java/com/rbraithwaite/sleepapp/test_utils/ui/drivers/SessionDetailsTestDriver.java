@@ -15,6 +15,7 @@ import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.core.models.Tag;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
 import com.rbraithwaite.sleepapp.test_utils.test_data.builders.InterruptionBuilder;
+import com.rbraithwaite.sleepapp.test_utils.test_data.builders.SleepSessionBuilder;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.assertion_utils.RecyclerListItemAssertions;
 import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
@@ -99,6 +100,11 @@ public class SessionDetailsTestDriver
         public Assertions(SessionDetailsTestDriver owningDriver)
         {
             super(owningDriver);
+        }
+        
+        public void displayedValuesMatch(SleepSessionBuilder sleepSession)
+        {
+            displayedValuesMatch(sleepSession.build());
         }
         
         public void displayedValuesMatch(SleepSession sleepSession)

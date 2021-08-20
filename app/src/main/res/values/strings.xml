@@ -38,5 +38,5 @@
     <string name="interruption_details_oob_error_title">Error: Interruption extends past the sleep session.</string>
     <string name="interruption_details_overlap_error_message">The set times overlap with an already existing interruption in this session, having these times:</string>
     <string name="interruption_details_oob_error_message">The interruption times must be within the start and end times of the sleep session:</string>
-    <string name="postsleepdialog_no_tags">No Tags</string>
+    <string name="no_tags">No Tags</string>
 </resources>

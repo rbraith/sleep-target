@@ -16,11 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
-
-import static com.rbraithwaite.sleepapp.test_utils.value_matchers.SleepInterruptionEntityMatchers.interruptionWithReason;
 
 // REFACTOR [21-05-1 5:00PM] -- Putting this here, but this is a general refactoring:
 //  - I should hide Espresso details behind more descriptive interfaces
@@ -71,83 +67,6 @@ public class SleepTrackerFragmentTests
         sleepTracker.startSessionManually();
         
         sleepTracker.assertThat().interruptionsCardIsDisplayed();
-    }
-    
-    @Test
-    public void postSleepDialogDisplaysCorrectValuesWhenDetailsAreUnset()
-    {
-        // details are unset by default, so you just need to stop a session
-        sleepTracker.stopSleepSession(12345); // arbitrary duration
-        
-        sleepTracker.assertThat().postSleepDialogCommentsAreUnset();
-        sleepTracker.assertThat().postSleepDialogMoodIsUnset();
-        sleepTracker.assertThat().postSleepDialogTagsAreUnset();
-    }
-    
-    @Test
-    public void postSleepDialogDisplaysNoInterruptionsWhenNoInterruptions()
-    {
-        sleepTracker.stopSleepSession(12345); // arbitrary duration
-        sleepTracker.assertThat().postSleepDialogInterruptionsAreUnset();
-    }
-    
-    @Test
-    public void postSleepDialogDisplaysInterruptions()
-    {
-        sleepTracker.startSessionManually();
-        
-        sleepTracker.recordArbitraryInterruption();
-        sleepTracker.recordArbitraryInterruption();
-        
-        sleepTracker.stopSessionManually();
-        
-        sleepTracker.assertThat().postSleepDialogHasInterruptionCount(2);
-    }
-    
-    // regression for #14
-    @Test
-    public void trackerIsClearedAfterKeepingSession()
-    {
-        // SMELL [21-05-7 1:20AM] -- [big job] In general, my tests have abstraction level
-        //  problems - ie they should be way more abstract, clear, and simple - I need a better
-        //  "test harness".
-        sleepTracker.addNewMood(2);
-        List<Integer> tagIds = sleepTracker.addTags(Arrays.asList("tag1", "tag2"));
-        // BUG [21-06-27 2:43AM] -- this doesn't seem to be toggling the right tags currently?
-        sleepTracker.toggleTagSelectionsById(tagIds);
-        sleepTracker.setAdditionalComments("some comments");
-        
-        sleepTracker.keepSleepSession(12345); // arbitrary duration
-        
-        sleepTracker.assertThat().screenIsClear();
-        
-        sleepTracker.restartFragment();
-        sleepTracker.assertThat().screenIsClear();
-        
-        sleepTracker.restartApp();
-        sleepTracker.assertThat().screenIsClear();
-    }
-    
-    @Test
-    public void postSleepDialogOpensWithCorrectValues()
-    {
-        int expectedMoodIndex = 2;
-        sleepTracker.addNewMood(2);
-        
-        List<Integer> expectedSelectedTagIds = sleepTracker.addTags(Arrays.asList("tag1", "tag2"));
-        sleepTracker.toggleTagSelectionsById(expectedSelectedTagIds);
-        
-        String expectedComments = "some comments";
-        sleepTracker.setAdditionalComments(expectedComments);
-        
-        int expectedDuration = 12345;
-        sleepTracker.stopSleepSession(expectedDuration);
-        
-        sleepTracker.assertThat().postSleepDialogHasMood(expectedMoodIndex);
-        sleepTracker.assertThat().postSleepDialogHasSelectedTags(expectedSelectedTagIds);
-        sleepTracker.assertThat().postSleepDialogHasComments(expectedComments);
-        sleepTracker.assertThat().postSleepDialogHasDuration(expectedDuration);
-        sleepTracker.assertThat().postSleepDialogRatingIsUnset();
     }
     
     @Test
@@ -225,14 +144,6 @@ public class SleepTrackerFragmentTests
                 SleepTrackerTestDriver.Assertions.TrackerButtonState.STARTED);
         sleepTracker.assertThat().sessionStartTimeMatches(startTime);
         sleepTracker.assertThat().sessionTimerMatches(expectedDuration);
-        
-        // After leaving a session
-        sleepTracker.stopAndDiscardSessionManually();
-        
-        sleepTracker.assertThat().sleepTrackerButtonIsInState(
-                SleepTrackerTestDriver.Assertions.TrackerButtonState.NOT_STARTED);
-        sleepTracker.assertThat().sessionStartTimeIsNotDisplayed();
-        sleepTracker.assertThat().sessionTimerIsNotDisplayed();
     }
     
     @Test
@@ -264,21 +175,6 @@ public class SleepTrackerFragmentTests
     }
     
     @Test
-    public void interruptionIsAddedToTheDatabase()
-    {
-        database.assertThat.interruptionCountIs(0);
-        
-        sleepTracker.startSessionManually();
-        
-        String expectedReason = "reason";
-        sleepTracker.startInterruptionWithReason(expectedReason);
-        
-        sleepTracker.stopAndKeepSessionManually();
-        
-        database.assertThat.interruptionWithId(1).matches(interruptionWithReason(expectedReason));
-    }
-    
-    @Test
     public void lastInterruptionReasonIsRetained()
     {
         sleepTracker.startSessionManually();
@@ -297,19 +193,5 @@ public class SleepTrackerFragmentTests
         // when the app is restarted
         sleepTracker.restartApp();
         sleepTracker.assertThat().interruptionReasonTextMatches(expectedReason);
-        
-        // ending the session clears the reason
-        sleepTracker.stopAndKeepSessionManually();
-        sleepTracker.startSessionManually();
-        sleepTracker.startInterruption();
-        sleepTracker.assertThat().interruptionReasonTextIsEmpty();
-    }
-    
-    @Test
-    public void keptSleepSessionIsAddedToTheDatabase()
-    {
-        database.assertThat.sleepSessionCountIs(0);
-        sleepTracker.keepSleepSession(12345);
-        database.assertThat.sleepSessionCountIs(1);
     }
 }

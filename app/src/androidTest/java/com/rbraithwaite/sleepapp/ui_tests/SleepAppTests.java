@@ -2,14 +2,17 @@ package com.rbraithwaite.sleepapp.ui_tests;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.rbraithwaite.sleepapp.core.models.SleepSession;
-import com.rbraithwaite.sleepapp.test_utils.TestUtils;
+import com.rbraithwaite.sleepapp.test_utils.data.database.DatabaseTestDriver;
+import com.rbraithwaite.sleepapp.test_utils.test_data.builders.SleepSessionBuilder;
 import com.rbraithwaite.sleepapp.test_utils.ui.drivers.ApplicationTestDriver;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import static com.rbraithwaite.sleepapp.test_utils.test_data.TestData.aSleepSession;
+import static com.rbraithwaite.sleepapp.test_utils.value_matchers.SleepInterruptionEntityMatchers.interruptionWithReason;
 
 
 
@@ -24,6 +27,7 @@ public class SleepAppTests
 //*********************************************************
 
     private ApplicationTestDriver app;
+    private DatabaseTestDriver database;
 
 //*********************************************************
 // api
@@ -33,22 +37,96 @@ public class SleepAppTests
     public void setup()
     {
         app = new ApplicationTestDriver();
+        database = new DatabaseTestDriver();
     }
     
     @After
     public void teardown()
     {
         app = null;
+        database = null;
     }
     
     @Test
     public void keptSessionDetailsAppearInArchive()
     {
-        SleepSession sleepSession = TestUtils.ArbitraryData.getSleepSession();
+        SleepSessionBuilder sleepSession = aSleepSession();
         
-        app.getSleepTracker().recordSpecificSession(sleepSession);
+        app.recordSpecificSession(sleepSession);
         app.navigateTo(ApplicationTestDriver.Destination.ARCHIVE);
         app.getSessionArchive().openSessionDetailsFor(0);
         app.getSessionDetails().assertThat().displayedValuesMatch(sleepSession);
+    }
+    
+    @Test
+    public void trackerIsClearedAfterKeepingSession()
+    {
+        app.getSleepTracker().setDetailsFrom(aSleepSession());
+        app.getSleepTracker().recordArbitrarySession();
+        
+        app.getPostSleep().keep();
+        app.getSleepTracker().assertThat().detailsAreCleared();
+        
+        app.getSleepTracker().restartFragment();
+        app.getSleepTracker().assertThat().screenIsClear();
+        
+        // REFACTOR [21-08-20 4:29PM] -- This should be app.restartApp()
+        app.getSleepTracker().restartApp();
+        app.getSleepTracker().assertThat().screenIsClear();
+    }
+    
+    @Test
+    public void trackerIsClearedAfterDiscardingSession()
+    {
+        app.getSleepTracker().setDetailsFrom(aSleepSession());
+        app.getSleepTracker().recordArbitrarySession();
+        app.getPostSleep().discard();
+        app.getSleepTracker().assertThat().detailsAreCleared();
+    }
+    
+    @Test
+    public void trackerRetainsSessionAfterCancellingPostSleep()
+    {
+        SleepSessionBuilder sleepSession = aSleepSession();
+        
+        app.getSleepTracker().setDetailsFrom(sleepSession);
+        app.getSleepTracker().recordArbitrarySession();
+        app.getPostSleep().up();
+        
+        app.getSleepTracker().assertThat().detailsMatch(sleepSession);
+        app.getSleepTracker().assertThat().isRecordingSession();
+    }
+    
+    @Test
+    public void keptSleepSessionIsAddedToTheDatabase()
+    {
+        database.assertThat.sleepSessionCountIs(0);
+        app.recordArbitrarySleepSession();
+        database.assertThat.sleepSessionCountIs(1);
+    }
+    
+    @Test
+    public void interruptionReasonIsClearedAfterEndingSession()
+    {
+        app.getSleepTracker().startSessionManually();
+        app.getSleepTracker().startInterruptionWithReason("any reason");
+        app.stopAndKeepSessionManually();
+        app.getSleepTracker().startSessionManually();
+        app.getSleepTracker().assertThat().interruptionReasonTextIsEmpty();
+    }
+    
+    @Test
+    public void interruptionIsAddedToTheDatabase()
+    {
+        database.assertThat.interruptionCountIs(0);
+        
+        app.getSleepTracker().startSessionManually();
+        
+        String expectedReason = "reason";
+        app.getSleepTracker().startInterruptionWithReason(expectedReason);
+        
+        app.stopAndKeepSessionManually();
+        
+        database.assertThat.interruptionWithId(1).matches(interruptionWithReason(expectedReason));
     }
 }

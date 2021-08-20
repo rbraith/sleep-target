@@ -9,22 +9,16 @@ import com.rbraithwaite.sleepapp.core.models.SleepSession;
 import com.rbraithwaite.sleepapp.core.models.Tag;
 import com.rbraithwaite.sleepapp.core.models.WakeTimeGoal;
 import com.rbraithwaite.sleepapp.test_utils.TestUtils;
+import com.rbraithwaite.sleepapp.test_utils.test_data.builders.SleepSessionBuilder;
 import com.rbraithwaite.sleepapp.test_utils.ui.UITestUtils;
-import com.rbraithwaite.sleepapp.test_utils.ui.assertion_utils.AssertOn;
-import com.rbraithwaite.sleepapp.test_utils.ui.assertion_utils.AssertionFailed;
-import com.rbraithwaite.sleepapp.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleepapp.test_utils.ui.fragment_helpers.FragmentTestHelper;
 import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.MoodSelectorViewModel;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorViewModel;
-import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagUiData;
-import com.rbraithwaite.sleepapp.ui.sleep_tracker.PostSleepDialog;
-import com.rbraithwaite.sleepapp.ui.sleep_tracker.PostSleepDialogFormatting;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFormatting;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFragment;
 import com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFragmentViewModel;
 import com.rbraithwaite.sleepapp.utils.CommonUtils;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
-import com.rbraithwaite.sleepapp.utils.interfaces.Action;
 
 import java.util.Date;
 import java.util.List;
@@ -37,14 +31,10 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
 
 public class SleepTrackerTestDriver
         extends BaseFragmentTestDriver<SleepTrackerFragment, SleepTrackerTestDriver.Assertions>
@@ -56,11 +46,18 @@ public class SleepTrackerTestDriver
     private MoodSelectorDriver mMoodSelector;
     private TagSelectorDriver mTagSelectorDriver;
     private Boolean mInSession = false;
-
-
+    
+    
+    private OnNavToPostSleepListener mOnNavToPostSleepListener;
+    
 //*********************************************************
 // public helpers
 //*********************************************************
+
+    public interface OnNavToPostSleepListener
+    {
+        void onNavToPostSleep();
+    }
     
     public static class Assertions extends BaseFragmentTestDriver.BaseAssertions<SleepTrackerTestDriver, SleepTrackerFragmentViewModel>
     {
@@ -131,47 +128,6 @@ public class SleepTrackerTestDriver
             onView(withId(R.id.additional_comments)).check(matches(withText("")));
         }
         
-        public void postSleepDialogHasMood(int expectedMoodIndex)
-        {
-            assertOnPostSleepDialog(dialog -> hamcrestAssertThat(dialog.getMoodIndex(), is(equalTo(expectedMoodIndex))));
-        }
-        
-        public void postSleepDialogHasSelectedTags(List<Integer> expectedSelectedTagIds)
-        {
-            assertOnPostSleepDialog(dialog -> {
-                // REFACTOR [21-05-6 1:47AM] -- should this return the tag TextViews instead? should
-                //  PostSleepDialog be coupled to TagUiData?
-                //  Or I could just access the view model through a getter.
-                List<TagUiData> tags = dialog.getTags();
-                
-                hamcrestAssertThat(tags, is(notNullValue()));
-                hamcrestAssertThat(tags.isEmpty(), is(false));
-                hamcrestAssertThat(tags.size(), is(equalTo(expectedSelectedTagIds.size())));
-                for (int i = 0; i < tags.size(); i++) {
-                    hamcrestAssertThat(tags.get(i).tagId, is(equalTo(expectedSelectedTagIds.get(i))));
-                }
-            });
-        }
-        
-        public void postSleepDialogHasComments(String expectedComments)
-        {
-            onView(withParent(withId(R.id.postsleep_comments_scroll))).check(matches(withText(
-                    expectedComments)));
-        }
-        
-        public void postSleepDialogHasDuration(int expectedDurationMillis)
-        {
-            onView(withId(R.id.postsleep_duration)).check(matches(withText(
-                    PostSleepDialogFormatting.formatDuration(expectedDurationMillis))));
-        }
-        
-        public void postSleepDialogRatingIsUnset()
-        {
-            assertOnPostSleepDialog(dialog -> {
-                hamcrestAssertThat(dialog.getViewModel().getRating(), is(0f));
-            });
-        }
-        
         public void additionalCommentsMatch(String expectedComments)
         {
             onView(withId(R.id.additional_comments)).check(matches(withText(expectedComments)));
@@ -182,37 +138,9 @@ public class SleepTrackerTestDriver
             getOwningDriver().mMoodSelector.assertThat.selectedMoodMatches(expectedMoodIndex);
         }
         
-        public void selectedTagsMatch(List<Integer> expectedSelectedTagIds)
-        {
-            getOwningDriver().mTagSelectorDriver.assertThat.selectedTagsMatch(
-                    expectedSelectedTagIds);
-        }
-        
         public void selectedTagsMatchText(List<String> tagTexts)
         {
             tagSelector().selectedTagsMatchText(tagTexts);
-        }
-        
-        public void postSleepDialogIsDisplayed()
-        {
-            assertOnPostSleepDialog(dialog -> {
-                hamcrestAssertThat(dialog, is(notNullValue()));
-            });
-        }
-        
-        public void postSleepDialogCommentsAreUnset()
-        {
-            postSleepDialogHasComments(TestUtils.getString(R.string.postsleepdialog_nocomments));
-        }
-        
-        public void postSleepDialogMoodIsUnset()
-        {
-            onView(withParent(withId(R.id.postsleep_mood_frame))).check(matches(withText(R.string.postsleepdialog_nomood)));
-        }
-        
-        public void postSleepDialogTagsAreUnset()
-        {
-            onView(withParent(withId(R.id.postsleep_tags_frame))).check(matches(withText(R.string.postsleepdialog_no_tags)));
         }
         
         /**
@@ -270,10 +198,25 @@ public class SleepTrackerTestDriver
                     SleepTrackerFormatting.formatDuration(expectedDuration))));
         }
         
+        public void sessionTimerIsDisplayed()
+        {
+            onView(withId(R.id.sleep_tracker_session_time)).check(matches(isDisplayed()));
+        }
+        
         public void sessionStartTimeMatches(Date expectedStartTime)
         {
             onView(withId(R.id.sleep_tracker_start_time)).check(matches(withText(
                     SleepTrackerFormatting.formatSessionStartTime(expectedStartTime))));
+        }
+        
+        public void sessionStartTimeIsDisplayed()
+        {
+            onView(withId(R.id.sleep_tracker_start_time)).check(matches(isDisplayed()));
+        }
+        
+        public void detailsMatch(SleepSessionBuilder sleepSession)
+        {
+            detailsMatch(sleepSession.build());
         }
         
         public void detailsMatch(SleepSession sleepSession)
@@ -334,23 +277,16 @@ public class SleepTrackerTestDriver
             interruptionReasonTextMatches("");
         }
         
-        public void postSleepDialogInterruptionsAreUnset()
-        {
-            onView(withId(R.id.post_sleep_interruptions_content)).perform(scrollTo());
-            onView(withId(R.id.post_sleep_interruptions_nodata)).check(matches(isDisplayed()));
-        }
-        
-        public void postSleepDialogHasInterruptionCount(int interruptionCount)
-        {
-            onView(withId(R.id.post_sleep_interruptions_content)).perform(scrollTo());
-            onView(withId(R.id.common_interruptions_count)).check(matches(withText(String.valueOf(interruptionCount))));
-            assertOnPostSleepDialog(dialog -> hamcrestAssertThat(
-                    dialog.getInterruptionsRecycler().getAdapter().getItemCount(), is(interruptionCount)));
-        }
-        
         public TagSelectorDriver.Assertions tagSelector()
         {
             return getOwningDriver().mTagSelectorDriver.assertThat;
+        }
+        
+        public void isRecordingSession()
+        {
+            sleepTrackerButtonIsInState(TrackerButtonState.STARTED);
+            sessionTimerIsDisplayed();
+            sessionStartTimeIsDisplayed();
         }
         
         private void sleepDurationGoalIsDisplayed(SleepDurationGoal expectedSleepDurationGoal)
@@ -384,11 +320,6 @@ public class SleepTrackerTestDriver
             TestUtils.activateInstrumentationLiveData(inSleepSession);
             hamcrestAssertThat(inSleepSession.getValue(), is(false));
         }
-        
-        private void assertOnPostSleepDialog(AssertOn<PostSleepDialog> assertion)
-        {
-            getOwningDriver().performOnPostSleepDialog(assertion::assertOn);
-        }
     }
     
 //*********************************************************
@@ -407,29 +338,21 @@ public class SleepTrackerTestDriver
                 withId(R.id.more_context_tags),
                 getTagSelectorViewModel());
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
+
+    public void setOnNavToPostSleepListener(OnNavToPostSleepListener onNavToPostSleepListener)
+    {
+        mOnNavToPostSleepListener = onNavToPostSleepListener;
+    }
 
     public void startSessionManually()
     {
         pressSleepTrackingButton();
     }
-    
-    public void stopAndDiscardSessionManually()
-    {
-        stopSessionManually();
-        discardSessionManually();
-    }
-    
-    public void discardSessionManually()
-    {
-        assertThat().postSleepDialogIsDisplayed();
-        DialogTestUtils.pressNegativeButton();
-        DialogTestUtils.pressPositiveButton();
-    }
-    
+
     public void stopSessionManually()
     {
         if (!mInSession) {
@@ -437,6 +360,7 @@ public class SleepTrackerTestDriver
                     "Calling this out of order. Can't stop session as it hasn't been started.");
         }
         pressSleepTrackingButton();
+        onNavToPostSleep();
     }
     
     public void addNewMood(int moodIndex)
@@ -456,16 +380,6 @@ public class SleepTrackerTestDriver
         return mTagSelectorDriver.addTags(tagTexts);
     }
     
-    /**
-     * toggle the selections of the provided tags.
-     *
-     * @param tagIndices The indices of the tags to toggle.
-     */
-    public void toggleTagSelections(List<Integer> tagIndices)
-    {
-        mTagSelectorDriver.toggleTagSelections(tagIndices);
-    }
-    
     public void toggleTagSelectionsById(List<Integer> tagIds)
     {
         mTagSelectorDriver.toggleTagSelectionsById(tagIds);
@@ -481,31 +395,6 @@ public class SleepTrackerTestDriver
         UITestUtils.typeOnMultilineEditText(commentsText, onView(withId(R.id.additional_comments)));
     }
     
-    /**
-     * Keep a new sleep session. (Uses simulated time)
-     *
-     * @param durationMillis The duration of the sleep session to be kept.
-     */
-    public void keepSleepSession(int durationMillis)
-    {
-        stopSleepSession(durationMillis);
-        DialogTestUtils.pressPositiveButton();
-    }
-    
-    public void stopSleepSession(int durationMillis)
-    {
-        TimeUtils timeUtils = new TimeUtils();
-        Date end = timeUtils.getNow();
-        Date start = timeUtils.addDurationToDate(end, durationMillis * -1);
-        
-        TimeUtils oldTimeUtils = injectTimeUtils(createSessionTimeUtils(start, end));
-        
-        pressSleepTrackingButton();
-        pressSleepTrackingButton();
-        
-        injectTimeUtils(oldTimeUtils);
-    }
-    
     public void recordSpecificSession(SleepSession sleepSession)
     {
         setDetailsFrom(sleepSession);
@@ -513,23 +402,12 @@ public class SleepTrackerTestDriver
         // REFACTOR [21-05-11 9:56PM] -- this duplicates keepSleepSession - I should have an
         //  overload: keepSleepSession(start, end) (although the adding of a rating is different...
         //  overload stopSleepSession instead).
-        TimeUtils oldTimeUtils = injectTimeUtils(
-                createSessionTimeUtils(sleepSession.getStart(), sleepSession.getEnd()));
+        injectTimeUtils(createSessionTimeUtils(sleepSession.getStart(), sleepSession.getEnd()));
         
         pressSleepTrackingButton();
         pressSleepTrackingButton();
         
-        // reset the time utils once finished the operation
-        injectTimeUtils(oldTimeUtils);
-        
-        setPostSleepRating(sleepSession.getRating());
-        
-        DialogTestUtils.pressPositiveButton();
-    }
-    
-    public void setPostSleepRating(float rating)
-    {
-        performOnPostSleepDialog(dialog -> dialog.getViewModel().setRating(rating));
+        onNavToPostSleep();
     }
     
     /**
@@ -578,12 +456,6 @@ public class SleepTrackerTestDriver
         UITestUtils.typeOnMultilineEditText(reason, onView(withId(R.id.tracker_interrupt_reason)));
     }
     
-    public void stopAndKeepSessionManually()
-    {
-        stopSessionManually();
-        DialogTestUtils.pressPositiveButton();
-    }
-    
     public void pressInterruptButton()
     {
         onView(withId(R.id.tracker_interrupt_button)).perform(click());
@@ -594,36 +466,32 @@ public class SleepTrackerTestDriver
         pressInterruptButton();
     }
     
-    public void startInterruption()
+    public void setDetailsFrom(SleepSessionBuilder builder)
     {
-        pressInterruptButton();
+        setDetailsFrom(builder.build());
     }
     
-    public void recordArbitraryInterruption()
+    public void recordArbitrarySession()
     {
-        pressInterruptButton();
-        pressInterruptButton();
+        pressSleepTrackingButton();
+        pressSleepTrackingButton();
+        onNavToPostSleep();
     }
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
 
+    private void onNavToPostSleep()
+    {
+        if (mOnNavToPostSleepListener != null) {
+            mOnNavToPostSleepListener.onNavToPostSleep();
+        }
+    }
+
     private void resetTimeUtils()
     {
         injectTimeUtils(new TimeUtils());
-    }
-    
-    private void performOnPostSleepDialog(Action<PostSleepDialog> action)
-    {
-        getHelper().performSyncedFragmentAction(fragment -> {
-            PostSleepDialog dialog =
-                    (PostSleepDialog) fragment.getDialogByTag(SleepTrackerFragment.POST_SLEEP_DIALOG);
-            
-            hamcrestAssertThat(dialog, is(not(nullValue())));
-            
-            action.performOn(dialog);
-        });
     }
     
     /**

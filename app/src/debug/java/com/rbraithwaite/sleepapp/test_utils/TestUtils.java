@@ -25,6 +25,7 @@ import com.rbraithwaite.sleepapp.data.database.tables.goal_waketime.WakeTimeGoal
 import com.rbraithwaite.sleepapp.data.database.tables.sleep_session.SleepSessionEntity;
 import com.rbraithwaite.sleepapp.data.prefs.CurrentSessionPrefsData;
 import com.rbraithwaite.sleepapp.data.prefs.Prefs;
+import com.rbraithwaite.sleepapp.test_utils.test_data.builders.DateBuilder;
 import com.rbraithwaite.sleepapp.ui.stats.chart_intervals.DateRange;
 import com.rbraithwaite.sleepapp.utils.TimeUtils;
 
@@ -482,5 +483,10 @@ public class TestUtils
                 return time;
             }
         };
+    }
+    
+    public static TimeUtils timeUtilsFixedAt(DateBuilder date)
+    {
+        return timeUtilsFixedAt(date.build());
     }
 }

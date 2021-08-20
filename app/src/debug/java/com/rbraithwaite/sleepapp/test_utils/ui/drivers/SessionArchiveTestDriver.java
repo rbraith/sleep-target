@@ -1,7 +1,6 @@
 package com.rbraithwaite.sleepapp.test_utils.ui.drivers;
 
 import android.view.View;
-import android.widget.RatingBar;
 
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.espresso.ViewInteraction;
@@ -34,6 +33,7 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static com.rbraithwaite.sleepapp.test_utils.ui.EspressoMatchers.withRating;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.not;
 
@@ -236,25 +236,6 @@ public class SessionArchiveTestDriver
                 public void describeTo(Description description)
                 {
                     description.appendText("mood index matches: " + moodIndex);
-                }
-            };
-        }
-        
-        // REFACTOR [21-05-14 5:23PM] -- extract this as a generic RatingBar matcher.
-        private Matcher<View> withRating(float rating)
-        {
-            return new BoundedMatcher<View, RatingBar>(RatingBar.class)
-            {
-                @Override
-                protected boolean matchesSafely(RatingBar item)
-                {
-                    return item.getRating() == rating;
-                }
-                
-                @Override
-                public void describeTo(Description description)
-                {
-                    description.appendText("rating matches: " + rating);
                 }
             };
         }

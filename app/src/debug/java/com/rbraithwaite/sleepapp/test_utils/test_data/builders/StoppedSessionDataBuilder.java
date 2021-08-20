@@ -19,7 +19,7 @@ public class StoppedSessionDataBuilder
     private CurrentSession mCurrentSession;
     private PostSleepData mPostSleepData;
     private TimeUtils mTimeUtils;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -30,7 +30,7 @@ public class StoppedSessionDataBuilder
         mPostSleepData = aPostSleepData().build();
         mTimeUtils = new TimeUtils();
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -40,19 +40,26 @@ public class StoppedSessionDataBuilder
     {
         return new StoppedSessionData(mCurrentSession.createSnapshot(mTimeUtils), mPostSleepData);
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
 
-    public void withTimeUtils(TimeUtils timeUtils)
+    public StoppedSessionDataBuilder with(TimeUtils timeUtils)
     {
         mTimeUtils = timeUtils;
+        return this;
     }
     
     public StoppedSessionDataBuilder with(CurrentSessionBuilder currentSession)
     {
         mCurrentSession = currentSession.build();
+        return this;
+    }
+    
+    public StoppedSessionDataBuilder with(PostSleepDataBuilder postSleepData)
+    {
+        mPostSleepData = postSleepData.build();
         return this;
     }
 }

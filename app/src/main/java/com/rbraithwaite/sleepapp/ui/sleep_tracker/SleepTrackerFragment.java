@@ -1,6 +1,5 @@
 package com.rbraithwaite.sleepapp.ui.sleep_tracker;
 
-import android.app.AlertDialog;
 import android.os.Bundle;
 import android.text.Editable;
 import android.view.LayoutInflater;
@@ -18,6 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.Group;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.ui.NavigationUI;
 
@@ -26,13 +26,13 @@ import com.rbraithwaite.sleepapp.BuildConfig;
 import com.rbraithwaite.sleepapp.R;
 import com.rbraithwaite.sleepapp.ui.BaseFragment;
 import com.rbraithwaite.sleepapp.ui.common.data.MoodUiData;
-import com.rbraithwaite.sleepapp.ui.common.dialog.AlertDialogFragment;
 import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.MoodSelectorController;
 import com.rbraithwaite.sleepapp.ui.common.views.mood_selector.MoodSelectorViewModel;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorController;
 import com.rbraithwaite.sleepapp.ui.common.views.tag_selector.TagSelectorViewModel;
-import com.rbraithwaite.sleepapp.ui.sleep_tracker.data.StoppedSessionData;
 import com.rbraithwaite.sleepapp.ui.utils.AppColors;
+import com.rbraithwaite.sleepapp.ui.utils.UiUtils;
+import com.rbraithwaite.sleepapp.utils.CommonUtils;
 import com.rbraithwaite.sleepapp.utils.LiveDataFuture;
 
 import java.util.Locale;
@@ -48,7 +48,6 @@ public class SleepTrackerFragment
 //*********************************************************
 
     private EditText mInterruptionReasonText;
-    
     private EditText mAdditionalComments;
     
     private MoodSelectorController mMoodSelectorController;
@@ -66,8 +65,6 @@ public class SleepTrackerFragment
 //*********************************************************
 
     public static final String POST_SLEEP_DIALOG = "PostSleepDialog";
-    
-    public static final String POST_SLEEP_DISCARD_DIALOG = "PostSleepDiscardDialog";
 
 //*********************************************************
 // constructors
@@ -97,13 +94,19 @@ public class SleepTrackerFragment
     {
         mAnimations = new SleepTrackerAnimations(requireContext(), view);
         
+        // these are the views that need non-local refs
+        mAdditionalComments = view.findViewById(R.id.additional_comments);
+        mInterruptionReasonText = view.findViewById(R.id.tracker_interrupt_reason);
+        
+        // must be called before any UI initialization
+        handleAnyReturnFromPostSleep();
+        
         initSessionTrackingDisplay(view);
         initInterruptions(view);
-        
         initGoalsDisplay(view);
         
         // Details
-        initAdditionalCommentsText(view);
+        initAdditionalCommentsText();
         initMoodSelector(view);
         initTagSelector(view);
     }
@@ -112,7 +115,6 @@ public class SleepTrackerFragment
     public void onPause()
     {
         super.onPause();
-        
         getViewModel().persistLocalValues();
     }
     
@@ -147,11 +149,15 @@ public class SleepTrackerFragment
 
     public MoodSelectorViewModel getMoodSelectorViewModel()
     {
+        mMoodSelectorViewModel =
+                CommonUtils.lazyInit(mMoodSelectorViewModel, MoodSelectorViewModel::new);
         return mMoodSelectorViewModel;
     }
     
     public TagSelectorViewModel getTagSelectorViewModel()
     {
+        mTagSelectorViewModel = CommonUtils.lazyInit(
+                mTagSelectorViewModel, () -> new TagSelectorViewModel(requireContext()));
         return mTagSelectorViewModel;
     }
 
@@ -159,16 +165,29 @@ public class SleepTrackerFragment
 // private methods
 //*********************************************************
 
-    private void clearInterruptionReason()
+    private void handleAnyReturnFromPostSleep()
     {
-        mInterruptionReasonText.getText().clear();
+        PostSleepViewModel postSleepViewModel = getPostSleepViewModel();
+        int action = postSleepViewModel.consumeAction();
+        
+        switch (action) {
+        case PostSleepViewModel.NO_ACTION:
+            return; // do nothing
+        case PostSleepViewModel.KEEP:
+            getViewModel().keepSleepSession(postSleepViewModel.consumeData());
+            return;
+        case PostSleepViewModel.DISCARD:
+            getViewModel().clearSleepSession();
+            postSleepViewModel.discardData();
+        }
     }
     
-    private void clearDetailsValues()
+    // HACK [21-08-17 3:12AM] -- This is abusing the fact that BaseFragment is currently using
+    //  Activity-scoped view models, so this instance is ensured to be the same as the one used in
+    //  PostSleepFragment. Preferably the results logic should be in a separate shared view model.
+    private PostSleepViewModel getPostSleepViewModel()
     {
-        mAdditionalComments.getText().clear();
-        mTagSelectorViewModel.clearSelectedTags();
-        mMoodSelectorViewModel.clearSelectedMood();
+        return new ViewModelProvider(requireActivity()).get(PostSleepViewModel.class);
     }
     
     private void addDevToolsOptionTo(Menu menu)
@@ -184,77 +203,71 @@ public class SleepTrackerFragment
     
     private void initTagSelector(final View fragmentRoot)
     {
-        mTagSelectorViewModel = new TagSelectorViewModel(requireContext());
-        
-        SleepTrackerFragmentViewModel viewModel = getViewModel();
-        
-        mTagSelectorViewModel.getSelectedTags().observe(
+        getViewModel().getInitialTagIds().observe(
                 getViewLifecycleOwner(),
-                viewModel::setLocalSelectedTags);
-        
-        mTagSelectorController = new TagSelectorController(
-                fragmentRoot.findViewById(R.id.more_context_tags),
-                mTagSelectorViewModel,
-                getViewLifecycleOwner(),
-                getChildFragmentManager());
-        
-        // initialize the tag selector's selected tags
-        viewModel.getPersistedSelectedTagIds().observe(
-                getViewLifecycleOwner(), mTagSelectorViewModel::setSelectedTagIds);
+                initialTagIds -> {
+                    getTagSelectorViewModel().setSelectedTagIds(initialTagIds);
+                    getTagSelectorViewModel().getSelectedTags().observe(
+                            getViewLifecycleOwner(),
+                            getViewModel()::setLocalSelectedTags);
+                    
+                    mTagSelectorController = new TagSelectorController(
+                            fragmentRoot.findViewById(R.id.more_context_tags),
+                            getTagSelectorViewModel(),
+                            getViewLifecycleOwner(),
+                            getChildFragmentManager());
+                });
     }
     
     private void initMoodSelector(View fragmentRoot)
     {
-        mMoodSelectorViewModel = new MoodSelectorViewModel();
-        mMoodSelectorController = new MoodSelectorController(
-                fragmentRoot.findViewById(R.id.more_context_mood),
-                mMoodSelectorViewModel,
+        getViewModel().getInitialMood().observe(
                 getViewLifecycleOwner(),
-                getChildFragmentManager());
-        // REFACTOR [21-04-12 2:52AM] -- Like with the tag selector, these callbacks should come
-        //  from the view model, probably as LiveData - anything having to do with the view state
-        //  should be managed by the view model.
-        mMoodSelectorController.setCallbacks(new MoodSelectorController.Callbacks()
-        {
-            @Override
-            public void onMoodChanged(MoodUiData newMood)
-            {
-                getViewModel().setLocalMood(newMood);
-            }
-            
-            @Override
-            public void onMoodDeleted()
-            {
-                getViewModel().clearLocalMood();
-            }
-        });
-        
-        // initialize the mood selector's selected mood
-        getViewModel().getPersistedMood()
-                .observe(getViewLifecycleOwner(), mMoodSelectorViewModel::setMood);
+                mood -> {
+                    getMoodSelectorViewModel().setMood(mood);
+                    
+                    mMoodSelectorController = new MoodSelectorController(
+                            fragmentRoot.findViewById(R.id.more_context_mood),
+                            getMoodSelectorViewModel(),
+                            getViewLifecycleOwner(),
+                            getChildFragmentManager());
+                    // REFACTOR [21-04-12 2:52AM] -- Like with the tag selector, these callbacks
+                    //  should come
+                    //  from the view model, probably as LiveData - anything having to do with
+                    //  the view state
+                    //  should be managed by the view model.
+                    mMoodSelectorController.setCallbacks(new MoodSelectorController.Callbacks()
+                    {
+                        @Override
+                        public void onMoodChanged(MoodUiData newMood)
+                        {
+                            getViewModel().setLocalMood(newMood);
+                        }
+                        
+                        @Override
+                        public void onMoodDeleted()
+                        {
+                            getViewModel().clearLocalMood();
+                        }
+                    });
+                });
     }
     
-    private void initAdditionalCommentsText(View fragmentRoot)
+    private void initAdditionalCommentsText()
     {
-        mAdditionalComments = fragmentRoot.findViewById(R.id.additional_comments);
-        
-        mAdditionalComments.addTextChangedListener(new AfterTextChangedWatcher()
-        {
-            @Override
-            public void afterTextChanged(Editable s)
-            {
-                getViewModel().setLocalAdditionalComments(s.toString());
-            }
-        });
-        
-        // initialize the additional comments value
-        getViewModel().getPersistedAdditionalComments().observe(
+        getViewModel().getInitialAdditionalComments().observe(
                 getViewLifecycleOwner(),
                 additionalComments -> {
-                    mAdditionalComments.getText().clear();
-                    if (additionalComments != null) {
-                        mAdditionalComments.getText().append(additionalComments);
-                    }
+                    UiUtils.setEditTextValue(mAdditionalComments, additionalComments);
+                    
+                    mAdditionalComments.addTextChangedListener(new AfterTextChangedWatcher()
+                    {
+                        @Override
+                        public void afterTextChanged(Editable s)
+                        {
+                            getViewModel().setLocalAdditionalComments(s.toString());
+                        }
+                    });
                 });
     }
     
@@ -360,10 +373,7 @@ public class SleepTrackerFragment
         //  maybe createSleepTrackingButtonClickListener.
         sleepTrackingButton.setOnClickListener(v -> {
             if (viewModel.inSleepSession().getValue()) {
-                viewModel.stopSleepSession();
-                clearDetailsValues();
-                clearInterruptionReason();
-                displayPostSleepDialog(viewModel.getStoppedSessionData());
+                navigateToPostSleepScreen();
             } else {
                 viewModel.startSleepSession();
             }
@@ -385,7 +395,6 @@ public class SleepTrackerFragment
         // button, duration timer, reason
         Button interruptButton = fragmentRoot.findViewById(R.id.tracker_interrupt_button);
         TextView interruptDuration = fragmentRoot.findViewById(R.id.tracker_interrupt_duration);
-        mInterruptionReasonText = fragmentRoot.findViewById(R.id.tracker_interrupt_reason);
         viewModel.isSleepSessionInterrupted().observe(
                 getViewLifecycleOwner(),
                 isSleepSessionInterrupted -> {
@@ -423,7 +432,7 @@ public class SleepTrackerFragment
         });
         
         // initialize the interrupt reason from storage
-        getViewModel().getPersistedInterruptionReason().observe(
+        getViewModel().getInitialInterruptionReason().observe(
                 getViewLifecycleOwner(), reason -> {
                     mInterruptionReasonText.getText().clear();
                     if (reason != null) {
@@ -446,50 +455,13 @@ public class SleepTrackerFragment
                         .show());
     }
     
-    private void displayPostSleepDialog(StoppedSessionData stoppedSession)
+    private void navigateToPostSleepScreen()
     {
-        SleepTrackerFragmentViewModel viewModel = getViewModel();
-        
-        PostSleepDialogViewModel dialogViewModel =
-                new PostSleepDialogViewModel(stoppedSession, requireContext());
-        // OPTIMIZE [21-05-8 6:00PM] -- The post sleep data in displayPostSleepDialog is coming
-        //  from the sleep tracker view model originally, so it unnecessarily updates to its
-        //  own value here.
-        dialogViewModel.getPostSleepData().observe(
+        LiveDataFuture.getValue(
+                getViewModel().getSleepSessionSnapshot(),
                 getViewLifecycleOwner(),
-                viewModel::setPostSleepData);
-        
-        PostSleepDialog dialog = PostSleepDialog.createInstance(
-                dialogViewModel,
-                viewModel::keepStoppedSession,
-                this::displaySessionDiscardDialog);
-        dialog.show(getChildFragmentManager(), POST_SLEEP_DIALOG);
-    }
-    
-    private void displaySessionDiscardDialog()
-    {
-        AlertDialogFragment discardDialog =
-                AlertDialogFragment.createInstance(() -> {
-                    AlertDialog.Builder builder =
-                            new AlertDialog.Builder(requireContext());
-                    builder.setTitle(R.string.postsleep_discard_title)
-                            .setMessage(R.string.postsleep_discard_warning)
-                            // If the user cancels the discard, show the post sleep
-                            // dialog again
-                            .setNegativeButton(R.string.cancel,
-                                               ((dialog1, which) -> displayPostSleepDialog(
-                                                       getViewModel().getStoppedSessionData())))
-                            .setPositiveButton(R.string.discard,
-                                               (dialog1, which) -> getViewModel().discardSleepSession());
-                    
-                    AlertDialog alertDialog = builder.create();
-                    // This dialog can't be cancelled by clicking outside since this is
-                    // a kind of "point of no return" - the user must now either record
-                    // the session to the archive or discard it.
-                    alertDialog.setCanceledOnTouchOutside(false);
-                    return alertDialog;
-                });
-        discardDialog.show(getChildFragmentManager(), POST_SLEEP_DISCARD_DIALOG);
+                snapshot -> getNavController().navigate(SleepTrackerFragmentDirections.actionSleeptrackerToPostsleep(
+                        new PostSleepFragment.Args(snapshot))));
     }
     
     // REFACTOR [20-11-15 1:55AM] -- should extract this as a general utility.
