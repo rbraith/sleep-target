@@ -15,6 +15,9 @@
         <action
             android:id="@+id/action_sleeptracker_to_postsleep"
             app:destination="@id/nav_postsleep" />
+        <action
+            android:id="@+id/action_nav_sleeptracker_to_aboutFragment"
+            app:destination="@id/nav_about" />
     </fragment>
     <fragment
         android:id="@+id/nav_session_archive"
@@ -60,4 +63,8 @@
             android:name="args"
             app:argType="com.rbraithwaite.sleepapp.ui.sleep_tracker.PostSleepFragment$Args" />
     </fragment>
+    <fragment
+        android:id="@+id/nav_about"
+        android:name="com.rbraithwaite.sleepapp.ui.about.AboutFragment"
+        android:label="About App Name" />
 </navigation>
