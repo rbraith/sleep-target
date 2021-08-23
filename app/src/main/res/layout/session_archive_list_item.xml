@@ -125,7 +125,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_goneMarginLeft="0dp">
 
-            <com.rbraithwaite.sleepapp.ui.common.views.mood_selector.TEMP.MoodView
+            <com.rbraithwaite.sleeptarget.ui.common.views.mood_selector.TEMP.MoodView
                 android:id="@+id/session_archive_list_item_mood"
                 android:layout_width="20dp"
                 android:layout_height="20dp"

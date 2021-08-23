@@ -48,7 +48,7 @@
     </FrameLayout>
 
 
-    <com.rbraithwaite.sleepapp.ui.stats.common.RangeSelectorComponent
+    <com.rbraithwaite.sleeptarget.ui.stats.common.RangeSelectorComponent
         android:id="@+id/stats_durations_range_selector"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -71,7 +71,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/stats_durations_range_selector" />
 
-    <com.rbraithwaite.sleepapp.ui.common.views.VerticalTextView
+    <com.rbraithwaite.sleeptarget.ui.common.views.VerticalTextView
         android:id="@+id/stats_durations_durations_axis_title"
         style="@style/StatsYAxisTitle"
         android:layout_width="wrap_content"
@@ -83,7 +83,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/stats_durations_title" />
 
-    <com.rbraithwaite.sleepapp.ui.common.views.VerticalTextView
+    <com.rbraithwaite.sleeptarget.ui.common.views.VerticalTextView
         android:id="@+id/stats_durations_ratings_axis_title"
         style="@style/StatsYAxisTitle"
         android:layout_width="wrap_content"

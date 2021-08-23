@@ -16,7 +16,7 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.rbraithwaite.sleepapp">
+    package="com.rbraithwaite.sleeptarget">
 
     <application>
         <!--        https://github.com/android/architecture-samples/blob/f2fd9ce969a431b20218f3ace38bbb95fd4d1151/app/src/debug/AndroidManifest.xml-->

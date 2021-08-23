@@ -16,4 +16,4 @@
  */
 
 include ':app'
-rootProject.name = "SleepApp"
+rootProject.name = "Sleep Target"

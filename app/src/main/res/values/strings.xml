@@ -16,7 +16,7 @@
   -->
 
 <resources>
-    <string name="app_name">SleepApp</string>
+    <string name="app_name">Sleep Target</string>
     <string name="sleep_tracker_button_start">GOING TO SLEEP</string>
     <string name="sleep_tracker_button_stop">WAKING UP</string>
     <string name="common_session_times_start_title">Start time</string>

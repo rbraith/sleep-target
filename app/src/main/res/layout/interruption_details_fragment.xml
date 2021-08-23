@@ -25,7 +25,7 @@
     android:focusableInTouchMode="true"
     android:theme="@style/InterruptionDetailsFragmentTheme">
 
-    <com.rbraithwaite.sleepapp.ui.common.views.session_times.SessionTimesComponent
+    <com.rbraithwaite.sleeptarget.ui.common.views.session_times.SessionTimesComponent
         android:id="@+id/interruption_details_session_times"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

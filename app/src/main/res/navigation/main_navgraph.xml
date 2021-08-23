@@ -24,8 +24,8 @@
 
     <fragment
         android:id="@+id/nav_sleeptracker"
-        android:name="com.rbraithwaite.sleepapp.ui.sleep_tracker.SleepTrackerFragment"
-        android:label="App Name">
+        android:name="com.rbraithwaite.sleeptarget.ui.sleep_tracker.SleepTrackerFragment"
+        android:label="Sleep Target">
         <action
             android:id="@+id/action_nav_sleeptracker_to_debug_navgraph"
             app:destination="@id/debug_navgraph" />
@@ -38,7 +38,7 @@
     </fragment>
     <fragment
         android:id="@+id/nav_session_archive"
-        android:name="com.rbraithwaite.sleepapp.ui.session_archive.SessionArchiveFragment"
+        android:name="com.rbraithwaite.sleeptarget.ui.session_archive.SessionArchiveFragment"
         android:label="Archive">
         <action
             android:id="@+id/action_sessionArchive_to_sessionData"
@@ -46,42 +46,42 @@
     </fragment>
     <fragment
         android:id="@+id/nav_session_details"
-        android:name="com.rbraithwaite.sleepapp.ui.session_details.SessionDetailsFragment"
+        android:name="com.rbraithwaite.sleeptarget.ui.session_details.SessionDetailsFragment"
         android:label="Sleep Details">
         <argument
             android:name="args"
-            app:argType="com.rbraithwaite.sleepapp.ui.session_details.SessionDetailsFragment$Args" />
+            app:argType="com.rbraithwaite.sleeptarget.ui.session_details.SessionDetailsFragment$Args" />
         <action
             android:id="@+id/action_session_details_to_interruption_details"
             app:destination="@id/nav_interruption_details" />
     </fragment>
     <fragment
         android:id="@+id/nav_sleepgoals"
-        android:name="com.rbraithwaite.sleepapp.ui.sleep_goals.SleepGoalsFragment"
+        android:name="com.rbraithwaite.sleeptarget.ui.sleep_goals.SleepGoalsFragment"
         android:label="Goals" />
     <include app:graph="@navigation/debug_navgraph" />
     <fragment
         android:id="@+id/nav_sleepstats"
-        android:name="com.rbraithwaite.sleepapp.ui.stats.StatsFragment"
+        android:name="com.rbraithwaite.sleeptarget.ui.stats.StatsFragment"
         android:label="Stats" />
     <fragment
         android:id="@+id/nav_interruption_details"
-        android:name="com.rbraithwaite.sleepapp.ui.interruption_details.InterruptionDetailsFragment"
+        android:name="com.rbraithwaite.sleeptarget.ui.interruption_details.InterruptionDetailsFragment"
         android:label="Interruption Details" >
         <argument
             android:name="args"
-            app:argType="com.rbraithwaite.sleepapp.ui.interruption_details.InterruptionDetailsFragment$Args" />
+            app:argType="com.rbraithwaite.sleeptarget.ui.interruption_details.InterruptionDetailsFragment$Args" />
     </fragment>
     <fragment
         android:id="@+id/nav_postsleep"
-        android:name="com.rbraithwaite.sleepapp.ui.sleep_tracker.PostSleepFragment"
+        android:name="com.rbraithwaite.sleeptarget.ui.sleep_tracker.PostSleepFragment"
         android:label="Keep Sleep Session?" >
         <argument
             android:name="args"
-            app:argType="com.rbraithwaite.sleepapp.ui.sleep_tracker.PostSleepFragment$Args" />
+            app:argType="com.rbraithwaite.sleeptarget.ui.sleep_tracker.PostSleepFragment$Args" />
     </fragment>
     <fragment
         android:id="@+id/nav_about"
-        android:name="com.rbraithwaite.sleepapp.ui.about.AboutFragment"
-        android:label="About App Name" />
+        android:name="com.rbraithwaite.sleeptarget.ui.about.AboutFragment"
+        android:label="About Sleep Target" />
 </navigation>

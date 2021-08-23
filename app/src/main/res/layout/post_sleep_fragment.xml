@@ -226,7 +226,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/postsleep_interruptions_title" />
 
-        <com.rbraithwaite.sleepapp.ui.sleep_tracker.PostSleepTagsComponent
+        <com.rbraithwaite.sleeptarget.ui.sleep_tracker.PostSleepTagsComponent
             android:id="@+id/postsleep_tags_content"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

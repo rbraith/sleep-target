@@ -7,7 +7,7 @@
 #*********************************************************
 
 # filepaths are relative to the repo root
-SLEEPAPP_GRADLE_FILEPATH="./app/build.gradle"
+APP_GRADLE_FILEPATH="./app/build.gradle"
 
 TYPE_NUM_ALPHA="1"
 TYPE_NUM_BETA="2"
@@ -72,13 +72,13 @@ Options:
 # _____________________________________________________________________________________________
 function getCurrentVersionCode() {
     # load gradle file contents; find versionCode line; remove all non-number chars
-    cat "$SLEEPAPP_GRADLE_FILEPATH" | grep "versionCode" | sed -E 's/[^0-9]//g'
+    cat "$APP_GRADLE_FILEPATH" | grep "versionCode" | sed -E 's/[^0-9]//g'
 }
 
 # _____________________________________________________________________________________________
 function getCurrentVersionName() {
     # load gradle file contents; find versionName line; isolate quoted name; remove quotes
-    cat "$SLEEPAPP_GRADLE_FILEPATH" | grep "versionName" | grep -o "\".*\"" | sed 's/"//g'
+    cat "$APP_GRADLE_FILEPATH" | grep "versionName" | grep -o "\".*\"" | sed 's/"//g'
 }
 
 # _____________________________________________________________________________________________
@@ -274,10 +274,10 @@ function updateGradleVersion() {
     # /<line-filter>/ s/<old-code>/<new-code>/
     # The line filter is used to avoid comments - it only lets through lines which 
     # start w/ whitespace (^\s+).
-    sed -i -E "/^\s+versionCode/ s/[0-9]+/${newVersionCode}/" "$SLEEPAPP_GRADLE_FILEPATH"
+    sed -i -E "/^\s+versionCode/ s/[0-9]+/${newVersionCode}/" "$APP_GRADLE_FILEPATH"
 
     # /<line-filter>/ s/<old-name>/<new-name>/
-    sed -i -E "/^\s+versionName/ s/\".*\"/\"${newVersionName}\"/" "$SLEEPAPP_GRADLE_FILEPATH"
+    sed -i -E "/^\s+versionName/ s/\".*\"/\"${newVersionName}\"/" "$APP_GRADLE_FILEPATH"
 }
 
 # _____________________________________________________________________________________________

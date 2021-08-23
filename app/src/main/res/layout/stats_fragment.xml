@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="8dp">
 
-            <com.rbraithwaite.sleepapp.ui.stats.chart_intervals.IntervalsChartComponent
+            <com.rbraithwaite.sleeptarget.ui.stats.chart_intervals.IntervalsChartComponent
                 android:id="@+id/stats_intervals"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
@@ -52,7 +52,7 @@
             android:layout_marginRight="8dp"
             android:layout_marginBottom="8dp">
 
-            <com.rbraithwaite.sleepapp.ui.stats.chart_durations.DurationsChartComponent
+            <com.rbraithwaite.sleeptarget.ui.stats.chart_durations.DurationsChartComponent
                 android:id="@+id/stats_durations"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />

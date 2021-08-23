@@ -41,7 +41,7 @@
 
     </FrameLayout>
 
-    <com.rbraithwaite.sleepapp.ui.stats.common.RangeSelectorComponent
+    <com.rbraithwaite.sleeptarget.ui.stats.common.RangeSelectorComponent
         android:id="@+id/stats_intervals_time_period_selector"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
