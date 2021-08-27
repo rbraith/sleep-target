@@ -56,4 +56,19 @@
     <string name="interruption_details_overlap_error_message">The set times overlap with an already existing interruption in this session, having these times:</string>
     <string name="interruption_details_oob_error_message">The interruption times must be within the start and end times of the sleep session:</string>
     <string name="no_tags">No Tags</string>
+    <string name="about_version_num">Version %s</string>
+    <string name="about_copyright">Copyright © 2020–2021 Richard Braithwaite</string>
+    <string name="about_software_license">View Software License</string>
+    <string name="view">View</string>
+<!--    TODO [21-08-24 7:34PM] - set the right github link-->
+    <string name="about_description">Sleep Target is a free and open-source sleep tracking app.
+        Visit the project on <a href="https://www.github.com">Github</a>!</string>
+    <string name="about_credits_dependencies">
+        \u25CF <a href="https://github.com/ddanny/achartengine">AChartEngine</a>\n
+        \u25CF <a href="https://github.com/prolificinteractive/material-calendarview">Material Calendar View</a>\n
+        \u25CF <a href="https://github.com/google/flexbox-layout">FlexboxLayout</a>
+    </string>
+    <string name="about_credits_visual_assets">
+        \u25CF Mood icons made by <a href="https://www.flaticon.com/authors/pixel-perfect">Pixel Perfect</a> from <a href="https://www.flaticon.com/">www.flaticon.com</a>
+    </string>
 </resources>

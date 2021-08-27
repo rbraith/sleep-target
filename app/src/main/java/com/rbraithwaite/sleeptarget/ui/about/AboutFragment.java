@@ -14,17 +14,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.about;
 
 import android.os.Bundle;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.rbraithwaite.sleeptarget.BuildConfig;
 import com.rbraithwaite.sleeptarget.R;
 import com.rbraithwaite.sleeptarget.ui.BaseFragment;
 
@@ -49,5 +51,29 @@ public class AboutFragment
             @Nullable Bundle savedInstanceState)
     {
         return inflater.inflate(R.layout.about_fragment, container, false);
+    }
+    
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
+    {
+        TextView versionText = view.findViewById(R.id.about_version_num);
+        versionText.setText(getVersionText());
+        
+        TextView descriptionText = view.findViewById(R.id.about_description);
+        TextView depsText = view.findViewById(R.id.about_credits_dependencies);
+        TextView visualsText = view.findViewById(R.id.about_credits_visual);
+        descriptionText.setMovementMethod(LinkMovementMethod.getInstance());
+        depsText.setMovementMethod(LinkMovementMethod.getInstance());
+        visualsText.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+    
+//*********************************************************
+// private methods
+//*********************************************************
+
+    // REFACTOR [21-08-24 5:53PM] -- This should go somewhere else - view model? utility class?
+    private String getVersionText()
+    {
+        return getString(R.string.about_version_num, BuildConfig.VERSION_NAME);
     }
 }

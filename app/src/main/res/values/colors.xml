@@ -37,6 +37,8 @@
     <color name="colorError">#B21936</color>
     <color name="colorOnError">@color/colorOnSecondarySurface</color>
 
+    <color name="colorLinks">#2196F3</color>
+
     <!-- TODO [21-05-26 9:58PM] - I'm having trouble applying this color to dialogs
             - see comment in values/themes_tracker.xml::TrackerTagSelectorDialogTheme for
             additional details

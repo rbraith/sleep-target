@@ -72,6 +72,8 @@
         
         <item name="colorError">@color/colorError</item>
         <item name="colorOnError">@color/colorOnError</item>
+
+        <item name="android:textColorLink">@color/colorLinks</item>
     </style>
 
 </resources>
