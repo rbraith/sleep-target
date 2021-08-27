@@ -2,6 +2,31 @@
 #
 # Use this script to bump the version.
 
+# TODO [21-08-27 5:11PM] -- I've changed the versioning strat for this app and need to update this
+#  tool to reflect that.
+#  New versioning strat:
+#   - beta versions happen on main (instead of the release branch)
+#     - This change is to fix the situation where after bumping for release, for a time the next
+#       alpha version and the current beta will be effectively the same version, due to bugfixes
+#       flowing up
+#  - no more hotfix betas e.g. 1.0.4-beta.3
+#     - each release only has 1 beta stage
+#  - new version code strat:
+#     - its not nec. to reflect detail of the version name in the code - the code's only
+#       responsibility is to *sort versions*, nothing else needs to be encoded.
+#     - instead of MmmHHTBB use MMMMmmmmm, where M="major bump" and m="minor bump"
+#       - Note: major & minor bumps here are not the major & minor version nums, these bumps work
+#         like this:
+#           - major: alpha->beta, beta->release, beta->next alpha
+#           - minor: alpha nums, beta nums, release fix num
+#       - examples:
+#         1.0-pre-alpha -> 1.0-alpha.1 : 1 -> 100001
+#         1.0-alpha.1 -> 1.0-alpha.2 : 100001 -> 100002
+#         1.0-alpha.2 -> 1.0-beta.1 : 100002 -> 200001
+#         1.0-beta.1 -> 1.0-beta.2 : 200001 -> 200002
+#         1.0-beta.2 -> 1.0.0 : 200002 -> 300001
+#         1.0-beta.2 -> 1.1-alpha.1 : 200002 -> 400001.
+
 #*********************************************************
 # globals
 #*********************************************************
@@ -20,6 +45,12 @@ TYPE_NUM_RELEASE="3"
 # _____________________________________________________________________________________________
 function displayHelpMessage() {
     echo "
+***DEPRECATED***
+DO NOT USE THIS TOOL RIGHT NOW
+I've changed the versioning strategy for the app and need to update this
+tool to reflect that.
+***DEPRECATED***
+
 This tool is for bumping the project version. It is meant to be used
 manually and should be called from the repo root as ./tools/bumpver.sh.
 The version should only ever be updated from this script, as this script
