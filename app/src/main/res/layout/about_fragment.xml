@@ -34,16 +34,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <View
-            android:id="@+id/about_div1"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="?attr/appColorOnPrimarySurface2" />
-
-        <include
-            layout="@layout/about_changelog"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+        <!-- TODO [21-08-27 11:16PM] - Re-enable changelog functionality in v1.1-->
+<!--        <View-->
+<!--            android:id="@+id/about_div1"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="1dp"-->
+<!--            android:background="?attr/appColorOnPrimarySurface2" />-->
+<!--        <include-->
+<!--            layout="@layout/about_changelog"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content" />-->
 
         <View
             android:id="@+id/about_div2"
