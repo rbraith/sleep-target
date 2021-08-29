@@ -31,7 +31,7 @@
         <item
             android:id="@+id/nav_sleepgoals"
             android:icon="@drawable/ic_goal_trophy"
-            android:title="Goals" />
+            android:title="Targets" />
         <item
             android:id="@+id/nav_sleepstats"
             android:icon="@drawable/ic_baseline_bar_chart_24"

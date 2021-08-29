@@ -31,10 +31,10 @@
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
     <string name="confirm">Confirm</string>
-    <string name="sleep_goals_delete_waketime_dialog_title">Delete wake-time goal?</string>
-    <string name="session_data_delete_waketime_dialog_title">Delete wake-time goal?</string>
-    <string name="sleep_goals_delete_duration_dialog_title">Delete sleep duration goal?</string>
-    <string name="session_data_delete_duration_dialog_title">Delete sleep duration goal?</string>
+    <string name="sleep_goals_delete_waketime_dialog_title">Delete wake-time target?</string>
+    <string name="session_data_delete_waketime_dialog_title">Delete wake-time target?</string>
+    <string name="sleep_goals_delete_duration_dialog_title">Delete sleep duration target?</string>
+    <string name="session_data_delete_duration_dialog_title">Delete sleep duration target?</string>
     <string name="close">Close</string>
     <string name="tag_selector_dialog_add_tag_text">Add Custom Tag</string>
     <string name="session_archive_item_more_tags_text">+ %d more</string>
@@ -71,4 +71,5 @@
     <string name="about_credits_visual_assets">
         \u25CF Mood icons made by <a href="https://www.flaticon.com/authors/pixel-perfect">Pixel Perfect</a> from <a href="https://www.flaticon.com/">www.flaticon.com</a>
     </string>
+    <string name="add_new_target">Add New Target</string>
 </resources>

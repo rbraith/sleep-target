@@ -58,7 +58,7 @@
     <fragment
         android:id="@+id/nav_sleepgoals"
         android:name="com.rbraithwaite.sleeptarget.ui.sleep_goals.SleepGoalsFragment"
-        android:label="Goals" />
+        android:label="Targets" />
     <include app:graph="@navigation/debug_navgraph" />
     <fragment
         android:id="@+id/nav_sleepstats"

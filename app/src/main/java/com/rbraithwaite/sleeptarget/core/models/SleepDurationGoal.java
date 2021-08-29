@@ -21,6 +21,7 @@ import com.rbraithwaite.sleeptarget.utils.TimeUtils;
 
 import java.util.Date;
 
+// REFACTOR [21-08-29 5:30PM] -- Rename all internal instances of "goal" to "target".
 public class SleepDurationGoal
 {
 //*********************************************************

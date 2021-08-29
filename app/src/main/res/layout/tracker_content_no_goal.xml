@@ -43,7 +43,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:text="No goals defined."
+        android:text="No targets defined."
         android:textColor="?attr/appColorOnPrimarySurface2"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="@+id/tracker_no_goals_icon"
