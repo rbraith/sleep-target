@@ -17,6 +17,7 @@
 
 package com.rbraithwaite.sleeptarget.ui.sleep_goals;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,10 +28,13 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
+import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.LiveData;
 
 import com.rbraithwaite.sleeptarget.R;
 import com.rbraithwaite.sleeptarget.ui.BaseFragment;
+import com.rbraithwaite.sleeptarget.ui.common.dialog.AlertDialogFragment;
 import com.rbraithwaite.sleeptarget.ui.common.dialog.DialogUtils;
 import com.rbraithwaite.sleeptarget.ui.common.dialog.DurationPickerFragment;
 import com.rbraithwaite.sleeptarget.ui.common.dialog.TimePickerFragment;
@@ -59,6 +63,7 @@ public class SleepGoalsFragment
     
     private static final String DIALOG_DELETE_WAKETIME = "DeleteWakeTime";
     private static final String DIALOG_DELETE_DURATION = "DeleteDuration";
+    private static final String DIALOG_DURATION_HELP = "DurationHelp";
     
     private static final String PICKER_SLEEP_DURATION = "SleepDurationPicker";
     private static final String TAG = "SleepGoalsFragment";
@@ -165,9 +170,10 @@ public class SleepGoalsFragment
     // REFACTOR [21-01-29 2:46AM] -- duplicate logic with initWakeTimeGoal()
     private void initSleepDurationGoal(View fragmentRoot)
     {
-        final View sleepDurationGoalLayout = fragmentRoot.findViewById(R.id.sleep_goals_duration);
+        CardView sleepDurationCard = fragmentRoot.findViewById(R.id.sleep_goals_duration_card);
+        final View sleepDurationGoalLayout = sleepDurationCard.findViewById(R.id.sleep_goals_duration);
         final Button buttonAddNewSleepDuration =
-                fragmentRoot.findViewById(R.id.sleep_goals_new_duration_btn);
+                sleepDurationCard.findViewById(R.id.sleep_goals_new_duration_btn);
         buttonAddNewSleepDuration.setOnClickListener(v -> displaySleepDurationGoalPickerDialog(
                 getViewModel().getDefaultSleepDurationGoal()));
         
@@ -188,6 +194,9 @@ public class SleepGoalsFragment
                 });
         
         initSleepDurationGoalLayout(sleepDurationGoalLayout);
+        
+        View helpClickFrame = sleepDurationCard.findViewById(R.id.sleep_goals_duration_help_click_frame);
+        helpClickFrame.setOnClickListener(v -> displaySleepDurationGoalHelpDialog());
     }
     
     private void initSleepDurationGoalLayout(View sleepDurationGoalLayout)
@@ -224,6 +233,20 @@ public class SleepGoalsFragment
                 this::displayWakeTimePickerDialog));
         Button wakeTimeDeleteButton = wakeTimeLayout.findViewById(R.id.waketime_delete_btn);
         wakeTimeDeleteButton.setOnClickListener(v -> displayWakeTimeDeleteDialog());
+    }
+    
+    private void displaySleepDurationGoalHelpDialog()
+    {
+        DialogFragment dialog = AlertDialogFragment.createInstance(() -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            builder.setTitle("How to hit a Sleep Duration Target:")
+                    // TODO [21-08-29 6:30PM] -- add help dialog content.
+                    .setMessage("Stub! Replace me!!")
+                    .setPositiveButton(android.R.string.ok, null);
+            return builder.create();
+        });
+        
+        dialog.show(getChildFragmentManager(), DIALOG_DURATION_HELP);
     }
     
     private void displaySleepDurationGoalPickerDialog(SleepDurationGoalUIData initialValue)
