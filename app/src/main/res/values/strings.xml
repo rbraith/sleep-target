@@ -82,4 +82,10 @@
         \n
         \u25CF <b>started on the next day and ended on the next day</b> (e.g. 1 a.m. to 9 a.m.)
     </string>
+    <string name="waketime_target_help">
+        To determine if you hit the wake-time target for a day, the app will look at <b>the most recent
+        sleep session that started before today\'s but after yesterday\'s target</b>.\n
+        \n
+        The target is hit for that day if that sleep session <b>ends within 5 minutes +/- of the target</b>.
+    </string>
 </resources>

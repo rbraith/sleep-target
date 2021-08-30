@@ -245,7 +245,7 @@ public class SleepGoalsFragment
         DialogFragment dialog = AlertDialogFragment.createInstance(() -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
             builder.setTitle("How to hit a wake-time target:")
-                    .setMessage("Stub!!! Replace me!!!")
+                    .setView(getLayoutInflater().inflate(R.layout.sleep_goals_help_dialog_waketime, null))
                     .setPositiveButton(android.R.string.ok, null);
             return builder.create();
         });
