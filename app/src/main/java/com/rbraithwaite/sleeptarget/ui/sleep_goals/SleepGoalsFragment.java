@@ -64,6 +64,7 @@ public class SleepGoalsFragment
     private static final String DIALOG_DELETE_WAKETIME = "DeleteWakeTime";
     private static final String DIALOG_DELETE_DURATION = "DeleteDuration";
     private static final String DIALOG_DURATION_HELP = "DurationHelp";
+    private static final String DIALOG_WAKETIME_HELP = "WakeTimeHelp";
     
     private static final String PICKER_SLEEP_DURATION = "SleepDurationPicker";
     private static final String TAG = "SleepGoalsFragment";
@@ -139,9 +140,10 @@ public class SleepGoalsFragment
     
     private void initWakeTimeGoal(View fragmentRoot)
     {
-        final View wakeTimeLayout = fragmentRoot.findViewById(R.id.sleep_goals_waketime);
+        CardView wakeTimeCard = fragmentRoot.findViewById(R.id.sleep_goals_waketime_card);
+        final View wakeTimeLayout = wakeTimeCard.findViewById(R.id.sleep_goals_waketime);
         final Button buttonAddNewWakeTime =
-                fragmentRoot.findViewById(R.id.sleep_goals_new_waketime_btn);
+                wakeTimeCard.findViewById(R.id.sleep_goals_new_waketime_btn);
         
         // REFACTOR [20-12-23 5:06PM] -- consider just moving the hasWakeTime() logic into
         //  getWakeTime()'s observer (branch on the String being null (no wake time)) inside
@@ -165,6 +167,9 @@ public class SleepGoalsFragment
         buttonAddNewWakeTime.setOnClickListener(v -> displayWakeTimePickerDialog(getViewModel().getDefaultWakeTime()));
         
         initWakeTimeLayout(wakeTimeLayout);
+        
+        View helpClickFrame = wakeTimeCard.findViewById(R.id.sleep_goals_waketime_help_click_frame);
+        helpClickFrame.setOnClickListener(v -> displayWakeTimeHelpDialog());
     }
     
     // REFACTOR [21-01-29 2:46AM] -- duplicate logic with initWakeTimeGoal()
@@ -233,6 +238,19 @@ public class SleepGoalsFragment
                 this::displayWakeTimePickerDialog));
         Button wakeTimeDeleteButton = wakeTimeLayout.findViewById(R.id.waketime_delete_btn);
         wakeTimeDeleteButton.setOnClickListener(v -> displayWakeTimeDeleteDialog());
+    }
+    
+    private void displayWakeTimeHelpDialog()
+    {
+        DialogFragment dialog = AlertDialogFragment.createInstance(() -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            builder.setTitle("How to hit a wake-time target:")
+                    .setMessage("Stub!!! Replace me!!!")
+                    .setPositiveButton(android.R.string.ok, null);
+            return builder.create();
+        });
+        
+        dialog.show(getChildFragmentManager(), DIALOG_WAKETIME_HELP);
     }
     
     private void displaySleepDurationGoalHelpDialog()
