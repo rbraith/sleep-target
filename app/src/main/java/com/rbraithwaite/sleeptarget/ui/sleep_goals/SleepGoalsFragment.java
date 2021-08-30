@@ -239,9 +239,9 @@ public class SleepGoalsFragment
     {
         DialogFragment dialog = AlertDialogFragment.createInstance(() -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-            builder.setTitle("How to hit a Sleep Duration Target:")
+            builder.setTitle("How to hit a sleep duration target:")
                     // TODO [21-08-29 6:30PM] -- add help dialog content.
-                    .setMessage("Stub! Replace me!!")
+                    .setView(getLayoutInflater().inflate(R.layout.sleep_goals_help_dialog_duration, null))
                     .setPositiveButton(android.R.string.ok, null);
             return builder.create();
         });

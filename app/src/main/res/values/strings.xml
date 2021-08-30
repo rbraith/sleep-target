@@ -72,4 +72,14 @@
         \u25CF Mood icons made by <a href="https://www.flaticon.com/authors/pixel-perfect">Pixel Perfect</a> from <a href="https://www.flaticon.com/">www.flaticon.com</a>
     </string>
     <string name="add_new_target">Add New Target</string>
+    <string name="duration_target_help_1">
+        To hit a <b>sleep duration target</b> for a day, you need to have a sleep session which…
+    </string>
+    <string name="duration_target_help_2">
+        \u25CF <b>is within 10 minutes +/- of the target duration</b> (after subtracting interruptions), and either…\n
+        \n
+        \u25CF <b>started on that day and ended on another</b> (e.g. 11 p.m. to 7 a.m.), or…\n
+        \n
+        \u25CF <b>started on the next day and ended on the next day</b> (e.g. 1 a.m. to 9 a.m.)
+    </string>
 </resources>
