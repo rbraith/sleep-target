@@ -73,19 +73,18 @@
     </string>
     <string name="add_new_target">Add New Target</string>
     <string name="duration_target_help_1">
-        To hit a <b>sleep duration target</b> for a day, you need to have a sleep session which…
+        The app checks for whether you\'ve underslept or overslept. You need to have a sleep session which…
     </string>
     <string name="duration_target_help_2">
         \u25CF <b>is within 10 minutes +/- of the target duration</b> (after subtracting interruptions), and either…\n
         \n
-        \u25CF <b>started on that day and ended on another</b> (e.g. 11 p.m. to 7 a.m.), or…\n
+        \u25CF <b>started on that day and ended on the next day</b> (e.g. 11 p.m. to 7 a.m.), or…\n
         \n
         \u25CF <b>started on the next day and ended on the next day</b> (e.g. 1 a.m. to 9 a.m.)
     </string>
     <string name="waketime_target_help">
-        To determine if you hit the wake-time target for a day, the app will look at <b>the most recent
-        sleep session that started before today\'s but after yesterday\'s target</b>.\n
+        To determine if you hit the wake-time target for a day, the app will look at <b>the most recently ended sleep session for that day</b>.\n
         \n
-        The target is hit for that day if that sleep session <b>ends within 5 minutes +/- of the target</b>.
+        The day hits the target if that sleep session <b>ends within 5 minutes +/- of the target</b>.
     </string>
 </resources>
