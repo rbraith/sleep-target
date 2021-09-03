@@ -16,44 +16,64 @@
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    tools:parentTag="android.widget.LinearLayout">
+    android:layout_height="wrap_content">
 
     <TextView
         android:id="@+id/stats_intervals_title"
         style="@style/StatsSectionTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="16dp"
-        android:text="Intervals" />
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:text="Intervals"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <FrameLayout
         android:id="@+id/stats_intervals_layout"
-        android:layout_width="match_parent"
-        android:layout_height="320dp"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/stats_chart_height"
+        android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp">
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/stats_intervals_title"
+        app:layout_constraintWidth_max="@dimen/stats_max_chart_width">
 
     </FrameLayout>
 
     <com.rbraithwaite.sleeptarget.ui.stats.common.RangeSelectorComponent
         android:id="@+id/stats_intervals_time_period_selector"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:theme="@style/StatsRangeSelectorTheme" />
+        android:theme="@style/StatsRangeSelectorTheme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/stats_intervals_layout"
+        app:layout_constraintWidth_max="@dimen/stats_max_chart_range_selector_width" />
 
     <TextView
         android:id="@+id/stats_intervals_no_data"
         style="@style/StatsNoDataMessage"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         android:layout_marginBottom="32dp"
         android:gravity="center"
-        android:text="No data" />
-</merge>
+        android:text="No data"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/stats_intervals_time_period_selector" />
+</androidx.constraintlayout.widget.ConstraintLayout>

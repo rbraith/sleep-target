@@ -27,6 +27,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 
@@ -45,7 +46,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class IntervalsChartComponent
-        extends LinearLayout
+        extends ConstraintLayout
 {
 //*********************************************************
 // private properties
@@ -214,7 +215,6 @@ public class IntervalsChartComponent
     
     private void initComponent(Context context)
     {
-        setOrientation(VERTICAL);
         inflate(context, R.layout.stats_chart_intervals, this);
         
         mTitle = findViewById(R.id.stats_intervals_title);

@@ -39,11 +39,12 @@
     <FrameLayout
         android:id="@+id/stats_durations_layout"
         android:layout_width="0dp"
-        android:layout_height="320dp"
+        android:layout_height="@dimen/stats_chart_height"
         android:layout_marginTop="16dp"
         app:layout_constraintEnd_toStartOf="@+id/stats_durations_ratings_axis_title"
         app:layout_constraintStart_toEndOf="@+id/stats_durations_durations_axis_title"
-        app:layout_constraintTop_toBottomOf="@+id/stats_durations_title">
+        app:layout_constraintTop_toBottomOf="@+id/stats_durations_title"
+        app:layout_constraintWidth_max="@dimen/stats_max_chart_width">
 
     </FrameLayout>
 
@@ -55,7 +56,8 @@
         android:theme="@style/StatsRangeSelectorTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/stats_durations_layout" />
+        app:layout_constraintTop_toBottomOf="@+id/stats_durations_layout"
+        app:layout_constraintWidth_max="@dimen/stats_max_chart_range_selector_width" />
 
     <TextView
         android:id="@+id/stats_durations_no_data"
@@ -80,6 +82,8 @@
         android:layout_marginLeft="8dp"
         android:text="Duration"
         app:layout_constraintBottom_toTopOf="@+id/stats_durations_range_selector"
+        app:layout_constraintEnd_toStartOf="@+id/stats_durations_layout"
+        app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/stats_durations_title" />
 
@@ -93,6 +97,7 @@
         android:text="Rating"
         app:layout_constraintBottom_toTopOf="@+id/stats_durations_range_selector"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/stats_durations_layout"
         app:layout_constraintTop_toBottomOf="@+id/stats_durations_title" />
 
     <androidx.constraintlayout.widget.Group
