@@ -161,22 +161,18 @@ public class SleepDurationGoalSuccess
         List<SleepSession> filteredPossibleSessions = filterPossibleSessions(
                 possibleSessions, date.getTime(), date.get(Calendar.DAY_OF_YEAR));
         
-        if (!filteredPossibleSessions.isEmpty()) {
-            int longestDurationMinutes = findLongestDurationMinutes(filteredPossibleSessions);
-            return Math.abs(longestDurationMinutes - goal.inMinutes()) < GOAL_LENIENCY_MINUTES;
+        for (SleepSession session : filteredPossibleSessions) {
+            if (sessionHitsTarget(session, goal)) {
+                return true;
+            }
         }
-        
         return false;
     }
     
-    private int findLongestDurationMinutes(List<SleepSession> sessions)
-    {
-        long longestDurationMillis = sessions.get(0).getDurationMillis();
-        for (SleepSession session : sessions) {
-            longestDurationMillis = Math.max(session.getNetDurationMillis(), longestDurationMillis);
-        }
-        
-        return (int) (longestDurationMillis / 60) / 1000; // convert from millis to minutes
+    // REFACTOR [21-09-2 10:06PM] -- This should belong to SleepDurationGoal or SleepSession.
+    private boolean sessionHitsTarget(SleepSession sleepSession, SleepDurationGoal target) {
+        int durationMinutes = (int) ((sleepSession.getNetDurationMillis() / 60) / 1000);
+        return Math.abs(durationMinutes - target.inMinutes()) < GOAL_LENIENCY_MINUTES;
     }
     
     private GregorianCalendar getSleepSessionRangeEnd(GregorianCalendar start)
