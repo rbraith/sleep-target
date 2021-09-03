@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.common.views.tag_selector;
 
 import android.app.AlertDialog;
@@ -42,8 +41,6 @@ public class TagSelectorDialogFragment
 //*********************************************************
 
     private TagSelectorViewModel mViewModel;
-    
-    private int mThemeId;
     private RecyclerView mTagRecycler;
 
 //*********************************************************
@@ -60,6 +57,8 @@ public class TagSelectorDialogFragment
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState)
     {
+        mViewModel = TagSelectorViewModel.getInstanceFrom(requireActivity());
+        
         // TODO [21-06-14 12:34AM] -- the theme should also be applied to the builder.
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setView(initTagRecycler())
@@ -77,17 +76,10 @@ public class TagSelectorDialogFragment
     
     /**
      * Creates a new instance of this fragment.
-     *
-     * @param viewModel     The viewmodel used in the dialog.
-     * @param dialogThemeId The theme that will be applied to the dialog view
      */
-    public static TagSelectorDialogFragment createInstance(
-            TagSelectorViewModel viewModel,
-            int dialogThemeId)
+    public static TagSelectorDialogFragment createInstance()
     {
         TagSelectorDialogFragment fragment = new TagSelectorDialogFragment();
-        fragment.mViewModel = viewModel;
-        fragment.mThemeId = dialogThemeId;
         return fragment;
     }
     
@@ -103,7 +95,7 @@ public class TagSelectorDialogFragment
     private View initTagRecycler()
     {
         mTagRecycler = new RecyclerView(new ContextThemeWrapper(
-                requireContext(), mThemeId));
+                requireContext(), mViewModel.getDialogThemeId()));
         
         LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext());
         // These flags fix problems with the keyboard overlapping new tags when they are edited.

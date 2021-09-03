@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.common.views.tag_selector;
 
 import android.content.Context;
@@ -72,7 +71,7 @@ public class TagSelectorController
         mViewModel = viewModel;
         
         mAddTagsButton.setOnClickListener(v -> displayTagDialog());
-    
+        
         initSelectedRecycler();
         bindViewModel(lifecycleOwner);
     }
@@ -116,8 +115,9 @@ public class TagSelectorController
                 ta.getResourceId(R.styleable.TagSelectorComponent_tagSelectorDialogTheme, -1);
         ta.recycle();
         
+        mViewModel.setDialogThemeId(dialogThemeId);
         TagSelectorDialogFragment
-                .createInstance(mViewModel, dialogThemeId)
+                .createInstance()
                 .show(mFragmentManager, DIALOG_TAG);
     }
 }

@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.test_utils.ui.drivers;
 
 import android.view.View;
@@ -199,6 +198,11 @@ public class TagSelectorDriver
         openTagDialog();
         toggleTagSelectionsInDialog(convertIdsToIndices(tagIds));
         closeTagDialog();
+    }
+    
+    public void openDialog()
+    {
+        openTagDialog();
     }
 
 //*********************************************************

@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.session_details;
 
 import android.app.AlertDialog;
@@ -350,7 +349,7 @@ public class SessionDetailsFragment
     
     private void initTagSelector(View fragmentRoot)
     {
-        mTagSelectorViewModel = new TagSelectorViewModel(requireContext());
+        mTagSelectorViewModel = TagSelectorViewModel.getInstanceFrom(requireActivity());
         mTagSelectorViewModel.setSelectedTagIds(getViewModel().getTagIds());
         
         mTagSelectorViewModel.getSelectedTags().observe(

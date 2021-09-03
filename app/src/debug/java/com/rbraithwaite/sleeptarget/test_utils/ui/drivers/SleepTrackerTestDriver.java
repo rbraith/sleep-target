@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.test_utils.ui.drivers;
 
 import androidx.lifecycle.LiveData;
@@ -66,11 +65,11 @@ public class SleepTrackerTestDriver
     
     
     private OnNavToPostSleepListener mOnNavToPostSleepListener;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
-
+    
     public interface OnNavToPostSleepListener
     {
         void onNavToPostSleep();
@@ -338,7 +337,7 @@ public class SleepTrackerTestDriver
             hamcrestAssertThat(inSleepSession.getValue(), is(false));
         }
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -355,7 +354,7 @@ public class SleepTrackerTestDriver
                 withId(R.id.more_context_tags),
                 getTagSelectorViewModel());
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -364,12 +363,12 @@ public class SleepTrackerTestDriver
     {
         mOnNavToPostSleepListener = onNavToPostSleepListener;
     }
-
+    
     public void startSessionManually()
     {
         pressSleepTrackingButton();
     }
-
+    
     public void stopSessionManually()
     {
         if (!mInSession) {
@@ -495,6 +494,11 @@ public class SleepTrackerTestDriver
         onNavToPostSleep();
     }
     
+    public void openTagSelectorDialog()
+    {
+        mTagSelectorDriver.openDialog();
+    }
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -505,7 +509,7 @@ public class SleepTrackerTestDriver
             mOnNavToPostSleepListener.onNavToPostSleep();
         }
     }
-
+    
     private void resetTimeUtils()
     {
         injectTimeUtils(new TimeUtils());

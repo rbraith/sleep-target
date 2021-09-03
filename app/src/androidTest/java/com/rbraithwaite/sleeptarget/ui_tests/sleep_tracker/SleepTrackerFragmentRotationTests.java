@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui_tests.sleep_tracker;
 
 import android.content.pm.ActivityInfo;
@@ -48,7 +47,7 @@ public class SleepTrackerFragmentRotationTests
 //*********************************************************
 // api
 //*********************************************************
-    
+
     // regression test for #42
     @Test
     public void currentSessionPersistsAcrossOrientationChange()
@@ -67,5 +66,18 @@ public class SleepTrackerFragmentRotationTests
         
         sleepTracker.assertThat().sessionTimerMatches(expectedDurationMillis);
         sleepTracker.assertThat().detailsMatch(sleepSession);
+    }
+    
+    @Test
+    public void withTagSelectorDialogOpen()
+    {
+        SleepTrackerTestDriver sleepTracker =
+                new SleepTrackerTestDriver(HiltFragmentTestHelper.launchFragment(
+                        SleepTrackerFragment.class));
+        
+        sleepTracker.openTagSelectorDialog();
+        
+        // just making sure no crash happens here
+        sleepTracker.rotateScreen(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
     }
 }

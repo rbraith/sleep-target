@@ -14,14 +14,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.common.views.tag_selector;
 
-import android.content.Context;
-
+import androidx.fragment.app.FragmentActivity;
+import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.rbraithwaite.sleeptarget.core.models.Tag;
 import com.rbraithwaite.sleeptarget.core.repositories.TagRepository;
@@ -34,24 +35,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import dagger.hilt.InstallIn;
-import dagger.hilt.android.EntryPointAccessors;
-import dagger.hilt.android.components.ApplicationComponent;
-
 public class TagSelectorViewModel
+        extends ViewModel
 {
 //*********************************************************
 // private properties
 //*********************************************************
 
-    private Context mContext;
     private TagRepository mTagRepository;
     
     private boolean mInitializedListItems = false;
     
     private MutableLiveData<List<ListItemData>> mListItems = new MutableLiveData<>();
     private LiveData<ListTrackingData<ListItemData>> mLastListItemChange;
-    private EntryPoint mEntryPoint;
     private MutableLiveData<Set<Integer>> mTagEditChangeIndices = new MutableLiveData<>();
     private MutableLiveData<Set<Integer>> mTagExpansionChangedIndices = new MutableLiveData<>();
     private MutableLiveData<Integer> mLastTagSelectionChangeIndex = new MutableLiveData<>();
@@ -59,14 +55,19 @@ public class TagSelectorViewModel
             new MutableLiveData<>(new ArrayList<>());
     private int mCurrentActiveEditTagIndex = NO_ACTIVE_EDIT_TAG;
     private int mCurrentExpandedTagIndex = NO_TAG_EXPANDED;
+    
+    // HACK [21-09-3 1:25AM] -- This is a janky (maybe not?) solution to the tag selector dialog's
+    //  theme value resetting on orientation change.
+    private int mDialogThemeId;
 
 //*********************************************************
 // private constants
 //*********************************************************
 
     private static final int NO_TAG_EXPANDED = -1;
+    
     private static final String TAG = "TagSelectorViewModel";
-
+    
 //*********************************************************
 // public constants
 //*********************************************************
@@ -89,27 +90,15 @@ public class TagSelectorViewModel
             this.tagUiData = tagUiData;
         }
     }
-
-//*********************************************************
-// package helpers
-//*********************************************************
-
-    @dagger.hilt.EntryPoint
-    @InstallIn(ApplicationComponent.class)
-    interface EntryPoint
-    {
-        TagRepository tagRepository();
-    }
-
-
+    
 //*********************************************************
 // constructors
 //*********************************************************
 
-    public TagSelectorViewModel(Context context)
+    @ViewModelInject
+    public TagSelectorViewModel(TagRepository tagRepository)
     {
-        mContext = context;
-        mTagRepository = createTagRepository();
+        mTagRepository = tagRepository;
         
         LiveDataFuture.getValue(
                 mTagRepository.getAllTags(), null, lastTagsChange -> {
@@ -123,6 +112,15 @@ public class TagSelectorViewModel
 // api
 //*********************************************************
 
+    // HACK [21-09-3 1:29AM] -- This is not a great solution to the problem of orientation
+    //  changes with the tag selector dialog open. Since different fragments use tag selectors,
+    //  there's a possibility that you could get the wrong selected tags or something, because
+    //  those were set in another fragment.
+    public static TagSelectorViewModel getInstanceFrom(FragmentActivity activity)
+    {
+        return new ViewModelProvider(activity).get(TagSelectorViewModel.class);
+    }
+    
     // REFACTOR [21-06-29 8:43PM] -- make this like SessionArchiveFragmentViewModel
     //  .getLastListItemsChange.
     public LiveData<ListTrackingData<ListItemData>> getLastListItemChange()
@@ -255,14 +253,15 @@ public class TagSelectorViewModel
     {
         return mSelectedTags;
     }
-
-//*********************************************************
-// protected api
-//*********************************************************
-
-    protected TagRepository createTagRepository()
+    
+    public int getDialogThemeId()
     {
-        return getEntryPoint().tagRepository();
+        return mDialogThemeId;
+    }
+    
+    public void setDialogThemeId(int dialogThemeId)
+    {
+        mDialogThemeId = dialogThemeId;
     }
 
 //*********************************************************
@@ -277,16 +276,6 @@ public class TagSelectorViewModel
         }
         mListItems.setValue(result);
         mInitializedListItems = true;
-    }
-    
-    private EntryPoint getEntryPoint()
-    {
-        if (mEntryPoint == null) {
-            mEntryPoint = EntryPointAccessors.fromApplication(
-                    mContext.getApplicationContext(),
-                    EntryPoint.class);
-        }
-        return mEntryPoint;
     }
     
     /**

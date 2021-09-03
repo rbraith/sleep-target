@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.sleep_tracker;
 
 import android.os.Bundle;
@@ -174,7 +173,8 @@ public class SleepTrackerFragment
     public TagSelectorViewModel getTagSelectorViewModel()
     {
         mTagSelectorViewModel = CommonUtils.lazyInit(
-                mTagSelectorViewModel, () -> new TagSelectorViewModel(requireContext()));
+                mTagSelectorViewModel,
+                () -> TagSelectorViewModel.getInstanceFrom(requireActivity()));
         return mTagSelectorViewModel;
     }
 
@@ -223,14 +223,15 @@ public class SleepTrackerFragment
         getViewModel().getInitialTagIds().observe(
                 getViewLifecycleOwner(),
                 initialTagIds -> {
-                    getTagSelectorViewModel().setSelectedTagIds(initialTagIds);
-                    getTagSelectorViewModel().getSelectedTags().observe(
+                    TagSelectorViewModel tagSelectorViewModel =
+                            TagSelectorViewModel.getInstanceFrom(requireActivity());
+                    tagSelectorViewModel.setSelectedTagIds(initialTagIds);
+                    tagSelectorViewModel.getSelectedTags().observe(
                             getViewLifecycleOwner(),
                             getViewModel()::setLocalSelectedTags);
-                    
                     mTagSelectorController = new TagSelectorController(
                             fragmentRoot.findViewById(R.id.more_context_tags),
-                            getTagSelectorViewModel(),
+                            tagSelectorViewModel,
                             getViewLifecycleOwner(),
                             getChildFragmentManager());
                 });

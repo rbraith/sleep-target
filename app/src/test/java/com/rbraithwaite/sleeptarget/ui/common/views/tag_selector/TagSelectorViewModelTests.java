@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.common.views.tag_selector;
 
 import androidx.lifecycle.LiveData;
@@ -327,16 +326,11 @@ public class TagSelectorViewModelTests
         return createViewModel(mockTagRepository);
     }
     
+    // REFACTOR [21-09-3 1:51AM] -- after making TagSelectorViewModel derive from ViewModel, this
+    //  method is unnecessary.
     private TagSelectorViewModel createViewModel(TagRepository tagRepository)
     {
-        return new TagSelectorViewModel(TestUtils.getContext())
-        {
-            @Override
-            protected TagRepository createTagRepository()
-            {
-                return tagRepository;
-            }
-        };
+        return new TagSelectorViewModel(tagRepository);
     }
     
     /**
