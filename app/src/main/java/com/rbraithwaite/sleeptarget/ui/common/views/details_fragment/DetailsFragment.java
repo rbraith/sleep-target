@@ -32,6 +32,7 @@ import com.rbraithwaite.sleeptarget.utils.CommonUtils;
 
 import java.io.Serializable;
 
+
 /**
  * A base fragment for dealing with the display of some domain model's "details". The common usage
  * is to provide add/update/delete functionality for the model being displayed. This functionality
@@ -53,11 +54,12 @@ public abstract class DetailsFragment<DataType,
 
     private static final int DATA_ICON_DELETE = R.drawable.ic_baseline_delete_forever_24;
 
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
 
+    
     /**
      * ADD: Positive action sets a result to ADDED; Negative action does nothing & exits the
      * fragment UPDATE: Positive action sets a result to UPDATED; Negative action sets a result to
@@ -101,6 +103,9 @@ public abstract class DetailsFragment<DataType,
             @NonNull View view, @Nullable Bundle savedInstanceState)
     {
         super.onViewCreated(view, savedInstanceState);
+        
+        // handle the result being set post-configuration-change
+        handleResultAction();
         
         getViewModel().initData(_getDetailsArgs().initialData);
     }
@@ -163,11 +168,12 @@ public abstract class DetailsFragment<DataType,
         return params;
     }
 
-    
+
 //*********************************************************
 // protected api
 //*********************************************************
 
+    
     /**
      * @return Returns true, useful for handling menu actions.
      */
@@ -184,7 +190,7 @@ public abstract class DetailsFragment<DataType,
      */
     protected void onAdd()
     {
-        setResultAs(DetailsResult.Action.ADDED);
+        getViewModel().setResultAction(DetailsResult.Action.ADDED);
     }
     
     /**
@@ -193,7 +199,7 @@ public abstract class DetailsFragment<DataType,
      */
     protected void onUpdate()
     {
-        setResultAs(DetailsResult.Action.UPDATED);
+        getViewModel().setResultAction(DetailsResult.Action.UPDATED);
     }
     
     /**
@@ -216,31 +222,34 @@ public abstract class DetailsFragment<DataType,
         AlertDialogFragment deleteDialog = DialogUtils.createDeleteDialog(
                 dialogParams.titleId,
                 dialogParams.messageId,
-                (dialog, which) -> setResultAs(DetailsResult.Action.DELETED));
+                (dialog, which) -> getViewModel().setResultAction(DetailsResult.Action.DELETED));
         
         deleteDialog.show(getChildFragmentManager(), dialogParams.tag);
-    }
-    
-    /**
-     * Set the result view model then exit the fragment.
-     */
-    protected void setResultAs(DetailsResult.Action action)
-    {
-        DetailsResult<DataType> detailsResult =
-                new ViewModelProvider(requireActivity()).get(getResultClass());
-        detailsResult.setResult(new DetailsResult.Result<>(
-                getViewModel().getResult(),
-                action));
-        clearDataThenNavigateUp();
     }
 
 //*********************************************************
 // private methods
 //*********************************************************
 
+    private void handleResultAction()
+    {
+        getViewModel().getResultAction().observe(getViewLifecycleOwner(), action -> {
+            _getDetailsResult().setResult(new DetailsResult.Result<>(
+                    getViewModel().getResult(),
+                    action));
+            clearDataThenNavigateUp();
+            getViewModel().onResultActionHandled();
+        });
+    }
+    
     private Args<DataType> _getDetailsArgs()
     {
         mArgs = CommonUtils.lazyInit(mArgs, this::getDetailsArgs);
         return mArgs;
+    }
+    
+    private DetailsResult<DataType> _getDetailsResult()
+    {
+        return new ViewModelProvider(requireActivity()).get(getResultClass());
     }
 }

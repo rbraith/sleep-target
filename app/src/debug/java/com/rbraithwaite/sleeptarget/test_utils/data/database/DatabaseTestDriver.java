@@ -120,13 +120,17 @@ public class DatabaseTestDriver
 //*********************************************************
 // api
 //*********************************************************
-
+    
     // REFACTOR [21-05-14 3:58PM] -- This duplicates the SleepSessionRepository code, it
     //  would be better to use that repo directly
     //  see https://developer.android.com/training/dependency-injection/hilt-testing#testing
     //  -dependencies.
     public void addSleepSession(SleepSession sleepSession)
     {
+        // BUG [21-09-6 7:51PM] -- This actually doesn't work right now with sleep sessions that
+        //  have tags - because the db is prepopulated with tags, trying to add tags w/ the
+        //  same ids here causes a crash. I would need to update the Tag's id as well based on
+        //  what addTag() returns.
         // make sure the tags exist in the db before adding the sleep session w/ tags
         for (Tag tag : sleepSession.getTags()) {
             mDatabase.getTagDao().addTag(ConvertTag.toEntity(tag));

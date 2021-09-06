@@ -14,14 +14,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.common.views.details_fragment;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+
+import com.rbraithwaite.sleeptarget.utils.LiveDataSingle;
 
 public abstract class DetailsFragmentViewModel<DataType>
         extends ViewModel
 {
+//*********************************************************
+// private properties
+//*********************************************************
+
+    private MutableLiveData<DetailsResult.Action> mResultAction = new MutableLiveData<>();
+    
 //*********************************************************
 // abstract
 //*********************************************************
@@ -33,7 +42,7 @@ public abstract class DetailsFragmentViewModel<DataType>
      * called).
      */
     public abstract void initData(DataType data);
-    
+
     public abstract void clearData();
 
 //*********************************************************
@@ -48,5 +57,25 @@ public abstract class DetailsFragmentViewModel<DataType>
     {
         clearData();
         initData(data);
+    }
+    
+    /**
+     * @return A LiveDataSingle.
+     */
+    public LiveData<DetailsResult.Action> getResultAction()
+    {
+        return LiveDataSingle.withSource(mResultAction);
+    }
+    
+    public void setResultAction(DetailsResult.Action action)
+    {
+        mResultAction.setValue(action);
+    }
+    
+    public void onResultActionHandled()
+    {
+        // reset result action to a valueless LiveData, so that the next call to getResultAction
+        // doesn't get an action that was already handled previously.
+        mResultAction = new MutableLiveData<>();
     }
 }

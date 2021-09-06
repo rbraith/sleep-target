@@ -25,6 +25,7 @@ import com.rbraithwaite.sleeptarget.core.models.Tag;
 import com.rbraithwaite.sleeptarget.utils.TimeUtils;
 import com.rbraithwaite.sleeptarget.utils.interfaces.BuilderOf;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -150,6 +151,12 @@ public class SleepSessionBuilder
     public SleepSessionBuilder withDurationMinutes(int minutes)
     {
         mDuration = TimeUtils.minutesToMillis(minutes);
+        return this;
+    }
+    
+    public SleepSessionBuilder withNoTags()
+    {
+        mTags = new ArrayList<>();
         return this;
     }
 }

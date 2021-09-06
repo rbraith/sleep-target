@@ -539,6 +539,14 @@ public class SessionDetailsTestDriver
         DialogTestUtils.pressPositiveButton();
     }
     
+    public void confirmDelete()
+    {
+        if (mOnNegativeActionListener != null) {
+            mOnNegativeActionListener.onNegativeAction();
+        }
+        DialogTestUtils.pressPositiveButton();
+    }
+    
     /**
      * Don't call this unless you're in an {@link ApplicationTestDriver}. This assumes that this
      * SessionDetailsFragment was accessed in an add-mode from the archive.
@@ -613,7 +621,7 @@ public class SessionDetailsTestDriver
 // private methods
 //*********************************************************
 
-    private void pressNegativeButton()
+    public void pressNegativeButton()
     {
         onView(withId(R.id.action_negative)).perform(click());
     }

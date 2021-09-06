@@ -28,6 +28,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.aSleepSession;
+import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.valueOf;
+
 
 /**
  * These are instrumented tests which exercise multiple components of the app related to device
@@ -71,5 +74,20 @@ public class AppRotationTests
         
         // just making sure this doesn't crash lol
         app.getPostSleep().confirmDiscard();
+    }
+    
+    @Test
+    public void sessionDetailsDeleteDialogDoesntCrash()
+    {
+        database.addSleepSession(valueOf(aSleepSession().withNoTags()));
+        app.navigateTo(ApplicationTestDriver.Destination.ARCHIVE);
+        app.getSessionArchive().openSessionDetailsFor(0);
+        
+        app.getSessionDetails().pressNegativeButton();
+        
+        app.getSessionDetails().rotateScreen(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        
+        // no crash pls
+        app.getSessionDetails().confirmDelete();
     }
 }
