@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.common.views.session_times;
 
 import android.app.AlertDialog;
@@ -54,7 +53,7 @@ public class SessionTimesComponent
 //*********************************************************
 
     private static final String DIALOG_ERROR = "DialogError_SessionTimes";
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -91,6 +90,7 @@ public class SessionTimesComponent
         initComponent(context);
     }
 
+
 //*********************************************************
 // api
 //*********************************************************
@@ -107,7 +107,7 @@ public class SessionTimesComponent
         initEndController();
         initDurationText();
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -237,8 +237,8 @@ public class SessionTimesComponent
     // REFACTOR [21-06-16 10:34PM] this should be extracted somewhere as a common utility.
     private void displayErrorDialog(int messageId)
     {
-        AlertDialogFragment dialog = AlertDialogFragment.createInstance(() -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(mParentFragment.requireContext());
+        AlertDialogFragment dialog = AlertDialogFragment.createInstance(context -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setMessage(messageId)
                     .setPositiveButton(android.R.string.ok, null);
             return builder.create();

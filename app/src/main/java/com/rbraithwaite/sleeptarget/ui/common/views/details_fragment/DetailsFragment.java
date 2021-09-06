@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.common.views.details_fragment;
 
 import android.os.Bundle;
@@ -54,11 +53,11 @@ public abstract class DetailsFragment<DataType,
 
     private static final int DATA_ICON_DELETE = R.drawable.ic_baseline_delete_forever_24;
 
+    
 //*********************************************************
 // public helpers
 //*********************************************************
 
-    
     /**
      * ADD: Positive action sets a result to ADDED; Negative action does nothing & exits the
      * fragment UPDATE: Positive action sets a result to UPDATED; Negative action sets a result to
@@ -77,14 +76,14 @@ public abstract class DetailsFragment<DataType,
         public int messageId;
     }
     
-    public static class Args<DataType> implements Serializable
+    public static class Args<DataType>
+            implements Serializable
     {
-        public static final long serialVersionUID = Params.serialVersionUID;
-        
         public DataType initialData;
         public Mode mode;
+        public static final long serialVersionUID = Params.serialVersionUID;
     }
-    
+
 //*********************************************************
 // abstract
 //*********************************************************
@@ -92,7 +91,7 @@ public abstract class DetailsFragment<DataType,
     protected abstract Args<DataType> getDetailsArgs();
     
     protected abstract Class<? extends DetailsResult<DataType>> getResultClass();
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -164,11 +163,11 @@ public abstract class DetailsFragment<DataType,
         return params;
     }
 
+    
 //*********************************************************
 // protected api
 //*********************************************************
 
-    
     /**
      * @return Returns true, useful for handling menu actions.
      */
@@ -215,7 +214,6 @@ public abstract class DetailsFragment<DataType,
         DeleteDialogParams dialogParams = getDeleteDialogParams();
         
         AlertDialogFragment deleteDialog = DialogUtils.createDeleteDialog(
-                requireContext(),
                 dialogParams.titleId,
                 dialogParams.messageId,
                 (dialog, which) -> setResultAs(DetailsResult.Action.DELETED));
@@ -235,7 +233,7 @@ public abstract class DetailsFragment<DataType,
                 action));
         clearDataThenNavigateUp();
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

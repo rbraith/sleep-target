@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.interruption_details;
 
 import android.app.AlertDialog;
@@ -59,7 +58,7 @@ public class InterruptionDetailsFragment
     
     public static class Args
             extends DetailsFragment.Args<InterruptionDetailsData> {}
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -150,6 +149,7 @@ public class InterruptionDetailsFragment
         return new Properties<>(false, InterruptionDetailsFragmentViewModel.class);
     }
 
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -174,8 +174,8 @@ public class InterruptionDetailsFragment
     
     private void displayErrorDialog(String tag, int titleId, View content)
     {
-        AlertDialogFragment dialog = AlertDialogFragment.createInstance(() -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        AlertDialogFragment dialog = AlertDialogFragment.createInstance(context -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle(titleId)
                     .setView(content)
                     .setPositiveButton(android.R.string.ok, null);

@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.sleep_goals;
 
 import android.app.AlertDialog;
@@ -176,7 +175,8 @@ public class SleepGoalsFragment
     private void initSleepDurationGoal(View fragmentRoot)
     {
         CardView sleepDurationCard = fragmentRoot.findViewById(R.id.sleep_goals_duration_card);
-        final View sleepDurationGoalLayout = sleepDurationCard.findViewById(R.id.sleep_goals_duration);
+        final View sleepDurationGoalLayout =
+                sleepDurationCard.findViewById(R.id.sleep_goals_duration);
         final Button buttonAddNewSleepDuration =
                 sleepDurationCard.findViewById(R.id.sleep_goals_new_duration_btn);
         buttonAddNewSleepDuration.setOnClickListener(v -> displaySleepDurationGoalPickerDialog(
@@ -200,7 +200,8 @@ public class SleepGoalsFragment
         
         initSleepDurationGoalLayout(sleepDurationGoalLayout);
         
-        View helpClickFrame = sleepDurationCard.findViewById(R.id.sleep_goals_duration_help_click_frame);
+        View helpClickFrame =
+                sleepDurationCard.findViewById(R.id.sleep_goals_duration_help_click_frame);
         helpClickFrame.setOnClickListener(v -> displaySleepDurationGoalHelpDialog());
     }
     
@@ -242,10 +243,11 @@ public class SleepGoalsFragment
     
     private void displayWakeTimeHelpDialog()
     {
-        DialogFragment dialog = AlertDialogFragment.createInstance(() -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        DialogFragment dialog = AlertDialogFragment.createInstance(context -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle("How do I hit a wake-time target?")
-                    .setView(getLayoutInflater().inflate(R.layout.sleep_goals_help_dialog_waketime, null))
+                    .setView(getLayoutInflater().inflate(R.layout.sleep_goals_help_dialog_waketime,
+                                                         null))
                     .setPositiveButton(android.R.string.ok, null);
             return builder.create();
         });
@@ -255,11 +257,12 @@ public class SleepGoalsFragment
     
     private void displaySleepDurationGoalHelpDialog()
     {
-        DialogFragment dialog = AlertDialogFragment.createInstance(() -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        DialogFragment dialog = AlertDialogFragment.createInstance(context -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle("How do I hit a sleep duration target?")
                     // TODO [21-08-29 6:30PM] -- add help dialog content.
-                    .setView(getLayoutInflater().inflate(R.layout.sleep_goals_help_dialog_duration, null))
+                    .setView(getLayoutInflater().inflate(R.layout.sleep_goals_help_dialog_duration,
+                                                         null))
                     .setPositiveButton(android.R.string.ok, null);
             return builder.create();
         });
@@ -280,7 +283,6 @@ public class SleepGoalsFragment
     {
         DialogUtils
                 .createDeleteDialog(
-                        requireContext(),
                         R.string.sleep_goals_delete_duration_dialog_title,
                         (dialog, which) -> getViewModel().clearSleepDurationGoal())
                 .show(getChildFragmentManager(), DIALOG_DELETE_DURATION);
@@ -291,7 +293,6 @@ public class SleepGoalsFragment
     {
         DialogUtils
                 .createDeleteDialog(
-                        requireContext(),
                         R.string.sleep_goals_delete_waketime_dialog_title,
                         (dialog, which) -> getViewModel().clearWakeTime())
                 .show(getChildFragmentManager(), DIALOG_DELETE_WAKETIME);

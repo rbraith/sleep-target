@@ -14,11 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.common.dialog;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 
 import com.rbraithwaite.sleeptarget.R;
@@ -37,33 +35,32 @@ public class DialogUtils
 //*********************************************************
 
     public static AlertDialogFragment createDeleteDialog(
-            Context context,
             Integer titleId,
             DialogInterface.OnClickListener onDeleteListener)
     {
-        return createDeleteDialog(context, titleId, null, onDeleteListener);
+        return createDeleteDialog(titleId, null, onDeleteListener);
     }
     
     // TODO [21-01-27 11:09PM] -- consider unit tests I could write for this.
     public static AlertDialogFragment createDeleteDialog(
-            Context context,
             Integer titleId,
             Integer messageId,
             DialogInterface.OnClickListener onDeleteListener)
     {
-        final AlertDialog.Builder builder =
-                new AlertDialog.Builder(context);
-        
-        builder.setIcon(R.drawable.ic_baseline_delete_forever_24)
-                .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.delete, onDeleteListener);
-        if (titleId != null) {
-            builder.setTitle(titleId);
-        }
-        if (messageId != null) {
-            builder.setMessage(messageId);
-        }
-        
-        return AlertDialogFragment.createInstance(builder::create);
+        return AlertDialogFragment.createInstance(context -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            
+            builder.setIcon(R.drawable.ic_baseline_delete_forever_24)
+                    .setNegativeButton(R.string.cancel, null)
+                    .setPositiveButton(R.string.delete, onDeleteListener);
+            if (titleId != null) {
+                builder.setTitle(titleId);
+            }
+            if (messageId != null) {
+                builder.setMessage(messageId);
+            }
+            
+            return builder.create();
+        });
     }
 }

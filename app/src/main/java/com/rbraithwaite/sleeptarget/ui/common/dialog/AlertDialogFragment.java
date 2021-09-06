@@ -14,16 +14,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.common.dialog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+
+import com.rbraithwaite.sleeptarget.utils.SerializableWrapper;
 
 public class AlertDialogFragment
         extends DialogFragment
@@ -33,6 +35,12 @@ public class AlertDialogFragment
 //*********************************************************
 
     private AlertDialogFactory mAlertDialogFactory;
+    
+//*********************************************************
+// private constants
+//*********************************************************
+
+    private static final String STATE_KEY_FACTORY = "factory";
 
 //*********************************************************
 // public helpers
@@ -44,7 +52,10 @@ public class AlertDialogFragment
     //  so no reference is kept.
     public interface AlertDialogFactory
     {
-        AlertDialog create();
+        /**
+         * @param context Use this when building the AlertDialog.
+         */
+        AlertDialog create(Context context);
     }
 
 //*********************************************************
@@ -55,15 +66,35 @@ public class AlertDialogFragment
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState)
     {
+        if (mAlertDialogFactory == null && savedInstanceState != null) {
+            // possible configuration change - try init'ing the factory from the saved state
+            SerializableWrapper<AlertDialogFactory> wrapper =
+                    (SerializableWrapper<AlertDialogFactory>) savedInstanceState.getSerializable(
+                            STATE_KEY_FACTORY);
+            if (wrapper != null) {
+                mAlertDialogFactory = wrapper.data;
+            }
+        }
+        
         if (mAlertDialogFactory == null) {
             throw new NullPointerException(
                     "The AlertDialogFactory cannot be null. Use createInstance() for new " +
                     "instances of AlertDialogFragment.");
         }
-        return mAlertDialogFactory.create();
+        
+        return mAlertDialogFactory.create(requireContext());
     }
-
-
+    
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState)
+    {
+        if (mAlertDialogFactory != null) {
+            outState.putSerializable(STATE_KEY_FACTORY,
+                                     new SerializableWrapper<>(mAlertDialogFactory));
+        }
+        super.onSaveInstanceState(outState);
+    }
+    
 
 //*********************************************************
 // api

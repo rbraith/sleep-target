@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.sleep_tracker;
 
 import android.app.AlertDialog;
@@ -60,19 +59,19 @@ public class PostSleepFragment
 //*********************************************************
 // public helpers
 //*********************************************************
-    
-    public static class Args implements Serializable
+
+    public static class Args
+            implements Serializable
     {
-        public static final long serialVersionUID = 20210112L;
-        
         public StoppedSessionData stoppedSessionData;
+        public static final long serialVersionUID = 20210112L;
         
         public Args(StoppedSessionData stoppedSessionData)
         {
             this.stoppedSessionData = stoppedSessionData;
         }
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -91,6 +90,8 @@ public class PostSleepFragment
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
     {
         super.onViewCreated(view, savedInstanceState);
+        
+        handleAction();
         
         PostSleepViewModel viewModel = getViewModel();
         
@@ -140,7 +141,7 @@ public class PostSleepFragment
     {
         return new Properties<>(false, PostSleepViewModel.class);
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -154,7 +155,7 @@ public class PostSleepFragment
     {
         return getView().findViewById(R.id.common_interruptions_recycler);
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -287,21 +288,27 @@ public class PostSleepFragment
     private void displayDiscardDialog()
     {
         AlertDialogFragment discardDialog =
-                AlertDialogFragment.createInstance(() -> {
+                AlertDialogFragment.createInstance(context -> {
                     AlertDialog.Builder builder =
-                            new AlertDialog.Builder(requireContext());
+                            new AlertDialog.Builder(context);
                     builder.setTitle(R.string.postsleep_discard_title)
                             .setMessage(R.string.postsleep_discard_warning)
                             .setNegativeButton(R.string.cancel, null)
-                            .setPositiveButton(R.string.discard, (dialog1, which) -> onDiscard());
+                            .setPositiveButton(R.string.discard,
+                                               (dialog1, which) -> getViewModel().onDiscardConfirmed());
                     return builder.create();
                 });
         discardDialog.show(getChildFragmentManager(), POST_SLEEP_DISCARD_DIALOG);
     }
     
-    private void onDiscard()
+    private void handleAction()
     {
-        getViewModel().setAction(PostSleepViewModel.DISCARD);
-        navigateUp();
+        getViewModel().getAction().observe(
+                getViewLifecycleOwner(),
+                action -> {
+                    if (action == PostSleepViewModel.DISCARD) {
+                        navigateUp();
+                    }
+                });
     }
 }

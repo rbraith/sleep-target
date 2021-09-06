@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.test_utils.ui.drivers;
 
 import com.rbraithwaite.sleeptarget.R;
@@ -58,7 +57,7 @@ public class PostSleepTestDriver
 //*********************************************************
 
     private NavCallbacks mNavCallbacks;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -189,13 +188,13 @@ public class PostSleepTestDriver
             getOwningDriver().getHelper().performSyncedFragmentAction(assertion::assertOn);
         }
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
 
     private PostSleepTestDriver() {}
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -241,12 +240,8 @@ public class PostSleepTestDriver
     
     public void discard()
     {
-        if (mNavCallbacks != null) {
-            mNavCallbacks.onDiscard();
-        }
-        
-        onView(withId(R.id.action_negative)).perform(click());
-        DialogTestUtils.pressPositiveButton();
+        clickDiscardButton();
+        confirmDiscard();
     }
     
     
@@ -263,5 +258,18 @@ public class PostSleepTestDriver
     {
         getHelper().performSyncedFragmentAction(fragment -> fragment.getViewModel()
                 .setRating(rating));
+    }
+    
+    public void clickDiscardButton()
+    {
+        onView(withId(R.id.action_negative)).perform(click());
+    }
+    
+    public void confirmDiscard()
+    {
+        if (mNavCallbacks != null) {
+            mNavCallbacks.onDiscard();
+        }
+        DialogTestUtils.pressPositiveButton();
     }
 }

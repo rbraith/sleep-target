@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.sleep_tracker;
 
 import androidx.hilt.lifecycle.ViewModelInject;
@@ -46,7 +45,7 @@ public class PostSleepViewModel
 //*********************************************************
 
     private StoppedSessionData mStoppedSessionData;
-    private int mAction = NO_ACTION;
+    private MutableLiveData<Integer> mAction = new MutableLiveData<>(NO_ACTION);
     private boolean mInitialized;
     private TagRepository mTagRepository;
     private MutableLiveData<PostSleepData> mPostSleepData = new MutableLiveData<>();
@@ -59,7 +58,7 @@ public class PostSleepViewModel
     public static final int KEEP = 0;
     public static final int DISCARD = 1;
     public static final int NO_ACTION = 2;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -69,15 +68,11 @@ public class PostSleepViewModel
     {
         mTagRepository = tagRepository;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
 
-    public void setAction(int action)
-    {
-        mAction = action;
-    }
     
     /**
      * Get the current action then reset the action to NO_ACTION
@@ -85,8 +80,8 @@ public class PostSleepViewModel
     public int consumeAction()
     {
         mInitialized = false;
-        int temp = mAction;
-        mAction = NO_ACTION;
+        int temp = mAction.getValue();
+        mAction.setValue(NO_ACTION);
         return temp;
     }
     
@@ -100,8 +95,6 @@ public class PostSleepViewModel
         }
     }
     
-    // TEST NEEDED [21-08-20 5:19PM]
-    
     /**
      * De-initialize and return the data.
      */
@@ -114,9 +107,27 @@ public class PostSleepViewModel
     }
     
     // TEST NEEDED [21-08-20 5:19PM]
+    
+    // TEST NEEDED [21-08-20 5:19PM]
     public void discardData()
     {
         mInitialized = false;
+    }
+    
+    // TEST NEEDED [21-09-6 4:31PM]
+    public void onDiscardConfirmed()
+    {
+        setAction(DISCARD);
+    }
+    
+    public LiveData<Integer> getAction()
+    {
+        return mAction;
+    }
+    
+    public void setAction(int action)
+    {
+        mAction.setValue(action);
     }
     
     public LiveData<PostSleepData> getPostSleepData()

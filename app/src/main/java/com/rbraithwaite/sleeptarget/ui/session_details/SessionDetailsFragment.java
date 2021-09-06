@@ -210,8 +210,8 @@ public class SessionDetailsFragment
 
     private void displayOverlapErrorDialog(SessionDetailsFragmentViewModel.OverlappingSessionException e)
     {
-        AlertDialogFragment dialog = AlertDialogFragment.createInstance(() -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        AlertDialogFragment dialog = AlertDialogFragment.createInstance(context -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle("Error: Overlapping Sleep Session")
                     .setView(createOverlapErrorDialogContent(e))
                     .setPositiveButton(android.R.string.ok, null);
