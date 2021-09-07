@@ -14,15 +14,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.common.views.mood_selector;
 
+import androidx.fragment.app.FragmentActivity;
+import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.rbraithwaite.sleeptarget.ui.common.data.MoodUiData;
 
 public class MoodSelectorViewModel
+        extends ViewModel
 {
 //*********************************************************
 // private properties
@@ -34,19 +38,20 @@ public class MoodSelectorViewModel
 // constructors
 //*********************************************************
 
-    public MoodSelectorViewModel(MoodUiData mood)
-    {
-        mMood = new MutableLiveData<>(mood);
-    }
-    
+    @ViewModelInject
     public MoodSelectorViewModel()
     {
-        this(null);
+        mMood = new MutableLiveData<>();
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
+
+    public static MoodSelectorViewModel getInstanceFrom(FragmentActivity activity)
+    {
+        return new ViewModelProvider(activity).get(MoodSelectorViewModel.class);
+    }
 
     public Boolean isMoodSet()
     {

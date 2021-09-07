@@ -498,6 +498,26 @@ public class SleepTrackerTestDriver
     {
         mTagSelectorDriver.openDialog();
     }
+    
+    public void scrollToDetails()
+    {
+        onView(withId(R.id.tracker_details_card)).perform(scrollTo());
+    }
+    
+    public void openMoodSelectorDialog()
+    {
+        mMoodSelector.openMoodDialog();
+    }
+    
+    public void selectMoodInOpenDialog(int moodIndex)
+    {
+        mMoodSelector.selectMoodInDialog(moodIndex);
+    }
+    
+    public void confirmMoodDialog()
+    {
+        mMoodSelector.confirmDialog();
+    }
 
 //*********************************************************
 // private methods

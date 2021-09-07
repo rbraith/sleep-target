@@ -54,12 +54,6 @@
         <item name="tagSelectorListAddTagEditTextStyle">@style/TrackerTagListItemEditTextStyle</item>
     </style>
 
-    <style name="TrackerOptionalDetailsTheme">
-        <item name="trackerMoodSelectorTheme">@style/TrackerMoodSelectorTheme</item>
-        <item name="trackerTagSelectorTheme">@style/TrackerTagSelectorTheme</item>
-        <item name="trackerAdditionalCommentsStyle">@style/TrackerAdditionalCommentsStyle</item>
-    </style>
-
     <style name="TrackerPostDialogTheme">
         <item name="trackerPostDialogNullDataMessageStyle">@style/TrackerPostSleepNullDataStyle</item>
         <item name="tagSelectorTagStyle">@style/TrackerSelectedTagStyle</item>

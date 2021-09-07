@@ -30,12 +30,6 @@
         <attr name="trackerStartTimeStyle" format="reference"/>
     </declare-styleable>
 
-    <declare-styleable name="TrackerOptionalDetails">
-        <attr name="trackerAdditionalCommentsStyle" format="reference"/>
-        <attr name="trackerMoodSelectorTheme" format="reference"/>
-        <attr name="trackerTagSelectorTheme" format="reference"/>
-    </declare-styleable>
-
     <declare-styleable name="TrackerPostSleepDialog">
         <attr name="trackerPostDialogNullDataMessageStyle" format="reference"/>
     </declare-styleable>

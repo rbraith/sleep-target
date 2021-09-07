@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.common.views.mood_selector;
 
 import android.app.AlertDialog;
@@ -34,6 +33,8 @@ import com.rbraithwaite.sleeptarget.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleeptarget.ui.common.views.mood_selector.TEMP.MoodDialogRecyclerAdapter;
 import com.rbraithwaite.sleeptarget.ui.utils.UiUtils;
 
+import java.io.Serializable;
+
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 public class MoodDialogFragment
@@ -44,28 +45,41 @@ public class MoodDialogFragment
 //*********************************************************
 
     private static int NO_THEME = -1;
-    private OnClickListener mNegativeListener;
-    private OnClickListener mPositiveListener;
-    private int mNegativeTextId;
-    private int mPositiveTextId;
-    
-    private MoodUiData mSelectedMood = new MoodUiData();
     
     
-    private int mThemeId = NO_THEME;
+    private State mState = new State();
 
 //*********************************************************
 // private constants
 //*********************************************************
 
     private static final String MOOD_VIEW_TAG_PREFIX = "MoodSelectorDialog_Mood";
+    
+    private static final String STATE_KEY = "state";
 
+//*********************************************************
+// private helpers
+//*********************************************************
+    
+    private static class State implements Serializable
+    {
+        public static final long serialVersionUID = 20210112L;
+        
+        public OnClickListener negativeListener;
+        public OnClickListener positiveListener;
+        public int negativeTextId;
+        public int positiveTextId;
+        
+        public int themeId = NO_THEME;
+        
+        public MoodUiData selectedMood = new MoodUiData();
+    }
+    
 //*********************************************************
 // public constants
 //*********************************************************
 
     public static final String RECYCLER_TAG = "MoodDialogRecycler";
-
 
 //*********************************************************
 // public helpers
@@ -75,7 +89,7 @@ public class MoodDialogFragment
     {
         void onClick(MoodUiData selectedMood);
     }
-
+    
 //*********************************************************
 // overrides
 //*********************************************************
@@ -84,27 +98,36 @@ public class MoodDialogFragment
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState)
     {
-        AlertDialog.Builder builder = (mThemeId == NO_THEME) ?
+        maybeInitFromSavedInstanceState(savedInstanceState);
+        
+        AlertDialog.Builder builder = (mState.themeId == NO_THEME) ?
                 new AlertDialog.Builder(requireContext()) :
-                new AlertDialog.Builder(requireContext(), mThemeId);
+                new AlertDialog.Builder(requireContext(), mState.themeId);
         
         builder.setView(createMoodGridView());
         // REFACTOR [21-06-12 9:07PM] -- hardcoded string.
         builder.setTitle("Select A Mood:");
         
-        if (mPositiveListener != null) {
-            builder.setPositiveButton(mPositiveTextId,
-                                      (dialog, which) -> mPositiveListener.onClick(mSelectedMood));
+        if (mState.positiveListener != null) {
+            builder.setPositiveButton(mState.positiveTextId,
+                                      (dialog, which) -> mState.positiveListener.onClick(mState.selectedMood));
         }
         
-        if (mNegativeListener != null) {
-            builder.setNegativeButton(mNegativeTextId,
-                                      (dialog, which) -> mNegativeListener.onClick(mSelectedMood));
+        if (mState.negativeListener != null) {
+            builder.setNegativeButton(mState.negativeTextId,
+                                      (dialog, which) -> mState.negativeListener.onClick(mState.selectedMood));
         }
         
         return builder.create();
     }
-
+    
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState)
+    {
+        outState.putSerializable(STATE_KEY, mState);
+        super.onSaveInstanceState(outState);
+    }
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -112,7 +135,7 @@ public class MoodDialogFragment
     public static MoodDialogFragment createInstance(int themeId)
     {
         MoodDialogFragment fragment = new MoodDialogFragment();
-        fragment.mThemeId = themeId;
+        fragment.mState.themeId = themeId;
         return fragment;
     }
     
@@ -128,37 +151,42 @@ public class MoodDialogFragment
     
     public void setNegativeButton(int textId, OnClickListener negativeListener)
     {
-        mNegativeTextId = textId;
-        mNegativeListener = negativeListener;
+        mState.negativeTextId = textId;
+        mState.negativeListener = negativeListener;
     }
     
     public void setPositiveButton(int textId, OnClickListener positiveListener)
     {
-        mPositiveTextId = textId;
-        mPositiveListener = positiveListener;
+        mState.positiveTextId = textId;
+        mState.positiveListener = positiveListener;
     }
     
     
     public void setSelectedMood(MoodUiData selectedMood)
     {
-        mSelectedMood = selectedMood;
+        mState.selectedMood = selectedMood;
     }
-
 
 
 //*********************************************************
 // private methods
 //*********************************************************
 
+    private void maybeInitFromSavedInstanceState(Bundle savedInstanceState)
+    {
+        if (savedInstanceState != null) {
+            mState = (State) savedInstanceState.getSerializable(STATE_KEY);
+        }
+    }
     
     /**
      * Creates a matrix of mood views.
      */
     private View createMoodGridView()
     {
-        RecyclerView recyclerView = (mThemeId == NO_THEME) ?
+        RecyclerView recyclerView = (mState.themeId == NO_THEME) ?
                 new RecyclerView(requireContext()) :
-                new RecyclerView(new ContextThemeWrapper(requireContext(), mThemeId));
+                new RecyclerView(new ContextThemeWrapper(requireContext(), mState.themeId));
         recyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 6));
         recyclerView.setTag(RECYCLER_TAG); // this is mainly for tests
         UiUtils.initViewMarginLayoutParams(
@@ -173,10 +201,10 @@ public class MoodDialogFragment
         // REFACTOR [21-06-25 5:36PM] -- Since Mood and MoodUiData can be in an unset state, there's
         //  no reason to ever be passing around null Mood or MoodUiData instances - fix all
         //  occurrences of this.
-        if (mSelectedMood == null) {
+        if (mState.selectedMood == null) {
             moodRecyclerAdapter.setSelectedMoodPosition(null);
         } else {
-            moodRecyclerAdapter.setSelectedMoodPosition(mSelectedMood.asIndex());
+            moodRecyclerAdapter.setSelectedMoodPosition(mState.selectedMood.asIndex());
         }
         
         recyclerView.setAdapter(moodRecyclerAdapter);

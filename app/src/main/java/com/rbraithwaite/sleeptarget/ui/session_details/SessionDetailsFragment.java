@@ -34,7 +34,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.rbraithwaite.sleeptarget.R;
-import com.rbraithwaite.sleeptarget.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleeptarget.ui.common.dialog.AlertDialogFragment;
 import com.rbraithwaite.sleeptarget.ui.common.views.details_fragment.DetailsFragment;
 import com.rbraithwaite.sleeptarget.ui.common.views.details_fragment.DetailsResult;
@@ -374,7 +373,15 @@ public class SessionDetailsFragment
     
     private void initMoodSelector(View fragmentRoot)
     {
-        mMoodSelectorViewModel = new MoodSelectorViewModel(getViewModel().getMood());
+        mMoodSelectorViewModel = MoodSelectorViewModel.getInstanceFrom(requireActivity());
+        mMoodSelectorViewModel.setMood(getViewModel().getMood());
+        mMoodSelectorViewModel.getMood().observe(getViewLifecycleOwner(), mood -> {
+            if (mood == null || !mood.isSet()) {
+                getViewModel().clearMood();
+            } else {
+                getViewModel().setMood(mood);
+            }
+        });
         
         mMoodSelectorController = new MoodSelectorController(
                 fragmentRoot.findViewById(R.id.session_details_mood),
@@ -384,21 +391,6 @@ public class SessionDetailsFragment
                 mMoodSelectorViewModel,
                 getViewLifecycleOwner(),
                 getChildFragmentManager());
-        
-        mMoodSelectorController.setCallbacks(new MoodSelectorController.Callbacks()
-        {
-            @Override
-            public void onMoodChanged(MoodUiData newMood)
-            {
-                getViewModel().setMood(newMood);
-            }
-            
-            @Override
-            public void onMoodDeleted()
-            {
-                getViewModel().clearMood();
-            }
-        });
     }
     
     private void initAdditionalComments(View fragmentRoot)

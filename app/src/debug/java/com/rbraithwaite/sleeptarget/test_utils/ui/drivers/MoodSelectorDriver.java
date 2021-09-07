@@ -14,17 +14,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.test_utils.ui.drivers;
 
 import android.view.View;
 
+import androidx.test.espresso.NoMatchingViewException;
 import androidx.test.espresso.contrib.RecyclerViewActions;
 
 import com.rbraithwaite.sleeptarget.R;
 import com.rbraithwaite.sleeptarget.core.models.Mood;
 import com.rbraithwaite.sleeptarget.test_utils.ui.dialog.DialogTestUtils;
-import com.rbraithwaite.sleeptarget.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleeptarget.ui.common.views.mood_selector.MoodDialogFragment;
 import com.rbraithwaite.sleeptarget.ui.common.views.mood_selector.MoodSelectorViewModel;
 
@@ -38,11 +37,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withTagValue;
 import static com.rbraithwaite.sleeptarget.test_utils.ui.EspressoMatchers.tagValue;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static com.rbraithwaite.sleeptarget.test_utils.ui.EspressoMatchers.withMoodIndex;
 import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 
 public class MoodSelectorDriver
 {
@@ -80,9 +76,8 @@ public class MoodSelectorDriver
         
         public void selectedMoodMatches(int expectedMoodIndex)
         {
-            MoodUiData mood = mOwningMoodSelector.mViewModel.getMood().getValue();
-            assertThat(mood, is(notNullValue()));
-            assertThat(mood.asIndex(), is(equalTo(expectedMoodIndex)));
+            onView(withParent(withId(R.id.mood_selector_mood_value))).check(matches(withMoodIndex(
+                    expectedMoodIndex)));
         }
         
         public void selectedMoodMatches(Mood mood)
@@ -129,7 +124,29 @@ public class MoodSelectorDriver
             DialogTestUtils.pressNegativeButton();
         } else {
             selectMoodInDialog(mood.asIndex());
-            DialogTestUtils.pressPositiveButton();
+            confirmDialog();
+        }
+    }
+    
+    public void confirmDialog()
+    {
+        DialogTestUtils.pressPositiveButton();
+    }
+
+    public void selectMoodInDialog(int moodIndex)
+    {
+        onView(withTagValue(tagValue(MoodDialogFragment.RECYCLER_TAG))).perform(
+                RecyclerViewActions.actionOnItemAtPosition(moodIndex, click()));
+    }
+    
+    public void openMoodDialog()
+    {
+        try {
+            onView(allOf(withParent(mMoodSelectorView),
+                         withId(R.id.mood_selector_add_btn))).perform(click());
+        } catch (RuntimeException e) {
+            onView(allOf(withParent(mMoodSelectorView),
+                         withId(R.id.mood_selector_mood_value))).perform(click());
         }
     }
     
@@ -147,6 +164,8 @@ public class MoodSelectorDriver
                 return true;
             } catch (AssertionError e) {
                 return false;
+            } catch (NoMatchingViewException e) {
+                return false;
             }
         }
     }
@@ -158,23 +177,6 @@ public class MoodSelectorDriver
             return true;
         } catch (AssertionError e) {
             return false;
-        }
-    }
-
-    private void selectMoodInDialog(int moodIndex)
-    {
-        onView(withTagValue(tagValue(MoodDialogFragment.RECYCLER_TAG))).perform(
-                RecyclerViewActions.actionOnItemAtPosition(moodIndex, click()));
-    }
-    
-    private void openMoodDialog()
-    {
-        try {
-            onView(allOf(withParent(mMoodSelectorView),
-                         withId(R.id.mood_selector_add_btn))).perform(click());
-        } catch (RuntimeException e) {
-            onView(allOf(withParent(mMoodSelectorView),
-                         withId(R.id.mood_selector_mood_value))).perform(click());
         }
     }
 }

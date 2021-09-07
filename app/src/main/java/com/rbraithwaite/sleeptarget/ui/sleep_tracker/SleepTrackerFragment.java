@@ -41,7 +41,6 @@ import com.google.android.material.snackbar.Snackbar;
 import com.rbraithwaite.sleeptarget.BuildConfig;
 import com.rbraithwaite.sleeptarget.R;
 import com.rbraithwaite.sleeptarget.ui.BaseFragment;
-import com.rbraithwaite.sleeptarget.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleeptarget.ui.common.views.mood_selector.MoodSelectorController;
 import com.rbraithwaite.sleeptarget.ui.common.views.mood_selector.MoodSelectorViewModel;
 import com.rbraithwaite.sleeptarget.ui.common.views.tag_selector.TagSelectorController;
@@ -242,32 +241,22 @@ public class SleepTrackerFragment
         getViewModel().getInitialMood().observe(
                 getViewLifecycleOwner(),
                 mood -> {
-                    getMoodSelectorViewModel().setMood(mood);
+                    MoodSelectorViewModel moodSelectorViewModel =
+                            MoodSelectorViewModel.getInstanceFrom(requireActivity());
+                    moodSelectorViewModel.setMood(mood);
+                    moodSelectorViewModel.getMood().observe(getViewLifecycleOwner(), moodUiData -> {
+                        if (moodUiData == null || !moodUiData.isSet()) {
+                            getViewModel().clearLocalMood();
+                        } else {
+                            getViewModel().setLocalMood(moodUiData);
+                        }
+                    });
                     
                     mMoodSelectorController = new MoodSelectorController(
                             fragmentRoot.findViewById(R.id.more_context_mood),
-                            getMoodSelectorViewModel(),
+                            moodSelectorViewModel,
                             getViewLifecycleOwner(),
                             getChildFragmentManager());
-                    // REFACTOR [21-04-12 2:52AM] -- Like with the tag selector, these callbacks
-                    //  should come
-                    //  from the view model, probably as LiveData - anything having to do with
-                    //  the view state
-                    //  should be managed by the view model.
-                    mMoodSelectorController.setCallbacks(new MoodSelectorController.Callbacks()
-                    {
-                        @Override
-                        public void onMoodChanged(MoodUiData newMood)
-                        {
-                            getViewModel().setLocalMood(newMood);
-                        }
-                        
-                        @Override
-                        public void onMoodDeleted()
-                        {
-                            getViewModel().clearLocalMood();
-                        }
-                    });
                 });
     }
     

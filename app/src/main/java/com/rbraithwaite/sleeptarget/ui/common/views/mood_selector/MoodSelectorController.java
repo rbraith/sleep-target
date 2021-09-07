@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.common.views.mood_selector;
 
 import android.content.Context;
@@ -47,7 +46,6 @@ public class MoodSelectorController
     private LifecycleOwner mLifecycleOwner;
     private FragmentManager mFragmentManager;
     private Context mContext;
-    private Callbacks mCallbacks;
 
 //*********************************************************
 // private constants
@@ -62,16 +60,6 @@ public class MoodSelectorController
 //*********************************************************
 
     public static final int MOOD_DISPLAY_SIZE_DP = 45;
-
-//*********************************************************
-// public helpers
-//*********************************************************
-
-    public interface Callbacks
-    {
-        void onMoodChanged(MoodUiData newMood);
-        void onMoodDeleted();
-    }
 
 //*********************************************************
 // constructors
@@ -102,15 +90,6 @@ public class MoodSelectorController
         
         mMoodValue.setOnClickListener(v -> displayMoodDialog(R.string.delete,
                                                              createOnDeleteListener()));
-    }
-
-//*********************************************************
-// api
-//*********************************************************
-
-    public void setCallbacks(Callbacks callbacks)
-    {
-        mCallbacks = callbacks;
     }
 
 //*********************************************************
@@ -159,9 +138,6 @@ public class MoodSelectorController
     {
         return selection -> {
             mViewModel.clearSelectedMood();
-            if (mCallbacks != null) {
-                mCallbacks.onMoodDeleted();
-            }
         };
     }
     
@@ -169,9 +145,6 @@ public class MoodSelectorController
     {
         return selection -> {
             mViewModel.setMood(selection);
-            if (mCallbacks != null) {
-                mCallbacks.onMoodChanged(selection);
-            }
         };
     }
     

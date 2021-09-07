@@ -80,4 +80,24 @@ public class SleepTrackerFragmentRotationTests
         // just making sure no crash happens here
         sleepTracker.rotateScreen(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
     }
+    
+    @Test
+    public void moodSelectorDialogWorksAcrossOrientationChange()
+    {
+        SleepTrackerTestDriver sleepTracker =
+                new SleepTrackerTestDriver(HiltFragmentTestHelper.launchFragment(
+                        SleepTrackerFragment.class));
+        sleepTracker.scrollToDetails();
+        
+        int expectedMoodIndex = 3;
+        
+        sleepTracker.openMoodSelectorDialog();
+        sleepTracker.selectMoodInOpenDialog(expectedMoodIndex);
+        
+        sleepTracker.rotateScreen(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        
+        sleepTracker.confirmMoodDialog();
+        
+        sleepTracker.assertThat().selectedMoodMatches(expectedMoodIndex);
+    }
 }

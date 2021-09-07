@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.common.views.mood_selector;
 
 import androidx.lifecycle.LiveData;
@@ -42,7 +41,8 @@ public class MoodSelectorViewModelTests
     {
         MoodUiData mood = new MoodUiData(2);
         
-        MoodSelectorViewModel viewModel = new MoodSelectorViewModel(mood);
+        MoodSelectorViewModel viewModel = new MoodSelectorViewModel();
+        viewModel.setMood(mood);
         
         LiveData<MoodUiData> moodLiveData = viewModel.getMood();
         TestUtils.activateLocalLiveData(moodLiveData);
@@ -54,7 +54,8 @@ public class MoodSelectorViewModelTests
     public void getMood_reflects_setMood()
     {
         MoodUiData mood = new MoodUiData(0);
-        MoodSelectorViewModel viewModel = new MoodSelectorViewModel(mood);
+        MoodSelectorViewModel viewModel = new MoodSelectorViewModel();
+        viewModel.setMood(mood);
         
         MoodUiData expected = new MoodUiData(1);
         // SUT
@@ -69,7 +70,8 @@ public class MoodSelectorViewModelTests
     public void isMoodSet_test()
     {
         MoodUiData mood = new MoodUiData(0);
-        MoodSelectorViewModel viewModel = new MoodSelectorViewModel(mood);
+        MoodSelectorViewModel viewModel = new MoodSelectorViewModel();
+        viewModel.setMood(mood);
         
         assertThat(viewModel.isMoodSet(), is(true));
         
