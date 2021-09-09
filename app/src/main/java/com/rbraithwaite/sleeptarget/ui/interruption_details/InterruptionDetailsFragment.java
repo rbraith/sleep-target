@@ -150,6 +150,7 @@ public class InterruptionDetailsFragment
     }
 
 
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -172,12 +173,12 @@ public class InterruptionDetailsFragment
         }
     }
     
-    private void displayErrorDialog(String tag, int titleId, View content)
+    private void displayErrorDialog(String tag, int titleId, DialogViewFactory content)
     {
         AlertDialogFragment dialog = AlertDialogFragment.createInstance((context, inflater) -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle(titleId)
-                    .setView(content)
+                    .setView(content.createView(inflater))
                     .setPositiveButton(android.R.string.ok, null);
             return builder.create();
         });
@@ -190,7 +191,7 @@ public class InterruptionDetailsFragment
         displayErrorDialog(
                 DIALOG_OUT_OF_BOUNDS_ERROR,
                 R.string.interruption_details_oob_error_title,
-                createOutOfBoundsErrorDialogContent(e));
+                inflater -> createOutOfBoundsErrorDialogContent(inflater, e));
     }
     
     private void displayOverlapErrorDialog(InterruptionDetailsFragmentViewModel.OverlappingInterruptionException e)
@@ -198,31 +199,38 @@ public class InterruptionDetailsFragment
         displayErrorDialog(
                 DIALOG_OVERLAP_ERROR,
                 R.string.interruption_details_overlap_error_title,
-                createOverlapErrorDialogContent(e));
+                inflater -> createOverlapErrorDialogContent(inflater, e));
     }
     
-    private View createOutOfBoundsErrorDialogContent(InterruptionDetailsFragmentViewModel.OutOfBoundsInterruptionException e)
+    private View createOutOfBoundsErrorDialogContent(
+            LayoutInflater inflater,
+            InterruptionDetailsFragmentViewModel.OutOfBoundsInterruptionException e)
     {
         return createErrorDialogContent(
+                inflater,
                 R.string.interruption_details_oob_error_message,
                 e.sessionStart,
                 e.sessionEnd);
     }
     
-    private View createOverlapErrorDialogContent(InterruptionDetailsFragmentViewModel.OverlappingInterruptionException e)
+    private View createOverlapErrorDialogContent(
+            LayoutInflater inflater,
+            InterruptionDetailsFragmentViewModel.OverlappingInterruptionException e)
     {
         return createErrorDialogContent(
+                inflater,
                 R.string.interruption_details_overlap_error_message,
                 e.overlappedStart,
                 e.overlappedEnd);
     }
     
     private View createErrorDialogContent(
+            LayoutInflater inflater,
             int messageId,
             String startText,
             String endText)
     {
-        View dialogContent = getLayoutInflater().inflate(R.layout.interruption_details_error, null);
+        View dialogContent = inflater.inflate(R.layout.interruption_details_error, null);
         
         TextView message = dialogContent.findViewById(R.id.interruption_details_error_message);
         message.setText(messageId);
@@ -234,5 +242,17 @@ public class InterruptionDetailsFragment
         end.setText(endText);
         
         return dialogContent;
+    }
+    
+//*********************************************************
+// private helpers
+//*********************************************************
+
+    // REFACTOR [21-09-9 3:50PM] -- This was a sort of fast patchwork solution on top of the current
+    //  error dialog display system in this class - the whole system should be reworked and
+    //  simplified. (The problem was passing the right LayoutInflater to the view-creating methods)
+    private interface DialogViewFactory
+    {
+        View createView(LayoutInflater inflater);
     }
 }

@@ -212,7 +212,7 @@ public class SessionDetailsFragment
         AlertDialogFragment dialog = AlertDialogFragment.createInstance((context, inflater) -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle("Error: Overlapping Sleep Session")
-                    .setView(createOverlapErrorDialogContent(e))
+                    .setView(createOverlapErrorDialogContent(e, inflater))
                     .setPositiveButton(android.R.string.ok, null);
             return builder.create();
         });
@@ -220,10 +220,11 @@ public class SessionDetailsFragment
         dialog.show(getChildFragmentManager(), DIALOG_OVERLAP_ERROR);
     }
     
-    private View createOverlapErrorDialogContent(SessionDetailsFragmentViewModel.OverlappingSessionException e)
+    private View createOverlapErrorDialogContent(
+            SessionDetailsFragmentViewModel.OverlappingSessionException e,
+            LayoutInflater inflater)
     {
-        View dialogContent =
-                getLayoutInflater().inflate(R.layout.session_details_overlap_error, null);
+        View dialogContent = inflater.inflate(R.layout.session_details_overlap_error, null);
         
         TextView start = dialogContent.findViewById(R.id.session_details_overlap_start_value);
         start.setText(e.start);
