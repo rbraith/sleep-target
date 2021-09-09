@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.common.dialog;
 
 import android.app.Dialog;
@@ -29,6 +28,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import com.rbraithwaite.sleeptarget.R;
+import com.rbraithwaite.sleeptarget.utils.SerializableWrapper;
 
 public class DurationPickerFragment
         extends DialogFragment
@@ -40,6 +40,14 @@ public class DurationPickerFragment
     private OnDurationSetListener mListener;
     private int mHour;
     private int mMinute;
+
+//*********************************************************
+// private constants
+//*********************************************************
+
+    private static final String STATE_HOUR = "hour";
+    private static final String STATE_MINUTE = "minute";
+    private static final String STATE_LISTENER = "listener";
 
 //*********************************************************
 // public helpers
@@ -58,6 +66,8 @@ public class DurationPickerFragment
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState)
     {
+        maybeInitFromSavedInstanceState(savedInstanceState);
+        
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
         
         View durationPicker = requireActivity().getLayoutInflater().inflate(
@@ -82,7 +92,16 @@ public class DurationPickerFragment
                 });
         return builder.create();
     }
-
+    
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState)
+    {
+        outState.putInt(STATE_HOUR, mHour);
+        outState.putInt(STATE_MINUTE, mMinute);
+        outState.putSerializable(STATE_LISTENER, new SerializableWrapper<>(mListener));
+        super.onSaveInstanceState(outState);
+    }
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -121,6 +140,23 @@ public class DurationPickerFragment
     private static boolean isValidMinute(int minute)
     {
         return ((minute >= 0) && (minute < 60));
+    }
+    
+    private void maybeInitFromSavedInstanceState(Bundle savedInstanceState)
+    {
+        if (savedInstanceState == null) {
+            return;
+        }
+        
+        mHour = savedInstanceState.getInt(STATE_HOUR, 0);
+        mMinute = savedInstanceState.getInt(STATE_MINUTE, 0);
+        
+        SerializableWrapper<OnDurationSetListener> listenerWrapper =
+                (SerializableWrapper<OnDurationSetListener>) savedInstanceState.getSerializable(
+                        STATE_LISTENER);
+        if (listenerWrapper != null) {
+            mListener = listenerWrapper.data;
+        }
     }
     
     private void setMinute(int minute)

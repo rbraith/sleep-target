@@ -247,7 +247,7 @@ public class SleepGoalsFragment
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle("How do I hit a wake-time target?")
                     .setView(inflater.inflate(R.layout.sleep_goals_help_dialog_waketime,
-                                                         null))
+                                              null))
                     .setPositiveButton(android.R.string.ok, null);
             return builder.create();
         });
@@ -262,7 +262,7 @@ public class SleepGoalsFragment
             builder.setTitle("How do I hit a sleep duration target?")
                     // TODO [21-08-29 6:30PM] -- add help dialog content.
                     .setView(inflater.inflate(R.layout.sleep_goals_help_dialog_duration,
-                                                         null))
+                                              null))
                     .setPositiveButton(android.R.string.ok, null);
             return builder.create();
         });
@@ -275,6 +275,12 @@ public class SleepGoalsFragment
         DurationPickerFragment durationPickerDialog = DurationPickerFragment.createInstance(
                 initialValue.hours,
                 initialValue.remainingMinutes,
+                // BUG [21-09-9 5:10PM] -- This getViewModel() call in this lambda (and other
+                //  similar calls in other lambdas) is likely causing a memory leak when the
+                //  device is rotated (the lambda, stored in the dialog fragment, retains a ref
+                //  to the old SleepGoalsFragment)
+                //  see: https://www.logicbig.com/tutorials/core-java-tutorial/java-language
+                //  /implicit-outer-class-reference.html.
                 (dialog, which, hour, minute) -> getViewModel().setSleepDurationGoal(hour, minute));
         durationPickerDialog.show(getChildFragmentManager(), PICKER_SLEEP_DURATION);
     }
