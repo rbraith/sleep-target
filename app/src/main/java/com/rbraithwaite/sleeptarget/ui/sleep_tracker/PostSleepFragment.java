@@ -288,7 +288,7 @@ public class PostSleepFragment
     private void displayDiscardDialog()
     {
         AlertDialogFragment discardDialog =
-                AlertDialogFragment.createInstance(context -> {
+                AlertDialogFragment.createInstance((context, inflater) -> {
                     AlertDialog.Builder builder =
                             new AlertDialog.Builder(context);
                     builder.setTitle(R.string.postsleep_discard_title)

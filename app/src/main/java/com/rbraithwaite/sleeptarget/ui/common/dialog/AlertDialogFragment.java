@@ -20,6 +20,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -54,8 +55,9 @@ public class AlertDialogFragment
     {
         /**
          * @param context Use this when building the AlertDialog.
+         * @param inflater This is to help with any custom views for the dialog.
          */
-        AlertDialog create(Context context);
+        AlertDialog create(Context context, LayoutInflater inflater);
     }
 
 //*********************************************************
@@ -82,7 +84,7 @@ public class AlertDialogFragment
                     "instances of AlertDialogFragment.");
         }
         
-        return mAlertDialogFactory.create(requireContext());
+        return mAlertDialogFactory.create(requireContext(), getLayoutInflater());
     }
     
     @Override

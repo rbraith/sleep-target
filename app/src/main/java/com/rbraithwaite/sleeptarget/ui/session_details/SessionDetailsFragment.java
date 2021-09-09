@@ -209,7 +209,7 @@ public class SessionDetailsFragment
 
     private void displayOverlapErrorDialog(SessionDetailsFragmentViewModel.OverlappingSessionException e)
     {
-        AlertDialogFragment dialog = AlertDialogFragment.createInstance(context -> {
+        AlertDialogFragment dialog = AlertDialogFragment.createInstance((context, inflater) -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle("Error: Overlapping Sleep Session")
                     .setView(createOverlapErrorDialogContent(e))

@@ -174,7 +174,7 @@ public class InterruptionDetailsFragment
     
     private void displayErrorDialog(String tag, int titleId, View content)
     {
-        AlertDialogFragment dialog = AlertDialogFragment.createInstance(context -> {
+        AlertDialogFragment dialog = AlertDialogFragment.createInstance((context, inflater) -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle(titleId)
                     .setView(content)

@@ -237,7 +237,7 @@ public class SessionTimesComponent
     // REFACTOR [21-06-16 10:34PM] this should be extracted somewhere as a common utility.
     private void displayErrorDialog(int messageId)
     {
-        AlertDialogFragment dialog = AlertDialogFragment.createInstance(context -> {
+        AlertDialogFragment dialog = AlertDialogFragment.createInstance((context, inflater) -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setMessage(messageId)
                     .setPositiveButton(android.R.string.ok, null);

@@ -47,7 +47,7 @@ public class DialogUtils
             Integer messageId,
             DialogInterface.OnClickListener onDeleteListener)
     {
-        return AlertDialogFragment.createInstance(context -> {
+        return AlertDialogFragment.createInstance((context, inflater) -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             
             builder.setIcon(R.drawable.ic_baseline_delete_forever_24)
