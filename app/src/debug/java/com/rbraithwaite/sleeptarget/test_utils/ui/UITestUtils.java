@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.test_utils.ui;
 
 import android.app.Activity;
@@ -98,13 +97,18 @@ public class UITestUtils
         return onView(withClassName(equalTo(TimePicker.class.getName())));
     }
     
+    public static void setDatePickerAndConfirm(Day day)
+    {
+        setDatePickerTo(day);
+        DialogTestUtils.pressPositiveButton();
+    }
+    
     public static void setDatePickerTo(Day day)
     {
         onDatePicker().perform(setDatePickerDate(
                 day.year,
                 day.month,
                 day.dayOfMonth));
-        DialogTestUtils.pressPositiveButton();
     }
     
     public static void setTimeOfDayPickerTo(TimeOfDay timeOfDay)

@@ -32,6 +32,7 @@ import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.aSleepS
 import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.valueOf;
 
 
+
 /**
  * These are instrumented tests which exercise multiple components of the app related to device
  * rotation.
@@ -70,7 +71,7 @@ public class AppRotationTests
         app.getSleepTracker().recordArbitrarySession();
         app.getPostSleep().clickDiscardButton();
         
-        app.getPostSleep().rotateScreen(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        app.getPostSleep().rotateScreenTo(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         
         // just making sure this doesn't crash lol
         app.getPostSleep().confirmDiscard();
@@ -85,7 +86,7 @@ public class AppRotationTests
         
         app.getSessionDetails().pressNegativeButton();
         
-        app.getSessionDetails().rotateScreen(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        app.getSessionDetails().rotateScreenTo(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         
         // no crash pls
         app.getSessionDetails().confirmDelete();

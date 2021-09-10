@@ -62,7 +62,7 @@ public class SleepTrackerFragmentRotationTests
         SleepSession sleepSession = TestUtils.ArbitraryData.getSleepSession();
         sleepTracker.setDetailsFrom(sleepSession);
         
-        sleepTracker.rotateScreen(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        sleepTracker.rotateScreenTo(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         
         sleepTracker.assertThat().sessionTimerMatches(expectedDurationMillis);
         sleepTracker.assertThat().detailsMatch(sleepSession);
@@ -78,7 +78,7 @@ public class SleepTrackerFragmentRotationTests
         sleepTracker.openTagSelectorDialog();
         
         // just making sure no crash happens here
-        sleepTracker.rotateScreen(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        sleepTracker.rotateScreenTo(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
     }
     
     @Test
@@ -94,7 +94,7 @@ public class SleepTrackerFragmentRotationTests
         sleepTracker.openMoodSelectorDialog();
         sleepTracker.selectMoodInOpenDialog(expectedMoodIndex);
         
-        sleepTracker.rotateScreen(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        sleepTracker.rotateScreenTo(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         
         sleepTracker.confirmMoodDialog();
         

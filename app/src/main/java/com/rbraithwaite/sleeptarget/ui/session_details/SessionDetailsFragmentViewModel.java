@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.session_details;
 
 import androidx.hilt.lifecycle.ViewModelInject;
@@ -27,13 +26,13 @@ import com.rbraithwaite.sleeptarget.core.models.Interruptions;
 import com.rbraithwaite.sleeptarget.core.models.SleepSession;
 import com.rbraithwaite.sleeptarget.core.models.Tag;
 import com.rbraithwaite.sleeptarget.core.models.overlap_checker.SleepSessionOverlapChecker;
+import com.rbraithwaite.sleeptarget.core.models.session.Session;
 import com.rbraithwaite.sleeptarget.ui.common.convert.ConvertMood;
 import com.rbraithwaite.sleeptarget.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleeptarget.ui.common.interruptions.ConvertInterruption;
 import com.rbraithwaite.sleeptarget.ui.common.interruptions.InterruptionFormatting;
 import com.rbraithwaite.sleeptarget.ui.common.interruptions.InterruptionListItem;
 import com.rbraithwaite.sleeptarget.ui.common.views.details_fragment.DetailsFragmentViewModel;
-import com.rbraithwaite.sleeptarget.ui.common.views.session_times.SessionTimesViewModel;
 import com.rbraithwaite.sleeptarget.ui.common.views.tag_selector.ConvertTag;
 import com.rbraithwaite.sleeptarget.ui.common.views.tag_selector.TagUiData;
 import com.rbraithwaite.sleeptarget.ui.interruption_details.InterruptionDetailsData;
@@ -326,11 +325,6 @@ public class SessionDetailsFragmentViewModel
         });
     }
     
-    public SessionTimesViewModel getSessionTimesViewModel()
-    {
-        return new SessionTimesViewModel(getOptionalSleepSession().orElse(null), mTimeUtils);
-    }
-    
     public void setStart(Date start)
     {
         getOptionalSleepSession().ifPresent(sleepSession -> {
@@ -362,6 +356,12 @@ public class SessionDetailsFragmentViewModel
             notifySessionChanged();
         });
     }
+    
+    public Session getSession()
+    {
+        return getOptionalSleepSession().orElse(null);
+    }
+
 
 //*********************************************************
 // private methods

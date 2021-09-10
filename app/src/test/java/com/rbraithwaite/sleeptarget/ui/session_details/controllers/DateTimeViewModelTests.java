@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.session_details.controllers;
 
 import androidx.lifecycle.LiveData;
@@ -22,6 +21,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleeptarget.test_utils.TestUtils;
 import com.rbraithwaite.sleeptarget.ui.common.views.datetime.DateTimeViewModel;
+import com.rbraithwaite.sleeptarget.utils.time.Day;
+import com.rbraithwaite.sleeptarget.utils.time.TimeOfDay;
 
 import org.junit.After;
 import org.junit.Before;
@@ -60,7 +61,7 @@ public class DateTimeViewModelTests
     @Test
     public void setDate_updatesDate()
     {
-        LiveData<DateTimeViewModel.Date> date = viewModel.getDate();
+        LiveData<Day> date = viewModel.getDate();
         LiveData<String> dateText = viewModel.getDateText();
         TestUtils.activateLocalLiveData(date);
         TestUtils.activateLocalLiveData(dateText);
@@ -71,7 +72,7 @@ public class DateTimeViewModelTests
         int expectedMonth = 2;
         int expectedDay = 31;
         
-        viewModel.setDate(expectedYear, expectedMonth, expectedDay);
+        viewModel.setDate(new Day(expectedYear, expectedMonth, expectedDay));
         
         assertThat(date.getValue().year, is(expectedYear));
         assertThat(date.getValue().month, is(expectedMonth));
@@ -83,7 +84,7 @@ public class DateTimeViewModelTests
     @Test
     public void setTimeOfDay_updatesTimeOfDay()
     {
-        LiveData<DateTimeViewModel.TimeOfDay> timeOfDay = viewModel.getTimeOfDay();
+        LiveData<TimeOfDay> timeOfDay = viewModel.getTimeOfDay();
         LiveData<String> timeOfDayText = viewModel.getTimeOfDayText();
         TestUtils.activateLocalLiveData(timeOfDay);
         TestUtils.activateLocalLiveData(timeOfDayText);
@@ -93,7 +94,7 @@ public class DateTimeViewModelTests
         int expectedHourOfDay = 23;
         int expectedMinute = 45;
         
-        viewModel.setTimeOfDay(expectedHourOfDay, expectedMinute);
+        viewModel.setTimeOfDay(new TimeOfDay(expectedHourOfDay, expectedMinute));
         
         assertThat(timeOfDay.getValue().hourOfDay, is(expectedHourOfDay));
         assertThat(timeOfDay.getValue().minute, is(expectedMinute));

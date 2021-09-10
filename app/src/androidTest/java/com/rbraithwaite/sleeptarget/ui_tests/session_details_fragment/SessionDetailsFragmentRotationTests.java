@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui_tests.session_details_fragment;
 
 import android.content.pm.ActivityInfo;
@@ -23,10 +22,15 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleeptarget.core.models.SleepSession;
 import com.rbraithwaite.sleeptarget.test_utils.TestUtils;
+import com.rbraithwaite.sleeptarget.test_utils.test_data.builders.DateBuilder;
 import com.rbraithwaite.sleeptarget.test_utils.ui.drivers.SessionDetailsTestDriver;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.aDate;
+import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.aSleepSession;
+import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.valueOf;
 
 @RunWith(AndroidJUnit4.class)
 public class SessionDetailsFragmentRotationTests
@@ -42,8 +46,27 @@ public class SessionDetailsFragmentRotationTests
         SessionDetailsTestDriver sessionDetails =
                 SessionDetailsTestDriver.startingWith(sleepSession);
         
-        sessionDetails.rotateScreen(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        sessionDetails.rotateScreenTo(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         
         sessionDetails.assertThat().displayedValuesMatch(sleepSession);
+    }
+    
+    @Test
+    public void changeTimeValueAcrossOrientationChange()
+    {
+        SleepSession sleepSession = valueOf(aSleepSession());
+        SessionDetailsTestDriver sessionDetails =
+                SessionDetailsTestDriver.startingWith(sleepSession);
+        
+        DateBuilder newEnd = aDate().copying(sleepSession.getEnd()).addDays(1);
+        
+        sessionDetails.openEndDayPicker();
+        sessionDetails.setEndDayPickerTo(newEnd);
+        
+        sessionDetails.rotateScreenTo(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        sessionDetails.assertThat().datePickerHasValue(newEnd);
+        
+        sessionDetails.confirmPicker();
+        sessionDetails.assertThat().endDateMatches(newEnd);
     }
 }

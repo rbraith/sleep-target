@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.common.views.datetime;
 
 import android.view.View;
@@ -27,9 +26,8 @@ import com.rbraithwaite.sleeptarget.R;
 import com.rbraithwaite.sleeptarget.ui.common.dialog.DatePickerFragment;
 import com.rbraithwaite.sleeptarget.ui.common.dialog.TimePickerFragment;
 import com.rbraithwaite.sleeptarget.utils.LiveDataFuture;
-
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import com.rbraithwaite.sleeptarget.utils.time.Day;
+import com.rbraithwaite.sleeptarget.utils.time.TimeOfDay;
 
 
 
@@ -90,9 +88,7 @@ public class DateTimeController
 
     public DateTimeController(
             String title,
-            // REFACTOR [21-06-16 10:35PM] instead of passing the initial data, a view
-            //  model should be passed.
-            GregorianCalendar initialData,
+            DateTimeViewModel viewModel,
             View root,
             Formatter formatter,
             LifecycleOwner lifecycleOwner,
@@ -109,18 +105,10 @@ public class DateTimeController
         mLifecycleOwner = lifecycleOwner;
         mFragmentManager = fragmentManager;
         
-        mViewModel = createViewModel();
+        mViewModel = viewModel;
         
         bindViewModel();
         setFormatter(formatter);
-        mViewModel.setDate(
-                initialData.get(Calendar.YEAR),
-                initialData.get(Calendar.MONTH),
-                initialData.get(Calendar.DAY_OF_MONTH));
-        mViewModel.setTimeOfDay(
-                initialData.get(Calendar.HOUR_OF_DAY),
-                initialData.get(Calendar.MINUTE));
-        
         setupListeners();
     }
 
@@ -149,15 +137,6 @@ public class DateTimeController
                 return formatter.formatDate(year, month, dayOfMonth);
             }
         });
-    }
-
-//*********************************************************
-// protected api
-//*********************************************************
-
-    protected DateTimeViewModel createViewModel()
-    {
-        return new DateTimeViewModel();
     }
 
 //*********************************************************
@@ -192,7 +171,7 @@ public class DateTimeController
                             !mCallbacks.beforeSetDate(year, month, dayOfMonth)) {
                             return;
                         }
-                        mViewModel.setDate(year, month, dayOfMonth);
+                        mViewModel.setDate(new Day(year, month, dayOfMonth));
                     });
                     datePicker.show(mFragmentManager, DIALOG_DATE_PICKER);
                 });
@@ -217,7 +196,7 @@ public class DateTimeController
                             !mCallbacks.beforeSetTimeOfDay(hourOfDay, minute)) {
                             return;
                         }
-                        mViewModel.setTimeOfDay(hourOfDay, minute);
+                        mViewModel.setTimeOfDay(new TimeOfDay(hourOfDay, minute));
                     });
                     timePicker.show(mFragmentManager, DIALOG_TIME_PICKER);
                 });

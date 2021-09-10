@@ -26,6 +26,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+import com.rbraithwaite.sleeptarget.utils.SerializableWrapper;
+
 // IDEA [20-12-5 8:36PM] -- consider creating a custom TimePickerDialog which has
 //  max/min times (instead of allowing user to pick any time)
 //  https://stackoverflow.com/a/16942630
@@ -41,36 +43,24 @@ public class TimePickerFragment
         extends DialogFragment
         implements TimePickerDialog.OnTimeSetListener
 {
-//*********************************************************
-// private properties
-//*********************************************************
-
     private OnTimeSetListener mListener;
-
-//*********************************************************
-// private constants
-//*********************************************************
 
     private static final String ARG_HOUR = "hour";
     private static final String ARG_MINUTE = "minute";
-
-//*********************************************************
-// public helpers
-//*********************************************************
+    
+    private static final String STATE_LISTENER = "listener";
 
     public interface OnTimeSetListener
     {
         void onTimeSet(TimePicker view, int hourOfDay, int minute);
     }
 
-//*********************************************************
-// overrides
-//*********************************************************
-
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState)
     {
+        maybeInitFromSavedInstanceState(savedInstanceState);
+        
         Bundle args = getArguments();
         
         return new TimePickerDialog(
@@ -81,6 +71,17 @@ public class TimePickerFragment
                 false);
     }
     
+    private void maybeInitFromSavedInstanceState(Bundle savedInstanceState)
+    {
+        if (savedInstanceState != null) {
+            SerializableWrapper<OnTimeSetListener> wrapper =
+                    (SerializableWrapper<OnTimeSetListener>) savedInstanceState.getSerializable(STATE_LISTENER);
+            if (wrapper != null) {
+                mListener = wrapper.data;
+            }
+        }
+    }
+    
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute)
     {
@@ -88,11 +89,18 @@ public class TimePickerFragment
             mListener.onTimeSet(view, hourOfDay, minute);
         }
     }
-
+    
 //*********************************************************
-// api
+// overrides
 //*********************************************************
 
+@Override
+public void onSaveInstanceState(@NonNull Bundle outState)
+{
+    outState.putSerializable(STATE_LISTENER, new SerializableWrapper<>(mListener));
+    super.onSaveInstanceState(outState);
+}
+    
     public static Bundle createArguments(int hourOfDay, int minute)
     {
         Bundle args = new Bundle();

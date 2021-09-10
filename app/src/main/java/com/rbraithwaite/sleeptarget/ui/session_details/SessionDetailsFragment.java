@@ -48,6 +48,7 @@ import com.rbraithwaite.sleeptarget.ui.interruption_details.InterruptionDetailsF
 import com.rbraithwaite.sleeptarget.ui.session_archive.SessionArchiveFragmentDirections;
 import com.rbraithwaite.sleeptarget.ui.session_details.data.SleepSessionWrapper;
 import com.rbraithwaite.sleeptarget.ui.utils.AppColors;
+import com.rbraithwaite.sleeptarget.utils.CommonUtils;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -70,6 +71,8 @@ public class SessionDetailsFragment
     private MoodSelectorViewModel mMoodSelectorViewModel;
     
     private boolean mIsTagSelectorInitialized = false;
+    
+    private SessionTimesViewModel mSessionTimesViewModel;
 
 //*********************************************************
 // private constants
@@ -78,17 +81,17 @@ public class SessionDetailsFragment
     private static final String TAG = "SessionDetailsFragment";
     
     private static final String DIALOG_OVERLAP_ERROR = "SessionDetailsFragmentOverlapErrorDialog";
-
+    
 //*********************************************************
 // public helpers
 //*********************************************************
 
     public static class Result
             extends DetailsResult<SleepSessionWrapper> {}
-    
+
     public static class Args
             extends DetailsFragment.Args<SleepSessionWrapper> {}
-
+    
 //*********************************************************
 // overrides
 //*********************************************************
@@ -160,7 +163,7 @@ public class SessionDetailsFragment
             displayOverlapErrorDialog(e);
         }
     }
-    
+
     @Override
     protected DeleteDialogParams getDeleteDialogParams()
     {
@@ -169,7 +172,7 @@ public class SessionDetailsFragment
         params.messageId = R.string.permanent_operation_message;
         return params;
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -197,12 +200,12 @@ public class SessionDetailsFragment
     {
         return mTagSelectorViewModel;
     }
-    
+
     public MoodSelectorViewModel getMoodSelectorViewModel()
     {
         return mMoodSelectorViewModel;
     }
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
@@ -260,13 +263,24 @@ public class SessionDetailsFragment
         }
     }
     
+    private SessionTimesViewModel getSessionTimesViewModel()
+    {
+        mSessionTimesViewModel = CommonUtils.lazyInit(mSessionTimesViewModel, () -> {
+            SessionTimesViewModel sessionTimesViewModel =
+                    new ViewModelProvider(this).get(SessionTimesViewModel.class);
+            sessionTimesViewModel.init(getViewModel().getSession());
+            return sessionTimesViewModel;
+        });
+        return mSessionTimesViewModel;
+    }
+    
     private void initSessionTimes(View fragmentRoot)
     {
         // REFACTOR [21-07-29 10:00PM] -- this duplicates InterruptionDetailsFragment.onViewCreated
         //  do I need to do anything about that?
         SessionTimesComponent sessionTimes =
                 fragmentRoot.findViewById(R.id.session_details_datetime_content);
-        SessionTimesViewModel sessionTimesViewModel = getViewModel().getSessionTimesViewModel();
+        SessionTimesViewModel sessionTimesViewModel = getSessionTimesViewModel();
         sessionTimes.init(this, sessionTimesViewModel);
         
         sessionTimesViewModel.getStart()

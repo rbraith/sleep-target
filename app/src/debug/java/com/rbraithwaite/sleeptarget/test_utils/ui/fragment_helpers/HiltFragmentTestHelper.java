@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.test_utils.ui.fragment_helpers;
 
 import android.os.Bundle;
@@ -108,11 +107,11 @@ public class HiltFragmentTestHelper<FragmentType extends Fragment>
     }
     
     @Override
-    public void rotateScreen(int desiredOrientation)
+    public void rotateScreenTo(int desiredOrientation)
     {
         TestUtils.rotateActivitySynced(mScenario, desiredOrientation);
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -129,6 +128,7 @@ public class HiltFragmentTestHelper<FragmentType extends Fragment>
     {
         return new HiltFragmentTestHelper<>(fragmentClass, args);
     }
+
 
 //*********************************************************
 // private methods

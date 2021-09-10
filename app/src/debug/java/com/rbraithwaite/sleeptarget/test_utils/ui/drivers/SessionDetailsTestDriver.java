@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.test_utils.ui.drivers;
 
 import android.view.View;
@@ -31,6 +30,7 @@ import com.rbraithwaite.sleeptarget.core.models.Mood;
 import com.rbraithwaite.sleeptarget.core.models.SleepSession;
 import com.rbraithwaite.sleeptarget.core.models.Tag;
 import com.rbraithwaite.sleeptarget.test_utils.TestUtils;
+import com.rbraithwaite.sleeptarget.test_utils.test_data.builders.DateBuilder;
 import com.rbraithwaite.sleeptarget.test_utils.test_data.builders.InterruptionBuilder;
 import com.rbraithwaite.sleeptarget.test_utils.test_data.builders.SleepSessionBuilder;
 import com.rbraithwaite.sleeptarget.test_utils.ui.UITestUtils;
@@ -68,7 +68,11 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.valueOf;
+import static com.rbraithwaite.sleeptarget.test_utils.ui.EspressoMatchers.datePickerWithDate;
 import static com.rbraithwaite.sleeptarget.test_utils.ui.EspressoMatchers.recyclerViewWithCount;
+import static com.rbraithwaite.sleeptarget.test_utils.ui.UITestUtils.onDatePicker;
+import static com.rbraithwaite.sleeptarget.test_utils.ui.UITestUtils.setDatePickerAndConfirm;
 import static com.rbraithwaite.sleeptarget.test_utils.ui.UITestUtils.setDatePickerTo;
 import static com.rbraithwaite.sleeptarget.test_utils.ui.UITestUtils.setTimeOfDayPickerTo;
 import static org.hamcrest.Matchers.allOf;
@@ -188,6 +192,12 @@ public class SessionDetailsTestDriver
             onEndDate().check(matches(withText(SessionDetailsFormatting.formatDate(year,
                                                                                    month,
                                                                                    dayOfMonth))));
+        }
+        
+        public void endDateMatches(DateBuilder expectedEnd)
+        {
+            Day d = Day.of(valueOf(expectedEnd));
+            endDateMatches(d.year, d.month, d.dayOfMonth);
         }
         
         public void startDateAndTimeMatch(Date start)
@@ -312,6 +322,11 @@ public class SessionDetailsTestDriver
             
             onView(withId(R.id.common_interruptions_total)).check(matches(withText(
                     InterruptionFormatting.formatDuration(durationMillis))));
+        }
+        
+        public void datePickerHasValue(DateBuilder expectedDate)
+        {
+            onDatePicker().check(matches(datePickerWithDate(expectedDate)));
         }
         
         // REFACTOR [21-05-14 3:40AM] -- extract this, it duplicates getIdsFromTags()
@@ -562,7 +577,7 @@ public class SessionDetailsTestDriver
     public void setStartDay(Day day)
     {
         onStartDateTextView().perform(click());
-        setDatePickerTo(day);
+        setDatePickerAndConfirm(day);
     }
     
     public void setStartTimeOfDay(TimeOfDay timeOfDay)
@@ -573,8 +588,8 @@ public class SessionDetailsTestDriver
     
     public void setEndDay(Day day)
     {
-        onEndDateTextView().perform(click());
-        setDatePickerTo(day);
+        openEndDayPicker();
+        setDatePickerAndConfirm(day);
     }
     
     public void setEndTimeOfDay(TimeOfDay timeOfDay)
@@ -617,15 +632,30 @@ public class SessionDetailsTestDriver
         onView(withId(R.id.session_details_interruptions_addbtn)).perform(click());
     }
 
-//*********************************************************
-// private methods
-//*********************************************************
-
     public void pressNegativeButton()
     {
         onView(withId(R.id.action_negative)).perform(click());
     }
     
+    public void openEndDayPicker()
+    {
+        onEndDateTextView().perform(click());
+    }
+    
+    public void setEndDayPickerTo(DateBuilder newEnd)
+    {
+        setDatePickerTo(Day.of(valueOf(newEnd)));
+    }
+    
+    public void confirmPicker()
+    {
+        DialogTestUtils.pressPositiveButton();
+    }
+    
+//*********************************************************
+// private methods
+//*********************************************************
+
     private void setMood(Mood mood)
     {
         mMoodSelector.setMood(mood);

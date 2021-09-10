@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.common.dialog;
 
 import android.app.DatePickerDialog;
@@ -26,6 +25,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+import com.rbraithwaite.sleeptarget.utils.SerializableWrapper;
+
 public class DatePickerFragment
         extends DialogFragment
         implements DatePickerDialog.OnDateSetListener
@@ -35,7 +36,6 @@ public class DatePickerFragment
 //*********************************************************
 
     private OnDateSetListener mListener;
-    private DatePicker mDatePicker;
 
 //*********************************************************
 // private constants
@@ -44,6 +44,8 @@ public class DatePickerFragment
     private static final String ARG_YEAR = "year";
     private static final String ARG_MONTH = "month";
     private static final String ARG_DAY = "day";
+    
+    private static final String STATE_LISTENER = "listener";
 
 //*********************************************************
 // public helpers
@@ -62,6 +64,8 @@ public class DatePickerFragment
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState)
     {
+        maybeInitFromSavedInstanceState(savedInstanceState);
+        
         Bundle args = getArguments();
         
         return new DatePickerDialog(
@@ -73,13 +77,20 @@ public class DatePickerFragment
     }
     
     @Override
+    public void onSaveInstanceState(@NonNull Bundle outState)
+    {
+        outState.putSerializable(STATE_LISTENER, new SerializableWrapper<>(mListener));
+        super.onSaveInstanceState(outState);
+    }
+    
+    @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth)
     {
         if (mListener != null) {
             mListener.onDateSet(view, year, month, dayOfMonth);
         }
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -92,14 +103,25 @@ public class DatePickerFragment
         args.putInt(ARG_DAY, dayOfMonth);
         return args;
     }
-    
+
     public void setOnDateSetListener(DatePickerFragment.OnDateSetListener listener)
     {
         mListener = listener;
     }
     
-    public DatePicker getDatePicker()
+//*********************************************************
+// private methods
+//*********************************************************
+
+    private void maybeInitFromSavedInstanceState(Bundle savedInstanceState)
     {
-        return mDatePicker;
+        if (savedInstanceState != null) {
+            SerializableWrapper<OnDateSetListener> wrapper =
+                    (SerializableWrapper<OnDateSetListener>) savedInstanceState.getSerializable(
+                            STATE_LISTENER);
+            if (wrapper != null) {
+                mListener = wrapper.data;
+            }
+        }
     }
 }

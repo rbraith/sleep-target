@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.test_utils.ui;
 
 import android.os.Build;
@@ -26,13 +25,17 @@ import android.widget.TimePicker;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.espresso.matcher.BoundedMatcher;
 
+import com.rbraithwaite.sleeptarget.test_utils.test_data.builders.DateBuilder;
 import com.rbraithwaite.sleeptarget.ui.common.views.mood_selector.TEMP.MoodView;
+import com.rbraithwaite.sleeptarget.utils.time.Day;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 
 import java.util.Locale;
+
+import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.valueOf;
 
 public class EspressoMatchers
 {
@@ -41,6 +44,7 @@ public class EspressoMatchers
 //*********************************************************
 
     private EspressoMatchers() {/* No instantiation */}
+
 
 
 //*********************************************************
@@ -163,6 +167,12 @@ public class EspressoMatchers
                 description.appendText("date picker with date:");
             }
         };
+    }
+    
+    public static Matcher<View> datePickerWithDate(DateBuilder expectedDate)
+    {
+        Day d = Day.of(valueOf(expectedDate));
+        return datePickerWithDate(d.year, d.month, d.dayOfMonth);
     }
     
     public static Matcher<View> timePickerWithTime(final int hourOfDay, final int minute)

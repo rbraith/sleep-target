@@ -14,12 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.test_utils.ui.fragment_helpers;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.test.core.app.ActivityScenario;
+
 
 
 /**
@@ -35,7 +35,7 @@ public interface FragmentTestHelper<FragmentType extends Fragment>
     {
         void performOn(F fragment);
     }
-    
+
 //*********************************************************
 // abstract
 //*********************************************************
@@ -49,5 +49,5 @@ public interface FragmentTestHelper<FragmentType extends Fragment>
      *
      * @param desiredOrientation Uses ActivityInfo.SCREEN_ORIENTATION_...
      */
-    void rotateScreen(int desiredOrientation);
+    void rotateScreenTo(int desiredOrientation);
 }

@@ -27,6 +27,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.rbraithwaite.sleeptarget.R;
 import com.rbraithwaite.sleeptarget.ui.common.dialog.AlertDialogFragment;
@@ -36,29 +37,40 @@ import com.rbraithwaite.sleeptarget.ui.common.views.session_times.SessionTimesCo
 import com.rbraithwaite.sleeptarget.ui.common.views.session_times.SessionTimesViewModel;
 import com.rbraithwaite.sleeptarget.ui.sleep_tracker.AfterTextChangedWatcher;
 import com.rbraithwaite.sleeptarget.ui.utils.UiUtils;
+import com.rbraithwaite.sleeptarget.utils.CommonUtils;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class InterruptionDetailsFragment
         extends DetailsFragment<InterruptionDetailsData, InterruptionDetailsFragmentViewModel>
 {
+//*********************************************************
+// private properties
+//*********************************************************
+
+    private SessionTimesViewModel mSessionTimesViewModel;
+
 //*********************************************************
 // private constants
 //*********************************************************
 
     private static final String DIALOG_OVERLAP_ERROR =
             "InterruptionDetailsFragmentOverlapErrorDialog";
+    
     private static final String DIALOG_OUT_OF_BOUNDS_ERROR =
             "InterruptionDetailsFragmentOOBErrorDialog";
-
+    
 //*********************************************************
 // public helpers
 //*********************************************************
 
     public static class Result
             extends DetailsResult<InterruptionDetailsData> {}
-    
+
     public static class Args
             extends DetailsFragment.Args<InterruptionDetailsData> {}
-
+    
 //*********************************************************
 // overrides
 //*********************************************************
@@ -95,7 +107,7 @@ public class InterruptionDetailsFragment
         // init session times
         SessionTimesComponent sessionTimes =
                 view.findViewById(R.id.interruption_details_session_times);
-        SessionTimesViewModel sessionTimesViewModel = getViewModel().getSessionTimesViewModel();
+        SessionTimesViewModel sessionTimesViewModel = getSessionTimesViewModel();
         sessionTimes.init(this, sessionTimesViewModel);
         
         sessionTimesViewModel.getStart()
@@ -148,14 +160,23 @@ public class InterruptionDetailsFragment
     {
         return new Properties<>(false, InterruptionDetailsFragmentViewModel.class);
     }
-
-
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
 
-    
+    private SessionTimesViewModel getSessionTimesViewModel()
+    {
+        mSessionTimesViewModel = CommonUtils.lazyInit(mSessionTimesViewModel, () -> {
+            SessionTimesViewModel sessionTimesViewModel =
+                    new ViewModelProvider(this).get(SessionTimesViewModel.class);
+            sessionTimesViewModel.init(getViewModel().getSession());
+            return sessionTimesViewModel;
+        });
+        return mSessionTimesViewModel;
+    }
+
+
     /**
      * If the result interruption is not valid, display an error dialog and return false.
      */
@@ -243,7 +264,7 @@ public class InterruptionDetailsFragment
         
         return dialogContent;
     }
-    
+
 //*********************************************************
 // private helpers
 //*********************************************************

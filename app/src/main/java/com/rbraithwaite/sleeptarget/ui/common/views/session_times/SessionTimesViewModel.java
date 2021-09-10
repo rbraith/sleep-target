@@ -14,14 +14,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.common.views.session_times;
 
+import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
+import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleeptarget.core.models.session.Session;
+import com.rbraithwaite.sleeptarget.ui.common.views.datetime.DateTimeViewModel;
+import com.rbraithwaite.sleeptarget.utils.CommonUtils;
 import com.rbraithwaite.sleeptarget.utils.LiveDataUtils;
 import com.rbraithwaite.sleeptarget.utils.TimeUtils;
 import com.rbraithwaite.sleeptarget.utils.time.Day;
@@ -33,6 +36,7 @@ import java.util.GregorianCalendar;
 import java.util.Optional;
 
 public class SessionTimesViewModel
+        extends ViewModel
 {
 //*********************************************************
 // private properties
@@ -40,6 +44,11 @@ public class SessionTimesViewModel
 
     private MutableLiveData<Session> mSession;
     private TimeUtils mTimeUtils;
+    
+    private boolean mInitialized = false;
+    private DateTimeViewModel mEndDateTimeViewModel;
+    
+    private DateTimeViewModel mStartDateTimeViewModel;
     
 //*********************************************************
 // public helpers
@@ -62,14 +71,14 @@ public class SessionTimesViewModel
             super(message);
         }
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
 
-    public SessionTimesViewModel(Session session, TimeUtils timeUtils)
+    @ViewModelInject
+    public SessionTimesViewModel(TimeUtils timeUtils)
     {
-        mSession = new MutableLiveData<>(session);
         mTimeUtils = timeUtils;
     }
     
@@ -77,6 +86,14 @@ public class SessionTimesViewModel
 // api
 //*********************************************************
 
+    public void init(Session session)
+    {
+        if (!mInitialized) {
+            mInitialized = true;
+            mSession = new MutableLiveData<>(session);
+        }
+    }
+    
     public LiveData<Date> getStart()
     {
         return Transformations.map(mSession, Session::getStart);
@@ -85,20 +102,6 @@ public class SessionTimesViewModel
     public LiveData<Date> getEnd()
     {
         return Transformations.map(mSession, Session::getEnd);
-    }
-    
-    public GregorianCalendar getStartCalendar()
-    {
-        return getOptionalSession()
-                .map(session -> TimeUtils.getCalendarFrom(session.getStart()))
-                .orElse(null);
-    }
-    
-    public GregorianCalendar getEndCalendar()
-    {
-        return getOptionalSession()
-                .map(session -> TimeUtils.getCalendarFrom(session.getEnd()))
-                .orElse(null);
     }
     
     public void setStartDate(Day day)
@@ -161,9 +164,47 @@ public class SessionTimesViewModel
         setStartTimeOfDay(timeOfDay.hourOfDay, timeOfDay.minute);
     }
     
+    public DateTimeViewModel getEndDateTimeViewModel()
+    {
+        mEndDateTimeViewModel = CommonUtils.lazyInit(mEndDateTimeViewModel, () -> {
+            return createDateTimeViewModelFrom(getEndCalendar());
+        });
+        return mEndDateTimeViewModel;
+    }
+    
+    public DateTimeViewModel getStartDateTimeViewModel()
+    {
+        mStartDateTimeViewModel = CommonUtils.lazyInit(mStartDateTimeViewModel, () -> {
+            return createDateTimeViewModelFrom(getStartCalendar());
+        });
+        return mStartDateTimeViewModel;
+    }
+    
 //*********************************************************
 // private methods
 //*********************************************************
+
+    private GregorianCalendar getStartCalendar()
+    {
+        return getOptionalSession()
+                .map(session -> TimeUtils.getCalendarFrom(session.getStart()))
+                .orElse(null);
+    }
+    
+    private GregorianCalendar getEndCalendar()
+    {
+        return getOptionalSession()
+                .map(session -> TimeUtils.getCalendarFrom(session.getEnd()))
+                .orElse(null);
+    }
+    
+    private DateTimeViewModel createDateTimeViewModelFrom(Calendar cal)
+    {
+        DateTimeViewModel viewModel = new DateTimeViewModel();
+        viewModel.setDate(Day.of(cal));
+        viewModel.setTimeOfDay(TimeOfDay.of(cal));
+        return viewModel;
+    }
 
     private void updateStart(int[][] calFields)
     {

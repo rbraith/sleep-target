@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.common.views.session_times;
 
 import androidx.lifecycle.LiveData;
@@ -33,7 +32,6 @@ import org.junit.runner.RunWith;
 import java.util.Date;
 
 import static com.rbraithwaite.sleeptarget.test_utils.LiveDataTestUtils.activateLocally;
-import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.aCalendar;
 import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.aDate;
 import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.aSession;
 import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.valueOf;
@@ -65,27 +63,6 @@ public class SessionTimesViewModelTests
         
         viewModel.setEndTimeOfDay(TimeOfDay.of(valueOf(end.addHours(1))));
         assertThat(durationText.getValue(), is(equalTo("2h 00m 00s")));
-    }
-    
-    @Test
-    public void getStartCalendar_returnsCorrectCalendar()
-    {
-        DateBuilder expectedStart = aDate();
-        
-        SessionTimesViewModel viewModel = createViewModelWith(aSession().withStart(expectedStart));
-        
-        assertThat(viewModel.getStartCalendar(),
-                   is(equalTo(aCalendar().with(expectedStart).build())));
-    }
-    
-    @Test
-    public void getEndCalendar_returnsCorrectCalendar()
-    {
-        DateBuilder expectedEnd = aDate();
-        
-        SessionTimesViewModel viewModel = createViewModelWith(aSession().withEnd(expectedEnd));
-        
-        assertThat(viewModel.getEndCalendar(), is(equalTo(aCalendar().with(expectedEnd).build())));
     }
     
     @Test
@@ -212,13 +189,15 @@ public class SessionTimesViewModelTests
         
         viewModel.setEndTimeOfDay(TimeOfDay.of(valueOf(end.addMinutes(-1))));
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
 
     private SessionTimesViewModel createViewModelWith(SessionBuilder session)
     {
-        return new SessionTimesViewModel(valueOf(session), new TimeUtils());
+        SessionTimesViewModel viewModel = new SessionTimesViewModel(new TimeUtils());
+        viewModel.init(valueOf(session));
+        return viewModel;
     }
 }

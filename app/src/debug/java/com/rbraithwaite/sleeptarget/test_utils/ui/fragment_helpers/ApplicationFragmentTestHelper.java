@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.test_utils.ui.fragment_helpers;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -37,7 +36,7 @@ public class ApplicationFragmentTestHelper<FragmentType extends Fragment>
 //*********************************************************
 
     private ScenarioCallbacks mScenarioCallbacks;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -111,7 +110,7 @@ public class ApplicationFragmentTestHelper<FragmentType extends Fragment>
     }
     
     @Override
-    public void rotateScreen(int desiredOrientation)
+    public void rotateScreenTo(int desiredOrientation)
     {
         TestUtils.rotateActivitySynced(mScenarioCallbacks.getScenario(), desiredOrientation);
     }

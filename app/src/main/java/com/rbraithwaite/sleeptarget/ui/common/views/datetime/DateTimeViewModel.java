@@ -14,12 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.common.views.datetime;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
+
+import com.rbraithwaite.sleeptarget.utils.time.Day;
+import com.rbraithwaite.sleeptarget.utils.time.TimeOfDay;
 
 // This is intentionally not a framework ViewModel, as multiple simultaneous instances are required.
 public class DateTimeViewModel
@@ -29,7 +31,7 @@ public class DateTimeViewModel
 //*********************************************************
 
     private Formatter mFormatter;
-    private MutableLiveData<Date> mDate = new MutableLiveData<>();
+    private MutableLiveData<Day> mDate = new MutableLiveData<>();
     private MutableLiveData<TimeOfDay> mTimeOfDay = new MutableLiveData<>();
 
 //*********************************************************
@@ -41,32 +43,6 @@ public class DateTimeViewModel
         String formatTimeOfDay(int hourOfDay, int minute);
         String formatDate(int year, int month, int dayOfMonth);
     }
-    
-    public static class Date
-    {
-        public int year;
-        public int month;
-        public int dayOfMonth;
-        
-        public Date(int year, int month, int dayOfMonth)
-        {
-            this.year = year;
-            this.month = month;
-            this.dayOfMonth = dayOfMonth;
-        }
-    }
-    
-    public static class TimeOfDay
-    {
-        public int hourOfDay;
-        public int minute;
-        
-        public TimeOfDay(int hourOfDay, int minute)
-        {
-            this.hourOfDay = hourOfDay;
-            this.minute = minute;
-        }
-    }
 
 //*********************************************************
 // api
@@ -77,14 +53,24 @@ public class DateTimeViewModel
         mFormatter = formatter;
     }
     
-    public LiveData<Date> getDate()
+    public LiveData<Day> getDate()
     {
         return mDate;
+    }
+    
+    public void setDate(Day date)
+    {
+        mDate.setValue(date);
     }
     
     public LiveData<TimeOfDay> getTimeOfDay()
     {
         return mTimeOfDay;
+    }
+    
+    public void setTimeOfDay(TimeOfDay timeOfDay)
+    {
+        mTimeOfDay.setValue(timeOfDay);
     }
     
     public LiveData<String> getDateText()
@@ -109,15 +95,5 @@ public class DateTimeViewModel
                     }
                     return mFormatter.formatTimeOfDay(timeOfDay.hourOfDay, timeOfDay.minute);
                 });
-    }
-    
-    public void setDate(int year, int month, int dayOfMonth)
-    {
-        mDate.setValue(new Date(year, month, dayOfMonth));
-    }
-    
-    public void setTimeOfDay(int hourOfDay, int minute)
-    {
-        mTimeOfDay.setValue(new TimeOfDay(hourOfDay, minute));
     }
 }

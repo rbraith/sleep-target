@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.interruption_details;
 
 import androidx.hilt.lifecycle.ViewModelInject;
@@ -24,8 +23,8 @@ import androidx.lifecycle.Transformations;
 
 import com.rbraithwaite.sleeptarget.core.models.Interruption;
 import com.rbraithwaite.sleeptarget.core.models.SleepSession;
+import com.rbraithwaite.sleeptarget.core.models.session.Session;
 import com.rbraithwaite.sleeptarget.ui.common.views.details_fragment.DetailsFragmentViewModel;
-import com.rbraithwaite.sleeptarget.ui.common.views.session_times.SessionTimesViewModel;
 import com.rbraithwaite.sleeptarget.utils.LiveDataUtils;
 import com.rbraithwaite.sleeptarget.utils.TimeUtils;
 
@@ -43,7 +42,7 @@ public class InterruptionDetailsFragmentViewModel
     private SleepSession mParentSleepSession;
     private TimeUtils mTimeUtils;
     private boolean mInitialized = false;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -73,7 +72,7 @@ public class InterruptionDetailsFragmentViewModel
             this.sessionEnd = sessionEnd;
         }
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -83,7 +82,7 @@ public class InterruptionDetailsFragmentViewModel
     {
         mTimeUtils = timeUtils;
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -121,11 +120,6 @@ public class InterruptionDetailsFragmentViewModel
 // api
 //*********************************************************
 
-    public SessionTimesViewModel getSessionTimesViewModel()
-    {
-        return new SessionTimesViewModel(getOptionalInterruption().orElse(null), mTimeUtils);
-    }
-    
     public LiveData<String> getReason()
     {
         return Transformations.map(mInterruption, interruption -> {
@@ -169,6 +163,11 @@ public class InterruptionDetailsFragmentViewModel
         });
     }
     
+    public Session getSession()
+    {
+        return getOptionalInterruption().orElse(null);
+    }
+
 //*********************************************************
 // private methods
 //*********************************************************

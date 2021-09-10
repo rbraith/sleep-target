@@ -91,6 +91,7 @@ public class SessionTimesComponent
     }
 
 
+
 //*********************************************************
 // api
 //*********************************************************
@@ -123,7 +124,7 @@ public class SessionTimesComponent
     {
         mStartDateTimeController = new DateTimeController(
                 getString(R.string.common_session_times_start_title),
-                mViewModel.getStartCalendar(),
+                mViewModel.getStartDateTimeViewModel(),
                 mStartView,
                 createDateTimeFormatter(),
                 mParentFragment.getViewLifecycleOwner(),
@@ -172,7 +173,7 @@ public class SessionTimesComponent
     {
         mEndDateTimeController = new DateTimeController(
                 getString(R.string.common_session_times_end_title),
-                mViewModel.getEndCalendar(),
+                mViewModel.getEndDateTimeViewModel(),
                 mEndView,
                 createDateTimeFormatter(),
                 mParentFragment.getViewLifecycleOwner(),

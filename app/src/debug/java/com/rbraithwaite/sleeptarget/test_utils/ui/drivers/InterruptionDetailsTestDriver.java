@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.test_utils.ui.drivers;
 
 import androidx.test.espresso.ViewInteraction;
@@ -40,7 +39,7 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static com.rbraithwaite.sleeptarget.test_utils.ui.UITestUtils.setDatePickerTo;
+import static com.rbraithwaite.sleeptarget.test_utils.ui.UITestUtils.setDatePickerAndConfirm;
 import static com.rbraithwaite.sleeptarget.test_utils.ui.UITestUtils.setTimeOfDayPickerTo;
 import static org.hamcrest.Matchers.allOf;
 
@@ -231,7 +230,7 @@ public class InterruptionDetailsTestDriver
     public void setEndDayTo(Day endDay)
     {
         onEndDayView().perform(click());
-        setDatePickerTo(endDay);
+        setDatePickerAndConfirm(endDay);
     }
     
     public void setEndTimeOfDayTo(TimeOfDay endTimeOfDay)
@@ -243,7 +242,7 @@ public class InterruptionDetailsTestDriver
     public void setStartDayTo(Day startDay)
     {
         onStartDayView().perform(click());
-        setDatePickerTo(startDay);
+        setDatePickerAndConfirm(startDay);
     }
     
     public void setStartTimeOfDayTo(TimeOfDay startTimeOfDay)
@@ -268,7 +267,7 @@ public class InterruptionDetailsTestDriver
         }
         onView(withId(R.id.action_positive)).perform(click());
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -296,7 +295,7 @@ public class InterruptionDetailsTestDriver
         return onView(allOf(withParent(withId(R.id.common_session_times_end)),
                             withId(R.id.date)));
     }
-
+    
     private void pressNegativeButton()
     {
         onView(withId(R.id.action_negative)).perform(click());

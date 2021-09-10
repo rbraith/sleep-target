@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.test_utils.ui.drivers;
 
 import androidx.lifecycle.ViewModel;
@@ -101,9 +100,9 @@ public class BaseFragmentTestDriver<FragmentType extends BaseFragment<?>,
      *
      * @param desiredOrientation Uses ActivityInfo.SCREEN_ORIENTATION_...
      */
-    public void rotateScreen(int desiredOrientation)
+    public void rotateScreenTo(int desiredOrientation)
     {
-        mHelper.rotateScreen(desiredOrientation);
+        mHelper.rotateScreenTo(desiredOrientation);
     }
     
     // IDEA [21-06-25 12:11AM] -- restartFragmentWithArgs(args).
