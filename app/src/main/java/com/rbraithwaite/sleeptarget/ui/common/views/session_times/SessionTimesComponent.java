@@ -107,6 +107,14 @@ public class SessionTimesComponent
         initStartController();
         initEndController();
         initDurationText();
+        
+        mViewModel.errorDialogEvent().observe(
+                mParentFragment.getViewLifecycleOwner(),
+                event -> {
+                    if (event.isFresh()) {
+                        displayErrorDialog(event.getExtra());
+                    }
+                });
     }
 
 //*********************************************************
@@ -184,14 +192,16 @@ public class SessionTimesComponent
             @Override
             public boolean beforeSetDate(int year, int month, int dayOfMonth)
             {
+                // REFACTOR [21-09-10 3:51PM] -- all this logic should be in the view model
+                //  actually.
                 try {
                     mViewModel.setEndDate(year, month, dayOfMonth);
                     return true;
                 } catch (SessionTimesViewModel.InvalidDateTimeException e) {
-                    displayErrorDialog(R.string.error_session_edit_end_datetime);
+                    mViewModel.triggerErrorDialogEvent(R.string.error_session_edit_end_datetime);
                     return false;
                 } catch (SessionTimesViewModel.FutureDateTimeException e) {
-                    displayErrorDialog(R.string.session_future_time_error);
+                    mViewModel.triggerErrorDialogEvent(R.string.session_future_time_error);
                     return false;
                 }
             }
@@ -199,14 +209,16 @@ public class SessionTimesComponent
             @Override
             public boolean beforeSetTimeOfDay(int hourOfDay, int minute)
             {
+                // REFACTOR [21-09-10 3:51PM] -- all this logic should be in the view model
+                //  actually.
                 try {
                     mViewModel.setEndTimeOfDay(hourOfDay, minute);
                     return true;
                 } catch (SessionTimesViewModel.InvalidDateTimeException e) {
-                    displayErrorDialog(R.string.error_session_edit_end_datetime);
+                    mViewModel.triggerErrorDialogEvent(R.string.error_session_edit_end_datetime);
                     return false;
                 } catch (SessionTimesViewModel.FutureDateTimeException e) {
-                    displayErrorDialog(R.string.session_future_time_error);
+                    mViewModel.triggerErrorDialogEvent(R.string.session_future_time_error);
                     return false;
                 }
             }

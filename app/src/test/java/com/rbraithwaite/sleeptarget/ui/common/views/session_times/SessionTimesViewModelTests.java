@@ -22,6 +22,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.rbraithwaite.sleeptarget.test_utils.TestUtils;
 import com.rbraithwaite.sleeptarget.test_utils.test_data.builders.DateBuilder;
 import com.rbraithwaite.sleeptarget.test_utils.test_data.builders.SessionBuilder;
+import com.rbraithwaite.sleeptarget.utils.LiveDataEvent;
 import com.rbraithwaite.sleeptarget.utils.TimeUtils;
 import com.rbraithwaite.sleeptarget.utils.time.Day;
 import com.rbraithwaite.sleeptarget.utils.time.TimeOfDay;
@@ -38,6 +39,7 @@ import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.valueOf
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 @RunWith(AndroidJUnit4.class)
 public class SessionTimesViewModelTests
@@ -46,6 +48,21 @@ public class SessionTimesViewModelTests
 // api
 //*********************************************************
 
+    @Test
+    public void errorDialogEvent_properlyTriggers()
+    {
+        SessionTimesViewModel viewModel = createViewModelWith(aSession());
+        
+        LiveData<LiveDataEvent<Integer>> event = viewModel.errorDialogEvent();
+        TestUtils.activateLocalLiveData(event);
+        
+        assertThat(event.getValue(), is(nullValue()));
+        
+        viewModel.triggerErrorDialogEvent(123);
+        
+        assertThat(event.getValue().getExtra(), is(123));
+    }
+    
     @Test
     public void getDurationText_updatesWhenStartOrEndChange()
     {

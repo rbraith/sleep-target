@@ -25,6 +25,7 @@ import androidx.lifecycle.ViewModel;
 import com.rbraithwaite.sleeptarget.core.models.session.Session;
 import com.rbraithwaite.sleeptarget.ui.common.views.datetime.DateTimeViewModel;
 import com.rbraithwaite.sleeptarget.utils.CommonUtils;
+import com.rbraithwaite.sleeptarget.utils.LiveDataEvent;
 import com.rbraithwaite.sleeptarget.utils.LiveDataUtils;
 import com.rbraithwaite.sleeptarget.utils.TimeUtils;
 import com.rbraithwaite.sleeptarget.utils.time.Day;
@@ -50,6 +51,8 @@ public class SessionTimesViewModel
     
     private DateTimeViewModel mStartDateTimeViewModel;
     
+    private MutableLiveData<LiveDataEvent<Integer>> mErrorDialogEvent = new MutableLiveData<>();
+    
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -62,7 +65,7 @@ public class SessionTimesViewModel
             super(message);
         }
     }
-    
+
     public static class FutureDateTimeException
             extends RuntimeException
     {
@@ -180,6 +183,16 @@ public class SessionTimesViewModel
         return mStartDateTimeViewModel;
     }
     
+    public LiveData<LiveDataEvent<Integer>> errorDialogEvent()
+    {
+        return mErrorDialogEvent;
+    }
+    
+    public void triggerErrorDialogEvent(int errorMessageId)
+    {
+        mErrorDialogEvent.setValue(new LiveDataEvent<>(errorMessageId));
+    }
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -205,7 +218,7 @@ public class SessionTimesViewModel
         viewModel.setTimeOfDay(TimeOfDay.of(cal));
         return viewModel;
     }
-
+    
     private void updateStart(int[][] calFields)
     {
         Session session = mSession.getValue();
