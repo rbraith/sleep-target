@@ -123,4 +123,13 @@ public class Interruption
     {
         return mId;
     }
+    
+    public Interruption shallowCopy()
+    {
+        return new Interruption(
+                mId,
+                getStart(),
+                (int) getDurationMillis(),
+                mReason);
+    }
 }

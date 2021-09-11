@@ -302,9 +302,13 @@ public class SessionDetailsFragmentViewModel
     public InterruptionDetailsData getInterruptionDetailsData(int interruptionId)
     {
         return getOptionalSleepSession()
-                .map(sleepSession -> new InterruptionDetailsData(
-                        sleepSession.getInterruption(interruptionId),
-                        sleepSession))
+                .map(sleepSession -> {
+                    Interruption interruption = sleepSession.getInterruption(interruptionId);
+                    if (interruption != null) {
+                        interruption = interruption.shallowCopy();
+                    }
+                    return new InterruptionDetailsData(interruption, sleepSession);
+                })
                 .orElse(null);
     }
     
