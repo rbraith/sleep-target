@@ -30,6 +30,7 @@ import com.rbraithwaite.sleeptarget.test_utils.ui.drivers.SessionArchiveTestDriv
 import com.rbraithwaite.sleeptarget.test_utils.ui.fragment_helpers.HiltFragmentTestHelper;
 import com.rbraithwaite.sleeptarget.ui.session_archive.SessionArchiveFragment;
 import com.rbraithwaite.sleeptarget.utils.TimeUtils;
+import com.rbraithwaite.sleeptarget.utils.time.Day;
 
 import org.junit.After;
 import org.junit.Before;
@@ -44,6 +45,7 @@ import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.aDate;
 import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.aListOf;
 import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.aSleepSession;
 import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.anInterruption;
+import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.valueOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -95,6 +97,26 @@ public class SessionArchiveFragmentTests
                 HiltFragmentTestHelper.launchFragment(SessionArchiveFragment.class));
         
         sessionArchive.assertThat().listItemAtIndex(0).hasValuesMatching(sleepSession);
+    }
+    
+    @Test
+    public void addNewSessionWithInterruptions()
+    {
+        ApplicationTestDriver app = startAppInArchive();
+        
+        app.getSessionArchive().pressAddNewSessionButton();
+        
+        app.getSessionDetails().setStartDay(aDate().now().subtractDays(1));
+        
+        app.getSessionDetails().pressAddNewInterruptionButton();
+        app.getInterruptionDetails().confirm();
+        
+        app.getSessionDetails().assertThat().interruptionsCountMatches(1);
+        
+        app.getSessionDetails().confirm();
+        
+        app.getSessionArchive().openSessionDetailsFor(0);
+        app.getSessionDetails().assertThat().interruptionsCountMatches(1);
     }
     
     // BUG [21-06-30 6:40PM] -- flaky test?

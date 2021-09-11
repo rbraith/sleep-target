@@ -286,9 +286,10 @@ public class SleepSession
     
     public void addInterruption(Interruption interruption)
     {
-        if (mInterruptions != null) {
-            mInterruptions.add(interruption);
+        if (mInterruptions == null) {
+            mInterruptions = new Interruptions();
         }
+        mInterruptions.add(interruption);
     }
     
     /**

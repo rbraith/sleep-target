@@ -59,6 +59,11 @@ public class Interruptions
         mInterruptions = interruptions;
     }
     
+    public Interruptions()
+    {
+        this(new ArrayList<>());
+    }
+
 //*********************************************************
 // api
 //*********************************************************

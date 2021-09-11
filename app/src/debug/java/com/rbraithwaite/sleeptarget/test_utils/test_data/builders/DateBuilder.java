@@ -130,4 +130,10 @@ public class DateBuilder
         new TimeUtils().setCalendarTimeOfDay(mCal, 0);
         return this;
     }
+    
+    public DateBuilder now()
+    {
+        mCal = new GregorianCalendar();
+        return this;
+    }
 }

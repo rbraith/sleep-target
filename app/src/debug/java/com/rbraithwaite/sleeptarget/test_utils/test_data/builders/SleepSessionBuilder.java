@@ -159,4 +159,16 @@ public class SleepSessionBuilder
         mTags = new ArrayList<>();
         return this;
     }
+    
+    public SleepSessionBuilder withNoAdditionalComments()
+    {
+        mComments = "";
+        return this;
+    }
+    
+    public SleepSessionBuilder withRating(float rating)
+    {
+        mRating = rating;
+        return this;
+    }
 }

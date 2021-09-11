@@ -52,6 +52,11 @@ import com.rbraithwaite.sleeptarget.utils.CommonUtils;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
+// SMELL [21-09-10 5:30PM] -- It's weird that when adding a new session this uses
+//  SleepSession instead of SleepSessionRepository.NewSleepSessionData (as is the case when
+//  adding a session from the sleep tracker screen) - is there anything I should do about this?
+//  Note that in SessionArchiveFragmentViewModel.addSleepSession() the SleepSession is converted
+//  to a NewSleepSessionData for the repo.
 @AndroidEntryPoint
 public class SessionDetailsFragment
         extends DetailsFragment<SleepSessionWrapper, SessionDetailsFragmentViewModel>

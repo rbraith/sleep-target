@@ -29,6 +29,7 @@ import com.rbraithwaite.sleeptarget.core.models.Interruptions;
 import com.rbraithwaite.sleeptarget.core.models.Mood;
 import com.rbraithwaite.sleeptarget.core.models.SleepSession;
 import com.rbraithwaite.sleeptarget.core.models.Tag;
+import com.rbraithwaite.sleeptarget.test_utils.test_data.builders.SleepSessionBuilder;
 import com.rbraithwaite.sleeptarget.test_utils.ui.assertion_utils.RecyclerListItemAssertions;
 import com.rbraithwaite.sleeptarget.test_utils.ui.fragment_helpers.FragmentTestHelper;
 import com.rbraithwaite.sleeptarget.ui.common.views.mood_selector.TEMP.MoodView;
@@ -113,6 +114,11 @@ public class SessionArchiveTestDriver
             hasAdditionalComments(sleepSession.getAdditionalComments() != null &&
                                   !sleepSession.getAdditionalComments().isEmpty());
             hasInterruptionsMatching(sleepSession.getInterruptions());
+        }
+        
+        public void hasValuesMatching(SleepSessionBuilder sleepSession)
+        {
+            hasValuesMatching(sleepSession.build());
         }
         
         public void hasInterruptionsMatching(Interruptions interruptions)

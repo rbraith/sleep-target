@@ -652,6 +652,11 @@ public class SessionDetailsTestDriver
         DialogTestUtils.pressPositiveButton();
     }
     
+    public void setStartDay(DateBuilder day)
+    {
+        setStartDay(Day.of(day.build()));
+    }
+
 //*********************************************************
 // private methods
 //*********************************************************

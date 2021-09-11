@@ -23,6 +23,8 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
+import com.rbraithwaite.sleeptarget.core.models.Interruption;
+import com.rbraithwaite.sleeptarget.core.models.Interruptions;
 import com.rbraithwaite.sleeptarget.core.models.SleepSession;
 import com.rbraithwaite.sleeptarget.core.models.Tag;
 import com.rbraithwaite.sleeptarget.core.repositories.SleepSessionRepository;
@@ -71,6 +73,10 @@ public class SessionArchiveFragmentViewModel
         // SMELL [21-05-10 4:19PM] -- It feels wrong to be using a SleepSession model here -
         //  SessionDataFragment should be storing its data in a POJO instead?
         SleepSession model = sleepSession.getModel();
+    
+        Interruptions interruptions = model.getInterruptions();
+        List<Interruption> interruptionList = interruptions == null ?
+                new ArrayList<>() : interruptions.asList();
         
         // REFACTOR [21-05-10 3:46PM] -- extract this conversion logic.
         SleepSessionRepository.NewSleepSessionData newSleepSession =
@@ -81,11 +87,7 @@ public class SessionArchiveFragmentViewModel
                         model.getAdditionalComments(),
                         model.getMood(),
                         model.getTags().stream().map(Tag::getTagId).collect(Collectors.toList()),
-                        // TODO [21-07-8 11:58PM] -- this new list is a placeholder so that things
-                        //  don't break - SleepSession needs a list of its interruptions (this
-                        //  feature will be a part of adding interruptions manually in the
-                        //  details screen).
-                        new ArrayList<>(),
+                        interruptionList,
                         model.getRating());
         
         mSleepSessionRepository.addSleepSession(newSleepSession);
