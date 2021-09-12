@@ -53,14 +53,20 @@ public class InterruptionOverlapChecker
         if (mInterruptions == null || mInterruptions.isEmpty()) {
             return null;
         }
-        Interruption firstStartingBefore = mInterruptions.get(0);
-        for (int i = 1; i < mInterruptions.size(); i++) {
+
+        Interruption firstStartingBefore = null;
+        for (int i = 0; i < mInterruptions.size(); i++) {
             Interruption interruption = mInterruptions.get(i);
             long interruptionStartMillis = interruption.getStart().getTime();
-            long firstStartingBeforeMillis = firstStartingBefore.getStart().getTime();
-            if (interruptionStartMillis <= dateMillis &&
-                interruptionStartMillis > firstStartingBeforeMillis) {
-                firstStartingBefore = interruption;
+            if (interruptionStartMillis <= dateMillis) {
+                if (firstStartingBefore != null) {
+                    long firstStartingBeforeMillis = firstStartingBefore.getStart().getTime();
+                    if (interruptionStartMillis > firstStartingBeforeMillis) {
+                        firstStartingBefore = interruption;
+                    }
+                } else {
+                    firstStartingBefore = interruption;
+                }
             }
         }
         return firstStartingBefore;
@@ -75,14 +81,20 @@ public class InterruptionOverlapChecker
         if (mInterruptions == null || mInterruptions.isEmpty()) {
             return null;
         }
-        Interruption firstStartingAfter = mInterruptions.get(0);
-        for (int i = 1; i < mInterruptions.size(); i++) {
+
+        Interruption firstStartingAfter = null;
+        for (int i = 0; i < mInterruptions.size(); i++) {
             Interruption interruption = mInterruptions.get(i);
             long interruptionStartMillis = interruption.getStart().getTime();
-            long firstStartingAfterMillis = firstStartingAfter.getStart().getTime();
-            if (interruptionStartMillis >= dateMillis &&
-                interruptionStartMillis < firstStartingAfterMillis) {
-                firstStartingAfter = interruption;
+            if (interruptionStartMillis >= dateMillis) {
+                if (firstStartingAfter != null) {
+                    long firstStartingAfterMillis = firstStartingAfter.getStart().getTime();
+                    if (interruptionStartMillis < firstStartingAfterMillis) {
+                        firstStartingAfter = interruption;
+                    }
+                } else {
+                    firstStartingAfter = interruption;
+                }
             }
         }
         return firstStartingAfter;

@@ -93,7 +93,7 @@ public class InterruptionDetailsFragmentViewModelTests
                 valueOf(aSleepSession()
                                 .withStart(sessionStart)
                                 .withDurationHours(6)
-                                .withInterruptions(overlapped, overlapping))));
+                                .withInterruptions(overlapped))));
         
         viewModel.checkForValidResult();
     }
