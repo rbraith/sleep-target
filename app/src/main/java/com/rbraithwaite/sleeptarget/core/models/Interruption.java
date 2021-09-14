@@ -42,6 +42,7 @@ public class Interruption
 
     public static final long serialVersionUID = 20210112L;
 
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -154,6 +155,11 @@ public class Interruption
     public int getId()
     {
         return mId;
+    }
+    
+    public void setId(int id)
+    {
+        mId = id;
     }
     
     public Interruption shallowCopy()

@@ -37,6 +37,8 @@ public class Interruptions
     
     private Updates mUpdates;
     
+    private AddedIdGenerator mAddedIdGenerator = new AddedIdGenerator();
+    
     private int ID_NOT_FOUND = -1; // used with getIndexOfIdInList
 
 //*********************************************************
@@ -113,7 +115,16 @@ public class Interruptions
         
         int i = getIndexOfIdInList(interruptionId, mInterruptions);
         if (i != ID_NOT_FOUND) {
-            getUpdates().deleted.add(mInterruptions.remove(i));
+            // if the interruption was newly added, simply remove it from that list instead of
+            // appending it to the deleted list.
+            List<Interruption> added = getUpdates().added;
+            int addedIndex = getIndexOfIdInList(interruptionId, added);
+            if (addedIndex != ID_NOT_FOUND) {
+                mInterruptions.remove(i);
+                added.remove(addedIndex);
+            } else {
+                getUpdates().deleted.add(mInterruptions.remove(i));
+            }
         }
     }
     
@@ -139,6 +150,10 @@ public class Interruptions
     // TEST NEEDED [21-08-4 4:22PM]
     public void add(Interruption interruption)
     {
+        // HACK [21-09-14 3:36PM] -- side effect (intentional to allow clients to delete the
+        //  interruption they just added).
+        interruption.setId(mAddedIdGenerator.getNextId());
+        
         mInterruptions.add(interruption);
         getUpdates().added.add(interruption);
     }
@@ -171,7 +186,7 @@ public class Interruptions
         InterruptionOverlapChecker overlapChecker = new InterruptionOverlapChecker(mInterruptions);
         return overlapChecker.checkForOverlapExclusive(interruptionToCheck);
     }
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
@@ -185,10 +200,30 @@ public class Interruptions
         }
         return ID_NOT_FOUND;
     }
-    
+
     private Updates getUpdates()
     {
         mUpdates = CommonUtils.lazyInit(mUpdates, Updates::new);
         return mUpdates;
+    }
+
+//*********************************************************
+// private helpers
+//*********************************************************
+
+    
+    /**
+     * Generate placeholder unique ids for newly added interruptions. These ids decrement down from
+     * 0.
+     */
+    private static class AddedIdGenerator
+    {
+        private int mNextId = 1;
+        
+        public int getNextId()
+        {
+            mNextId--;
+            return mNextId;
+        }
     }
 }
