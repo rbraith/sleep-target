@@ -88,5 +88,11 @@ public class DevToolsFragment
         historicalGoalDataButton.setOnClickListener(v -> {
             getViewModel().maybeInitHistoricalGoalData();
         });
+        
+        // crash the app
+        Button crashButton = view.findViewById(R.id.dev_tool_crash);
+        crashButton.setOnClickListener(v -> {
+            getViewModel().crashTheApp();
+        });
     }
 }

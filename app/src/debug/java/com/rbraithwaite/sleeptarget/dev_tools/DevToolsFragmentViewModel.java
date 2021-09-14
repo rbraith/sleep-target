@@ -220,6 +220,11 @@ public class DevToolsFragmentViewModel
             mDatabase.getSleepSessionDao().addSleepSession(durationGoalSuccess);
         });
     }
+    
+    public void crashTheApp()
+    {
+        throw new RuntimeException("forcing a crash");
+    }
 
 //*********************************************************
 // private methods
