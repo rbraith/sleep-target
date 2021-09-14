@@ -230,19 +230,25 @@ public class SessionDetailsFragmentViewModel
         getOptionalSleepSession().ifPresent(sleepSession -> { sleepSession.setRating(rating); });
     }
     
-    public List<InterruptionListItem> getInterruptionListItems()
+    public LiveData<List<InterruptionListItem>> getInterruptionListItems()
     {
-        return getOptionalSleepSession()
-                .map(sleepSession -> {
-                    Interruptions interruptions = sleepSession.getInterruptions();
-                    return interruptions == null || interruptions.isEmpty() ?
-                            new ArrayList<InterruptionListItem>() :
-                            interruptions.asList().stream()
-                                    .map(interruption -> ConvertInterruption.toListItem(interruption,
-                                                                                        sleepSession))
-                                    .collect(Collectors.toList());
-                })
-                .orElse(new ArrayList<>());
+        // OPTIMIZE [21-09-14 2:24PM] -- Right now this is refreshing the interruptions on any
+        //  change to the sleep session - preferably this would only refresh if the start/end times
+        //  changed.
+        
+        return Transformations.map(getSleepSession(), sleepSession -> {
+            if (sleepSession == null) {
+                return new ArrayList<>();
+            }
+    
+            Interruptions interruptions = sleepSession.getInterruptions();
+            return interruptions == null || interruptions.isEmpty() ?
+                    new ArrayList<>() :
+                    interruptions.asList().stream()
+                            .map(interruption ->
+                                         ConvertInterruption.toListItem(interruption, sleepSession))
+                            .collect(Collectors.toList());
+        });
     }
     
     public boolean hasNoInterruptions()

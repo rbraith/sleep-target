@@ -320,10 +320,12 @@ public class SessionDetailsFragment
         recycler.setLayoutManager(new LinearLayoutManager(requireContext()));
         
         SessionDetailsInterruptionsAdapter adapter = new SessionDetailsInterruptionsAdapter(
-                getViewModel().getInterruptionListItems(),
                 viewHolder -> navigateToEditInterruptionScreen(viewHolder.data.interruptionId));
         
         adapter.setOnAddButtonClickListener(this::navigateToAddInterruptionScreen);
+    
+        getViewModel().getInterruptionListItems().observe(getViewLifecycleOwner(),
+                                                          adapter::setItems);
         
         recycler.setAdapter(adapter);
     }

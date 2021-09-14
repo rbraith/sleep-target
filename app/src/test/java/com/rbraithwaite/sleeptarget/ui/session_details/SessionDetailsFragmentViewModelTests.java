@@ -17,6 +17,7 @@
 
 package com.rbraithwaite.sleeptarget.ui.session_details;
 
+import androidx.lifecycle.LiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleeptarget.core.models.Interruption;
@@ -31,6 +32,7 @@ import com.rbraithwaite.sleeptarget.test_utils.test_data.builders.InterruptionBu
 import com.rbraithwaite.sleeptarget.test_utils.test_data.builders.SleepSessionBuilder;
 import com.rbraithwaite.sleeptarget.ui.common.convert.ConvertMood;
 import com.rbraithwaite.sleeptarget.ui.common.data.MoodUiData;
+import com.rbraithwaite.sleeptarget.ui.common.interruptions.InterruptionListItem;
 import com.rbraithwaite.sleeptarget.ui.common.views.tag_selector.ConvertTag;
 import com.rbraithwaite.sleeptarget.ui.common.views.tag_selector.TagUiData;
 import com.rbraithwaite.sleeptarget.ui.interruption_details.InterruptionDetailsData;
@@ -150,9 +152,11 @@ public class SessionDetailsFragmentViewModelTests
     {
         SleepSession sleepSession = valueOf(aSleepSession().withDurationHours(123).withNoInterruptions());
         viewModel.initData(new SleepSessionWrapper(sleepSession));
+        LiveData<List<InterruptionListItem>> listItems = viewModel.getInterruptionListItems();
+        TestUtils.activateLocalLiveData(listItems);
         
         assertThat(viewModel.hasNoInterruptions(), is(true));
-        assertThat(viewModel.getInterruptionListItems().isEmpty(), is(true));
+        assertThat(listItems.getValue().isEmpty(), is(true));
         assertThat(viewModel.getInterruptionsCountText(), is(equalTo("0")));
         assertThat(viewModel.getInterruptionsTotalTimeText(), is(equalTo("0h 00m 00s")));
         
@@ -162,7 +166,7 @@ public class SessionDetailsFragmentViewModelTests
         viewModel.setData(new SleepSessionWrapper(sleepSession));
         
         assertThat(viewModel.hasNoInterruptions(), is(false));
-        assertThat(viewModel.getInterruptionListItems().size(), is(2));
+        assertThat(listItems.getValue().size(), is(2));
         assertThat(viewModel.getInterruptionsCountText(), is(equalTo("2")));
         assertThat(viewModel.getInterruptionsTotalTimeText(), is(equalTo("11h 15m 05s")));
     }

@@ -31,6 +31,7 @@ import com.rbraithwaite.sleeptarget.ui.common.interruptions.InterruptionListItem
 import com.rbraithwaite.sleeptarget.ui.utils.AppColors;
 import com.rbraithwaite.sleeptarget.utils.CommonUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.rbraithwaite.sleeptarget.ui.utils.RecyclerUtils.inflateLayout;
@@ -42,7 +43,7 @@ public class SessionDetailsInterruptionsAdapter
 // private properties
 //*********************************************************
 
-    private List<InterruptionListItem> mItems;
+    private List<InterruptionListItem> mItems = new ArrayList<>();
     
     private OnListItemClickListener mOnListItemClickListener;
     private OnAddButtonClickListener mOnAddButtonClickListener;
@@ -165,10 +166,8 @@ public class SessionDetailsInterruptionsAdapter
 //*********************************************************
 
     public SessionDetailsInterruptionsAdapter(
-            List<InterruptionListItem> items,
             OnListItemClickListener onListItemClickListener)
     {
-        mItems = items;
         mOnListItemClickListener = onListItemClickListener;
     }
 
@@ -225,7 +224,15 @@ public class SessionDetailsInterruptionsAdapter
 //*********************************************************
 // api
 //*********************************************************
-
+    
+    public void setItems(List<InterruptionListItem> items)
+    {
+        mItems = items;
+        // OPTIMIZE [21-09-14 2:27PM] -- This should be diffutils, or maybe continue using list
+        //  tracking idk.
+        notifyDataSetChanged();
+    }
+    
     public void setOnAddButtonClickListener(OnAddButtonClickListener onAddButtonClickListener)
     {
         mOnAddButtonClickListener = onAddButtonClickListener;
