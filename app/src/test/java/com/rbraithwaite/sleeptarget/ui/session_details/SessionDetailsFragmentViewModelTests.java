@@ -50,6 +50,7 @@ import java.util.List;
 import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.aListOf;
 import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.aSleepSession;
 import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.anInterruption;
+import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.valueOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -147,7 +148,7 @@ public class SessionDetailsFragmentViewModelTests
     @Test
     public void interruptionsReflectSessionData()
     {
-        SleepSession sleepSession = TestUtils.ArbitraryData.getSleepSession();
+        SleepSession sleepSession = valueOf(aSleepSession().withDurationHours(123).withNoInterruptions());
         viewModel.initData(new SleepSessionWrapper(sleepSession));
         
         assertThat(viewModel.hasNoInterruptions(), is(true));
@@ -156,8 +157,8 @@ public class SessionDetailsFragmentViewModelTests
         assertThat(viewModel.getInterruptionsTotalTimeText(), is(equalTo("0h 00m 00s")));
         
         sleepSession.setInterruptions(new Interruptions(aListOf(
-                anInterruption().withDuration(1, 10, 0),
-                anInterruption().withDuration(10, 5, 5))));
+                anInterruption().withStart(sleepSession.getStart()).withDuration(1, 10, 0),
+                anInterruption().withStart(sleepSession.getStart()).withDuration(10, 5, 5))));
         viewModel.setData(new SleepSessionWrapper(sleepSession));
         
         assertThat(viewModel.hasNoInterruptions(), is(false));

@@ -14,10 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.session_archive;
 
 import com.rbraithwaite.sleeptarget.core.models.Interruptions;
+import com.rbraithwaite.sleeptarget.core.models.SleepSession;
 import com.rbraithwaite.sleeptarget.ui.Constants;
 import com.rbraithwaite.sleeptarget.ui.common.CommonFormatting;
 import com.rbraithwaite.sleeptarget.ui.sleep_tracker.SleepTrackerFormatting;
@@ -50,8 +50,10 @@ public class SessionArchiveFormatting
         return CommonFormatting.formatDurationMillis(durationMillis);
     }
     
-    public static String formatInterruptions(Interruptions interruptions)
+    public static String formatInterruptionsOf(SleepSession sleepSession)
     {
+        Interruptions interruptions = sleepSession.getInterruptions();
+        
         if (interruptions == null || interruptions.isEmpty()) {
             return null;
         }
@@ -59,7 +61,7 @@ public class SessionArchiveFormatting
         // REFACTOR [21-07-20 2:58PM] -- this should be CommonFormatting & shared between here
         //  and sleep tracker.
         return SleepTrackerFormatting.formatInterruptionsTotal(
-                interruptions.getTotalDuration(),
+                interruptions.getTotalDurationInBounds(sleepSession),
                 interruptions.getCount());
     }
 }

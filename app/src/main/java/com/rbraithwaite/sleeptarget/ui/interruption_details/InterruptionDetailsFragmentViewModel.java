@@ -21,6 +21,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
+import com.rbraithwaite.sleeptarget.R;
 import com.rbraithwaite.sleeptarget.core.models.Interruption;
 import com.rbraithwaite.sleeptarget.core.models.SleepSession;
 import com.rbraithwaite.sleeptarget.core.models.session.Session;
@@ -73,6 +74,22 @@ public class InterruptionDetailsFragmentViewModel
         }
     }
 
+    /**
+     * If this Interruption is outside the start/end bounds of its parent fragment, this class
+     * provides information about *how* it is out of bounds.
+     */
+    public static class OutOfBoundsDetails
+    {
+        public final int messageId;
+        public final String sessionTimeText;
+        
+        public OutOfBoundsDetails(int messageId, String sessionTimeText)
+        {
+            this.messageId = messageId;
+            this.sessionTimeText = sessionTimeText;
+        }
+    }
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -82,7 +99,7 @@ public class InterruptionDetailsFragmentViewModel
     {
         mTimeUtils = timeUtils;
     }
-
+    
 //*********************************************************
 // overrides
 //*********************************************************
@@ -107,7 +124,7 @@ public class InterruptionDetailsFragmentViewModel
             mInitialized = true;
         }
     }
-    
+
     // TEST NEEDED [21-07-27 12:22AM] -- .
     @Override
     public void clearData()
@@ -157,15 +174,34 @@ public class InterruptionDetailsFragmentViewModel
     {
         // REFACTOR [21-07-31 8:26PM] -- Should this be async, like in
         //  SessionDetailsFragmentViewModel.checkResultForSessionOverlap?
-        getOptionalInterruption().ifPresent(interruption -> {
-            checkForInterruptionOutOfSessionBounds(interruption);
-            checkForInterruptionOverlap(interruption);
-        });
+        getOptionalInterruption().ifPresent(this::checkForInterruptionOverlap);
     }
     
     public Session getSession()
     {
         return getOptionalInterruption().orElse(null);
+    }
+    
+    public LiveData<OutOfBoundsDetails> isOutOfBounds()
+    {
+        return Transformations.map(mInterruption, interruption -> {
+            if (interruption == null) {
+                return null;
+            }
+            Interruption.OutOfBounds outOfBounds =
+                    interruption.isOutsideBoundsOf(mParentSleepSession);
+            if (outOfBounds.sessionStart) {
+                return new OutOfBoundsDetails(
+                        R.string.interruption_details_oob_start,
+                        InterruptionDetailsFormatting.formatFullDate(mParentSleepSession.getStart()));
+            }
+            if (outOfBounds.sessionEnd) {
+                return new OutOfBoundsDetails(
+                        R.string.interruption_details_oob_end,
+                        InterruptionDetailsFormatting.formatFullDate(mParentSleepSession.getEnd()));
+            }
+            return null;
+        });
     }
 
 //*********************************************************
@@ -180,16 +216,6 @@ public class InterruptionDetailsFragmentViewModel
             throw new OverlappingInterruptionException(
                     InterruptionDetailsFormatting.formatFullDate(overlapping.getStart()),
                     InterruptionDetailsFormatting.formatFullDate(overlapping.getEnd()));
-        }
-    }
-    
-    private void checkForInterruptionOutOfSessionBounds(Interruption interruption)
-    {
-        if (interruption.getStart().getTime() < mParentSleepSession.getStart().getTime() ||
-            interruption.getEnd().getTime() > mParentSleepSession.getEnd().getTime()) {
-            throw new OutOfBoundsInterruptionException(
-                    InterruptionDetailsFormatting.formatFullDate(mParentSleepSession.getStart()),
-                    InterruptionDetailsFormatting.formatFullDate(mParentSleepSession.getEnd()));
         }
     }
     

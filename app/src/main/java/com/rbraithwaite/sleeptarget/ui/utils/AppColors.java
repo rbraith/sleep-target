@@ -49,7 +49,8 @@ public class AppColors
             R.attr.appDialogTitleIconColor,
             R.attr.appColorComplementary,
             R.attr.appColorInterruption,
-            R.attr.appColorInterruptionDark
+            R.attr.appColorInterruptionDark,
+            R.attr.colorError
     };
 
 //*********************************************************
@@ -77,6 +78,7 @@ public class AppColors
     public int appColorComplementary;
     public int appColorInterruption;
     public int appColorInterruptionDark;
+    public int colorError;
 
 //*********************************************************
 // public constants
@@ -120,6 +122,7 @@ public class AppColors
         appColors.appColorComplementary = ta.getColor(18, AppColors.NOT_FOUND);
         appColors.appColorInterruption = ta.getColor(19, AppColors.NOT_FOUND);
         appColors.appColorInterruptionDark = ta.getColor(20, AppColors.NOT_FOUND);
+        appColors.colorError = ta.getColor(21, AppColors.NOT_FOUND);
         ta.recycle();
         return appColors;
     }

@@ -87,4 +87,11 @@
         \n
         The day hits the target if that sleep session <b>ends within 5 minutes +/- of the target</b>.
     </string>
+    <string name="interruption_details_oob_start">
+        This interruption has times set before the start of its sleep session:
+    </string>
+    <string name="interruption_details_oob_end">
+        This interruption has times set after the end of its sleep session:
+    </string>
+    <string name="interruption_details_oob_end_message">That part of this interruption\'s duration won\'t be counted.</string>
 </resources>

@@ -18,13 +18,17 @@
 package com.rbraithwaite.sleeptarget.ui.session_archive;
 
 import com.rbraithwaite.sleeptarget.core.models.Interruptions;
+import com.rbraithwaite.sleeptarget.core.models.SleepSession;
+import com.rbraithwaite.sleeptarget.test_utils.test_data.builders.SleepSessionBuilder;
 
 import org.junit.Test;
 
 import java.util.GregorianCalendar;
 
 import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.aListOf;
+import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.aSleepSession;
 import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.anInterruption;
+import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.valueOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -39,11 +43,12 @@ public class SessionArchiveFormattingTests
     @Test
     public void formatInterruptions_positiveInput()
     {
-        Interruptions interruptions = new Interruptions(aListOf(
-                anInterruption().withDuration(1, 10, 10),
-                anInterruption().withDuration(2, 5, 5)));
+        SleepSessionBuilder parent = aSleepSession().withDurationHours(123);
         
-        assertThat(SessionArchiveFormatting.formatInterruptions(interruptions),
+        parent.withInterruptions(anInterruption().withDuration(1, 10, 10),
+                                 anInterruption().withDuration(2, 5, 5));
+        
+        assertThat(SessionArchiveFormatting.formatInterruptionsOf(valueOf(parent)),
                    is(equalTo("3h 15m 15s (2)")));
     }
     

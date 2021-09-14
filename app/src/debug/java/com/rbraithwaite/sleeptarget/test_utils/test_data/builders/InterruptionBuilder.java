@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.test_utils.test_data.builders;
 
 import com.rbraithwaite.sleeptarget.core.models.Interruption;
@@ -66,6 +65,12 @@ public class InterruptionBuilder
     public InterruptionBuilder withStart(DateBuilder start)
     {
         mStart = start.build();
+        return this;
+    }
+    
+    public InterruptionBuilder withStart(Date start)
+    {
+        mStart = start;
         return this;
     }
     

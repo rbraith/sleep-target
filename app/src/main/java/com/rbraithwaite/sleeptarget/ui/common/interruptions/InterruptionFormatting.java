@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.common.interruptions;
 
 import com.rbraithwaite.sleeptarget.core.models.Interruption;
@@ -32,7 +31,7 @@ public class InterruptionFormatting
 //*********************************************************
 
     private InterruptionFormatting() {/* No instantiation */}
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -60,5 +59,10 @@ public class InterruptionFormatting
     public static String formatListItemReason(String reason)
     {
         return reason == null || reason.isEmpty() ? "- - -" : reason;
+    }
+    
+    public static String formatOutOfBoundsDuration(long durationMillis)
+    {
+        return formatDuration(durationMillis);
     }
 }

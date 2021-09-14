@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.test_utils.ui.drivers;
 
 import android.view.View;
@@ -113,7 +112,7 @@ public class SessionArchiveTestDriver
             hasMoodMatching(sleepSession.getMood());
             hasAdditionalComments(sleepSession.getAdditionalComments() != null &&
                                   !sleepSession.getAdditionalComments().isEmpty());
-            hasInterruptionsMatching(sleepSession.getInterruptions());
+            hasInterruptionsMatching(sleepSession);
         }
         
         public void hasValuesMatching(SleepSessionBuilder sleepSession)
@@ -121,17 +120,19 @@ public class SessionArchiveTestDriver
             hasValuesMatching(sleepSession.build());
         }
         
-        public void hasInterruptionsMatching(Interruptions interruptions)
+        public void hasInterruptionsMatching(SleepSession sleepSession)
         {
             ViewInteraction onInterruptionsText =
                     onView(withId(R.id.session_archive_list_item_interruptions_VALUE));
+            
+            Interruptions interruptions = sleepSession.getInterruptions();
             
             if (interruptions == null || interruptions.isEmpty()) {
                 onInterruptionsText.check(matches(not(isDisplayed())));
             } else {
                 onInterruptionsText.check(matches(allOf(
                         isDisplayed(),
-                        withText(SessionArchiveFormatting.formatInterruptions(interruptions)))));
+                        withText(SessionArchiveFormatting.formatInterruptionsOf(sleepSession)))));
             }
         }
         

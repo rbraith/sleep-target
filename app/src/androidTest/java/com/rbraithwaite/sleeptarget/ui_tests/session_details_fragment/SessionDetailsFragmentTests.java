@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui_tests.session_details_fragment;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -37,7 +36,9 @@ import java.util.GregorianCalendar;
 import java.util.concurrent.TimeUnit;
 
 import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.aListOf;
+import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.aSleepSession;
 import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.anInterruption;
+import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.valueOf;
 
 @RunWith(AndroidJUnit4.class)
 public class SessionDetailsFragmentTests
@@ -169,7 +170,7 @@ public class SessionDetailsFragmentTests
     @Test
     public void interruptionsDisplayProperly()
     {
-        SleepSession sleepSession = sleepSessionWithZeroDuration();
+        SleepSession sleepSession = valueOf(aSleepSession().withDurationHours(123));
         sleepSession.setInterruptions(new Interruptions(aListOf(
                 anInterruption(), anInterruption())));
         

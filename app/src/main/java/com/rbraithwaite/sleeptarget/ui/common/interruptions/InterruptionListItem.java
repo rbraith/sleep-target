@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.common.interruptions;
 
 public class InterruptionListItem
@@ -27,16 +26,23 @@ public class InterruptionListItem
     public final String start;
     public final String duration;
     public final String reason;
+    public final Boolean isOutOfBounds;
 
 //*********************************************************
 // constructors
 //*********************************************************
 
-    public InterruptionListItem(int interruptionId, String start, String duration, String reason)
+    public InterruptionListItem(
+            int interruptionId,
+            String start,
+            String duration,
+            String reason,
+            Boolean isOutOfBounds)
     {
         this.interruptionId = interruptionId;
         this.start = start;
         this.duration = duration;
         this.reason = reason;
+        this.isOutOfBounds = isOutOfBounds;
     }
 }

@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.core.models;
 
 import androidx.annotation.NonNull;
@@ -309,11 +308,12 @@ public class SleepSession
     }
     
     /**
-     * @return The sleep duration minus the total interruption time.
+     * @return The sleep duration minus the total in-bounds interruption time.
      */
     public long getNetDurationMillis()
     {
         Interruptions interruptions = getInterruptions();
-        return getDurationMillis() - (interruptions == null ? 0 : interruptions.getTotalDuration());
+        return getDurationMillis() -
+               (interruptions == null ? 0 : interruptions.getTotalDurationInBounds(this));
     }
 }

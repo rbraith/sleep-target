@@ -62,21 +62,6 @@ public class InterruptionDetailsFragmentViewModelTests
         mockTimeUtils = null;
     }
     
-    
-    @Test(expected = InterruptionDetailsFragmentViewModel.OutOfBoundsInterruptionException.class)
-    public void checkForValidResult_throwsOnOutOfBoundsInterruption()
-    {
-        DateBuilder date = aDate();
-        InterruptionBuilder interruption = anInterruption().withStart(date);
-        
-        viewModel.initData(new InterruptionDetailsData(
-                valueOf(interruption),
-                // add an hour so that the interruption starts before the session bounds
-                valueOf(aSleepSession().withStart(date.addHours(1)))));
-        
-        viewModel.checkForValidResult();
-    }
-    
     @Test(expected = InterruptionDetailsFragmentViewModel.OverlappingInterruptionException.class)
     public void checkForValidResult_throwsOnOverlappingInterruption()
     {

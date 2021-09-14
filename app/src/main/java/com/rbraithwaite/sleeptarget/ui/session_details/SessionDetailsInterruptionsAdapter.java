@@ -14,19 +14,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.session_details;
 
+import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.rbraithwaite.sleeptarget.R;
 import com.rbraithwaite.sleeptarget.ui.common.interruptions.InterruptionListItem;
+import com.rbraithwaite.sleeptarget.ui.utils.AppColors;
+import com.rbraithwaite.sleeptarget.utils.CommonUtils;
 
 import java.util.List;
 
@@ -43,6 +46,8 @@ public class SessionDetailsInterruptionsAdapter
     
     private OnListItemClickListener mOnListItemClickListener;
     private OnAddButtonClickListener mOnAddButtonClickListener;
+    
+    private AppColors mAppColors;
 
 //*********************************************************
 // private constants
@@ -51,11 +56,11 @@ public class SessionDetailsInterruptionsAdapter
     private static final int VIEWTYPE_ITEM = 0;
     
     private static final int VIEWTYPE_ADD_BUTTON = 1;
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
-
+    
     // REFACTOR [21-07-23 3:12PM] -- this list item clicking system is duplicated in
     //  SessionArchiveRecyclerviewAdapter.
     public interface OnListItemClickListener
@@ -85,16 +90,23 @@ public class SessionDetailsInterruptionsAdapter
     {
         InterruptionListItem data;
         
+        CardView card;
         TextView start;
         TextView duration;
         TextView reason;
         
+        private AppColors mAppColors;
+        
         public ItemViewHolder(
                 @NonNull View itemView,
-                OnListItemClickListener onListItemClickListener)
+                OnListItemClickListener onListItemClickListener,
+                AppColors appColors)
         {
             super(itemView);
             
+            mAppColors = appColors;
+            
+            card = itemView.findViewById(R.id.session_details_interruptions_listitem_card);
             start = itemView.findViewById(R.id.common_interruptions_listitem_start);
             duration = itemView.findViewById(R.id.common_interruptions_listitem_duration);
             reason = itemView.findViewById(R.id.common_interruptions_listitem_reason);
@@ -113,6 +125,15 @@ public class SessionDetailsInterruptionsAdapter
             start.setText(item.start);
             duration.setText(item.duration);
             reason.setText(item.reason);
+            
+            if (item.isOutOfBounds) {
+                card.setCardBackgroundColor(mAppColors.colorError);
+                // TODO [21-09-12 9:35PM] -- This should be colorOnError.
+                duration.setTextColor(mAppColors.colorSecondary);
+            } else {
+                card.setCardBackgroundColor(mAppColors.colorBackgroundFloating);
+                duration.setTextColor(mAppColors.appColorInterruption);
+            }
         }
     }
     
@@ -138,8 +159,7 @@ public class SessionDetailsInterruptionsAdapter
             });
         }
     }
-
-
+    
 //*********************************************************
 // constructors
 //*********************************************************
@@ -152,16 +172,11 @@ public class SessionDetailsInterruptionsAdapter
         mOnListItemClickListener = onListItemClickListener;
     }
 
+
 //*********************************************************
 // overrides
 //*********************************************************
-    
-    
-    public void setOnAddButtonClickListener(OnAddButtonClickListener onAddButtonClickListener)
-    {
-        mOnAddButtonClickListener = onAddButtonClickListener;
-    }
-    
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
@@ -169,7 +184,9 @@ public class SessionDetailsInterruptionsAdapter
         switch (viewType) {
         case VIEWTYPE_ITEM:
             View item = inflateLayout(R.layout.session_details_interruptions_listitem, parent);
-            return new ItemViewHolder(item, mOnListItemClickListener);
+            return new ItemViewHolder(item,
+                                      mOnListItemClickListener,
+                                      getAppColors(parent.getContext()));
         
         case VIEWTYPE_ADD_BUTTON:
             View addButton = inflateLayout(R.layout.session_details_interruptions_addbtn, parent);
@@ -179,7 +196,7 @@ public class SessionDetailsInterruptionsAdapter
             throw new IllegalArgumentException("Invalid viewType: " + viewType);
         }
     }
-    
+
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position)
     {
@@ -203,5 +220,24 @@ public class SessionDetailsInterruptionsAdapter
     public int getItemCount()
     {
         return mItems.size() + 1; // +1 for add button
+    }
+    
+//*********************************************************
+// api
+//*********************************************************
+
+    public void setOnAddButtonClickListener(OnAddButtonClickListener onAddButtonClickListener)
+    {
+        mOnAddButtonClickListener = onAddButtonClickListener;
+    }
+    
+//*********************************************************
+// private methods
+//*********************************************************
+
+    private AppColors getAppColors(Context context)
+    {
+        mAppColors = CommonUtils.lazyInit(mAppColors, () -> AppColors.from(context));
+        return mAppColors;
     }
 }

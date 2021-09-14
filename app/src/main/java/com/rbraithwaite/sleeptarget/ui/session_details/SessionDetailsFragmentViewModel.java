@@ -238,7 +238,8 @@ public class SessionDetailsFragmentViewModel
                     return interruptions == null || interruptions.isEmpty() ?
                             new ArrayList<InterruptionListItem>() :
                             interruptions.asList().stream()
-                                    .map(ConvertInterruption::toListItem)
+                                    .map(interruption -> ConvertInterruption.toListItem(interruption,
+                                                                                        sleepSession))
                                     .collect(Collectors.toList());
                 })
                 .orElse(new ArrayList<>());
@@ -265,7 +266,8 @@ public class SessionDetailsFragmentViewModel
         return getOptionalSleepSession()
                 .map(sleepSession -> InterruptionFormatting.formatDuration(
                         sleepSession.hasNoInterruptions() ? 0 :
-                                sleepSession.getInterruptions().getTotalDuration()))
+                                sleepSession.getInterruptions()
+                                        .getTotalDurationInBounds(sleepSession)))
                 .orElseGet(() -> InterruptionFormatting.formatDuration(0));
     }
     
@@ -365,6 +367,7 @@ public class SessionDetailsFragmentViewModel
     {
         return getOptionalSleepSession().orElse(null);
     }
+
 
 
 //*********************************************************

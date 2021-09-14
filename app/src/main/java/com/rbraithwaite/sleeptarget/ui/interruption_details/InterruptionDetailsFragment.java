@@ -27,6 +27,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.rbraithwaite.sleeptarget.R;
@@ -50,6 +51,7 @@ public class InterruptionDetailsFragment
 //*********************************************************
 
     private SessionTimesViewModel mSessionTimesViewModel;
+    private ConstraintLayout mOutOfBoundsWarning;
 
 //*********************************************************
 // private constants
@@ -60,17 +62,17 @@ public class InterruptionDetailsFragment
     
     private static final String DIALOG_OUT_OF_BOUNDS_ERROR =
             "InterruptionDetailsFragmentOOBErrorDialog";
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
 
     public static class Result
             extends DetailsResult<InterruptionDetailsData> {}
-
+    
     public static class Args
             extends DetailsFragment.Args<InterruptionDetailsData> {}
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -128,6 +130,16 @@ public class InterruptionDetailsFragment
                 getViewModel().setReason(s.toString());
             }
         });
+        
+        // init out-of-bounds warning
+        mOutOfBoundsWarning = view.findViewById(R.id.interruption_details_bounds);
+        getViewModel().isOutOfBounds().observe(getViewLifecycleOwner(), outOfBoundsDetails -> {
+            if (outOfBoundsDetails != null) {
+                displayOutOfBoundsWarning(outOfBoundsDetails);
+            } else {
+                hideOutOfBoundsWarning();
+            }
+        });
     }
     
     @Override
@@ -165,6 +177,24 @@ public class InterruptionDetailsFragment
 // private methods
 //*********************************************************
 
+    private void hideOutOfBoundsWarning()
+    {
+        mOutOfBoundsWarning.setVisibility(View.GONE);
+    }
+    
+    private void displayOutOfBoundsWarning(InterruptionDetailsFragmentViewModel.OutOfBoundsDetails outOfBoundsDetails)
+    {
+        mOutOfBoundsWarning.setVisibility(View.VISIBLE);
+        // OPTIMIZE [21-09-12 7:59PM] -- repetitious findViewById() calls.
+        TextView message =
+                mOutOfBoundsWarning.findViewById(R.id.interruption_bounds_warning_message);
+        TextView sessionTime =
+                mOutOfBoundsWarning.findViewById(R.id.interruption_bounds_warning_time);
+        
+        message.setText(outOfBoundsDetails.messageId);
+        sessionTime.setText(outOfBoundsDetails.sessionTimeText);
+    }
+
     private SessionTimesViewModel getSessionTimesViewModel()
     {
         mSessionTimesViewModel = CommonUtils.lazyInit(mSessionTimesViewModel, () -> {
@@ -175,8 +205,8 @@ public class InterruptionDetailsFragment
         });
         return mSessionTimesViewModel;
     }
-
-
+    
+    
     /**
      * If the result interruption is not valid, display an error dialog and return false.
      */
@@ -188,12 +218,11 @@ public class InterruptionDetailsFragment
         } catch (InterruptionDetailsFragmentViewModel.OverlappingInterruptionException e) {
             displayOverlapErrorDialog(e);
             return false;
-        } catch (InterruptionDetailsFragmentViewModel.OutOfBoundsInterruptionException e) {
-            displayOutOfBoundsErrorDialog(e);
-            return false;
         }
     }
     
+    // REFACTOR [21-09-12 7:52PM] -- This generic dialog system isn't needed anymore now that
+    //  there's only one type of dialog.
     private void displayErrorDialog(String tag, int titleId, DialogViewFactory content)
     {
         AlertDialogFragment dialog = AlertDialogFragment.createInstance((context, inflater) -> {
@@ -207,31 +236,12 @@ public class InterruptionDetailsFragment
         dialog.show(getChildFragmentManager(), tag);
     }
     
-    private void displayOutOfBoundsErrorDialog(InterruptionDetailsFragmentViewModel.OutOfBoundsInterruptionException e)
-    {
-        displayErrorDialog(
-                DIALOG_OUT_OF_BOUNDS_ERROR,
-                R.string.interruption_details_oob_error_title,
-                inflater -> createOutOfBoundsErrorDialogContent(inflater, e));
-    }
-    
     private void displayOverlapErrorDialog(InterruptionDetailsFragmentViewModel.OverlappingInterruptionException e)
     {
         displayErrorDialog(
                 DIALOG_OVERLAP_ERROR,
                 R.string.interruption_details_overlap_error_title,
                 inflater -> createOverlapErrorDialogContent(inflater, e));
-    }
-    
-    private View createOutOfBoundsErrorDialogContent(
-            LayoutInflater inflater,
-            InterruptionDetailsFragmentViewModel.OutOfBoundsInterruptionException e)
-    {
-        return createErrorDialogContent(
-                inflater,
-                R.string.interruption_details_oob_error_message,
-                e.sessionStart,
-                e.sessionEnd);
     }
     
     private View createOverlapErrorDialogContent(

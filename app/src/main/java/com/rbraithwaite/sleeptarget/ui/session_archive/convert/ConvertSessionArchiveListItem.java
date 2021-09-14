@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.session_archive.convert;
 
 import com.rbraithwaite.sleeptarget.core.models.SleepSession;
@@ -35,6 +34,7 @@ public class ConvertSessionArchiveListItem
     private ConvertSessionArchiveListItem() {/* No instantiation */}
     
     // TEST NEEDED [21-05-14 5:09PM] -- update tests with rating data, interruption data.
+
 
 
 //*********************************************************
@@ -64,7 +64,7 @@ public class ConvertSessionArchiveListItem
                 ConvertMood.toUiData(sleepSession.getMood()),
                 convertTags(sleepSession.getTags()),
                 sleepSession.getRating(),
-                SessionArchiveFormatting.formatInterruptions(sleepSession.getInterruptions()));
+                SessionArchiveFormatting.formatInterruptionsOf(sleepSession));
     }
 
 //*********************************************************

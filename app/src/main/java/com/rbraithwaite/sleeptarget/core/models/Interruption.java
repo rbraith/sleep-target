@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.core.models;
 
 import com.rbraithwaite.sleeptarget.core.models.session.Session;
@@ -44,14 +43,47 @@ public class Interruption
     public static final long serialVersionUID = 20210112L;
 
 //*********************************************************
+// public helpers
+//*********************************************************
+
+    
+    /**
+     * Describes how this interruption is out of bounds with a particular sleep session. The values
+     * in this class describe the *session's* start/end.
+     */
+    public static class OutOfBounds
+    {
+        public final boolean sessionStart;
+        public final boolean sessionEnd;
+        
+        public OutOfBounds(boolean sessionStart, boolean sessionEnd)
+        {
+            this.sessionStart = sessionStart;
+            this.sessionEnd = sessionEnd;
+        }
+        
+        public boolean either() { return sessionStart || sessionEnd; }
+        
+        public boolean neither()
+        {
+            return !either();
+        }
+        
+        public boolean both()
+        {
+            return sessionStart && sessionEnd;
+        }
+    }
+
+//*********************************************************
 // constructors
 //*********************************************************
-    
+
     public Interruption(Date startTime)
     {
         this(startTime, 0, null);
     }
-
+    
     public Interruption(Date startTime, int durationMillis, String reason)
     {
         this(0, startTime, durationMillis, reason);
@@ -78,9 +110,13 @@ public class Interruption
                '}';
     }
     
-    public Date getEnd()
+    @Override
+    public int hashCode()
     {
-        return new TimeUtils().getDateFromMillis(getStart().getTime() + getDurationMillis());
+        int result = super.hashCode();
+        result = 31 * result + (mReason != null ? mReason.hashCode() : 0);
+        result = 31 * result + mId;
+        return result;
     }
     
     @Override
@@ -95,16 +131,12 @@ public class Interruption
         if (!super.equals(o)) { return false; }
         return Objects.equals(mReason, that.mReason);
     }
-
-    @Override
-    public int hashCode()
-    {
-        int result = super.hashCode();
-        result = 31 * result + (mReason != null ? mReason.hashCode() : 0);
-        result = 31 * result + mId;
-        return result;
-    }
     
+    public Date getEnd()
+    {
+        return new TimeUtils().getDateFromMillis(getStart().getTime() + getDurationMillis());
+    }
+
 //*********************************************************
 // api
 //*********************************************************
@@ -131,5 +163,42 @@ public class Interruption
                 getStart(),
                 (int) getDurationMillis(),
                 mReason);
+    }
+    
+    public OutOfBounds isOutsideBoundsOf(SleepSession sleepSession)
+    {
+        boolean start = getStart().getTime() < sleepSession.getStart().getTime();
+        boolean end = getEnd().getTime() > sleepSession.getEnd().getTime();
+        return new OutOfBounds(start, end);
+    }
+    
+    public long getDurationMillisInBounds(SleepSession sleepSession)
+    {
+        // OPTIMIZE [21-09-12 9:10PM] -- computing the in-bounds duration for an interruption
+        //  like this isn't ideal. This should really be handled by the sleep session, so that
+        //  the session start/end only need to be instantiated once (or honestly just store a
+        //  cache of the oob interruptions). This is mainly problematic for computing the sleep
+        //  duration target, which looks at the net durations of many sessions. (that should
+        //  also just be a cache though lol)
+        
+        long sessionStart = sleepSession.getStart().getTime();
+        long sessionEnd = sleepSession.getEnd().getTime();
+        long interruptionStart = getStart().getTime();
+        long interruptionEnd = getEnd().getTime();
+        
+        if (interruptionEnd < sessionStart || sessionEnd < interruptionStart) {
+            return 0L;
+        }
+        
+        if (sessionStart <= interruptionStart && interruptionEnd <= sessionEnd) {
+            return getDurationMillis();
+        }
+        
+        long outOfBoundsAmount = 0L;
+        
+        outOfBoundsAmount += Math.max(0L, sessionStart - interruptionStart);
+        outOfBoundsAmount += Math.max(0L, interruptionEnd - sessionEnd);
+        
+        return Math.max(0L, getDurationMillis() - outOfBoundsAmount);
     }
 }

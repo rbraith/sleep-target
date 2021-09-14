@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.core.models;
 
 import com.rbraithwaite.sleeptarget.core.models.overlap_checker.InterruptionOverlapChecker;
@@ -22,6 +21,7 @@ import com.rbraithwaite.sleeptarget.utils.CommonUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 
 /**
@@ -72,6 +72,13 @@ public class Interruptions
     {
         return mInterruptions.stream()
                 .mapToLong(Interruption::getDurationMillis)
+                .sum();
+    }
+    
+    public long getTotalDurationInBounds(SleepSession sleepSession)
+    {
+        return mInterruptions.stream()
+                .mapToLong(interruption -> interruption.getDurationMillisInBounds(sleepSession))
                 .sum();
     }
     
@@ -178,7 +185,7 @@ public class Interruptions
         }
         return ID_NOT_FOUND;
     }
-
+    
     private Updates getUpdates()
     {
         mUpdates = CommonUtils.lazyInit(mUpdates, Updates::new);
