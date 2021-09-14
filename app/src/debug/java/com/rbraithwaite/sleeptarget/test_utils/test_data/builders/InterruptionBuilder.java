@@ -33,7 +33,7 @@ public class InterruptionBuilder
 
     private int mId;
     private Date mStart;
-    private int mDuration;
+    private long mDuration;
     private String mReason;
 
 //*********************************************************

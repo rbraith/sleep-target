@@ -40,7 +40,7 @@ public class ConvertInterruptionTests
     {
         int id = 2;
         Date start = TestUtils.ArbitraryData.getDate();
-        int durationMillis = 500;
+        long durationMillis = 500L;
         String reason = "reason";
         
         Interruption interruption = new Interruption(id, start, durationMillis, reason);

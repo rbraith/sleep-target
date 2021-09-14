@@ -58,9 +58,7 @@ public class ConvertInterruption
                 interruption.getId(),
                 parentSleepSessionId,
                 interruption.getStart(),
-                // REFACTOR [21-07-31 12:04AM] the entity should just use a long instead of this
-                //  cast.
-                (int) interruption.getDurationMillis(),
+                interruption.getDurationMillis(),
                 interruption.getReason());
     }
     
@@ -105,7 +103,7 @@ public class ConvertInterruption
         try {
             JSONObject parsed = new JSONObject(json);
             long start = parsed.getLong(JSON_START);
-            int duration = parsed.getInt(JSON_DURATION);
+            long duration = parsed.getLong(JSON_DURATION);
             String reason = parsed.getString(JSON_REASON);
             
             return new Interruption(

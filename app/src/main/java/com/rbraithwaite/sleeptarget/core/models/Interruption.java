@@ -85,12 +85,12 @@ public class Interruption
         this(startTime, 0, null);
     }
     
-    public Interruption(Date startTime, int durationMillis, String reason)
+    public Interruption(Date startTime, long durationMillis, String reason)
     {
         this(0, startTime, durationMillis, reason);
     }
     
-    public Interruption(int id, Date startTime, int durationMillis, String reason)
+    public Interruption(int id, Date startTime, long durationMillis, String reason)
     {
         super(startTime, durationMillis);
         mReason = reason;
@@ -167,7 +167,7 @@ public class Interruption
         return new Interruption(
                 mId,
                 getStart(),
-                (int) getDurationMillis(),
+                getDurationMillis(),
                 mReason);
     }
     

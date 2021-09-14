@@ -55,7 +55,7 @@ public class SleepInterruptionEntity
     public Date startTime;
     
     @ColumnInfo(name = SleepInterruptionContract.Columns.DURATION_MILLIS)
-    public int durationMillis;
+    public long durationMillis;
     
     @ColumnInfo(name = SleepInterruptionContract.Columns.REASON)
     public String reason;
@@ -68,12 +68,12 @@ public class SleepInterruptionEntity
     {
     }
     
-    public SleepInterruptionEntity(Date startTime, int durationMillis, String reason)
+    public SleepInterruptionEntity(Date startTime, long durationMillis, String reason)
     {
         this(0, startTime, durationMillis, reason);
     }
     
-    public SleepInterruptionEntity(int id, Date startTime, int durationMillis, String reason)
+    public SleepInterruptionEntity(int id, Date startTime, long durationMillis, String reason)
     {
         this(id, 0, startTime, durationMillis, reason);
     }
@@ -82,7 +82,7 @@ public class SleepInterruptionEntity
             int id,
             long sessionId,
             Date startTime,
-            int durationMillis,
+            long durationMillis,
             String reason)
     {
         this.id = id;
@@ -102,7 +102,7 @@ public class SleepInterruptionEntity
         int result = id;
         result = 31 * result + (int) (sessionId ^ (sessionId >>> 32));
         result = 31 * result + startTime.hashCode();
-        result = 31 * result + durationMillis;
+        result = 31 * result + (int) durationMillis;
         result = 31 * result + (reason != null ? reason.hashCode() : 0);
         return result;
     }
