@@ -225,7 +225,9 @@ public class DurationsChartParamsFactory
         // -----------------------------------------------------
         renderer.setPanEnabled(false);
         renderer.setShowLegend(false);
-        renderer.setMargins(new int[] {35, 65, 0, 45}); // top, left, bottom, right
+        renderer.setMargins(new int[] {
+                35, calculateLeftMargin(maxY), 0, 45  // top, left, bottom, right
+        });
         
         
         // REFACTOR [21-06-7 8:00PM] -- This styling duplicates the intervals chart styling.
@@ -246,6 +248,16 @@ public class DurationsChartParamsFactory
         renderer.setAxisTitleTextSize(40);
         
         return renderer;
+    }
+    
+    /**
+     * This is to account for left y-labels having different possible character lengths. E.g. the
+     * edge cases where a user has 3 or 4 digit hour sleep durations.
+     */
+    private int calculateLeftMargin(double maxY)
+    {
+        int numberOfCharacters = String.valueOf((int) maxY).length() + 1; // +1 for 'h'
+        return 22 * numberOfCharacters;
     }
     
     private void setupDurationYLabels(XYMultipleSeriesRenderer renderer, int maxY)
