@@ -93,7 +93,7 @@ public class SleepTrackerFragment
 //*********************************************************
 // overrides
 //*********************************************************
-
+    
     @Nullable
     @Override
     public View onCreateView(

@@ -67,6 +67,12 @@ public class SleepTrackerFragmentViewModel
     private PostSleepData mPostSleepData;
     private LiveData<Boolean> mHasAnyGoal;
     private TickingLiveData<CurrentSession> mTickingCurrentSession = new TickingLiveData<>();
+    
+    /**
+     * mCurrentSleepSessionDuration needs special behaviour when it is being observed for the
+     * first time.
+     */
+    private boolean mInitializingCurrentSleepSessionDuration = true;
 
 //*********************************************************
 // constructors
@@ -170,7 +176,17 @@ public class SleepTrackerFragmentViewModel
                         //  of this every time.
                         return new MutableLiveData<>("Error");
                     } else if (currentSession.isInterrupted()) {
-                        String latestDurationValue = mCurrentSleepSessionDuration.getValue();
+                        // If this is the first query, use the current session for the value,
+                        // otherwise use the already computed value from
+                        // mCurrentSleepSessionDuration.
+                        String latestDurationValue = "";
+                        if (mInitializingCurrentSleepSessionDuration) {
+                            mInitializingCurrentSleepSessionDuration = false;
+                            latestDurationValue = SleepTrackerFormatting.formatDuration(
+                                    currentSession.getDurationMinusInterruptions(mTimeUtils));
+                        } else {
+                            latestDurationValue = mCurrentSleepSessionDuration.getValue();
+                        }
                         return new MutableLiveData<>(latestDurationValue);
                     } else {
                         return Transformations.map(getTickingCurrentSession(),
