@@ -199,11 +199,7 @@ public class DurationsChartParamsFactory
         // the chart max Y is the nearest full hour greater than the data
         double maxY = Math.ceil(maxDataY);
         renderer.setYAxisMax(maxY, LEFT_Y_AXIS);
-        for (int i = 0; i < (int) maxY; i++) {
-            renderer.addYTextLabel(i + 1,
-                                   StatsFormatting.formatDurationsYLabel(i + 1),
-                                   LEFT_Y_AXIS);
-        }
+        setupDurationYLabels(renderer, (int) maxY);
         
         // right y axis (ratings)
         renderer.setYAxisAlign(Paint.Align.RIGHT, RIGHT_Y_AXIS);
@@ -250,6 +246,34 @@ public class DurationsChartParamsFactory
         renderer.setAxisTitleTextSize(40);
         
         return renderer;
+    }
+    
+    private void setupDurationYLabels(XYMultipleSeriesRenderer renderer, int maxY)
+    {
+        // Note: maxY is in hours, representing the nearest full hour greater than the max of
+        // the data.
+        
+        if (maxY <= 12) {
+            // add every hour
+            for (int i = 0; i < maxY; i++) {
+                addDurationYLabel(renderer, i + 1);
+            }
+        } else {
+            // for larger amounts, display the 1/4 marks only
+            int quarter = maxY / 4;
+            for (int i = quarter; i < maxY; i += quarter) {
+                addDurationYLabel(renderer, i);
+            }
+            addDurationYLabel(renderer, maxY);
+        }
+    }
+    
+    private void addDurationYLabel(XYMultipleSeriesRenderer renderer, int hour)
+    {
+        renderer.addYTextLabel(
+                hour,
+                StatsFormatting.formatDurationsYLabel(hour),
+                LEFT_Y_AXIS);
     }
     
     private XYSeriesRenderer createDurationsSeriesRenderer()
