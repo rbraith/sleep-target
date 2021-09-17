@@ -272,7 +272,11 @@ public class DurationsChartParamsFactory
             }
         } else {
             // for larger amounts, display the 1/4 marks only
-            int quarter = maxY / 4;
+    
+            // round up not down, this avoids an issue where quarter * 4 ends up less than maxY,
+            //  giving you 5 labels
+            int quarter = (int) Math.ceil((float) maxY / 4.0f);
+            
             for (int i = quarter; i < maxY; i += quarter) {
                 addDurationYLabel(renderer, i);
             }
