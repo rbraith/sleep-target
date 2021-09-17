@@ -42,12 +42,12 @@ public class SleepTrackerFragmentRotationTests
 
     @Rule
     // protection against potentially infinitely blocked threads
-    public Timeout timeout = new Timeout(15, TimeUnit.SECONDS);
+    public Timeout timeout = new Timeout(30, TimeUnit.SECONDS);
 
 //*********************************************************
 // api
 //*********************************************************
-
+    
     // regression test for #42
     @Test
     public void currentSessionPersistsAcrossOrientationChange()

@@ -19,10 +19,12 @@ package com.rbraithwaite.sleeptarget.test_utils.ui.drivers;
 import android.view.View;
 
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.espresso.ViewInteraction;
 import androidx.test.espresso.contrib.RecyclerViewActions;
 
 import com.rbraithwaite.sleeptarget.R;
 import com.rbraithwaite.sleeptarget.core.models.Tag;
+import com.rbraithwaite.sleeptarget.test_utils.TestUtils;
 import com.rbraithwaite.sleeptarget.test_utils.ui.assertion_utils.AssertionFailed;
 import com.rbraithwaite.sleeptarget.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleeptarget.test_utils.ui.fragment_helpers.FragmentTestHelper;
@@ -43,9 +45,11 @@ import java.util.stream.Collectors;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.pressImeActionButton;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withChild;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withTagValue;
@@ -361,18 +365,44 @@ public class TagSelectorDriver
     
     private void forEachTagInDialog(Action<TagForEachData> action)
     {
-        performOnTagDialog(dialog -> {
-            RecyclerView tagRecycler = dialog.getTagRecycler();
-            TagSelectorRecyclerAdapter tagAdapter =
-                    (TagSelectorRecyclerAdapter) tagRecycler.getAdapter();
-            for (int i = 0; i < tagAdapter.getItemCount(); i++) {
-                if (tagAdapter.getItemViewType(i) == TagSelectorRecyclerAdapter.VIEW_TYPE_TAG) {
+        int itemCount = getTagRecyclerItemCount();
+        
+        for (int i = 0; i < itemCount; i++) {
+            onRecyclerView().perform(RecyclerViewActions.scrollToPosition(i));
+            final int indexFinal = i;
+            performOnTagRecycler(recycler -> {
+                TagSelectorRecyclerAdapter adapter =
+                        (TagSelectorRecyclerAdapter) recycler.getAdapter();
+                
+                if (adapter.getItemViewType(indexFinal) == TagSelectorRecyclerAdapter.VIEW_TYPE_TAG) {
                     TagSelectorRecyclerAdapter.TagViewHolder vh =
-                            (TagSelectorRecyclerAdapter.TagViewHolder) tagRecycler.findViewHolderForAdapterPosition(
-                                    i);
-                    action.performOn(new TagForEachData(vh.getListItemData(), i));
+                            (TagSelectorRecyclerAdapter.TagViewHolder) recycler.findViewHolderForAdapterPosition(
+                                    indexFinal);
+                    
+                    action.performOn(new TagForEachData(vh.getListItemData(), indexFinal));
                 }
-            }
+            });
+        }
+    }
+    
+    private int getTagRecyclerItemCount()
+    {
+        TestUtils.DoubleRef<Integer> itemCount = new TestUtils.DoubleRef<>(0);
+        performOnTagAdapter(adapter -> itemCount.ref = adapter.getItemCount());
+        return itemCount.ref;
+    }
+    
+    private void performOnTagRecycler(Action<RecyclerView> action)
+    {
+        performOnTagDialog(dialog -> {
+            action.performOn(dialog.getTagRecycler());
+        });
+    }
+    
+    private void performOnTagAdapter(Action<TagSelectorRecyclerAdapter> action)
+    {
+        performOnTagRecycler(recyclerView -> {
+            action.performOn((TagSelectorRecyclerAdapter) recyclerView.getAdapter());
         });
     }
     
@@ -421,8 +451,13 @@ public class TagSelectorDriver
     
     private void toggleTagSelectionInDialog(int tagIndex)
     {
-        onView(withTagValue(tagValue(TagSelectorDialogFragment.RECYCLER_TAG)))
+        onRecyclerView()
                 .perform(RecyclerViewActions.actionOnItemAtPosition(tagIndex, click()));
+    }
+    
+    private ViewInteraction onRecyclerView()
+    {
+        return onView(withTagValue(tagValue(TagSelectorDialogFragment.RECYCLER_TAG)));
     }
     
     /**
@@ -434,11 +469,24 @@ public class TagSelectorDriver
      */
     private Integer addTagInDialog(String tagText)
     {
-        onView(withId(R.id.tag_add_btn)).perform(click());
+//        onView(withId(R.id.tag_add_btn)).perform(scrollTo(), click());
+        clickAddTagButton();
+        scrollToAddTagEditText();
         onView(withId(R.id.tag_add_btn_edittext)).perform(typeText(tagText),
                                                           pressImeActionButton());
         
         return getMostRecentTag().tagId;
+    }
+    
+    private void clickAddTagButton()
+    {
+        onRecyclerView().perform(RecyclerViewActions.scrollTo(withChild(withId(R.id.tag_add_btn))));
+        onView(withId(R.id.tag_add_btn)).perform(click());
+    }
+    
+    private void scrollToAddTagEditText()
+    {
+        onRecyclerView().perform(RecyclerViewActions.scrollTo(withChild(withId(R.id.tag_add_btn_edittext))));
     }
     
     private void openTagDialog()

@@ -39,7 +39,7 @@ public class StatsFragmentTests
 //*********************************************************
 // api
 //*********************************************************
-
+    
     @Test
     public void intervalsTimePeriodResolutionUpdatesProperlyFromMenu()
     {

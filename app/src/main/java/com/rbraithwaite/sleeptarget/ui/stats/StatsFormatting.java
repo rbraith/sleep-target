@@ -68,7 +68,7 @@ public class StatsFormatting
     {
         // REFACTOR [21-02-25 12:39AM] -- hardcoded locale.
         SimpleDateFormat
-                dateFormat = new SimpleDateFormat("YY/MM/dd", Locale.CANADA);
+                dateFormat = new SimpleDateFormat("yy/MM/dd", Locale.CANADA);
         return String.format(
                 "%s - %s",
                 dateFormat.format(range.getStart()),

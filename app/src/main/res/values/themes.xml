@@ -74,6 +74,9 @@
         <item name="colorOnError">@color/colorOnError</item>
 
         <item name="android:textColorLink">@color/colorLinks</item>
+
+        <item name="appTargetDurationColor">?attr/appColorTriadic2</item>
+        <item name="appTargetWakeTimeColor">?attr/appColorTriadic3</item>
     </style>
 
 </resources>

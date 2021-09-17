@@ -155,7 +155,7 @@ public class SessionDetailsFragmentTests
         sessionDetails.assertThat().invalidEndErrorDialogIsDisplayed();
         sessionDetails.closeErrorDialog();
         
-        // invalid start time of day
+        // invalid end time of day
         invalidEnd.add(Calendar.MINUTE, -123);
         
         TimeOfDay invalidTimeOfDay = TimeOfDay.of(invalidEnd);

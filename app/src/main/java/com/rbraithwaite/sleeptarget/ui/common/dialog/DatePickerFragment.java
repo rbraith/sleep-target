@@ -18,6 +18,7 @@ package com.rbraithwaite.sleeptarget.ui.common.dialog;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.DatePicker;
 
@@ -86,6 +87,12 @@ public class DatePickerFragment
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth)
     {
+        // https://stackoverflow.com/a/20499834
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP &&
+            !view.isShown()) {
+            return;
+        }
+        
         if (mListener != null) {
             mListener.onDateSet(view, year, month, dayOfMonth);
         }

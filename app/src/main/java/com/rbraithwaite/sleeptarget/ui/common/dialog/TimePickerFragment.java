@@ -19,6 +19,7 @@ package com.rbraithwaite.sleeptarget.ui.common.dialog;
 
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.TimePicker;
 
@@ -85,6 +86,13 @@ public class TimePickerFragment
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute)
     {
+        // https://stackoverflow.com/a/26034036
+        // see also: DatePickerFragment.onDateSet()
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP &&
+            !view.isShown()) {
+            return;
+        }
+        
         if (mListener != null) {
             mListener.onTimeSet(view, hourOfDay, minute);
         }

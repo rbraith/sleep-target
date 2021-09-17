@@ -19,8 +19,10 @@ package com.rbraithwaite.sleeptarget;
 
 import android.app.Application;
 
+import androidx.multidex.MultiDexApplication;
+
 import dagger.hilt.android.HiltAndroidApp;
 
 @HiltAndroidApp
 public class App
-        extends Application {}
+        extends MultiDexApplication {}

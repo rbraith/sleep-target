@@ -469,7 +469,8 @@ public class SleepTrackerTestDriver
     public void startInterruptionWithReason(String reason)
     {
         pressInterruptButton();
-        UITestUtils.typeOnMultilineEditText(reason, onView(withId(R.id.tracker_interrupt_reason)));
+        onInterruptionReasonText().perform(scrollTo());
+        UITestUtils.typeOnMultilineEditText(reason, onInterruptionReasonText());
     }
     
     public void pressInterruptButton()
@@ -606,9 +607,15 @@ public class SleepTrackerTestDriver
         return viewModel.ref;
     }
     
+    private ViewInteraction onInterruptionReasonText()
+    {
+        return onView(withId(R.id.tracker_interrupt_reason));
+    }
+    
     private void pressSleepTrackingButton()
     {
         mInSession = !mInSession;
+        onView(withId(R.id.sleep_tracker_button)).perform(scrollTo());
         onView(withId(R.id.sleep_tracker_button)).perform(click());
     }
     

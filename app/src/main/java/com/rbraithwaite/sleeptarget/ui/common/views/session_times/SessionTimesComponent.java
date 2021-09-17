@@ -147,13 +147,13 @@ public class SessionTimesComponent
                     mViewModel.setStartDate(year, month, dayOfMonth);
                     return true;
                 } catch (SessionTimesViewModel.InvalidDateTimeException e) {
-                    displayErrorDialog(R.string.error_session_edit_start_datetime);
+                    mViewModel.triggerErrorDialogEvent(R.string.error_session_edit_start_datetime);
                     return false;
                 } catch (SessionTimesViewModel.FutureDateTimeException e) {
                     // TODO [21-07-2 2:22AM] -- preferably the user wouldn't even
                     //  have the option to set future times (this could be tricky
                     //  though, due to how the Date & Time of Day are set separately).
-                    displayErrorDialog(R.string.session_future_time_error);
+                    mViewModel.triggerErrorDialogEvent(R.string.session_future_time_error);
                     return false;
                 }
             }
@@ -167,10 +167,10 @@ public class SessionTimesComponent
                     mViewModel.setStartTimeOfDay(hourOfDay, minute);
                     return true;
                 } catch (SessionTimesViewModel.InvalidDateTimeException e) {
-                    displayErrorDialog(R.string.error_session_edit_start_datetime);
+                    mViewModel.triggerErrorDialogEvent(R.string.error_session_edit_start_datetime);
                     return false;
                 } catch (SessionTimesViewModel.FutureDateTimeException e) {
-                    displayErrorDialog(R.string.session_future_time_error);
+                    mViewModel.triggerErrorDialogEvent(R.string.session_future_time_error);
                     return false;
                 }
             }

@@ -84,6 +84,7 @@ public class SessionArchiveTestDriver
         
         public ListItemAssertions listItemAtIndex(int listItemIndex)
         {
+            getOwningDriver().scrollToListItemAt(listItemIndex);
             return new ListItemAssertions(listItemIndex, R.id.session_archive_list);
         }
         
@@ -319,5 +320,10 @@ public class SessionArchiveTestDriver
     private ViewInteraction onRecyclerView()
     {
         return onView(withId(R.id.session_archive_list));
+    }
+    
+    private void scrollToListItemAt(int position)
+    {
+        onRecyclerView().perform(RecyclerViewActions.scrollToPosition(position));
     }
 }

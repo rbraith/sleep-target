@@ -17,6 +17,7 @@
   -->
 
 <resources>
+    <!-- REFACTOR [21-09-16 4:01PM] - use appTarget*Color attributes instead of these. -->
     <declare-styleable name="SleepGoalsTheme">
         <attr name="sleepGoalsWakeTimeColor" format="color"/>
         <attr name="sleepGoalsDurationColor" format="color"/>

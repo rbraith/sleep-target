@@ -37,5 +37,8 @@
 
         <attr name="appColorInterruption" format="color"/>
         <attr name="appColorInterruptionDark" format="color"/>
+
+        <attr name="appTargetDurationColor" format="color"/>
+        <attr name="appTargetWakeTimeColor" format="color"/>
     </declare-styleable>
 </resources>
