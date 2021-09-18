@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.session_archive;
 
 import android.os.Bundle;
@@ -35,6 +34,7 @@ import com.rbraithwaite.sleeptarget.ui.common.views.details_fragment.DetailsFrag
 import com.rbraithwaite.sleeptarget.ui.common.views.details_fragment.DetailsResult;
 import com.rbraithwaite.sleeptarget.ui.session_details.SessionDetailsFragment;
 import com.rbraithwaite.sleeptarget.ui.session_details.data.SleepSessionWrapper;
+import com.rbraithwaite.sleeptarget.ui.utils.RecyclerUtils;
 import com.rbraithwaite.sleeptarget.utils.LiveDataFuture;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -185,6 +185,7 @@ public class SessionArchiveFragment
     {
         mRecyclerView = fragmentRoot.findViewById(R.id.session_archive_list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        mRecyclerView.addItemDecoration(new RecyclerUtils.VerticalMargin(8, requireContext()));
         mRecyclerView.setAdapter(getRecyclerViewAdapter());
     }
 }

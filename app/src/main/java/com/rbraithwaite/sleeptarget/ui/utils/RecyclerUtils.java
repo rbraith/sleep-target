@@ -14,15 +14,47 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.utils;
 
+import android.content.Context;
+import android.graphics.Rect;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
 public class RecyclerUtils
 {
+//*********************************************************
+// public helpers
+//*********************************************************
+
+    public static class VerticalMargin
+            extends RecyclerView.ItemDecoration
+    {
+        private int marginPx;
+        
+        public VerticalMargin(int marginDp, Context context)
+        {
+            marginPx = UiUtils.convertDpToPx(marginDp, context);
+        }
+        
+        @Override
+        public void getItemOffsets(
+                @NonNull Rect outRect,
+                @NonNull View view,
+                @NonNull RecyclerView parent,
+                @NonNull RecyclerView.State state)
+        {
+            if (parent.getChildAdapterPosition(view) == 0) {
+                outRect.top = marginPx;
+            }
+            outRect.bottom = marginPx;
+        }
+    }
+
 //*********************************************************
 // constructors
 //*********************************************************
