@@ -24,6 +24,8 @@ apply plugin: 'dagger.hilt.android.plugin'
 
 apply plugin: 'androidx.navigation.safeargs'
 
+apply plugin: 'com.mikepenz.aboutlibraries.plugin'
+
 android {
     compileSdkVersion 29
     buildToolsVersion "30.0.2"
@@ -150,6 +152,9 @@ dependencies {
     // TODO [21-03-11 5:51PM] -- see multidex TODO comment above.
     // method limit fix
     implementation 'androidx.multidex:multidex:2.0.1'
+
+    // AboutLibraries
+    implementation "com.mikepenz:aboutlibraries:8.9.1"
 
     // ***********************************************
     // test deps

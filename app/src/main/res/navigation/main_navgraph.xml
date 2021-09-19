@@ -83,5 +83,14 @@
     <fragment
         android:id="@+id/nav_about"
         android:name="com.rbraithwaite.sleeptarget.ui.about.AboutFragment"
-        android:label="About Sleep Target" />
+        android:label="About Sleep Target" >
+        <action
+            android:id="@+id/action_nav_about_to_about_libraries"
+            app:destination="@id/about_libraries" >
+            <argument
+                android:name="data"
+                app:argType="com.mikepenz.aboutlibraries.LibsBuilder"/>
+        </action>
+    </fragment>
+    <include app:graph="@navigation/aboutlibs_navigation" />
 </navigation>

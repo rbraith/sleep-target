@@ -46,6 +46,18 @@
 <!--            android:layout_height="wrap_content" />-->
 
         <View
+            android:id="@+id/about_div1"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?attr/appColorOnPrimarySurface2" />
+
+        <include
+            android:id="@+id/about_licenses"
+            layout="@layout/about_licenses_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <View
             android:id="@+id/about_div2"
             android:layout_width="match_parent"
             android:layout_height="1dp"

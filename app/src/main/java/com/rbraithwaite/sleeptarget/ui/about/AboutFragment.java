@@ -26,6 +26,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.mikepenz.aboutlibraries.LibsBuilder;
 import com.rbraithwaite.sleeptarget.BuildConfig;
 import com.rbraithwaite.sleeptarget.R;
 import com.rbraithwaite.sleeptarget.ui.BaseFragment;
@@ -59,17 +60,31 @@ public class AboutFragment
         TextView versionText = view.findViewById(R.id.about_version_num);
         versionText.setText(getVersionText());
         
+        // header
         TextView descriptionText = view.findViewById(R.id.about_description);
-        TextView depsText = view.findViewById(R.id.about_credits_dependencies);
-        TextView visualsText = view.findViewById(R.id.about_credits_visual);
         descriptionText.setMovementMethod(LinkMovementMethod.getInstance());
-        depsText.setMovementMethod(LinkMovementMethod.getInstance());
+        
+        // licenses
+        TextView thirdPartyLicensesViewButton = view.findViewById(R.id.about_licenses_view_btn);
+        thirdPartyLicensesViewButton.setOnClickListener(v -> onDisplayLicenses());
+        
+        // credits
+        TextView visualsText = view.findViewById(R.id.about_credits_visual);
         visualsText.setMovementMethod(LinkMovementMethod.getInstance());
     }
     
 //*********************************************************
 // private methods
 //*********************************************************
+    
+    private void onDisplayLicenses()
+    {
+        LibsBuilder libsBuilder = new LibsBuilder()
+                .withLicenseShown(true);
+        
+        getNavController().navigate(
+                AboutFragmentDirections.actionNavAboutToAboutLibraries(libsBuilder));
+    }
 
     // REFACTOR [21-08-24 5:53PM] -- This should go somewhere else - view model? utility class?
     private String getVersionText()

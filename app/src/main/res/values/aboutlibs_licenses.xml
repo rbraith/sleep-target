@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2020-2021 Richard Braithwaite (rbraithwaite.dev@gmail.com)
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+
+<!--This is for libraries that AboutLibraries didn't find automatically-->
+<resources>
+<!--    AChartEngine-->
+    <string name="define_plu_AChartEngine">year;owner</string>
+    <string name="library_AChartEngine_author">Dan Dromereschi</string>
+    <string name="library_AChartEngine_libraryName">AChartEngine</string>
+<!--    This description copied from AChartEngine's README-->
+<!--    https://github.com/ddanny/achartengine/blob/1eb1c8160a5f186eed7c1c5876e9922019a4db97/README.md-->
+    <string name="library_AChartEngine_libraryDescription">Charting library for Android applications.</string>
+    <string name="library_AChartEngine_libraryVersion">1.2.0</string>
+    <string name="library_AChartEngine_libraryWebsite">https://github.com/ddanny/achartengine</string>
+    <string name="library_AChartEngine_licenseIds">apache_2_0</string>
+    <string name="library_AChartEngine_isOpenSource">true</string>
+    <string name="library_AChartEngine_repositoryLink">https://github.com/ddanny/achartengine</string>
+<!--    These values copied from AChartEngines source files-->
+<!--    E.g. https://github.com/ddanny/achartengine/blob/1eb1c8160a5f186eed7c1c5876e9922019a4db97/achartengine/src/org/achartengine/GraphicalActivity.java-->
+    <string name="library_AChartEngine_owner">SC 4ViewSoft SRL</string>
+    <string name="library_AChartEngine_year">2009 – 2013</string>
+</resources>
