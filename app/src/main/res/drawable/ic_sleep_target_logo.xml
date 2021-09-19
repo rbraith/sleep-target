@@ -1,0 +1,32 @@
+<!--
+  ~ Copyright (c) 2020-2021 Richard Braithwaite (rbraithwaite.dev@gmail.com)
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="429.572dp"
+    android:height="430.528dp"
+    android:viewportWidth="429.572"
+    android:viewportHeight="430.528">
+  <path
+      android:pathData="M222.743,16.87c-48.419,0 -93,16.73 -128.281,44.706l23.511,23.511c29.153,-22.09 65.456,-35.216 104.77,-35.216c95.85,0 173.829,77.979 173.829,173.829s-77.979,173.829 -173.829,173.829c-95.85,0 -173.83,-77.979 -173.83,-173.829c0,-39.838 13.48,-76.583 36.107,-105.931L61.535,94.282c-28.522,35.458 -45.621,80.475 -45.621,129.417c0,114.046 92.783,206.829 206.83,206.829c114.046,0 206.829,-92.783 206.829,-206.829S336.789,16.87 222.743,16.87z"
+      android:fillColor="?attr/colorPrimary"/>
+  <path
+      android:pathData="M222.743,84.073c-29.873,0 -57.581,9.434 -80.311,25.473l23.784,23.784c16.398,-10.294 35.777,-16.257 56.526,-16.257c58.794,0 106.627,47.833 106.627,106.626s-47.833,106.626 -106.627,106.626c-28.481,0 -55.257,-11.091 -75.396,-31.229s-31.23,-46.915 -31.23,-75.396c0,-21.28 6.27,-41.122 17.054,-57.782l-23.725,-23.725c-16.558,22.951 -26.329,51.107 -26.329,81.506c0,37.296 14.524,72.359 40.896,98.731s61.436,40.896 98.731,40.895c76.99,0 139.627,-62.636 139.627,-139.626S299.733,84.073 222.743,84.073z"
+      android:fillColor="?attr/colorPrimaryDark"/>
+  <path
+      android:pathData="M244.853,154.238c3.623,8.655 5.631,18.154 5.631,28.125c0,15.512 -4.861,29.88 -13.121,41.697L72.283,58.979l2.619,-23.924L39.851,0l-3.933,35.919L0,39.852l35.053,35.051l24.403,-2.671L224.96,237.736c-12.74,10.908 -29.275,17.511 -47.362,17.511c-7.709,0 -15.135,-1.206 -22.11,-3.424c11.007,26.289 36.971,44.762 67.255,44.762c40.254,0 72.885,-32.632 72.885,-72.887C295.628,191.155 274.295,163.602 244.853,154.238z"
+      android:fillColor="?attr/colorPrimary"/>
+</vector>
