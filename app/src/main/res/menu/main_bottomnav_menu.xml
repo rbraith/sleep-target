@@ -30,7 +30,7 @@
             android:title="Archive" />
         <item
             android:id="@+id/nav_sleepgoals"
-            android:icon="@drawable/ic_goal_trophy"
+            android:icon="@drawable/ic_target_24"
             android:title="Targets" />
         <item
             android:id="@+id/nav_sleepstats"

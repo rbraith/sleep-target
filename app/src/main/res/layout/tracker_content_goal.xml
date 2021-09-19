@@ -32,8 +32,9 @@
         android:layout_marginTop="8dp"
         android:drawablePadding="10dp"
         android:text="Wake Time"
-        app:drawableLeftCompat="@drawable/ic_tracker_goal_trophy"
-        app:drawableStartCompat="@drawable/ic_tracker_goal_trophy"
+        app:drawableLeftCompat="@drawable/ic_target_24"
+        app:drawableStartCompat="@drawable/ic_target_24"
+        app:drawableTint="?attr/colorOnPrimarySurface"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

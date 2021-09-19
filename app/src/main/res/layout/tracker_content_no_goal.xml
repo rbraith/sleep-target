@@ -35,7 +35,7 @@
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_tracker_goal_trophy" />
+        app:srcCompat="@drawable/ic_target_24" />
 
     <TextView
         android:id="@+id/tracker_no_goals_text"
