@@ -31,12 +31,11 @@
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
         android:drawablePadding="10dp"
-        android:text="Wake Time"
-        app:drawableLeftCompat="@drawable/ic_target_24"
-        app:drawableStartCompat="@drawable/ic_target_24"
+        android:text="Error"
         app:drawableTint="?attr/colorOnPrimarySurface"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Target Wake Time" />
 
     <TextView
         android:id="@+id/tracker_goal_value"

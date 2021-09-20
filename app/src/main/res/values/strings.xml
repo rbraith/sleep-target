@@ -46,8 +46,8 @@
     <string name="postsleepdialog_nomood">No Mood</string>
     <string name="postsleepdialog_nocomments">No Comments</string>
     <string name="tagscroll_no_selected_tags">No Tags Selected</string>
-    <string name="tracker_goal_waketime_title">Wake Time</string>
-    <string name="tracker_goal_duration_title">Duration</string>
+    <string name="tracker_goal_waketime_title">Target Wake Time</string>
+    <string name="tracker_goal_duration_title">Target Duration</string>
     <string name="session_future_time_error">Sessions cannot be set to a time in the future (this is to prevent real-time created sessions from causing overlaps).</string>
     <string name="tracker_interrupt_btn_resume">Resume Sleep</string>
     <string name="tracker_interrupt_btn_interrupt">Interrupt Sleep</string>
