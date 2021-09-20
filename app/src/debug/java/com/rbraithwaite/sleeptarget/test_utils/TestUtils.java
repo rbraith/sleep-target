@@ -211,8 +211,8 @@ public class TestUtils
             // REFACTOR [21-08-16 11:08PM] -- these are hardcoded as the first preset tags in the
             //  db.
             tagList.add(new Tag(1, "Feeling Sick"));
-            tagList.add(new Tag(2, "Pain"));
-            tagList.add(new Tag(3, "Stressed"));
+            tagList.add(new Tag(2, "Caffeine"));
+            tagList.add(new Tag(3, "Alcohol"));
             return tagList;
         }
         

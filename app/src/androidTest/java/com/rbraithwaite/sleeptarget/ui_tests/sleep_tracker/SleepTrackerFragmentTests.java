@@ -112,11 +112,13 @@ public class SleepTrackerFragmentTests
     public void tagsHaveCorrectPresetValues()
     {
         sleepTracker.assertThat().tagSelector().hasTagsMatching(
-                "Caffeine",
-                "Late Night Snack",
-                "Late Workout",
+                "Relaxed",
                 "Stressed",
-                "Pain",
+                "Late Workout",
+                "Late Night Snack",
+                "Travel",
+                "Alcohol",
+                "Caffeine",
                 "Feeling Sick");
     }
     
