@@ -27,13 +27,13 @@ apply plugin: 'androidx.navigation.safeargs'
 apply plugin: 'com.mikepenz.aboutlibraries.plugin'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     buildToolsVersion "30.0.2"
 
     defaultConfig {
         applicationId "com.rbraithwaite.sleeptarget"
         minSdkVersion 16
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 200006
         versionName "1.0-beta.6"
 
