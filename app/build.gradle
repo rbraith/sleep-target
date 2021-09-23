@@ -26,6 +26,21 @@ apply plugin: 'androidx.navigation.safeargs'
 
 apply plugin: 'com.mikepenz.aboutlibraries.plugin'
 
+// upload key config
+def keystorePropertiesFile = rootProject.file('secrets/sleep-target-keystore.properties')
+def keystoreProperties = new Properties()
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+android {
+    signingConfigs {
+        upload {
+            storeFile file(keystoreProperties['keystoreFilepath'])
+            storePassword keystoreProperties['keystorePassword']
+            keyAlias keystoreProperties['uploadKeyAlias']
+            keyPassword keystoreProperties['uploadKeyPassword']
+        }
+    }
+}
+
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.2"
@@ -90,6 +105,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.upload
         }
     }
 
