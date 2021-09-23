@@ -22,8 +22,6 @@
     <dimen name="archive_list_item_tag_corner_radius">8dp</dimen>
 
 <!--    styles-->
-    <style name="ArchiveListItemRatingStyle" parent="Widget.AppCompat.RatingBar.Small">
-    </style>
 
     <style name="ArchiveListItemTagStyle" parent="AppTextView">
 
