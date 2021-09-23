@@ -14,11 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.session_archive;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,7 +50,7 @@ public class SessionArchiveRecyclerViewAdapter
 //*********************************************************
 // private properties
 //*********************************************************
-
+    
     private ProviderOf<Fragment> mFragmentProvider;
     
     private List<SessionArchiveListItem> mItems = new ArrayList<>();
@@ -62,7 +60,7 @@ public class SessionArchiveRecyclerViewAdapter
 //*********************************************************
 // private constants
 //*********************************************************
-
+    
     private static final String TAG = "RecyclerViewAdapter";
     
     private static final int VIEW_TYPE_ITEM = 0;
@@ -72,7 +70,7 @@ public class SessionArchiveRecyclerViewAdapter
 //*********************************************************
 // public helpers
 //*********************************************************
-
+    
     // REFACTOR [21-07-23 3:33PM] change this to be more like SessionDetailsInterruptionsAdapter
     //  - return viewmodel, & viewmodel contains the session id (it contains list item data which
     //  contains the id).
@@ -84,7 +82,7 @@ public class SessionArchiveRecyclerViewAdapter
 //*********************************************************
 // package helpers
 //*********************************************************
-
+    
     static class ViewHolder
             extends RecyclerView.ViewHolder
     {
@@ -125,7 +123,6 @@ public class SessionArchiveRecyclerViewAdapter
                 final SessionArchiveRecyclerViewAdapter.OnListItemClickListener onListItemClickListener)
         {
             super(itemView);
-            Log.d(TAG, "new viewholder created");
             
             this.startTime = itemView.findViewById(R.id.session_archive_list_item_start_VALUE);
             // REFACTOR [20-12-11 3:08PM] -- rename stop to end.
@@ -151,13 +148,12 @@ public class SessionArchiveRecyclerViewAdapter
 //*********************************************************
 // constructors
 //*********************************************************
-
+    
     public SessionArchiveRecyclerViewAdapter(
             SessionArchiveFragmentViewModel viewModel,
             ProviderOf<Fragment> fragmentProvider,
             OnListItemClickListener onListItemClickListener)
     {
-        Log.d(TAG, "ctor called");
         mFragmentProvider = fragmentProvider;
         mOnListItemClickListener = onListItemClickListener;
         
@@ -167,7 +163,7 @@ public class SessionArchiveRecyclerViewAdapter
 //*********************************************************
 // overrides
 //*********************************************************
-
+    
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
@@ -222,7 +218,7 @@ public class SessionArchiveRecyclerViewAdapter
 //*********************************************************
 // api
 //*********************************************************
-
+    
     public boolean hasNoData()
     {
         return mItems == null || mItems.isEmpty();
@@ -237,7 +233,7 @@ public class SessionArchiveRecyclerViewAdapter
 //*********************************************************
 // private methods
 //*********************************************************
-
+    
     // REFACTOR [21-07-1 12:59AM] -- copied from TagSelectorRecyclerAdapter.
     private View inflateLayout(int layoutId, ViewGroup parent)
     {

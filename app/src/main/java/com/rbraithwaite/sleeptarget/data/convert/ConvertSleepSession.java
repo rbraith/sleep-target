@@ -14,10 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.data.convert;
-
-import android.util.Log;
 
 import com.rbraithwaite.sleeptarget.core.models.Interruptions;
 import com.rbraithwaite.sleeptarget.core.models.Mood;
@@ -34,19 +31,19 @@ public class ConvertSleepSession
 //*********************************************************
 // private constants
 //*********************************************************
-
+    
     private static final String TAG = "ConvertSleepSession";
 
 //*********************************************************
 // constructors
 //*********************************************************
-
+    
     private ConvertSleepSession() {/* No instantiation */}
 
 //*********************************************************
 // api
 //*********************************************************
-
+    
     // TEST NEEDED [21-05-14 2:24PM] -- update tests with rating.
     public static SleepSessionEntity toEntity(SleepSession model)
     {
@@ -87,7 +84,6 @@ public class ConvertSleepSession
     //  another place for this logic?
     public static List<SleepSession> fromEntities(List<SleepSessionEntity> entities)
     {
-        Log.d(TAG, "fromEntities: entity count = " + entities.size());
         return entities.stream()
                 .map(ConvertSleepSession::fromEntity)
                 .collect(Collectors.toList());
