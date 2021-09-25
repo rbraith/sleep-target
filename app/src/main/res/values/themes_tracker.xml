@@ -17,8 +17,12 @@
   -->
 
 <resources>
-    <style name="TrackerGoalTheme">
-        <item name="trackerGoalValueStyle">@style/TrackerGoalValueStyle</item>
+    <style name="TrackerDurationTargetTheme">
+        <item name="trackerGoalValueStyle">@style/TrackerDurationTargetValueStyle</item>
+    </style>
+
+    <style name="TrackerWakeTimeTargetTheme">
+        <item name="trackerGoalValueStyle">@style/TrackerWakeTimeTargetValueStyle</item>
     </style>
 
     <style name="TrackerTrackingSectionTheme">

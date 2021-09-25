@@ -138,6 +138,14 @@
         <item name="android:textAppearance">@style/AppTextAppearance.TrackerGoalValue</item>
     </style>
 
+    <style name="TrackerDurationTargetValueStyle" parent="TrackerGoalValueStyle">
+        <item name="android:textColor">?attr/appTargetDurationColor</item>
+    </style>
+
+    <style name="TrackerWakeTimeTargetValueStyle" parent="TrackerGoalValueStyle">
+        <item name="android:textColor">?attr/appTargetWakeTimeColor</item>
+    </style>
+
     <style name="AppTextAppearance.TrackerSubTitle">
         <item name="android:textColor">?attr/appColorOnPrimarySurface2</item>
         <item name="android:textSize">14sp</item>
