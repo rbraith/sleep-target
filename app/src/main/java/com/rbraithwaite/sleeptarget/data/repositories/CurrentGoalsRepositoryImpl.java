@@ -29,11 +29,14 @@ import com.rbraithwaite.sleeptarget.data.database.tables.goal_sleepduration.Slee
 import com.rbraithwaite.sleeptarget.data.database.tables.goal_sleepduration.SleepDurationGoalEntity;
 import com.rbraithwaite.sleeptarget.data.database.tables.goal_waketime.WakeTimeGoalDao;
 import com.rbraithwaite.sleeptarget.data.database.tables.goal_waketime.WakeTimeGoalEntity;
+import com.rbraithwaite.sleeptarget.ui.stats.chart_intervals.DateRange;
 import com.rbraithwaite.sleeptarget.utils.TimeUtils;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -155,5 +158,24 @@ public class CurrentGoalsRepositoryImpl
                     }
                     return result;
                 });
+    }
+    
+    @Override
+    public WakeTimeGoal getFirstWakeTimeTargetBefore(Date date)
+    {
+        return ConvertWakeTimeGoal.fromEntity(
+                mWakeTimeGoalDao.getFirstWakeTimeTargetBefore(date.getTime()));
+    }
+    
+    @Override
+    public List<WakeTimeGoal> getWakeTimeTargetsEditedInRange(DateRange dateRange)
+    {
+        // REFACTOR [21-09-29 1:25AM] -- move this to ConvertWakeTimeGoal.
+        return mWakeTimeGoalDao.getWakeTimeTargetsEditedInRange(
+                dateRange.getStart().getTime(),
+                dateRange.getEnd().getTime())
+                .stream()
+                .map(ConvertWakeTimeGoal::fromEntity)
+                .collect(Collectors.toList());
     }
 }

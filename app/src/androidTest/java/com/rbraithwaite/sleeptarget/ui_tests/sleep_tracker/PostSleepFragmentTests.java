@@ -55,7 +55,7 @@ public class PostSleepFragmentTests
     @Test
     public void postSleepOpensWithCorrectValues()
     {
-        DateBuilder start = aDate();
+        DateBuilder start = aDate().now().subtractDays(10);
         DateBuilder end = start.copy().addHours(1);
         
         StoppedSessionDataBuilder stoppedSessionData = aStoppedSessionData()

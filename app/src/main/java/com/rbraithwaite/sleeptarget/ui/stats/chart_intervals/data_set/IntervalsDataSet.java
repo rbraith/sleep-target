@@ -37,6 +37,7 @@ public class IntervalsDataSet
 
     public XYMultipleSeriesDataset sleepSessionDataSet;
     public XYMultipleSeriesDataset interruptionsDataSet;
+    public XYMultipleSeriesDataset wakeTimeGoalsDataSet;
     
     public Config config;
 
@@ -134,6 +135,11 @@ public class IntervalsDataSet
     public boolean hasInterruptionData()
     {
         return interruptionsDataSet != null && interruptionsDataSet.getSeriesCount() > 0;
+    }
+    
+    public boolean hasWakeTimeTargetData()
+    {
+        return wakeTimeGoalsDataSet != null && wakeTimeGoalsDataSet.getSeriesCount() > 0;
     }
 }
 

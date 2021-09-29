@@ -94,5 +94,11 @@ public class DevToolsFragment
         crashButton.setOnClickListener(v -> {
             getViewModel().crashTheApp();
         });
+        
+        // intervals wake-time test data
+        Button intervalsWakeTimeButton = view.findViewById(R.id.dev_tool_intervals_waketime);
+        intervalsWakeTimeButton.setOnClickListener(v -> {
+            getViewModel().addIntervalsWakeTimeTestData();
+        });
     }
 }

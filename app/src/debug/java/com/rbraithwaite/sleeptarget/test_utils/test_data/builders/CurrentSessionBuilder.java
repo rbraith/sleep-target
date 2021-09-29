@@ -52,7 +52,7 @@ public class CurrentSessionBuilder
 
     public CurrentSessionBuilder()
     {
-        DateBuilder date = aDate();
+        DateBuilder date = aDate().now().subtractDays(10);
         mStart = date.build();
         mAdditionalComments = "some comments";
         mMood = aMood().build();

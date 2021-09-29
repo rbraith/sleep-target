@@ -50,6 +50,7 @@ public class IntervalsDataSetGeneratorTests
     {
         IntervalsDataSet dataSet = new IntervalDataSetGenerator(new TimeUtils()).generateFromConfig(
                 new ArrayList<>(), // no sleep sessions means empty data set
+                new ArrayList<>(), // unused wake time goals
                 createArbitraryConfig());
         
         assertThat(dataSet.isEmpty(), is(true));
@@ -123,7 +124,10 @@ public class IntervalsDataSetGeneratorTests
         
         // SUT
         IntervalDataSetGenerator generator = new IntervalDataSetGenerator(new TimeUtils());
-        IntervalsDataSet sleepIntervals = generator.generateFromConfig(sleepSessions, config);
+        IntervalsDataSet sleepIntervals = generator.generateFromConfig(
+                sleepSessions,
+                new ArrayList<>(), // unused wake time goals
+                config);
         
         // verifying expected point data
         assertThat(sleepIntervals.isEmpty(), is(false));

@@ -23,6 +23,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.rbraithwaite.sleeptarget.core.repositories.CurrentGoalsRepository;
 import com.rbraithwaite.sleeptarget.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleeptarget.test_utils.TestUtils;
 import com.rbraithwaite.sleeptarget.ui.stats.chart_intervals.data_set.IntervalDataSetGenerator;
@@ -60,6 +61,7 @@ public class IntervalsChartViewModelTests
 
     IntervalsChartViewModel viewModel;
     SleepSessionRepository mockSleepSessionRepository;
+    CurrentGoalsRepository mockCurrentGoalsRepository;
     IntervalDataSetGenerator mockSleepIntervalsDataSetGenerator;
     Executor executor;
 
@@ -71,10 +73,12 @@ public class IntervalsChartViewModelTests
     public void setup()
     {
         mockSleepSessionRepository = mock(SleepSessionRepository.class);
+        mockCurrentGoalsRepository = mock(CurrentGoalsRepository.class);
         mockSleepIntervalsDataSetGenerator = mock(IntervalDataSetGenerator.class);
         executor = new TestUtils.SynchronizedExecutor();
         viewModel = new IntervalsChartViewModel(
                 mockSleepSessionRepository,
+                mockCurrentGoalsRepository,
                 mockSleepIntervalsDataSetGenerator,
                 executor);
     }
@@ -143,7 +147,7 @@ public class IntervalsChartViewModelTests
         verify(mockSleepSessionRepository, times(2))
                 .getSleepSessionsInRange(any(Date.class), any(Date.class));
         verify(mockSleepIntervalsDataSetGenerator, times(2))
-                .generateFromConfig(anyList(), any(IntervalsDataSet.Config.class));
+                .generateFromConfig(anyList(), anyList(), any(IntervalsDataSet.Config.class));
     }
     
     @Test
@@ -168,7 +172,7 @@ public class IntervalsChartViewModelTests
                         testConfig.dateRange.getStart(),
                         testConfig.dateRange.getEnd());
         verify(mockSleepIntervalsDataSetGenerator, times(1))
-                .generateFromConfig(anyList(), eq(testConfig));
+                .generateFromConfig(anyList(), anyList(), eq(testConfig));
     }
     
     @Test

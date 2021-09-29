@@ -28,6 +28,7 @@ import com.rbraithwaite.sleeptarget.data.database.tables.goal_sleepduration.Slee
 import com.rbraithwaite.sleeptarget.data.database.tables.goal_waketime.WakeTimeGoalEntity;
 import com.rbraithwaite.sleeptarget.data.database.tables.sleep_interruptions.SleepInterruptionEntity;
 import com.rbraithwaite.sleeptarget.data.database.tables.sleep_session.SleepSessionEntity;
+import com.rbraithwaite.sleeptarget.test_utils.test_data.builders.DateBuilder;
 import com.rbraithwaite.sleeptarget.ui.common.views.mood_selector.TEMP.MoodView;
 import com.rbraithwaite.sleeptarget.utils.TimeUtils;
 
@@ -38,6 +39,9 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Executor;
+
+import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.aDate;
+import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.valueOf;
 
 public class DevToolsFragmentViewModel
         extends ViewModel
@@ -51,7 +55,7 @@ public class DevToolsFragmentViewModel
     // SleepSessionRepository and SleepSessionDao, which isn't ideal
     private AppDatabase mDatabase;
     private Executor mExecutor;
-    private GregorianCalendar defaultBaseDay = new GregorianCalendar(2021, 1, 14);
+    private GregorianCalendar defaultBaseDay;
     private GregorianCalendar mBaseDay;
 
 //*********************************************************
@@ -106,6 +110,9 @@ public class DevToolsFragmentViewModel
         mDatabase = database;
         mExecutor = executor;
         
+        defaultBaseDay = new GregorianCalendar();
+        new TimeUtils().setCalendarTimeOfDay(defaultBaseDay, 0);
+        
         mBaseDay = new GregorianCalendar();
         mBaseDay.setTimeInMillis(defaultBaseDay.getTimeInMillis());
     }
@@ -145,7 +152,7 @@ public class DevToolsFragmentViewModel
                         // having the base day as a stored property ensures subsequent
                         // additions of
                         // sleep sessions are added to the right days
-                        mBaseDay.add(Calendar.DAY_OF_MONTH, 1);
+                        mBaseDay.add(Calendar.DAY_OF_MONTH, -1);
                     }
                 },
                 listener);
@@ -224,6 +231,38 @@ public class DevToolsFragmentViewModel
     public void crashTheApp()
     {
         throw new RuntimeException("forcing a crash");
+    }
+    
+    public void addIntervalsWakeTimeTestData()
+    {
+        runAsyncTask(() -> {
+            DateBuilder date = aDate().now().subtractDays(10);
+    
+            List<WakeTimeGoalEntity> entities = new ArrayList<>();
+    
+            int fivePm = 17 * 60 * 60 * 1000;
+            int fiveAm = 5 * 60 * 60 * 1000;
+            int eightAm = 8 * 60 * 60 * 1000;
+    
+            entities.add(new WakeTimeGoalEntity(
+                    valueOf(date), fiveAm));
+            date.addDays(2);
+    
+            entities.add(new WakeTimeGoalEntity(
+                    valueOf(date), fivePm));
+            date.addDays(1);
+            
+            entities.add(new WakeTimeGoalEntity(
+                    valueOf(date), WakeTimeGoalEntity.NO_GOAL));
+            date.addDays(3);
+    
+            entities.add(new WakeTimeGoalEntity(
+                    valueOf(date), eightAm));
+    
+            for (WakeTimeGoalEntity entity : entities) {
+                mDatabase.getWakeTimeGoalDao().updateWakeTimeGoal(entity);
+            }
+        });
     }
 
 //*********************************************************

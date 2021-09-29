@@ -568,7 +568,7 @@ public class SleepTrackerFragmentViewModelTests
     @Test
     public void keepSleepSession_recordsNewSession()
     {
-        DateBuilder start = aDate();
+        DateBuilder start = aDate().now().subtractDays(5);
         CurrentSessionBuilder currentSession = aCurrentSession().withStart(start);
         PostSleepDataBuilder postSleepData = aPostSleepData();
         

@@ -23,15 +23,19 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
+import com.rbraithwaite.sleeptarget.core.models.WakeTimeGoal;
+import com.rbraithwaite.sleeptarget.core.repositories.CurrentGoalsRepository;
 import com.rbraithwaite.sleeptarget.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleeptarget.ui.stats.StatsFormatting;
 import com.rbraithwaite.sleeptarget.ui.stats.chart_intervals.data_set.IntervalDataSetGenerator;
 import com.rbraithwaite.sleeptarget.ui.stats.chart_intervals.data_set.IntervalsDataSet;
 import com.rbraithwaite.sleeptarget.utils.TimeUtils;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import static com.rbraithwaite.sleeptarget.ui.stats.chart_intervals.data_set.IntervalsDataSet.Resolution.MONTH;
@@ -53,6 +57,7 @@ public class IntervalsChartViewModel
     
     private IntervalDataSetGenerator mSleepIntervalsDataSetGenerator;
     private SleepSessionRepository mSleepSessionRepository;
+    private CurrentGoalsRepository mGoalsRepository;
     
     private Executor mExecutor;
     private IntervalsDataSet.Resolution mIntervalsResolution = WEEK;
@@ -85,10 +90,12 @@ public class IntervalsChartViewModel
     @ViewModelInject
     public IntervalsChartViewModel(
             SleepSessionRepository sleepSessionRepository,
+            CurrentGoalsRepository goalsRepository,
             IntervalDataSetGenerator sleepIntervalsDataSetGenerator,
             Executor executor)
     {
         mSleepSessionRepository = sleepSessionRepository;
+        mGoalsRepository = goalsRepository;
         mSleepIntervalsDataSetGenerator = sleepIntervalsDataSetGenerator;
         mExecutor = executor;
         mTimeUtils = createTimeUtils();
@@ -366,12 +373,33 @@ public class IntervalsChartViewModel
                                         new MutableLiveData<>();
                                 // computing the data set from the sleep sessions is a
                                 // potentially big job and needs to be asynchronous.
-                                mExecutor.execute(() -> liveData.postValue(
-                                        mSleepIntervalsDataSetGenerator.generateFromConfig(
-                                                sleepSessions,
-                                                config)));
+                                mExecutor.execute(() -> {
+                                    List<WakeTimeGoal> relevantGoals = getRelevantGoalsFor(
+                                            config.dateRange);
+                                    
+                                    liveData.postValue(mSleepIntervalsDataSetGenerator.generateFromConfig(
+                                                    sleepSessions,
+                                                    relevantGoals,
+                                                    config));
+                                });
                                 return liveData;
                             });
                 });
+    }
+    
+    private List<WakeTimeGoal> getRelevantGoalsFor(DateRange dateRange)
+    {
+        ArrayList<WakeTimeGoal> result = new ArrayList<>();
+        // goals are relevant from when they are defined up until the point where they are edited,
+        // so the first relevant goal can come from before the start of the range.
+        WakeTimeGoal firstBefore = mGoalsRepository.getFirstWakeTimeTargetBefore(dateRange.getStart());
+        if (firstBefore != null) {
+            result.add(firstBefore);
+        }
+        
+        // get any goals defined within the range itself
+        result.addAll(mGoalsRepository.getWakeTimeTargetsEditedInRange(dateRange));
+        
+        return result;
     }
 }

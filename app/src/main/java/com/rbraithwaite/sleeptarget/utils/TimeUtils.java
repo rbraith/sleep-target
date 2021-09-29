@@ -85,6 +85,18 @@ public class TimeUtils
         return newCalendar;
     }
     
+    /**
+     * Get the start (a.k.a 00:00) of the provided date, in absolute millis.
+     */
+    public static long startMillisOf(Date date)
+    {
+        GregorianCalendar cal = getCalendarFrom(date);
+        // REFACTOR [21-09-29 12:36AM] -- setCalendarTimeOfDay (& the rest of this class) should
+        //  be static.
+        new TimeUtils().setCalendarTimeOfDay(cal, 0);
+        return cal.getTimeInMillis();
+    }
+    
     // TODO [20-11-15 1:05AM] -- think about how I could test this.
     //  idk if I could? probably not a huge deal
     // TODO [21-06-27 3:04AM] -- replace this with a Now class.

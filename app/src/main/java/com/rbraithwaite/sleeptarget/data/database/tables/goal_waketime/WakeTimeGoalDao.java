@@ -22,6 +22,8 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
 
+import com.rbraithwaite.sleeptarget.core.models.WakeTimeGoal;
+
 import java.util.List;
 
 @Dao
@@ -39,6 +41,7 @@ public abstract class WakeTimeGoalDao
     // https://stackoverflow.com/questions/9902394/how-to-get-last-record-from-sqlite
     // #comment112524769_9902506
     // who's right? lol
+    // REFACTOR [21-09-29 1:04AM] -- semi-colon isn't needed.
     @Query("SELECT * FROM " + WakeTimeGoalContract.TABLE_NAME +
            " WHERE " + WakeTimeGoalContract.Columns.ID + " = (" +
            "SELECT MAX(" + WakeTimeGoalContract.Columns.ID + ") " +
@@ -46,6 +49,21 @@ public abstract class WakeTimeGoalDao
            ");")
     public abstract LiveData<WakeTimeGoalEntity> getCurrentWakeTimeGoal();
     
+    // REFACTOR [21-09-29 1:04AM] -- semi-colon isn't needed.
     @Query("SELECT * FROM " + WakeTimeGoalContract.TABLE_NAME + ";")
     public abstract LiveData<List<WakeTimeGoalEntity>> getWakeTimeGoalHistory();
+    
+    // TEST NEEDED [21-09-29 3:48PM]
+    @Query("SELECT * FROM " + WakeTimeGoalContract.TABLE_NAME +
+           " WHERE " + WakeTimeGoalContract.Columns.EDIT_TIME + " <= :dateMillis" +
+           " ORDER BY " + WakeTimeGoalContract.Columns.EDIT_TIME + " DESC" +
+           " LIMIT 1")
+    public abstract WakeTimeGoalEntity getFirstWakeTimeTargetBefore(long dateMillis);
+    
+    // TEST NEEDED [21-09-29 3:48PM]
+    @Query("SELECT * FROM " + WakeTimeGoalContract.TABLE_NAME +
+           " WHERE " +
+           WakeTimeGoalContract.Columns.EDIT_TIME + " >= :startMillis AND " +
+           WakeTimeGoalContract.Columns.EDIT_TIME + " <= :endMillis")
+    public abstract List<WakeTimeGoalEntity> getWakeTimeTargetsEditedInRange(long startMillis, long endMillis);
 }

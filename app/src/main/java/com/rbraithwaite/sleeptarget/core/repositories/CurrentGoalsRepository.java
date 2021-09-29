@@ -21,9 +21,14 @@ import androidx.lifecycle.LiveData;
 
 import com.rbraithwaite.sleeptarget.core.models.SleepDurationGoal;
 import com.rbraithwaite.sleeptarget.core.models.WakeTimeGoal;
+import com.rbraithwaite.sleeptarget.ui.stats.chart_intervals.DateRange;
 
+import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
+// REFACTOR [21-09-28 9:07PM] -- split this into DurationTargetRepository and
+//  WakeTimeTargetRepository.
 // TODO [21-03-24 11:04PM] document these methods.
 public interface CurrentGoalsRepository
 {
@@ -49,4 +54,8 @@ public interface CurrentGoalsRepository
     LiveData<List<WakeTimeGoal>> getWakeTimeGoalHistory();
     
     LiveData<List<SleepDurationGoal>> getSleepDurationGoalHistory();
+    
+    WakeTimeGoal getFirstWakeTimeTargetBefore(Date date);
+    
+    List<WakeTimeGoal> getWakeTimeTargetsEditedInRange(DateRange dateRange);
 }

@@ -18,6 +18,8 @@
 package com.rbraithwaite.sleeptarget.ui.stats.chart_intervals;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 
@@ -207,7 +209,7 @@ public class IntervalsChartParamsFactory
         styleRenderer(params.renderer);
         
         applyIntervalsToParams(dataSet, params);
-        
+        applyWakeTimeTargetsToParams(dataSet, params);
         addMidnightLine(params, dataSet.config.invert, hoursOffset);
         
         return params;
@@ -291,18 +293,39 @@ public class IntervalsChartParamsFactory
         renderer.setLabelsTextSize(30);
     }
     
+    private void applyWakeTimeTargetsToParams(
+            IntervalsDataSet dataSet,
+            CombinedChartViewFactory.Params params)
+    {
+        if (dataSet.hasWakeTimeTargetData()) {
+            applyDataSetToParams(
+                    dataSet.wakeTimeGoalsDataSet,
+                    params,
+                    LineChart.TYPE,
+                    this::createWakeTimeTargetLineRenderer);
+        }
+    }
+    
+    private XYSeriesRenderer createWakeTimeTargetLineRenderer()
+    {
+        XYSeriesRenderer renderer = new XYSeriesRenderer();
+        renderer.setLineWidth(8f);
+        renderer.setColor(mAppColors.appColorTriadic3);
+        return renderer;
+    }
+    
     private void applyIntervalsToParams(
             IntervalsDataSet dataSet,
             CombinedChartViewFactory.Params params)
     {
+        // REFACTOR [21-09-28 10:47PM] -- This should be hasSleepSessionData().
         int sleepSessionSeriesCount = dataSet.sleepSessionDataSet.getSeriesCount();
         if (sleepSessionSeriesCount > 0) {
             applyDataSetToParams(
                     dataSet.sleepSessionDataSet,
                     params,
                     RangeStackedBarChart.TYPE,
-                    this::createSleepSessionBarRenderer,
-                    0);
+                    this::createSleepSessionBarRenderer);
             
             // add interruptions second, so that they visually overlap the sleep sessions
             if (dataSet.hasInterruptionData()) {
@@ -310,8 +333,7 @@ public class IntervalsChartParamsFactory
                         dataSet.interruptionsDataSet,
                         params,
                         RangeStackedBarChart.TYPE,
-                        this::createInterruptionsBarRenderer,
-                        sleepSessionSeriesCount);
+                        this::createInterruptionsBarRenderer);
             }
         }
     }
@@ -320,9 +342,9 @@ public class IntervalsChartParamsFactory
             XYMultipleSeriesDataset dataSet,
             CombinedChartViewFactory.Params params,
             String chartType,
-            Factory<XYSeriesRenderer> rendererFactory,
-            int seriesStartingIndexOffset)
+            Factory<XYSeriesRenderer> rendererFactory)
     {
+        int seriesStartingIndexOffset = params.dataSet.getSeriesCount();
         params.dataSet.addAllSeries(Arrays.asList(dataSet.getSeries()));
         int[] seriesIndices = new int[dataSet.getSeriesCount()];
         for (int i = seriesStartingIndexOffset;
@@ -338,7 +360,7 @@ public class IntervalsChartParamsFactory
     private XYSeriesRenderer createSleepSessionBarRenderer()
     {
         XYSeriesRenderer renderer = new XYSeriesRenderer();
-        renderer.setColor(mAppColors.appColorTriadic3);
+        renderer.setColor(mAppColors.colorPrimaryDark);
         return renderer;
     }
     
@@ -366,7 +388,7 @@ public class IntervalsChartParamsFactory
                     midnight);
             
             XYSeriesRenderer midnightRenderer = new XYSeriesRenderer();
-            midnightRenderer.setColor(mAppColors.colorSecondary);
+            midnightRenderer.setColor(mAppColors.colorOnPrimarySurface);
             midnightRenderer.setLineWidth(5f);
             
             params.dataSet.addSeries(midnightLineSeries);

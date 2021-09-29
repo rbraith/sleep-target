@@ -19,12 +19,14 @@ package com.rbraithwaite.sleeptarget.ui.stats.chart_intervals.data_set;
 
 import com.rbraithwaite.sleeptarget.core.models.Interruption;
 import com.rbraithwaite.sleeptarget.core.models.SleepSession;
+import com.rbraithwaite.sleeptarget.core.models.WakeTimeGoal;
 import com.rbraithwaite.sleeptarget.core.models.session.Session;
 import com.rbraithwaite.sleeptarget.ui.stats.chart_intervals.DateRange;
 import com.rbraithwaite.sleeptarget.utils.TimeUtils;
 
 import org.achartengine.model.RangeCategorySeries;
 import org.achartengine.model.XYMultipleSeriesDataset;
+import org.achartengine.model.XYSeries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,6 +80,7 @@ public class IntervalDataSetGenerator
      */
     public IntervalsDataSet generateFromConfig(
             List<SleepSession> sleepSessions,
+            List<WakeTimeGoal> wakeTimeGoals,
             IntervalsDataSet.Config config)
     {
         IntervalsDataSet dataSet = new IntervalsDataSet();
@@ -85,6 +88,8 @@ public class IntervalDataSetGenerator
         dataSet.sleepSessionDataSet = createDataSetFromSessions(sleepSessions, config);
         dataSet.interruptionsDataSet =
                 createDataSetFromSessions(flatMapInterruptionsOf(sleepSessions), config);
+        // TEST NEEDED [21-09-29 3:47PM] -- wakeTimeGoalsDataSet value.
+        dataSet.wakeTimeGoalsDataSet = createDataSetFromWakeTimeGoals(wakeTimeGoals, config);
         
         return dataSet;
     }
@@ -92,6 +97,138 @@ public class IntervalDataSetGenerator
 //*********************************************************
 // private methods
 //*********************************************************
+    
+    /**
+     * This assumes the wake-time goals are ordered by edit time.
+     */
+    private XYMultipleSeriesDataset createDataSetFromWakeTimeGoals(
+            List<WakeTimeGoal> wakeTimeGoals,
+            IntervalsDataSet.Config config)
+    {
+        if (wakeTimeGoals == null || wakeTimeGoals.isEmpty()) {
+            return null;
+        }
+        
+        // init the data points (key = 24hr window start, val = Y chart val of the goal)
+        // ------------------------------------------------------------
+        TreeMap<Long, Long> dataPoints = new TreeMap<>();
+        
+        long startMillis = config.dateRange.getStart().getTime();
+        long endMillis = config.dateRange.getEnd().getTime();
+        long currentMillis = startMillis;
+        
+        // This is for days which don't have any goal edits on them. In these cases, the current
+        // goal from previous days should carry forward.
+        final long NO_EDITS = -1L;
+        // This is for edits where a goal is unset.
+        final long NO_GOAL = -2L;
+        
+        while (currentMillis < endMillis) {
+            dataPoints.put(currentMillis, NO_EDITS);
+            currentMillis += TimeUtils.MILLIS_24_HOURS;
+        }
+        
+        // add the goals to their related days
+        // ------------------------------------------------------------
+        for (WakeTimeGoal goal : wakeTimeGoals) {
+            long rangeDay;
+            if (goal.getEditTime().getTime() <= startMillis) {
+                rangeDay = startMillis;
+            } else {
+                // assumes the wake-time goals are ordered by edit time. The last goal defined on a
+                // rangeDay ends up being the one that is used.
+                rangeDay = TimeUtils.startMillisOf(goal.getEditTime()) + config.offsetMillis;
+            }
+            
+            long goalValue;
+            if (goal.isSet()) {
+                goalValue = goal.getGoalMillis() - config.offsetMillis;
+                // If goalValue is larger than the 24hr window if will be hidden off the end of the
+                // chart. The solution is to wrap it back around to the start by subtracting 24hrs.
+                if (goalValue > TimeUtils.MILLIS_24_HOURS) {
+                    goalValue -= TimeUtils.MILLIS_24_HOURS;
+                }
+            } else {
+                goalValue = NO_GOAL;
+            }
+            dataPoints.put(rangeDay, goalValue);
+        }
+    
+        // create the data set
+        // ------------------------------------------------------------
+        // adjacent list elems with like y values are merged into single lines
+        // each line is a separate series, this is so that they are not connected in the chart
+        XYMultipleSeriesDataset dataSet = new XYMultipleSeriesDataset();
+        List<Long> goalValues = new ArrayList<>(dataPoints.values());
+        // skip initial NO_EDIT and NO_GOAL values
+        int x = 0; // x values == the indices of goalValues
+        long y; // y values are in millis (the values in goalValues)
+        for (; x < goalValues.size(); x++) {
+            y = goalValues.get(x);
+            if (!(y == NO_EDITS || y == NO_GOAL)) {
+                break;
+            }
+        }
+        if (x == goalValues.size()) {
+            // no actual goal values are in this range
+            return dataSet;
+        }
+        // process any actual goal values
+        String seriesTitle = "Wake-Time Target";
+        XYSeries series = new XYSeries(seriesTitle);
+        int sign = config.invert ? -1 : 1;
+        y = goalValues.get(x);
+        addWakeTimePoint(series, x, y, sign);
+        // ++x since we handle the first elem outside the loop to initialize y
+        for (++x; x < goalValues.size(); x++) {
+            long yNew = goalValues.get(x);
+            
+            if (yNew == NO_EDITS) {
+                continue;
+            }
+            
+            if (yNew == NO_GOAL) {
+                if (y != NO_GOAL) {
+                    addWakeTimePoint(series, x, y, sign);
+                    dataSet.addSeries(series);
+                    y = NO_GOAL;
+                }
+                continue;
+            }
+            
+            if (y == NO_GOAL) {
+                series = new XYSeries(seriesTitle);
+                addWakeTimePoint(series, x, yNew, sign);
+                y = yNew;
+                continue;
+            }
+            
+            if (yNew != y) {
+                addWakeTimePoint(series, x, y, sign);
+                dataSet.addSeries(series);
+                
+                series = new XYSeries(seriesTitle);
+                addWakeTimePoint(series, x, yNew, sign);
+                y = yNew;
+            }
+        }
+        // TEST NEEDED [21-09-29 3:46PM] -- where the last goal in the range is NO_GOAL.
+        // don't forget the last point
+        if (y != NO_GOAL) {
+            int xLast = goalValues.size();
+            addWakeTimePoint(series, xLast, y, sign);
+            dataSet.addSeries(series);
+        }
+
+        return dataSet;
+    }
+    
+    private void addWakeTimePoint(XYSeries series, int x, long yMillis, int sign)
+    {
+        // SMELL [21-09-29 2:43PM] -- This is 0.5f is too much knowledge - it knows that
+        //  IntervalsChartParamsFactory.initRendererProperties offsets the x axis by 0.5.
+        series.add(x + 0.5f, sign * mTimeUtils.millisToHours(yMillis));
+    }
 
     private <S extends Session> XYMultipleSeriesDataset createDataSetFromSessions(
             List<S> sessions, IntervalsDataSet.Config config)

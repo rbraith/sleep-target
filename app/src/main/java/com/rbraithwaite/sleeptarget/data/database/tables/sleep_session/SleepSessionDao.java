@@ -102,6 +102,7 @@ public abstract class SleepSessionDao
            " LIMIT 1;")
     public abstract SleepSessionEntity getFirstSleepSessionStartingBefore(long dateTimeMillis);
     
+    // REFACTOR [21-09-29 1:07AM] -- semi-colon isn't needed here.
     @Query("SELECT * FROM " + SleepSessionContract.TABLE_NAME +
            " WHERE " + SleepSessionContract.Columns.START_TIME + " >= :dateTimeMillis" +
            " ORDER BY " + SleepSessionContract.Columns.START_TIME + " ASC" +
