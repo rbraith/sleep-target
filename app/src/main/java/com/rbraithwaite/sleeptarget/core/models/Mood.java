@@ -14,16 +14,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.core.models;
 
+import com.rbraithwaite.sleeptarget.utils.Constants;
+
+import java.io.Serializable;
+
+// HACK [21-09-28 8:14PM] -- This core model shouldn't be serializable - consider making a
+//  parcelable wrapper at the infrastructure level instead.
 public class Mood
+        implements Serializable
 {
 //*********************************************************
 // private properties
 //*********************************************************
 
     private Integer mMoodIndex;
+
+//*********************************************************
+// public constants
+//*********************************************************
+
+    public static final long serialVersionUID = Constants.SERIAL_VERSION_UID;
 
 //*********************************************************
 // constructors

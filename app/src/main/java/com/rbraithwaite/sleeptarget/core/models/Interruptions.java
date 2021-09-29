@@ -18,28 +18,35 @@ package com.rbraithwaite.sleeptarget.core.models;
 
 import com.rbraithwaite.sleeptarget.core.models.overlap_checker.InterruptionOverlapChecker;
 import com.rbraithwaite.sleeptarget.utils.CommonUtils;
+import com.rbraithwaite.sleeptarget.utils.Constants;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 
+// HACK [21-09-28 8:09PM] -- This shouldn't need to implement serializable.
 
 /**
  * Behaviour relating to an {@link Interruption} collection.
  */
 public class Interruptions
+        implements Serializable
 {
 //*********************************************************
 // private properties
 //*********************************************************
 
     private List<Interruption> mInterruptions;
-    
     private Updates mUpdates;
-    
     private AddedIdGenerator mAddedIdGenerator = new AddedIdGenerator();
-    
     private int ID_NOT_FOUND = -1; // used with getIndexOfIdInList
+
+//*********************************************************
+// public constants
+//*********************************************************
+
+    public static final long serialVersionUID = Constants.SERIAL_VERSION_UID;
 
 //*********************************************************
 // public helpers
@@ -186,7 +193,7 @@ public class Interruptions
         InterruptionOverlapChecker overlapChecker = new InterruptionOverlapChecker(mInterruptions);
         return overlapChecker.checkForOverlapExclusive(interruptionToCheck);
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -200,12 +207,13 @@ public class Interruptions
         }
         return ID_NOT_FOUND;
     }
-
+    
     private Updates getUpdates()
     {
         mUpdates = CommonUtils.lazyInit(mUpdates, Updates::new);
         return mUpdates;
     }
+
 
 //*********************************************************
 // private helpers
@@ -217,8 +225,10 @@ public class Interruptions
      * 0.
      */
     private static class AddedIdGenerator
+            implements Serializable
     {
         private int mNextId = 1;
+        public static final long serialVersionUID = Constants.SERIAL_VERSION_UID;
         
         public int getNextId()
         {
@@ -227,3 +237,4 @@ public class Interruptions
         }
     }
 }
+//!en
