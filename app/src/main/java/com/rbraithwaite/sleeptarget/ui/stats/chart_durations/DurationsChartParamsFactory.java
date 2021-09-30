@@ -37,8 +37,10 @@ import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 public class DurationsChartParamsFactory
 {
@@ -95,50 +97,50 @@ public class DurationsChartParamsFactory
     {
         // REFACTOR [21-05-14 11:28PM] -- hardcoded strings.
         XYSeries durationSeries = new XYSeries("Sleep Duration", LEFT_Y_AXIS);
+    
+        List<XYSeries> ratingSeriesList = new ArrayList<>();
+        // rating series helpers
+        XYSeries[] currentRatingSeries = { null };
+        boolean[] inRatingLine = { false };
+    
+        List<XYSeries> targetSeriesList = new ArrayList<>();
+        // target series helpers
+        XYSeries[] targetSeries = { null };
+        Double[] prevTargetDurationHours = { null };
 
-        // add the durations data
+        // process the data set
         for (int i = 0; i < dataSet.size(); i++) {
             DurationsChartViewModel.DataPoint dataPoint = dataSet.get(i);
-
             // this makes the data appear from right to left
             float chartPosition = rangeDistance - i - 1;
 
             durationSeries.add(chartPosition, dataPoint.sleepDurationHours);
+            
+            processNextRating(
+                    chartPosition,
+                    dataPoint.sleepRating,
+                    currentRatingSeries,
+                    ratingSeriesList,
+                    inRatingLine);
+            
+            processNextTargetDuration(
+                    chartPosition,
+                    dataPoint.targetDurationHours,
+                    prevTargetDurationHours,
+                    targetSeries,
+                    targetSeriesList);
+
         }
-
-        // add the ratings data
-        // (if the ratings data is 0, break the line)
-        // OPTIMIZE [21-06-8 3:10PM] -- I could combine this loop with the above loop, though I
-        //  felt combining them would reduce readability.
-        List<XYSeries> ratingSeriesList = new ArrayList<>();
-        XYSeries currentRatingSeries = null;
-        boolean inRatingLine = false;
-        for (int i = 0; i < dataSet.size(); i++) {
-            // this makes the data appear from right to left
-            float chartPosition = rangeDistance - i - 1;
-
-            DurationsChartViewModel.DataPoint dataPoint = dataSet.get(i);
-
-            // transitioning into a rating line
-            if (!inRatingLine && dataPoint.sleepRating > 0) {
-                currentRatingSeries = new XYSeries("Sleep Rating", RIGHT_Y_AXIS);
-                ratingSeriesList.add(currentRatingSeries);
-                currentRatingSeries.add(chartPosition, dataPoint.sleepRating);
-                inRatingLine = true;
-            } else if (inRatingLine) {
-                // transitioning out of a rating line
-                if (dataPoint.sleepRating == 0) {
-                    inRatingLine = false;
-                }
-                // in a rating line
-                else {
-                    currentRatingSeries.add(chartPosition, dataPoint.sleepRating);
-                }
-            }
+        // add last target series
+        int ref = 0;
+        if (prevTargetDurationHours[ref] != null && targetSeries[ref] != null) {
+            targetSeries[ref].add(0, prevTargetDurationHours[ref]);
+            targetSeriesList.add(targetSeries[ref]);
         }
+        
 
         CombinedChartViewFactory.Params params = new CombinedChartViewFactory.Params(
-                createMultipleSeriesRenderer(durationSeries.getMaxY(), rangeDistance),
+                createMultipleSeriesRenderer(calculateMaxY(durationSeries, targetSeriesList), rangeDistance),
                 new XYMultipleSeriesDataset(),
                 new ArrayList<>());
 
@@ -163,19 +165,137 @@ public class DurationsChartParamsFactory
         params.dataSet.addSeries(durationSeries);
         params.renderer.addSeriesRenderer(createDurationsSeriesRenderer());
         params.types.add(new CombinedXYChart.XYCombinedChartDef(BarChart.TYPE, 0));
-
-        // add ratings to params
-        XYSeriesRenderer ratingSeriesRenderer = createRatingsSeriesRenderer();
-        int[] ratingSeriesIndices = new int[ratingSeriesList.size()];
-        for (int i = 0; i < ratingSeriesList.size(); i++) {
-            params.dataSet.addSeries(ratingSeriesList.get(i));
-            params.renderer.addSeriesRenderer(ratingSeriesRenderer);
-            ratingSeriesIndices[i] = i + 1; // +1 since the durations bar chart is the first series
+        
+        // add duration target to params
+        if (!targetSeriesList.isEmpty()) {
+            addSeriesListToParams(
+                    targetSeriesList,
+                    params,
+                    LineChart.TYPE,
+                    createTargetSeriesRenderer());
         }
-        params.types.add(new CombinedXYChart.XYCombinedChartDef(LineChart.TYPE,
-                                                                ratingSeriesIndices));
-
+    
+        // add ratings to params
+        addSeriesListToParams(
+                ratingSeriesList,
+                params,
+                LineChart.TYPE,
+                createRatingsSeriesRenderer());
+        
         return params;
+    }
+    
+    /**
+     * The max Y value might be a bar or it might be a target line.
+     */
+    private double calculateMaxY(XYSeries durationSeries, List<XYSeries> targetSeriesList)
+    {
+        double maxTargetSeriesY = 0;
+        for (XYSeries series : targetSeriesList) {
+            maxTargetSeriesY = Math.max(maxTargetSeriesY, series.getMaxY());
+        }
+        
+        return Math.max(
+                durationSeries.getMaxY(),
+                maxTargetSeriesY);
+    }
+    
+    // REFACTOR [21-09-29 9:19PM] -- this is similar to
+    //  IntervalsChartParamsFactory.applyDataSetToParams()
+    private void addSeriesListToParams(
+            List<XYSeries> seriesList,
+            CombinedChartViewFactory.Params params,
+            String chartType,
+            XYSeriesRenderer renderer)
+    {
+        int[] seriesIndices = new int[seriesList.size()];
+        int indicesOffset = params.dataSet.getSeriesCount();
+        for (int i = 0; i < seriesList.size(); i++) {
+            params.dataSet.addSeries(seriesList.get(i));
+            params.renderer.addSeriesRenderer(renderer);
+            seriesIndices[i] = i + indicesOffset;
+        }
+        params.types.add(new CombinedXYChart.XYCombinedChartDef(chartType, seriesIndices));
+    }
+    
+    // if the ratings data is 0, break the line
+    private void processNextRating(
+            float chartPosition,
+            float sleepRating,
+            XYSeries[] currentRatingSeries,
+            List<XYSeries> ratingSeriesList,
+            boolean[] inRatingLine)
+    {
+        int ref = 0;
+        // transitioning into a rating line
+        if (!inRatingLine[ref] && sleepRating > 0) {
+            currentRatingSeries[ref] = new XYSeries("Sleep Rating", RIGHT_Y_AXIS);
+            ratingSeriesList.add(currentRatingSeries[ref]);
+            currentRatingSeries[ref].add(chartPosition, sleepRating);
+            inRatingLine[ref] = true;
+        } else if (inRatingLine[ref]) {
+            // transitioning out of a rating line
+            if (sleepRating == 0) {
+                inRatingLine[ref] = false;
+            }
+            // in a rating line
+            else {
+                currentRatingSeries[ref].add(chartPosition, sleepRating);
+            }
+        }
+    }
+    
+    // The target durations are processed such that data points with like durations are merged into
+    // single horizontal lines. When there is a delta in the target duration value, a new line is
+    // started, causing a stepwise pattern in the chart. Unset target durations are shown as
+    // empty spaces.
+    private void processNextTargetDuration(
+            float chartPosition,
+            Double targetDurationHours,
+            Double[] prevTargetDurationHours,
+            XYSeries[] targetSeries,
+            List<XYSeries> targetSeriesList)
+    {
+        int ref = 0;
+        float offsetChartPosition = chartPosition + 0.5f;
+        
+        if (targetSeries[ref] == null && targetDurationHours == null) {
+            // skip any initial unset or unedited values (targetSeries is only null at the start)
+            return;
+        } else if (targetSeries[ref] == null) {
+            // first actual target value
+            targetSeries[ref] = new XYSeries("Target");
+            targetSeries[ref].add(offsetChartPosition, targetDurationHours);
+            prevTargetDurationHours[ref] = targetDurationHours;
+            return;
+        }
+    
+        if (targetDurationHours == null) {
+            if (prevTargetDurationHours[ref] != null) {
+                // transitioning from set target to unset target
+                targetSeries[ref].add(offsetChartPosition, prevTargetDurationHours[ref]);
+                targetSeriesList.add(targetSeries[ref]);
+                prevTargetDurationHours[ref] = targetDurationHours;
+            }
+            return;
+        }
+    
+        if (prevTargetDurationHours[ref] == null) {
+            // transitioning from unset target to a set target
+            targetSeries[ref] = new XYSeries("Target");
+            targetSeries[ref].add(offsetChartPosition, targetDurationHours);
+            prevTargetDurationHours[ref] = targetDurationHours;
+            return;
+        }
+    
+        if (!targetDurationHours.equals(prevTargetDurationHours[ref])) {
+            // end of one line, start of another with a different y value
+            targetSeries[ref].add(offsetChartPosition, prevTargetDurationHours[ref]);
+            targetSeriesList.add(targetSeries[ref]);
+            targetSeries[ref] = new XYSeries("Target");
+            targetSeries[ref].add(offsetChartPosition, targetDurationHours);
+            prevTargetDurationHours[ref] = targetDurationHours;
+        }
     }
     
     // REFACTOR [21-05-15 12:47AM] -- a lot of this duplicates the intervals chart renderer
@@ -295,7 +415,7 @@ public class DurationsChartParamsFactory
     private XYSeriesRenderer createDurationsSeriesRenderer()
     {
         XYSeriesRenderer renderer = new XYSeriesRenderer();
-        renderer.setColor(mAppColors.appColorComplementary);
+        renderer.setColor(mAppColors.colorPrimaryDark);
         return renderer;
     }
     
@@ -307,6 +427,16 @@ public class DurationsChartParamsFactory
         renderer.setLineWidth(6);
         renderer.setPointStyle(PointStyle.CIRCLE);
         renderer.setPointStrokeWidth(20);
+        return renderer;
+    }
+    
+    private XYSeriesRenderer createTargetSeriesRenderer()
+    {
+        XYSeriesRenderer renderer = new XYSeriesRenderer();
+        // REFACTOR [21-09-30 6:53PM] -- This hardcoded width is meant to be the same as the one
+        //  for the intervals chart wake-time lines.
+        renderer.setLineWidth(8f);
+        renderer.setColor(mAppColors.appColorTriadic2);
         return renderer;
     }
 }

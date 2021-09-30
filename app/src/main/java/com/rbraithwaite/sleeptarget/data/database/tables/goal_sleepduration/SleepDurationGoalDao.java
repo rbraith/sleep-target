@@ -22,6 +22,9 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
 
+import com.rbraithwaite.sleeptarget.data.database.tables.goal_waketime.WakeTimeGoalContract;
+
+import java.util.Arrays;
 import java.util.List;
 
 @Dao
@@ -43,4 +46,18 @@ public abstract class SleepDurationGoalDao
     
     @Query("SELECT * FROM " + SleepDurationGoalContract.TABLE_NAME + ";")
     public abstract LiveData<List<SleepDurationGoalEntity>> getSleepDurationGoalHistory();
+    
+    // TEST NEEDED [21-09-30 1:24AM]
+    @Query("SELECT * FROM " + SleepDurationGoalContract.TABLE_NAME +
+           " WHERE " + SleepDurationGoalContract.Columns.EDIT_TIME + " <= :dateMillis" +
+           " ORDER BY " + SleepDurationGoalContract.Columns.EDIT_TIME + " DESC" +
+           " LIMIT 1")
+    public abstract SleepDurationGoalEntity getFirstDurationTargetBefore(long dateMillis);
+    
+    // TEST NEEDED [21-09-30 1:24AM]
+    @Query("SELECT * FROM " + SleepDurationGoalContract.TABLE_NAME +
+           " WHERE " +
+           SleepDurationGoalContract.Columns.EDIT_TIME + " >= :startMillis AND " +
+           SleepDurationGoalContract.Columns.EDIT_TIME + " <= :endMillis")
+    public abstract List<SleepDurationGoalEntity> getTargetsEditedInRange(long startMillis, long endMillis);
 }

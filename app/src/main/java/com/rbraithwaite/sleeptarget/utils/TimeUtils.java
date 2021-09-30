@@ -17,6 +17,8 @@
 
 package com.rbraithwaite.sleeptarget.utils;
 
+import com.rbraithwaite.sleeptarget.utils.time.Day;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -95,6 +97,11 @@ public class TimeUtils
         //  be static.
         new TimeUtils().setCalendarTimeOfDay(cal, 0);
         return cal.getTimeInMillis();
+    }
+    
+    public static boolean areSameDay(Date date1, Date date2)
+    {
+        return Day.of(date1).equals(Day.of(date2));
     }
     
     // TODO [20-11-15 1:05AM] -- think about how I could test this.

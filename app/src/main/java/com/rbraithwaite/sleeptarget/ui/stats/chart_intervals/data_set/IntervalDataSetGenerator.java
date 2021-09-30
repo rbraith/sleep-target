@@ -72,6 +72,7 @@ public class IntervalDataSetGenerator
      * are used to ensure sleep session data occurs at the right series index (the right day).
      *
      * @param sleepSessions The sleep sessions to convert
+     * @param wakeTimeGoals The wake-time goals relevant to the provided date range.
      * @param config        The configuration for the data - e.g. the date range used to control how
      *                      the sleep sessions are split up, and whether or not the data should be
      *                      inverted

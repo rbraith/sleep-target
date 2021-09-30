@@ -56,6 +56,8 @@ public interface CurrentGoalsRepository
     LiveData<List<SleepDurationGoal>> getSleepDurationGoalHistory();
     
     WakeTimeGoal getFirstWakeTimeTargetBefore(Date date);
+    SleepDurationGoal getFirstDurationTargetBefore(Date date);
     
     List<WakeTimeGoal> getWakeTimeTargetsEditedInRange(DateRange dateRange);
+    List<SleepDurationGoal> getDurationTargetsEditedInRange(Date rangeStart, Date rangeEnd);
 }

@@ -178,4 +178,22 @@ public class CurrentGoalsRepositoryImpl
                 .map(ConvertWakeTimeGoal::fromEntity)
                 .collect(Collectors.toList());
     }
+    
+    @Override
+    public SleepDurationGoal getFirstDurationTargetBefore(Date date)
+    {
+        return ConvertSleepDurationGoal.fromEntity(
+                mSleepDurationGoalDao.getFirstDurationTargetBefore(date.getTime()));
+    }
+    
+    @Override
+    public List<SleepDurationGoal> getDurationTargetsEditedInRange(
+            Date rangeStart, Date rangeEnd)
+    {
+        return mSleepDurationGoalDao.getTargetsEditedInRange(
+                rangeStart.getTime(), rangeEnd.getTime())
+                .stream()
+                .map(ConvertSleepDurationGoal::fromEntity)
+                .collect(Collectors.toList());
+    }
 }

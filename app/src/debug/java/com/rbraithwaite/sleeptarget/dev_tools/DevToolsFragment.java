@@ -96,9 +96,9 @@ public class DevToolsFragment
         });
         
         // intervals wake-time test data
-        Button intervalsWakeTimeButton = view.findViewById(R.id.dev_tool_intervals_waketime);
-        intervalsWakeTimeButton.setOnClickListener(v -> {
-            getViewModel().addIntervalsWakeTimeTestData();
+        Button chartTargetsTestButton = view.findViewById(R.id.dev_tool_chart_targets);
+        chartTargetsTestButton.setOnClickListener(v -> {
+            getViewModel().addChartTargetTestData();
         });
     }
 }

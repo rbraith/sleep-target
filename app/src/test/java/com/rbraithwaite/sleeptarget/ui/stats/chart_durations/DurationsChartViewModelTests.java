@@ -17,11 +17,14 @@
 
 package com.rbraithwaite.sleeptarget.ui.stats.chart_durations;
 
+import android.os.Looper;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleeptarget.core.models.SleepSession;
+import com.rbraithwaite.sleeptarget.core.repositories.CurrentGoalsRepository;
 import com.rbraithwaite.sleeptarget.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleeptarget.test_utils.TestUtils;
 
@@ -40,6 +43,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.robolectric.Shadows.shadowOf;
 
 @RunWith(AndroidJUnit4.class)
 public class DurationsChartViewModelTests
@@ -50,6 +54,7 @@ public class DurationsChartViewModelTests
 
     DurationsChartViewModel viewModel;
     SleepSessionRepository mockSleepSessionRepository;
+    CurrentGoalsRepository mockCurrentGoalsRepository;
 
 //*********************************************************
 // api
@@ -59,7 +64,11 @@ public class DurationsChartViewModelTests
     public void setup()
     {
         mockSleepSessionRepository = mock(SleepSessionRepository.class);
-        viewModel = new DurationsChartViewModel(mockSleepSessionRepository);
+        mockCurrentGoalsRepository = mock(CurrentGoalsRepository.class);
+        viewModel = new DurationsChartViewModel(
+                mockSleepSessionRepository,
+                mockCurrentGoalsRepository,
+                new TestUtils.SynchronizedExecutor());
     }
     
     @After
@@ -67,6 +76,7 @@ public class DurationsChartViewModelTests
     {
         viewModel = null;
         mockSleepSessionRepository = null;
+        mockCurrentGoalsRepository = null;
     }
     
     @Test
@@ -125,6 +135,7 @@ public class DurationsChartViewModelTests
         // SUT
         LiveData<List<DurationsChartViewModel.DataPoint>> datasetLive = viewModel.getDataSet();
         TestUtils.activateLocalLiveData(datasetLive);
+        shadowOf(Looper.getMainLooper()).idle();
         
         // verify
         List<DurationsChartViewModel.DataPoint> dataset = datasetLive.getValue();
@@ -163,6 +174,7 @@ public class DurationsChartViewModelTests
         // activate the data set live data so that it can be accessed inside stepRangeBack()
         LiveData<List<DurationsChartViewModel.DataPoint>> dataset = viewModel.getDataSet();
         TestUtils.activateLocalLiveData(dataset);
+        shadowOf(Looper.getMainLooper()).idle();
         
         // SUT
         viewModel.stepRangeBack();

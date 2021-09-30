@@ -233,34 +233,60 @@ public class DevToolsFragmentViewModel
         throw new RuntimeException("forcing a crash");
     }
     
-    public void addIntervalsWakeTimeTestData()
+    public void addChartTargetTestData()
     {
         runAsyncTask(() -> {
+            // wake time goals
+            // ----------------------------------------------------------
+            List<WakeTimeGoalEntity> wakeTimeGoalEntities = new ArrayList<>();
+            
             DateBuilder date = aDate().now().subtractDays(10);
-    
-            List<WakeTimeGoalEntity> entities = new ArrayList<>();
     
             int fivePm = 17 * 60 * 60 * 1000;
             int fiveAm = 5 * 60 * 60 * 1000;
             int eightAm = 8 * 60 * 60 * 1000;
     
-            entities.add(new WakeTimeGoalEntity(
+            wakeTimeGoalEntities.add(new WakeTimeGoalEntity(
                     valueOf(date), fiveAm));
             date.addDays(2);
     
-            entities.add(new WakeTimeGoalEntity(
+            wakeTimeGoalEntities.add(new WakeTimeGoalEntity(
                     valueOf(date), fivePm));
             date.addDays(1);
             
-            entities.add(new WakeTimeGoalEntity(
+            wakeTimeGoalEntities.add(new WakeTimeGoalEntity(
                     valueOf(date), WakeTimeGoalEntity.NO_GOAL));
             date.addDays(3);
     
-            entities.add(new WakeTimeGoalEntity(
+            wakeTimeGoalEntities.add(new WakeTimeGoalEntity(
                     valueOf(date), eightAm));
     
-            for (WakeTimeGoalEntity entity : entities) {
+            for (WakeTimeGoalEntity entity : wakeTimeGoalEntities) {
                 mDatabase.getWakeTimeGoalDao().updateWakeTimeGoal(entity);
+            }
+    
+            // sleep duration goals
+            // ----------------------------------------------------------
+            List<SleepDurationGoalEntity> sleepDurationGoalEntities = new ArrayList<>();
+    
+            date = aDate().now().subtractDays(8);
+    
+            int fiveHours = 5 * 60;
+            int eightHours = 8 * 60;
+    
+            sleepDurationGoalEntities.add(new SleepDurationGoalEntity(valueOf(date), SleepDurationGoalEntity.NO_GOAL));
+            date.addDays(2);
+            
+            sleepDurationGoalEntities.add(new SleepDurationGoalEntity(valueOf(date), eightHours));
+            date.addDays(3);
+    
+            sleepDurationGoalEntities.add(new SleepDurationGoalEntity(valueOf(date), fiveHours));
+            date.addDays(1);
+    
+            sleepDurationGoalEntities.add(new SleepDurationGoalEntity(valueOf(date), SleepDurationGoalEntity.NO_GOAL));
+            
+            for (SleepDurationGoalEntity entity : sleepDurationGoalEntities) {
+                mDatabase.getSleepDurationGoalDao().updateSleepDurationGoal(entity);
             }
         });
     }
