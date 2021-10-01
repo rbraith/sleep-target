@@ -47,7 +47,7 @@
     <string name="interruption_details_overlap_error_message">The set times overlap with an already existing interruption in this session, having these times:</string>
     <string name="no_tags">No Tags</string>
     <string name="about_version_num">Version %s</string>
-    <string name="about_copyright">Copyright © 2020–2021 Richard Braithwaite</string>
+    <string name="about_copyright">Copyright © 2020–2021 Rich Braithwaite</string>
     <!--    TODO [21-08-24 7:34PM] - set the right github link-->
     <string name="about_description">Sleep Target is a free and open-source sleep tracking app.
         Visit the project on <a href="https://www.github.com">Github</a>!</string>
