@@ -52,6 +52,7 @@ public class StatsFragment
 //*********************************************************
 
     private static final String DIALOG_DURATIONS_LEGEND = "durations legend";
+    private static final String DIALOG_INTERVALS_LEGEND = "intervals legend";
 
 //*********************************************************
 // overrides
@@ -79,6 +80,10 @@ public class StatsFragment
         View durationsChartLegendButton =
                 view.findViewById(R.id.stats_durations_legend_click_frame);
         durationsChartLegendButton.setOnClickListener(v -> displayDurationsLegendDialog());
+        
+        View intervalsChartLegendButton =
+                view.findViewById(R.id.stats_intervals_legend_click_frame);
+        intervalsChartLegendButton.setOnClickListener(v -> displayIntervalsLegendDialog());
     }
     
     @Override
@@ -116,5 +121,18 @@ public class StatsFragment
         });
         
         dialog.show(getChildFragmentManager(), DIALOG_DURATIONS_LEGEND);
+    }
+    
+    private void displayIntervalsLegendDialog()
+    {
+        AlertDialogFragment dialog = AlertDialogFragment.createInstance((context, inflater) -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle("Legend")
+                    .setView(inflater.inflate(R.layout.stats_legend_intervals, null));
+        
+            return builder.create();
+        });
+    
+        dialog.show(getChildFragmentManager(), DIALOG_INTERVALS_LEGEND);
     }
 }
