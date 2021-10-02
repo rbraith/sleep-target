@@ -14,9 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.stats;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +28,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.rbraithwaite.sleeptarget.R;
 import com.rbraithwaite.sleeptarget.ui.BaseFragment;
+import com.rbraithwaite.sleeptarget.ui.common.dialog.AlertDialogFragment;
 import com.rbraithwaite.sleeptarget.ui.stats.chart_durations.DurationsChartComponent;
 import com.rbraithwaite.sleeptarget.ui.stats.chart_durations.DurationsChartViewModel;
 import com.rbraithwaite.sleeptarget.ui.stats.chart_intervals.IntervalsChartComponent;
@@ -45,6 +46,12 @@ public class StatsFragment
 
     private DurationsChartComponent mDurationsChart;
     private IntervalsChartComponent mIntervalsChart;
+    
+//*********************************************************
+// private constants
+//*********************************************************
+
+    private static final String DIALOG_DURATIONS_LEGEND = "durations legend";
 
 //*********************************************************
 // overrides
@@ -68,6 +75,10 @@ public class StatsFragment
         
         mDurationsChart = view.findViewById(R.id.stats_durations);
         mDurationsChart.bindToViewModel(getDurationsChartViewModel(), getViewLifecycleOwner());
+        
+        View durationsChartLegendButton =
+                view.findViewById(R.id.stats_durations_legend_click_frame);
+        durationsChartLegendButton.setOnClickListener(v -> displayDurationsLegendDialog());
     }
     
     @Override
@@ -75,7 +86,7 @@ public class StatsFragment
     {
         return new Properties<>(true, StatsFragmentViewModel.class);
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -84,7 +95,7 @@ public class StatsFragment
     {
         return new ViewModelProvider(this).get(IntervalsChartViewModel.class);
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -92,5 +103,18 @@ public class StatsFragment
     private DurationsChartViewModel getDurationsChartViewModel()
     {
         return new ViewModelProvider(this).get(DurationsChartViewModel.class);
+    }
+    
+    private void displayDurationsLegendDialog()
+    {
+        AlertDialogFragment dialog = AlertDialogFragment.createInstance((context, inflater) -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle("Legend")
+                    .setView(inflater.inflate(R.layout.sleep_goals_duration_legend, null));
+            
+            return builder.create();
+        });
+        
+        dialog.show(getChildFragmentManager(), DIALOG_DURATIONS_LEGEND);
     }
 }
