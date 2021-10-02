@@ -1,0 +1,26 @@
+<!--
+  ~ Copyright (c) 2020-2021 Richard Braithwaite (rbraithwaite.dev@gmail.com)
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+  <path
+      android:fillColor="#FFFFFFFF"
+      android:pathData="M22.25,20.692c0,0.86 -0.697,1.558 -1.558,1.558H3.307c-0.86,0 -1.557,-0.697 -1.557,-1.558V3.307c0,-0.86 0.697,-1.557 1.557,-1.557h17.385c0.86,0 1.558,0.697 1.558,1.557V20.692z"/>
+</vector>

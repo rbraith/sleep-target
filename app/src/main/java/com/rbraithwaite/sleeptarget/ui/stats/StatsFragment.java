@@ -110,7 +110,7 @@ public class StatsFragment
         AlertDialogFragment dialog = AlertDialogFragment.createInstance((context, inflater) -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle("Legend")
-                    .setView(inflater.inflate(R.layout.sleep_goals_duration_legend, null));
+                    .setView(inflater.inflate(R.layout.stats_legend_durations, null));
             
             return builder.create();
         });
