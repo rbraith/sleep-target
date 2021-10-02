@@ -58,6 +58,6 @@ public interface CurrentGoalsRepository
     WakeTimeGoal getFirstWakeTimeTargetBefore(Date date);
     SleepDurationGoal getFirstDurationTargetBefore(Date date);
     
-    List<WakeTimeGoal> getWakeTimeTargetsEditedInRange(DateRange dateRange);
+    List<WakeTimeGoal> getWakeTimeTargetsEditedInRange(Date rangeStart, Date rangeEnd);
     List<SleepDurationGoal> getDurationTargetsEditedInRange(Date rangeStart, Date rangeEnd);
 }

@@ -389,16 +389,23 @@ public class IntervalsChartViewModel
     
     private List<WakeTimeGoal> getRelevantGoalsFor(DateRange dateRange)
     {
+        // Extend the range to the start & end times of the start & end days of the range
+        GregorianCalendar goalRangeStart = TimeUtils.getCalendarFrom(dateRange.getStart());
+        GregorianCalendar goalRangeEnd = TimeUtils.getCalendarFrom(dateRange.getEnd());
+        mTimeUtils.setCalendarTimeOfDay(goalRangeStart, 0);
+        mTimeUtils.setCalendarTimeOfDay(goalRangeEnd, TimeUtils.MILLIS_24_HOURS);
+        
         ArrayList<WakeTimeGoal> result = new ArrayList<>();
         // goals are relevant from when they are defined up until the point where they are edited,
         // so the first relevant goal can come from before the start of the range.
-        WakeTimeGoal firstBefore = mGoalsRepository.getFirstWakeTimeTargetBefore(dateRange.getStart());
+        WakeTimeGoal firstBefore = mGoalsRepository.getFirstWakeTimeTargetBefore(goalRangeStart.getTime());
         if (firstBefore != null) {
             result.add(firstBefore);
         }
         
         // get any goals defined within the range itself
-        result.addAll(mGoalsRepository.getWakeTimeTargetsEditedInRange(dateRange));
+        result.addAll(mGoalsRepository.getWakeTimeTargetsEditedInRange(
+                goalRangeStart.getTime(), goalRangeEnd.getTime()));
         
         return result;
     }

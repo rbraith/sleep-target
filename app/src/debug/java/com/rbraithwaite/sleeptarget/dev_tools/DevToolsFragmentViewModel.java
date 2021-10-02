@@ -239,27 +239,23 @@ public class DevToolsFragmentViewModel
             // wake time goals
             // ----------------------------------------------------------
             List<WakeTimeGoalEntity> wakeTimeGoalEntities = new ArrayList<>();
-            
-            DateBuilder date = aDate().now().subtractDays(10);
     
-            int fivePm = 17 * 60 * 60 * 1000;
+            int sixPm = 18 * 60 * 60 * 1000;
             int fiveAm = 5 * 60 * 60 * 1000;
             int eightAm = 8 * 60 * 60 * 1000;
-    
-            wakeTimeGoalEntities.add(new WakeTimeGoalEntity(
-                    valueOf(date), fiveAm));
-            date.addDays(2);
-    
-            wakeTimeGoalEntities.add(new WakeTimeGoalEntity(
-                    valueOf(date), fivePm));
-            date.addDays(1);
             
-            wakeTimeGoalEntities.add(new WakeTimeGoalEntity(
-                    valueOf(date), WakeTimeGoalEntity.NO_GOAL));
-            date.addDays(3);
-    
-            wakeTimeGoalEntities.add(new WakeTimeGoalEntity(
-                    valueOf(date), eightAm));
+            DateBuilder date = aDate().withValue(2021, 9, 19, 12, 34);
+            
+            wakeTimeGoalEntities.add(new WakeTimeGoalEntity(valueOf(date), sixPm));
+            date.addDays(1);
+            wakeTimeGoalEntities.add(new WakeTimeGoalEntity(valueOf(date), eightAm));
+            date.addDays(1);
+            wakeTimeGoalEntities.add(new WakeTimeGoalEntity(valueOf(date), sixPm));
+            date.addDays(2);
+            wakeTimeGoalEntities.add(new WakeTimeGoalEntity(valueOf(date), WakeTimeGoalEntity.NO_GOAL));
+            
+            date.withValue(2021, 9, 26, 12, 34);
+            wakeTimeGoalEntities.add(new WakeTimeGoalEntity(valueOf(date), eightAm));
     
             for (WakeTimeGoalEntity entity : wakeTimeGoalEntities) {
                 mDatabase.getWakeTimeGoalDao().updateWakeTimeGoal(entity);

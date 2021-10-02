@@ -121,4 +121,9 @@ public class WakeTimeGoal
                 cal.get(Calendar.HOUR_OF_DAY),
                 cal.get(Calendar.MINUTE));
     }
+    
+    public boolean isUnset()
+    {
+        return !isSet();
+    }
 }

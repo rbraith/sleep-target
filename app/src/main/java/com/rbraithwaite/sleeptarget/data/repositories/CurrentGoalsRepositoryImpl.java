@@ -168,12 +168,12 @@ public class CurrentGoalsRepositoryImpl
     }
     
     @Override
-    public List<WakeTimeGoal> getWakeTimeTargetsEditedInRange(DateRange dateRange)
+    public List<WakeTimeGoal> getWakeTimeTargetsEditedInRange(Date rangeStart, Date rangeEnd)
     {
         // REFACTOR [21-09-29 1:25AM] -- move this to ConvertWakeTimeGoal.
         return mWakeTimeGoalDao.getWakeTimeTargetsEditedInRange(
-                dateRange.getStart().getTime(),
-                dateRange.getEnd().getTime())
+                rangeStart.getTime(),
+                rangeEnd.getTime())
                 .stream()
                 .map(ConvertWakeTimeGoal::fromEntity)
                 .collect(Collectors.toList());
