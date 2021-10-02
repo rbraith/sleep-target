@@ -388,7 +388,7 @@ public class IntervalsChartParamsFactory
                     midnight);
             
             XYSeriesRenderer midnightRenderer = new XYSeriesRenderer();
-            midnightRenderer.setColor(mAppColors.colorOnPrimarySurface);
+            midnightRenderer.setColor(mAppColors.appColorOnPrimarySurface2);
             midnightRenderer.setLineWidth(5f);
             
             params.dataSet.addSeries(midnightLineSeries);
