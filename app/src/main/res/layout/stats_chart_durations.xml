@@ -32,7 +32,6 @@
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
         android:text="Durations"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -99,6 +98,22 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/stats_durations_layout"
         app:layout_constraintTop_toBottomOf="@+id/stats_durations_title" />
+
+    <FrameLayout
+        android:id="@+id/stats_durations_legend_click_frame"
+        android:layout_width="50dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/stats_durations_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/stats_duration_legend_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center"
+            app:srcCompat="@drawable/ic_baseline_help_outline_24" />
+    </FrameLayout>
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/stats_durations_chart_group"
