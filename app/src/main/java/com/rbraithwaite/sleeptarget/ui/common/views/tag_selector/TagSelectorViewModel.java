@@ -28,6 +28,7 @@ import com.rbraithwaite.sleeptarget.core.models.Tag;
 import com.rbraithwaite.sleeptarget.core.repositories.TagRepository;
 import com.rbraithwaite.sleeptarget.utils.LiveDataFuture;
 import com.rbraithwaite.sleeptarget.utils.LiveDataUtils;
+import com.rbraithwaite.sleeptarget.utils.SimpleLiveDataEvent;
 import com.rbraithwaite.sleeptarget.utils.list_tracking.ListTrackingData;
 
 import java.util.ArrayList;
@@ -311,6 +312,19 @@ public class TagSelectorViewModel
         case MODIFIED:
             listItem = mListItems.getValue().get(change.index);
             listItem.tagUiData = ConvertTag.toUiData(change.elem);
+            if (listItem.selected) {
+                // HACK [21-10-2 8:59PM] -- This is an ugly way of updating the selected tag
+                List<TagUiData> selectedTags = mSelectedTags.getValue();
+                if (selectedTags != null) {
+                    for (TagUiData selectedTag : selectedTags) {
+                        if (selectedTag.tagId == listItem.tagUiData.tagId) {
+                            selectedTag.text = listItem.tagUiData.text;
+                            LiveDataUtils.refresh(mSelectedTags);
+                            break;
+                        }
+                    }
+                }
+            }
         }
         
         // HACK [21-06-30 8:54PM] -- I actually shouldn't be creating ListTrackingData
