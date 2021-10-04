@@ -50,6 +50,7 @@ public class DevToolsFragmentViewModel
 // private properties
 //*********************************************************
     
+    // REFACTOR [21-10-4 12:52AM] -- I should rethink this haha.
     // No repo layer here cause these are just dumb dev tools.
     // Otherwise I would need to implement 'addSleepSessions' in
     // SleepSessionRepository and SleepSessionDao, which isn't ideal
@@ -286,6 +287,11 @@ public class DevToolsFragmentViewModel
             }
         });
     }
+    
+    public void clearDataThenAddPromoData(AsyncTaskListener listener)
+    {
+        clearData(() -> runAsyncTask(this::addPromoData, listener));
+    }
 
 //*********************************************************
 // private methods
@@ -307,32 +313,122 @@ public class DevToolsFragmentViewModel
         runAsyncTask(task, null);
     }
     
+    private void addPromoData()
+    {
+        Random rand = new Random();
+        long PROMO_SEED = 654321;
+        rand.setSeed(PROMO_SEED); // keep the random data deterministic
+        
+         // historical sleep session data
+        // --------------------------------------------------
+        // REFACTOR [21-10-4 1:21AM] -- This duplicates a lot of addArbitrarySleepSessions().
+        int SESSION_AMOUNT = 100;
+        for (int i = 0; i < SESSION_AMOUNT; i++) {
+            SleepSessionEntity entity = generateRandomSleepSessionEntity(
+                    mBaseDay,
+                    rand,
+                    22f, // 10pm
+                    25.5f, // 1:30am
+                    7f,
+                    9.6f);
+            entity.rating = randomRating(
+                    rand,
+                    4.5f,
+                    3.5f,
+                    0.33f);
+            List<SleepInterruptionEntity> interruptions = generateRandomInterruptionsForSleepSession(
+                    entity,
+                    rand,
+                    10,
+                    0.1f);
+            List<Integer> NO_TAGS = new ArrayList<>();
+        
+            mDatabase.getSleepSessionDao()
+                    .addSleepSessionWithExtras(
+                            entity,
+                            NO_TAGS,
+                            interruptions);
+            
+            mBaseDay.add(Calendar.DAY_OF_MONTH, -1);
+        }
+        
+        // historical target data
+        // --------------------------------------------------
+        // REFACTOR [21-10-4 5:57PM] -- This sort of duplicates addChartTargetTestData()
+        // wake time
+        List<WakeTimeGoalEntity> wakeTimeGoalEntities = new ArrayList<>();
+        
+        int wakeTimeTarget1 = 5 * 60 * 60 * 1000;
+        int wakeTimeTarget2 = 7 * 60 * 60 * 1000;
+    
+        DateBuilder date = aDate().withValue(2021, 9, 14, 12, 34);
+        wakeTimeGoalEntities.add(new WakeTimeGoalEntity(valueOf(date), wakeTimeTarget1));
+    
+        date.withValue(2021, 9, 17, 12, 34);
+        wakeTimeGoalEntities.add(new WakeTimeGoalEntity(valueOf(date), wakeTimeTarget2));
+    
+        for (WakeTimeGoalEntity entity : wakeTimeGoalEntities) {
+            mDatabase.getWakeTimeGoalDao().updateWakeTimeGoal(entity);
+        }
+        
+        // duration
+        List<SleepDurationGoalEntity> sleepDurationGoalEntities = new ArrayList<>();
+    
+        int fiveHours = 5 * 60;
+        int eightHours = 8 * 60 + 30;
+    
+        date = aDate().withValue(2021, 8, 28, 12, 34);
+        sleepDurationGoalEntities.add(new SleepDurationGoalEntity(valueOf(date), eightHours));
+    
+//        date.withValue(2021, 9, 26, 12, 34);
+//        sleepDurationGoalEntities.add(new SleepDurationGoalEntity(valueOf(date), eightHours));
+    
+        for (SleepDurationGoalEntity entity : sleepDurationGoalEntities) {
+            mDatabase.getSleepDurationGoalDao().updateSleepDurationGoal(entity);
+        }
+    }
+    
     private List<SleepInterruptionEntity> generateRandomInterruptionsForSleepSession(
             SleepSessionEntity sleepSession, Random rand)
     {
-        // basic algo:
-        // - split session duration into equal time blocks
-        // - each time block might contain an interruption.
-        
+        return generateRandomInterruptionsForSleepSession(sleepSession, rand, 5, 0.5f);
+    }
+    
+    /**
+     * Generates SleepInterruptionEntity instances within the start/end bounds of the sleep session.
+     * Basic algo: The sleep session duration is split into equal time blocks based on splitCount,
+     * then each time block has interruptionChance chance of containing an interruption.
+     *
+     * @param sleepSession The sleep session used to bound the interruptions
+     * @param rand Used for interruptionChance
+     * @param splitCount The number of splits in the sleep session time block
+     * @param interruptionChance The chance for a single split to contain an interruption.
+     * @return The interruptions.
+     */
+    private List<SleepInterruptionEntity> generateRandomInterruptionsForSleepSession(
+            SleepSessionEntity sleepSession,
+            Random rand,
+            int splitCount,
+            float interruptionChance)
+    {
         List<SleepInterruptionEntity> result = new ArrayList<>();
-        
-        final int DURATION_SPLIT_COUNT = 5;
-        
-        int durationBlockWidth = (int) (sleepSession.duration / DURATION_SPLIT_COUNT);
-        
-        for (int i = 0; i < DURATION_SPLIT_COUNT; i++) {
-            boolean shouldBlockHaveInterruption = rand.nextBoolean();
-            if (shouldBlockHaveInterruption) {
-                SleepInterruptionEntity interruptionEntity = new SleepInterruptionEntity();
-                interruptionEntity.sessionId = sleepSession.id;
-                interruptionEntity.startTime = new TimeUtils().addDurationToDate(sleepSession.startTime, i * durationBlockWidth);
-                interruptionEntity.durationMillis = durationBlockWidth;
-                interruptionEntity.reason = randomText(rand);
-                
-                result.add(interruptionEntity);
+    
+        int durationBlockWidth = (int) (sleepSession.duration / splitCount);
+    
+        for (int i = 0; i < splitCount; i++) {
+            float chance = rand.nextFloat();
+            if (chance > interruptionChance) {
+                continue;
             }
-        }
+            SleepInterruptionEntity interruptionEntity = new SleepInterruptionEntity();
+            interruptionEntity.sessionId = sleepSession.id;
+            interruptionEntity.startTime = new TimeUtils().addDurationToDate(sleepSession.startTime, i * durationBlockWidth);
+            interruptionEntity.durationMillis = durationBlockWidth;
+            interruptionEntity.reason = randomText(rand);
         
+            result.add(interruptionEntity);
+        }
+    
         return result;
     }
     
@@ -340,10 +436,23 @@ public class DevToolsFragmentViewModel
             GregorianCalendar baseDay,
             Random rand)
     {
+        return generateRandomSleepSessionEntity(
+                baseDay,
+                rand,
+                20, // 8pm
+                28,  // 4 am
+                5,
+                10);
+    }
+    
+    private SleepSessionEntity generateRandomSleepSessionEntity(
+            GregorianCalendar baseDay,
+            Random rand,
+            float minStartHour, float maxStartHour, float minDurationHours, float maxDurationHours)
+    {
         SleepSessionEntity entity = new SleepSessionEntity();
-        // 8pm -> 4am
-        entity.startTime = randomStartTime(baseDay, 20, 28, rand);
-        entity.duration = randomDurationHours(5, 10, rand) * 60 * 1000;
+        entity.startTime = randomStartTime(baseDay, minStartHour, maxStartHour, rand);
+        entity.duration = randomDurationFromHours(minDurationHours, maxDurationHours, rand) * 60 * 1000;
         entity.endTime = new TimeUtils().addDurationToDate(entity.startTime, (int) entity.duration);
         entity.moodIndex = randomMoodIndex(rand);
         entity.additionalComments = randomText(rand);
@@ -366,17 +475,50 @@ public class DevToolsFragmentViewModel
         return (float) Math.floor(rand.nextFloat() * 5f);
     }
     
+    private float randomRating(
+            Random rand,
+            float minRating,
+            float maxRating,
+            float noRatingChance)
+    {
+        // TODO [21-10-4 2:52PM] -- pre-cond for max > min.
+        
+        float ratingChance = rand.nextFloat();
+        if (ratingChance < noRatingChance) {
+            return 0f;
+        }
+    
+        minRating = Math.max(minRating, 0.5f); // not 0, since that's controlled by noRatingChance
+        maxRating = Math.min(maxRating, 5f);
+        
+        float diff = maxRating - minRating;
+        float ratio = rand.nextFloat();
+        float rawRating = minRating + (diff * ratio);
+        
+        // clamp the raw rating to 0.5 increments
+        double ceil = Math.ceil(rawRating);
+        double floor = Math.floor(rawRating);
+        double midPoint = floor + 0.5;
+        double diffToCeil = ceil - rawRating;
+        double diffToFloor = rawRating - floor;
+        double diffToMidPoint = Math.abs(rawRating - midPoint);
+        
+        return diffToCeil < diffToFloor ?
+                (diffToCeil < diffToMidPoint ? (float) ceil : (float) midPoint) :
+                (diffToFloor < diffToMidPoint ? (float) floor : (float) midPoint);
+    }
+    
     private Date randomStartTime(
             GregorianCalendar baseDay,
-            int minStartHour,
-            int maxStartHour,
+            float minStartHour,
+            float maxStartHour,
             Random rand)
     {
         GregorianCalendar result = new GregorianCalendar();
         result.setTimeInMillis(baseDay.getTimeInMillis());
         int randStartTime = randomDurationMillis(
-                hourToMillis(minStartHour),
-                hourToMillis(maxStartHour),
+                hoursToMillis(minStartHour),
+                hoursToMillis(maxStartHour),
                 rand);
         result.add(Calendar.MILLISECOND, randStartTime);
         return result.getTime();
@@ -401,11 +543,11 @@ public class DevToolsFragmentViewModel
      *
      * @return minutes
      */
-    private Integer randomDurationHours(int minHours, int maxHours, Random rand)
+    private Integer randomDurationFromHours(float minHours, float maxHours, Random rand)
     {
         int randMillis = randomDurationMillis(
-                hourToMillis(minHours),
-                hourToMillis(maxHours),
+                hoursToMillis(minHours),
+                hoursToMillis(maxHours),
                 rand);
         
         return (randMillis / 1000) / 60;
@@ -417,8 +559,8 @@ public class DevToolsFragmentViewModel
         return minMillis + rand.nextInt(diff);
     }
     
-    private Integer hourToMillis(int hour)
+    private Integer hoursToMillis(float hours)
     {
-        return hour * 60 * 60 * 1000;
+        return ((int) (hours * 60 * 60)) * 1000;
     }
 }

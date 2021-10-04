@@ -100,5 +100,14 @@ public class DevToolsFragment
         chartTargetsTestButton.setOnClickListener(v -> {
             getViewModel().addChartTargetTestData();
         });
+        
+        // promo data
+        Button promoDataButton = view.findViewById(R.id.dev_tool_promo_data);
+        ProgressBar promoDataProgressBar = view.findViewById(R.id.dev_tool_promo_data_progress);
+        promoDataProgressBar.setVisibility(View.GONE);
+        promoDataButton.setOnClickListener(v -> {
+            promoDataProgressBar.setVisibility(View.VISIBLE);
+            getViewModel().clearDataThenAddPromoData(() -> promoDataProgressBar.setVisibility(View.GONE));
+        });
     }
 }
