@@ -25,7 +25,7 @@
 * Mood icons made by [Pixel Perfect](https://www.flaticon.com/authors/pixel-perfect) from [www.flaticon.com](https://www.flaticon.com/)
 
 # License
-    Copyright (c) 2020-2021 Richard Braithwaite
+    Copyright (c) 2020-2021 Rich Braithwaite
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

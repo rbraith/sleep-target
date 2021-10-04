@@ -5,7 +5,7 @@ I.e. the JSON schema files generated at compile-time, found in app/schemas/
 
 USAGE = "python -m extract-schema <jsonfile> [<dest>] [options]"
 
-#  Copyright (c) 2020-2021 Richard Braithwaite (rbraithwaite.dev@gmail.com)
+#  Copyright (c) 2020-2021 Rich Braithwaite (rbraithwaite.dev@gmail.com)
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
