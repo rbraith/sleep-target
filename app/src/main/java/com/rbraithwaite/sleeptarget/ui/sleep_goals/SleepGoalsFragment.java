@@ -18,7 +18,6 @@ package com.rbraithwaite.sleeptarget.ui.sleep_goals;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -103,23 +102,17 @@ public class SleepGoalsFragment
 
     private void initStreakCalendar(View fragmentRoot)
     {
+        SleepGoalsFragmentViewModel viewModel = getViewModel();
+        
         FrameLayout streakCalendarFrame =
                 fragmentRoot.findViewById(R.id.sleep_goals_streaks_calendar_frame);
         // use the frame context, so that the theme applied to the frame gets applied to the
         // calendar
-        final StreakCalendar streakCalendar = new StreakCalendar(streakCalendarFrame.getContext());
+        final StreakCalendar streakCalendar = new StreakCalendar(
+                streakCalendarFrame.getContext(),
+                viewModel::onCalendarMonthChanged);
         streakCalendarFrame.addView(streakCalendar.getView());
-        
-        SleepGoalsFragmentViewModel viewModel = getViewModel();
-        // REFACTOR [21-06-16 7:21PM] the viewmodel should directly pass the data needed,
-        //  In this case a List of maybe some SucceededGoalDate data classes, w/ the date & which
-        //  goals succeeded.
-        LiveData<List<List<Date>>> succeededGoalDates = LiveDataUtils.merge(
-                viewModel.getSucceededWakeTimeGoalDates(),
-                viewModel.getSucceededSleepDurationGoalDates(),
-                (wakeTimeGoalDates, sleepDurationGoalDates) -> Arrays.asList(wakeTimeGoalDates,
-                                                                             sleepDurationGoalDates));
-        
+    
         // OPTIMIZE [21-03-14 10:44PM] -- right now I am using all succeeded goal dates in history -
         //  it would probably be better to only use those relevant to the currently displayed month
         //  of the calendar
@@ -127,15 +120,11 @@ public class SleepGoalsFragment
         //  I would need new interfaces in the view model for finding succeeded goal dates within a
         //  range, and I would need a callback on the streak calendar, notifying when the user
         //  changes to a new month.
-        succeededGoalDates.observe(
+        viewModel.getSucceededTargetDates().observe(
                 getViewLifecycleOwner(),
-                bothGoalDates -> {
-                    List<Date> wakeTimeGoalDates = bothGoalDates.get(0);
-                    List<Date> sleepDurationGoalDates = bothGoalDates.get(1);
-                    
-                    streakCalendar.setSucceededGoalDates(wakeTimeGoalDates,
-                                                         sleepDurationGoalDates);
-                });
+                succeededTargetDates -> streakCalendar.setSucceededGoalDates(
+                        succeededTargetDates.wakeTimeDates,
+                        succeededTargetDates.durationDates));
     }
     
     private void initWakeTimeGoal(View fragmentRoot)

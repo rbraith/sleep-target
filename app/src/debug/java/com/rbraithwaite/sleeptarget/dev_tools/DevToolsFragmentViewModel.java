@@ -358,6 +358,8 @@ public class DevToolsFragmentViewModel
             
             SleepSessionEntity entity = new SleepSessionEntity(entityStart, entityEnd);
             mDatabase.getSleepSessionDao().addSleepSession(entity);
+            
+            date.subtractDays(1);
         }
     }
     

@@ -21,7 +21,9 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.view.View;
 
+import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
+import com.prolificinteractive.materialcalendarview.OnMonthChangedListener;
 import com.rbraithwaite.sleeptarget.R;
 
 import java.util.ArrayList;
@@ -49,15 +51,26 @@ public class StreakCalendar
     List<Date> mWakeTimeGoalDates;
     List<Date> mSleepDurationGoalDates;
     List<Date> mBothGoalsDates;
+    
+    public interface OnMonthChangedListener
+    {
+        // TODO [21-10-4 8:40PM] -- This will likely need to pass data about which month was
+        //  changed to.
+        void onMonthChanged();
+    }
+    
+    private OnMonthChangedListener mOnMonthChangedListener;
 
 
 //*********************************************************
 // constructors
 //*********************************************************
 
-    public StreakCalendar(Context context)
+    public StreakCalendar(Context context, OnMonthChangedListener onMonthChangedListener)
     {
         mContext = context;
+        
+        mOnMonthChangedListener = onMonthChangedListener;
         
         int goalTextColor = getGoalTextColorFrom(mContext);
         
@@ -83,6 +96,10 @@ public class StreakCalendar
     {
         if (mView == null) {
             mView = new MaterialCalendarView(mContext);
+            
+            if (mOnMonthChangedListener != null) {
+                mView.setOnMonthChangedListener((widget, date) -> mOnMonthChangedListener.onMonthChanged());
+            }
             
             mView.setLeftArrow(R.drawable.ic_goalstreakcal_arrow_left);
             mView.setRightArrow(R.drawable.ic_goalstreakcal_arrow_right);

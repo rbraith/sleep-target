@@ -23,9 +23,6 @@ import androidx.lifecycle.MediatorLiveData;
 import java.util.ArrayList;
 import java.util.List;
 
-// REFACTOR [21-07-14 9:29PM] -- I ended up not needing this class for what I originally created
-//  it for - consider deleting this class.
-
 /**
  * Clients will need to recast the types of the values in the update.
  */
@@ -37,6 +34,7 @@ public class MergedLiveData
 //*********************************************************
 
     private List<Object> mValues;
+    private boolean mAllHaveValues = false;
 
 //*********************************************************
 // public properties
@@ -50,8 +48,8 @@ public class MergedLiveData
 
     public static class Update
     {
-        List<Object> values;
-        int updatedIndex;
+        public List<Object> values;
+        public int updatedIndex;
         
         public Update(List<Object> values, int updatedIndex)
         {
@@ -66,17 +64,61 @@ public class MergedLiveData
 
     public MergedLiveData(LiveData<?>... liveData)
     {
-        mValues = new ArrayList<>(liveData.length);
+        initValues(liveData.length);
         
         for (int i = 0; i < liveData.length; i++) {
-            // BUG [21-07-14 9:31PM] -- I should probably set the entire values list to NO_VALUE
-            //  before adding sources.
-            mValues.set(i, NO_VALUE);
             int j = i; // "effectively final"
             addSource(liveData[i], value -> {
                 mValues.set(j, value);
                 MergedLiveData.this.postValue(new Update(mValues, j));
             });
         }
+    }
+    
+    /**
+     * Overload of MergedLiveData which can wait until all the provided live data instances have
+     * a real value before updating itself. (I.e. ilf waitForAll is true, it's guaranteed that none
+     * of the update values will be NO_VALUE)
+     */
+    public MergedLiveData(
+            boolean waitForAll,
+            LiveData<?>... liveData)
+    {
+        initValues(liveData.length);
+    
+        for (int i = 0; i < liveData.length; i++) {
+            int j = i; // "effectively final"
+            addSource(liveData[i], value -> {
+                mValues.set(j, value);
+                if (!waitForAll || allHaveValues()) {
+                    // SMELL [21-10-4 9:11PM] -- the update uses a ref to the private values list
+                    MergedLiveData.this.postValue(new Update(mValues, j));
+                }
+            });
+        }
+    }
+    
+    private void initValues(int size)
+    {
+        mValues = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            mValues.add(NO_VALUE);
+        }
+    }
+    
+    private boolean allHaveValues()
+    {
+        if (mAllHaveValues) {
+            return true;
+        }
+        
+        for (Object val : mValues) {
+            if (val == NO_VALUE) {
+                return false;
+            }
+        }
+        
+        mAllHaveValues = true;
+        return true;
     }
 }

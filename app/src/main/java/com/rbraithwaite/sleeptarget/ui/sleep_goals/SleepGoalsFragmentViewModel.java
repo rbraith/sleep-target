@@ -19,6 +19,7 @@ package com.rbraithwaite.sleeptarget.ui.sleep_goals;
 
 import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
@@ -30,6 +31,9 @@ import com.rbraithwaite.sleeptarget.core.models.WakeTimeGoalSuccess;
 import com.rbraithwaite.sleeptarget.core.repositories.CurrentGoalsRepository;
 import com.rbraithwaite.sleeptarget.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleeptarget.ui.sleep_goals.data.SleepDurationGoalUIData;
+import com.rbraithwaite.sleeptarget.utils.CommonUtils;
+import com.rbraithwaite.sleeptarget.utils.LiveDataUtils;
+import com.rbraithwaite.sleeptarget.utils.MergedLiveData;
 import com.rbraithwaite.sleeptarget.utils.TimeUtils;
 
 import java.util.Calendar;
@@ -179,6 +183,46 @@ public class SleepGoalsFragmentViewModel
     public void clearSleepDurationGoal()
     {
         mCurrentGoalsRepository.clearSleepDurationGoal();
+    }
+    
+    public static class SucceededTargetDates
+    {
+        List<Date> wakeTimeDates;
+        List<Date> durationDates;
+    
+        public SucceededTargetDates(
+                List<Date> wakeTimeDates,
+                List<Date> durationDates)
+        {
+            this.wakeTimeDates = wakeTimeDates;
+            this.durationDates = durationDates;
+        }
+    }
+    
+    public void onCalendarMonthChanged()
+    {
+        LiveDataUtils.refresh(mSucceededTargetDates);
+    }
+    
+    private MutableLiveData<SucceededTargetDates> mSucceededTargetDates;
+    
+    public LiveData<SucceededTargetDates> getSucceededTargetDates()
+    {
+        mSucceededTargetDates = CommonUtils.lazyInit(mSucceededTargetDates, () -> {
+            MediatorLiveData<SucceededTargetDates> mediator = new MediatorLiveData<>();
+            mediator.addSource(
+                    new MergedLiveData(
+                            true,
+                            getSucceededWakeTimeGoalDates(),
+                            getSucceededSleepDurationGoalDates()),
+                    mergedUpdate -> {
+                        List<Date> wakeTimeDates = (List<Date>) mergedUpdate.values.get(0);
+                        List<Date> durationDates = (List<Date>) mergedUpdate.values.get(1);
+                        mediator.setValue(new SucceededTargetDates(wakeTimeDates, durationDates));
+                    });
+            return mediator;
+        });
+        return mSucceededTargetDates;
     }
     
     public LiveData<List<Date>> getSucceededSleepDurationGoalDates()
