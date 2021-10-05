@@ -109,5 +109,9 @@ public class DevToolsFragment
             promoDataProgressBar.setVisibility(View.VISIBLE);
             getViewModel().clearDataThenAddPromoData(() -> promoDataProgressBar.setVisibility(View.GONE));
         });
+    
+        // promo cal
+        Button promoCalButton = view.findViewById(R.id.dev_tool_promo_cal);
+        promoCalButton.setOnClickListener(v -> getViewModel().clearDataThenAddPromoCalData());
     }
 }

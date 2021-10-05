@@ -292,6 +292,11 @@ public class DevToolsFragmentViewModel
     {
         clearData(() -> runAsyncTask(this::addPromoData, listener));
     }
+    
+    public void clearDataThenAddPromoCalData()
+    {
+        clearData(() -> runAsyncTask(this::addPromoCalData));
+    }
 
 //*********************************************************
 // private methods
@@ -311,6 +316,49 @@ public class DevToolsFragmentViewModel
     private void runAsyncTask(Runnable task)
     {
         runAsyncTask(task, null);
+    }
+    
+    // REFACTOR [21-10-4 7:43PM] -- This is similar to maybeInitHistoricalGoalData().
+    private void addPromoCalData()
+    {
+        Date goalDate = new GregorianCalendar(2020, 10, 11).getTime();
+        int wakeTimeGoal = 8; // 8 am
+        int sleepDurationGoalHours = 8; // 8 hrs
+        mDatabase.getSleepDurationGoalDao().updateSleepDurationGoal(
+                new SleepDurationGoalEntity(
+                        goalDate,
+                        sleepDurationGoalHours * 60 /* 8 hours in minutes */));
+        mDatabase.getWakeTimeGoalDao().updateWakeTimeGoal(
+                new WakeTimeGoalEntity(
+                        goalDate,
+                        wakeTimeGoal * 60 * 60 * 1000 /* 8am waketime goal */));
+        
+        Random rand = new Random();
+        final long SEED = 654321;
+        rand.setSeed(SEED);
+        
+        final float CHANCE_WAKETIME_SUCCESS = 0.9f;
+        final float CHANCE_DURATION_SUCCESS = 0.9f;
+        
+        final int SESSION_COUNT = 100;
+        DateBuilder date = aDate().now().atMidnight();
+        for (int i = 0; i < SESSION_COUNT; i ++) {
+            boolean shouldWakeTimeFail = rand.nextFloat() > CHANCE_WAKETIME_SUCCESS;
+            boolean shouldDurationFail = rand.nextFloat() > CHANCE_DURATION_SUCCESS;
+            
+            Date entityStart = valueOf(date);
+            Date entityEnd = valueOf(date.copy().addHours(8));
+//            if (shouldWakeTimeFail) {
+//                entityStart = valueOf(date.copy().addHours(1));
+//                entityEnd = valueOf(date.copy().addHours(9));
+//            }
+//            if (shouldDurationFail) {
+//                entityStart = valueOf(date.copy().addHours(3));
+//            }
+            
+            SleepSessionEntity entity = new SleepSessionEntity(entityStart, entityEnd);
+            mDatabase.getSleepSessionDao().addSleepSession(entity);
+        }
     }
     
     private void addPromoData()
