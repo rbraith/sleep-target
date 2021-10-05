@@ -334,11 +334,11 @@ public class DevToolsFragmentViewModel
                         wakeTimeGoal * 60 * 60 * 1000 /* 8am waketime goal */));
         
         Random rand = new Random();
-        final long SEED = 654321;
+        final long SEED = 654322;
         rand.setSeed(SEED);
         
-        final float CHANCE_WAKETIME_SUCCESS = 0.9f;
-        final float CHANCE_DURATION_SUCCESS = 0.9f;
+        final float CHANCE_WAKETIME_SUCCESS = 0.2f;
+        final float CHANCE_DURATION_SUCCESS = 0.2f;
         
         final int SESSION_COUNT = 100;
         DateBuilder date = aDate().now().atMidnight();
@@ -348,13 +348,13 @@ public class DevToolsFragmentViewModel
             
             Date entityStart = valueOf(date);
             Date entityEnd = valueOf(date.copy().addHours(8));
-//            if (shouldWakeTimeFail) {
-//                entityStart = valueOf(date.copy().addHours(1));
-//                entityEnd = valueOf(date.copy().addHours(9));
-//            }
-//            if (shouldDurationFail) {
-//                entityStart = valueOf(date.copy().addHours(3));
-//            }
+            if (shouldWakeTimeFail) {
+                entityStart = valueOf(date.copy().addHours(1));
+                entityEnd = valueOf(date.copy().addHours(9));
+            }
+            if (shouldDurationFail) {
+                entityStart = valueOf(date.copy().addHours(3));
+            }
             
             SleepSessionEntity entity = new SleepSessionEntity(entityStart, entityEnd);
             mDatabase.getSleepSessionDao().addSleepSession(entity);
