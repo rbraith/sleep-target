@@ -16,6 +16,8 @@
  */
 package com.rbraithwaite.sleeptarget.ui.about;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
@@ -68,6 +70,10 @@ public class AboutFragment
         TextView thirdPartyLicensesViewButton = view.findViewById(R.id.about_licenses_view_btn);
         thirdPartyLicensesViewButton.setOnClickListener(v -> onDisplayLicenses());
         
+        // privacy
+        TextView privacyPolicyViewButton = view.findViewById(R.id.about_privacy_view_btn);
+        privacyPolicyViewButton.setOnClickListener(v -> onClickPrivacyPolicyButton());
+        
         // credits
         TextView visualsText = view.findViewById(R.id.about_credits_visual);
         visualsText.setMovementMethod(LinkMovementMethod.getInstance());
@@ -84,6 +90,12 @@ public class AboutFragment
         
         getNavController().navigate(
                 AboutFragmentDirections.actionNavAboutToAboutLibraries(libsBuilder));
+    }
+    
+    private void onClickPrivacyPolicyButton()
+    {
+        String policyUrl = "https://gist.github.com/rbraith/b0785564704b7a891fd490c3c2aa18b9";
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(policyUrl)));
     }
 
     // REFACTOR [21-08-24 5:53PM] -- This should go somewhere else - view model? utility class?

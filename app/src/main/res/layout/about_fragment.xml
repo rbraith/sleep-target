@@ -64,6 +64,17 @@
             android:background="?attr/appColorOnPrimarySurface2" />
 
         <include
+            layout="@layout/about_privacy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <View
+            android:id="@+id/about_div3"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?attr/appColorOnPrimarySurface2" />
+
+        <include
             android:id="@+id/about_credits_content"
             layout="@layout/about_credits_content"
             android:layout_width="match_parent"
