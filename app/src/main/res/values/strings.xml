@@ -50,7 +50,7 @@
     <string name="about_copyright">Copyright © 2020–2021 Rich Braithwaite</string>
     <!--    TODO [21-08-24 7:34PM] - set the right github link-->
     <string name="about_description">Sleep Target is a free and open-source sleep tracking app.
-        Visit the project on <a href="https://www.github.com">Github</a>!</string>
+        Visit the project on <a href="https://github.com/rbraith/sleep-target">Github</a>!</string>
     <string name="about_credits_visual_assets">
         \u25CF Mood icons made by <a href="https://www.flaticon.com/authors/pixel-perfect">Pixel Perfect</a> from <a href="https://www.flaticon.com/">www.flaticon.com</a>
     </string>
