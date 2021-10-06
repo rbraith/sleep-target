@@ -134,7 +134,7 @@ public class DurationsChartParamsFactory
         // add last target series
         int ref = 0;
         if (prevTargetDurationHours[ref] != null && targetSeries[ref] != null) {
-            targetSeries[ref].add(0, prevTargetDurationHours[ref]);
+            targetSeries[ref].add(-0.5f, prevTargetDurationHours[ref]);
             targetSeriesList.add(targetSeries[ref]);
         }
         
