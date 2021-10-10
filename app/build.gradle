@@ -107,6 +107,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.upload
         }
+        debug {
+            applicationIdSuffix ".debug"
+            debuggable true
+        }
     }
 
     // https://blog.danlew.net/2015/11/02/sharing-code-between-unit-tests-and-instrumentation-tests-on-android/
