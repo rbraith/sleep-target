@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.pressImeActionButton;
+import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -472,8 +473,8 @@ public class TagSelectorDriver
 //        onView(withId(R.id.tag_add_btn)).perform(scrollTo(), click());
         clickAddTagButton();
         scrollToAddTagEditText();
-        onView(withId(R.id.tag_add_btn_edittext)).perform(typeText(tagText),
-                                                          pressImeActionButton());
+        onView(withId(R.id.tag_add_btn_edittext)).perform(
+                click(), typeText(tagText), pressImeActionButton());
         
         return getMostRecentTag().tagId;
     }

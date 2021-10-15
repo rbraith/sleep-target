@@ -107,6 +107,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.upload
         }
+        debug {
+            applicationIdSuffix ".debug"
+        }
     }
 
     // https://blog.danlew.net/2015/11/02/sharing-code-between-unit-tests-and-instrumentation-tests-on-android/
@@ -179,6 +182,7 @@ dependencies {
     def junit_version = "4.12"
     def androidx_junit_version = "1.1.2"
     def nav_testing_version = "2.3.1"
+    def runner_version = "1.4.1-alpha03"
 
     // test
     testImplementation "junit:junit:$junit_version"
@@ -208,7 +212,7 @@ dependencies {
     debugImplementation "androidx.fragment:fragment-testing:1.2.5"
     // android test orchestrator
     // https://developer.android.com/training/testing/junit-runner.html#ato-gradle
-    debugImplementation "androidx.test:runner:1.3.0"
+    debugImplementation "androidx.test:runner:$runner_version"
     debugImplementation "org.mockito:mockito-core:1.10.19"
-    androidTestUtil 'androidx.test:orchestrator:1.3.0'
+    androidTestUtil "androidx.test:orchestrator:$runner_version"
 }

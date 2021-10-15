@@ -132,6 +132,7 @@ public class AppTests
         app.getSleepTracker().assertThat().interruptionReasonTextIsEmpty();
     }
     
+    // BUG [21-10-15 5:43PM] -- flaky test.
     @Test
     public void interruptionIsAddedToTheDatabase()
     {
