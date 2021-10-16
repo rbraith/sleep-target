@@ -17,6 +17,7 @@
 package com.rbraithwaite.sleeptarget.ui.stats;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,11 +25,11 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.rbraithwaite.sleeptarget.R;
 import com.rbraithwaite.sleeptarget.ui.BaseFragment;
-import com.rbraithwaite.sleeptarget.ui.common.dialog.AlertDialogFragment;
 import com.rbraithwaite.sleeptarget.ui.stats.chart_durations.DurationsChartComponent;
 import com.rbraithwaite.sleeptarget.ui.stats.chart_durations.DurationsChartViewModel;
 import com.rbraithwaite.sleeptarget.ui.stats.chart_intervals.IntervalsChartComponent;
@@ -46,7 +47,7 @@ public class StatsFragment
 
     private DurationsChartComponent mDurationsChart;
     private IntervalsChartComponent mIntervalsChart;
-    
+
 //*********************************************************
 // private constants
 //*********************************************************
@@ -54,6 +55,42 @@ public class StatsFragment
     private static final String DIALOG_DURATIONS_LEGEND = "durations legend";
     private static final String DIALOG_INTERVALS_LEGEND = "intervals legend";
 
+//*********************************************************
+// public helpers
+//*********************************************************
+
+    public static class DurationsLegendDialog
+            extends DialogFragment
+    {
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(@Nullable Bundle savedInstanceState)
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            builder.setTitle("Legend")
+                    .setView(getLayoutInflater().inflate(R.layout.stats_legend_durations, null));
+            
+            return builder.create();
+        }
+    }
+    
+    // REFACTOR [21-10-16 7:23PM] -- Duplicates DurationsLegendDialog & the dialogs in the
+    //  targets fragment.
+    public static class IntervalsLegendDialog
+            extends DialogFragment
+    {
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(@Nullable Bundle savedInstanceState)
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            builder.setTitle("Legend")
+                    .setView(getLayoutInflater().inflate(R.layout.stats_legend_intervals, null));
+            
+            return builder.create();
+        }
+    }
+    
 //*********************************************************
 // overrides
 //*********************************************************
@@ -67,7 +104,7 @@ public class StatsFragment
     {
         return inflater.inflate(R.layout.stats_fragment, container, false);
     }
-    
+
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState)
     {
@@ -85,13 +122,13 @@ public class StatsFragment
                 view.findViewById(R.id.stats_intervals_legend_click_frame);
         intervalsChartLegendButton.setOnClickListener(v -> displayIntervalsLegendDialog());
     }
-    
+
     @Override
     protected Properties<StatsFragmentViewModel> initProperties()
     {
         return new Properties<>(true, StatsFragmentViewModel.class);
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -100,7 +137,7 @@ public class StatsFragment
     {
         return new ViewModelProvider(this).get(IntervalsChartViewModel.class);
     }
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
@@ -112,27 +149,11 @@ public class StatsFragment
     
     private void displayDurationsLegendDialog()
     {
-        AlertDialogFragment dialog = AlertDialogFragment.createInstance((context, inflater) -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setTitle("Legend")
-                    .setView(inflater.inflate(R.layout.stats_legend_durations, null));
-            
-            return builder.create();
-        });
-        
-        dialog.show(getChildFragmentManager(), DIALOG_DURATIONS_LEGEND);
+        new DurationsLegendDialog().show(getChildFragmentManager(), DIALOG_DURATIONS_LEGEND);
     }
     
     private void displayIntervalsLegendDialog()
     {
-        AlertDialogFragment dialog = AlertDialogFragment.createInstance((context, inflater) -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setTitle("Legend")
-                    .setView(inflater.inflate(R.layout.stats_legend_intervals, null));
-        
-            return builder.create();
-        });
-    
-        dialog.show(getChildFragmentManager(), DIALOG_INTERVALS_LEGEND);
+        new IntervalsLegendDialog().show(getChildFragmentManager(), DIALOG_INTERVALS_LEGEND);
     }
 }
