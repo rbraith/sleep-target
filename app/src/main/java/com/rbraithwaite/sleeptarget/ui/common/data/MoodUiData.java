@@ -17,13 +17,23 @@
 
 package com.rbraithwaite.sleeptarget.ui.common.data;
 
-public class MoodUiData
+import com.rbraithwaite.sleeptarget.utils.Constants;
+
+import java.io.Serializable;
+
+public class MoodUiData implements Serializable
 {
 //*********************************************************
 // private properties
 //*********************************************************
 
     private Integer mMoodIndex;
+
+//*********************************************************
+// public constants
+//*********************************************************
+    
+    public static final long serialVersionUID = Constants.SERIAL_VERSION_UID;
 
 //*********************************************************
 // constructors

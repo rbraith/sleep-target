@@ -29,9 +29,11 @@ import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.rbraithwaite.sleeptarget.R;
 import com.rbraithwaite.sleeptarget.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleeptarget.ui.common.views.mood_selector.TEMP.MoodDialogRecyclerAdapter;
 import com.rbraithwaite.sleeptarget.ui.utils.UiUtils;
+import com.rbraithwaite.sleeptarget.utils.Constants;
 
 import java.io.Serializable;
 
@@ -63,16 +65,13 @@ public class MoodDialogFragment
     
     private static class State implements Serializable
     {
-        public static final long serialVersionUID = 20210112L;
-        
-        public OnClickListener negativeListener;
-        public OnClickListener positiveListener;
-        public int negativeTextId;
-        public int positiveTextId;
+        public static final long serialVersionUID = Constants.SERIAL_VERSION_UID;
         
         public int themeId = NO_THEME;
         
         public MoodUiData selectedMood = new MoodUiData();
+        
+        public Mode mode;
     }
     
 //*********************************************************
@@ -84,10 +83,10 @@ public class MoodDialogFragment
 //*********************************************************
 // public helpers
 //*********************************************************
-
-    public interface OnClickListener
+    
+    public enum Mode
     {
-        void onClick(MoodUiData selectedMood);
+        ADD, EDIT
     }
     
 //*********************************************************
@@ -108,15 +107,13 @@ public class MoodDialogFragment
         // REFACTOR [21-06-12 9:07PM] -- hardcoded string.
         builder.setTitle("Select A Mood:");
         
-        if (mState.positiveListener != null) {
-            builder.setPositiveButton(mState.positiveTextId,
-                                      (dialog, which) -> mState.positiveListener.onClick(mState.selectedMood));
-        }
+        builder.setPositiveButton(
+                R.string.confirm,
+                (dialog, which) -> onPositiveClick());
         
-        if (mState.negativeListener != null) {
-            builder.setNegativeButton(mState.negativeTextId,
-                                      (dialog, which) -> mState.negativeListener.onClick(mState.selectedMood));
-        }
+        builder.setNegativeButton(
+                mState.mode == Mode.ADD ? R.string.cancel : R.string.delete,
+                (dialog, which) -> onNegativeClick());
         
         return builder.create();
     }
@@ -131,6 +128,11 @@ public class MoodDialogFragment
 //*********************************************************
 // api
 //*********************************************************
+    
+    public void setMode(Mode mode)
+    {
+        mState.mode = mode;
+    }
 
     public static MoodDialogFragment createInstance(int themeId)
     {
@@ -149,19 +151,6 @@ public class MoodDialogFragment
         return MOOD_VIEW_TAG_PREFIX + moodIndex;
     }
     
-    public void setNegativeButton(int textId, OnClickListener negativeListener)
-    {
-        mState.negativeTextId = textId;
-        mState.negativeListener = negativeListener;
-    }
-    
-    public void setPositiveButton(int textId, OnClickListener positiveListener)
-    {
-        mState.positiveTextId = textId;
-        mState.positiveListener = positiveListener;
-    }
-    
-    
     public void setSelectedMood(MoodUiData selectedMood)
     {
         mState.selectedMood = selectedMood;
@@ -171,6 +160,24 @@ public class MoodDialogFragment
 //*********************************************************
 // private methods
 //*********************************************************
+    
+    private void onPositiveClick()
+    {
+        // SMELL [21-10-15 11:05PM] -- This is making a strong assumption that the view model
+        //  passed to the MoodSelectorController is the activity-stored one - I should enforce
+        //  this or something.
+        MoodSelectorViewModel viewModel = MoodSelectorViewModel.getInstanceFrom(requireActivity());
+        viewModel.setMood(mState.selectedMood);
+    }
+    
+    private void onNegativeClick()
+    {
+        // don't do anything if mode is ADD
+        if (mState.mode == Mode.EDIT) {
+            MoodSelectorViewModel viewModel = MoodSelectorViewModel.getInstanceFrom(requireActivity());
+            viewModel.clearSelectedMood();
+        }
+    }
 
     private void maybeInitFromSavedInstanceState(Bundle savedInstanceState)
     {

@@ -16,16 +16,19 @@
  */
 package com.rbraithwaite.sleeptarget.ui.common.views.mood_selector;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.rbraithwaite.sleeptarget.R;
+import com.rbraithwaite.sleeptarget.test_utils.ui.dialog.DialogTestHelper;
 import com.rbraithwaite.sleeptarget.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleeptarget.ui.common.views.mood_selector.TEMP.MoodView;
 import com.rbraithwaite.sleeptarget.ui.utils.UiUtils;
@@ -85,28 +88,24 @@ public class MoodSelectorController
         mViewModel = viewModel;
         bindViewModel();
         
-        mAddButton.setOnClickListener(v -> displayMoodDialog(R.string.cancel,
-                                                             createOnCancelListener()));
+        mAddButton.setOnClickListener(v -> displayMoodDialog(MoodDialogFragment.Mode.ADD));
         
-        mMoodValue.setOnClickListener(v -> displayMoodDialog(R.string.delete,
-                                                             createOnDeleteListener()));
+        mMoodValue.setOnClickListener(v -> displayMoodDialog(MoodDialogFragment.Mode.EDIT));
     }
 
 //*********************************************************
 // private methods
 //*********************************************************
 
-    private void displayMoodDialog(
-            int negativeTextId,
-            MoodDialogFragment.OnClickListener negativeListener)
+    private void displayMoodDialog(MoodDialogFragment.Mode dialogMode)
     {
         int rootThemeId = getRootThemeId();
         MoodDialogFragment moodDialog = rootThemeId == NO_ROOT_THEME_ID ?
                 MoodDialogFragment.createInstance() :
                 MoodDialogFragment.createInstance(rootThemeId);
         
-        moodDialog.setPositiveButton(R.string.confirm, createOnConfirmListener());
-        moodDialog.setNegativeButton(negativeTextId, negativeListener);
+        moodDialog.setMode(dialogMode);
+
         moodDialog.setSelectedMood(mViewModel.getMood().getValue());
         
         moodDialog.show(mFragmentManager, DIALOG_TAG);
@@ -127,25 +126,6 @@ public class MoodSelectorController
         } finally {
             ta.recycle();
         }
-    }
-    
-    private MoodDialogFragment.OnClickListener createOnCancelListener()
-    {
-        return selection -> {/* do nothing */};
-    }
-    
-    private MoodDialogFragment.OnClickListener createOnDeleteListener()
-    {
-        return selection -> {
-            mViewModel.clearSelectedMood();
-        };
-    }
-    
-    private MoodDialogFragment.OnClickListener createOnConfirmListener()
-    {
-        return selection -> {
-            mViewModel.setMood(selection);
-        };
     }
     
     private MoodView createMoodValueView(MoodUiData moodUiData, Context context)
