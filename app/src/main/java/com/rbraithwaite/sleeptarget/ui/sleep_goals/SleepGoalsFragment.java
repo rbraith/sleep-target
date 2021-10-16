@@ -178,6 +178,16 @@ public class SleepGoalsFragment
         buttonAddNewSleepDuration.setOnClickListener(v -> displaySleepDurationGoalPickerDialog(
                 getViewModel().getDefaultSleepDurationGoal()));
         
+        // handle duration-set events from the duration picker dialog (could be adding or updating)
+        DurationPickerFragment.ViewModel.getInstance(requireActivity())
+                .onDurationSet()
+                .observe(getViewLifecycleOwner(), durationEvent -> {
+                    if (durationEvent.isFresh()) {
+                        DurationPickerFragment.Data data = durationEvent.getExtra();
+                        getViewModel().setSleepDurationGoal(data.hour, data.minute);
+                    }
+                });
+        
         getViewModel().hasSleepDurationGoal().observe(
                 getViewLifecycleOwner(),
                 hasSleepDurationGoal -> {
@@ -270,14 +280,7 @@ public class SleepGoalsFragment
     {
         DurationPickerFragment durationPickerDialog = DurationPickerFragment.createInstance(
                 initialValue.hours,
-                initialValue.remainingMinutes,
-                // BUG [21-09-9 5:10PM] -- This getViewModel() call in this lambda (and other
-                //  similar calls in other lambdas) is likely causing a memory leak when the
-                //  device is rotated (the lambda, stored in the dialog fragment, retains a ref
-                //  to the old SleepGoalsFragment)
-                //  see: https://www.logicbig.com/tutorials/core-java-tutorial/java-language
-                //  /implicit-outer-class-reference.html.
-                (dialog, which, hour, minute) -> getViewModel().setSleepDurationGoal(hour, minute));
+                initialValue.remainingMinutes);
         durationPickerDialog.show(getChildFragmentManager(), PICKER_SLEEP_DURATION);
     }
     
@@ -288,7 +291,6 @@ public class SleepGoalsFragment
                         R.string.sleep_goals_delete_duration_dialog_title,
                         (dialog, which) -> getViewModel().clearSleepDurationGoal())
                 .show(getChildFragmentManager(), DIALOG_DELETE_DURATION);
-        ;
     }
     
     private void displayWakeTimeDeleteDialog()
