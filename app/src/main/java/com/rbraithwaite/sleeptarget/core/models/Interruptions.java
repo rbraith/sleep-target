@@ -52,8 +52,10 @@ public class Interruptions
 // public helpers
 //*********************************************************
 
-    public static class Updates
+    public static class Updates implements Serializable
     {
+        public static final long serialVersionUID = Constants.SERIAL_VERSION_UID;
+        
         public List<Interruption> added = new ArrayList<>();
         public List<Interruption> updated = new ArrayList<>();
         public List<Interruption> deleted = new ArrayList<>();
