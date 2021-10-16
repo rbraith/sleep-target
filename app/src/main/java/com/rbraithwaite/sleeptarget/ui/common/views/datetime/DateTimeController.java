@@ -19,6 +19,7 @@ package com.rbraithwaite.sleeptarget.ui.common.views.datetime;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -41,6 +42,7 @@ public class DateTimeController
 //*********************************************************
 
     private View mRoot;
+    private Fragment mParentFragment;
     
     private TextView mDateText;
     private TextView mTimeOfDayText;
@@ -51,6 +53,15 @@ public class DateTimeController
     
     private DateTimeViewModel mViewModel;
     private Callbacks mCallbacks;
+    
+    /**
+     * This is used to distinguish Date/TimePickerFragment view model events. It's assumed that
+     * there can be multiple instances of DateTime components on the screen, each of which would
+     * be observing the shared Date/TimePickerFragment view models. Events are distinguished
+     * between the different DateTime components so that one component doesn't consume an
+     * event meant for another.
+     */
+    private String mEventTag;
 
 //*********************************************************
 // public constants
@@ -88,13 +99,14 @@ public class DateTimeController
 
     public DateTimeController(
             String title,
+            String eventTag,
             DateTimeViewModel viewModel,
             View root,
             Formatter formatter,
-            LifecycleOwner lifecycleOwner,
-            FragmentManager fragmentManager)
+            Fragment parentFragment)
     {
         mRoot = root;
+        mParentFragment = parentFragment;
         
         mTitle = root.findViewById(R.id.name);
         mTitle.setText(title);
@@ -102,10 +114,12 @@ public class DateTimeController
         mDateText = root.findViewById(R.id.date);
         mTimeOfDayText = root.findViewById(R.id.time);
         
-        mLifecycleOwner = lifecycleOwner;
-        mFragmentManager = fragmentManager;
+        mLifecycleOwner = mParentFragment.getViewLifecycleOwner();
+        mFragmentManager = mParentFragment.getChildFragmentManager();
         
         mViewModel = viewModel;
+        
+        mEventTag = eventTag;
         
         bindViewModel();
         setFormatter(formatter);
@@ -148,6 +162,21 @@ public class DateTimeController
         mViewModel.getDateText().observe(mLifecycleOwner, s -> mDateText.setText(s));
         
         mViewModel.getTimeOfDayText().observe(mLifecycleOwner, s -> mTimeOfDayText.setText(s));
+        
+        DatePickerFragment.ViewModel.getInstance(mParentFragment.requireActivity())
+                .onDateSet()
+                .observe(mLifecycleOwner, dateEvent -> {
+                    if (!dateEvent.getTag().equals(mEventTag) || dateEvent.isStale()) {
+                        return;
+                    }
+    
+                    Day day = dateEvent.getExtra();
+                    if (mCallbacks != null &&
+                        !mCallbacks.beforeSetDate(day.year, day.month, day.dayOfMonth)) {
+                        return;
+                    }
+                    mViewModel.setDate(day);
+                });
     }
     
     private void setupListeners()
@@ -163,16 +192,7 @@ public class DateTimeController
                 mViewModel.getDate(),
                 mLifecycleOwner,
                 date -> {
-                    DatePickerFragment datePicker = new DatePickerFragment();
-                    datePicker.setArguments(DatePickerFragment.createArguments(
-                            date.year, date.month, date.dayOfMonth));
-                    datePicker.setOnDateSetListener((view, year, month, dayOfMonth) -> {
-                        if (mCallbacks != null &&
-                            !mCallbacks.beforeSetDate(year, month, dayOfMonth)) {
-                            return;
-                        }
-                        mViewModel.setDate(new Day(year, month, dayOfMonth));
-                    });
+                    DatePickerFragment datePicker = DatePickerFragment.createInstance(mEventTag, date);
                     datePicker.show(mFragmentManager, DIALOG_DATE_PICKER);
                 });
     }

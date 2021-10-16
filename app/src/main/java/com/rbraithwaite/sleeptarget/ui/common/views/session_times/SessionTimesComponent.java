@@ -95,7 +95,6 @@ public class SessionTimesComponent
 //*********************************************************
 // api
 //*********************************************************
-
     
     /**
      * This MUST be called, or else things will break.
@@ -132,11 +131,11 @@ public class SessionTimesComponent
     {
         mStartDateTimeController = new DateTimeController(
                 getString(R.string.common_session_times_start_title),
+                "start",
                 mViewModel.getStartDateTimeViewModel(),
                 mStartView,
                 createDateTimeFormatter(),
-                mParentFragment.getViewLifecycleOwner(),
-                mParentFragment.getChildFragmentManager());
+                mParentFragment);
         
         mStartDateTimeController.setCallbacks(new DateTimeController.Callbacks()
         {
@@ -181,11 +180,11 @@ public class SessionTimesComponent
     {
         mEndDateTimeController = new DateTimeController(
                 getString(R.string.common_session_times_end_title),
+                "end",
                 mViewModel.getEndDateTimeViewModel(),
                 mEndView,
                 createDateTimeFormatter(),
-                mParentFragment.getViewLifecycleOwner(),
-                mParentFragment.getChildFragmentManager());
+                mParentFragment);
         
         mEndDateTimeController.setCallbacks(new DateTimeController.Callbacks()
         {

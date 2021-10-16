@@ -17,8 +17,10 @@
 
 package com.rbraithwaite.sleeptarget.utils.time;
 
+import com.rbraithwaite.sleeptarget.utils.Constants;
 import com.rbraithwaite.sleeptarget.utils.TimeUtils;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -26,11 +28,13 @@ import java.util.GregorianCalendar;
 // REFACTOR [21-06-24 9:44PM] --
 //  com/rbraithwaite/sleeptarget/ui/session_details/controllers/DateTimeViewModel.java
 //  also has a Date - that should be using this.
-public class Day
+public class Day implements Serializable
 {
 //*********************************************************
 // public constants
 //*********************************************************
+    
+    public static final long serialVersionUID = Constants.SERIAL_VERSION_UID;
 
     public final int year;
     public final int month;

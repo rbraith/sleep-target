@@ -86,17 +86,17 @@ public class SessionDetailsFragment
     private static final String TAG = "SessionDetailsFragment";
     
     private static final String DIALOG_OVERLAP_ERROR = "SessionDetailsFragmentOverlapErrorDialog";
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
 
     public static class Result
             extends DetailsResult<SleepSessionWrapper> {}
-
+    
     public static class Args
             extends DetailsFragment.Args<SleepSessionWrapper> {}
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -168,7 +168,7 @@ public class SessionDetailsFragment
             displayOverlapErrorDialog(e);
         }
     }
-
+    
     @Override
     protected DeleteDialogParams getDeleteDialogParams()
     {
@@ -177,7 +177,7 @@ public class SessionDetailsFragment
         params.messageId = R.string.permanent_operation_message;
         return params;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -205,12 +205,12 @@ public class SessionDetailsFragment
     {
         return mTagSelectorViewModel;
     }
-
+    
     public MoodSelectorViewModel getMoodSelectorViewModel()
     {
         return mMoodSelectorViewModel;
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -323,7 +323,7 @@ public class SessionDetailsFragment
                 viewHolder -> navigateToEditInterruptionScreen(viewHolder.data.interruptionId));
         
         adapter.setOnAddButtonClickListener(this::navigateToAddInterruptionScreen);
-    
+        
         getViewModel().getInterruptionListItems().observe(getViewLifecycleOwner(),
                                                           adapter::setItems);
         

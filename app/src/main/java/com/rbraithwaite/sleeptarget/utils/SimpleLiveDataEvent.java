@@ -46,4 +46,12 @@ public class SimpleLiveDataEvent
         mIsFresh = false;
         return temp;
     }
+    
+    /**
+     * Inverse of isFresh(). This also consumes the event.
+     */
+    public boolean isStale()
+    {
+        return !isFresh();
+    }
 }

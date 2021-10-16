@@ -25,63 +25,89 @@ import android.widget.DatePicker;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModelProvider;
 
-import com.rbraithwaite.sleeptarget.utils.SerializableWrapper;
+import com.rbraithwaite.sleeptarget.utils.TaggedLiveEvent;
+import com.rbraithwaite.sleeptarget.utils.time.Day;
 
 public class DatePickerFragment
         extends DialogFragment
         implements DatePickerDialog.OnDateSetListener
 {
 //*********************************************************
-// private properties
-//*********************************************************
-
-    private OnDateSetListener mListener;
-
-//*********************************************************
 // private constants
 //*********************************************************
 
-    private static final String ARG_YEAR = "year";
-    private static final String ARG_MONTH = "month";
-    private static final String ARG_DAY = "day";
+    private static final String ARG_DAY = "ArgDay";
+    private static final String ARG_EVENT_TAG = "ArgEventTag";
     
-    private static final String STATE_LISTENER = "listener";
-
 //*********************************************************
 // public helpers
 //*********************************************************
 
-    public interface OnDateSetListener
+    public static class ViewModel
+            extends androidx.lifecycle.ViewModel
     {
-        void onDateSet(DatePicker view, int year, int month, int dayOfMonth);
+        private Day mDay;
+        private MutableLiveData<TaggedLiveEvent<Day>> mOnDateSetEvent = new MutableLiveData<>();
+        
+        public static ViewModel getInstance(FragmentActivity activity)
+        {
+            return new ViewModelProvider(activity).get(ViewModel.class);
+        }
+        
+        public void initDay(Day day)
+        {
+            mDay = day;
+        }
+        
+        public Day getDay()
+        {
+            return mDay;
+        }
+        
+        public void setDay(String tag, Day day)
+        {
+            mDay = day;
+            mOnDateSetEvent.setValue(new TaggedLiveEvent<>(tag, day));
+        }
+        
+        public LiveData<TaggedLiveEvent<Day>> onDateSet()
+        {
+            return mOnDateSetEvent;
+        }
     }
-
+    
 //*********************************************************
 // overrides
 //*********************************************************
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        // SMELL [21-10-16 2:06AM] -- It's weird using essentially a singleton view model
+        //  between different dialog instances - it basically relies on not more than one
+        //  dialog instance existing at a time.
+        Day initialDay = (Day) getArguments().getSerializable(ARG_DAY);
+        getViewModel().initDay(initialDay);
+    }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState)
     {
-        maybeInitFromSavedInstanceState(savedInstanceState);
-        
-        Bundle args = getArguments();
+        Day day = getViewModel().getDay();
         
         return new DatePickerDialog(
                 requireActivity(),
                 this,
-                args.getInt(ARG_YEAR),
-                args.getInt(ARG_MONTH),
-                args.getInt(ARG_DAY));
-    }
-    
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState)
-    {
-        outState.putSerializable(STATE_LISTENER, new SerializableWrapper<>(mListener));
-        super.onSaveInstanceState(outState);
+                day.year,
+                day.month,
+                day.dayOfMonth);
     }
     
     @Override
@@ -92,43 +118,40 @@ public class DatePickerFragment
             !view.isShown()) {
             return;
         }
-        
-        if (mListener != null) {
-            mListener.onDateSet(view, year, month, dayOfMonth);
-        }
+        String eventTag = getArguments().getString(ARG_EVENT_TAG);
+        getViewModel().setDay(eventTag, new Day(year, month, dayOfMonth));
     }
     
 //*********************************************************
 // api
 //*********************************************************
 
-    public static Bundle createArguments(int year, int month, int dayOfMonth)
+    public static Bundle createArguments(String eventTag, Day initialDay)
     {
         Bundle args = new Bundle();
-        args.putInt(ARG_YEAR, year);
-        args.putInt(ARG_MONTH, month);
-        args.putInt(ARG_DAY, dayOfMonth);
+        args.putSerializable(ARG_DAY, initialDay);
+        args.putString(ARG_EVENT_TAG, eventTag);
         return args;
     }
-
-    public void setOnDateSetListener(DatePickerFragment.OnDateSetListener listener)
+    
+    public static DatePickerFragment createInstance(String eventTag, Day initialDay)
     {
-        mListener = listener;
+        DatePickerFragment datePickerFragment = new DatePickerFragment();
+        datePickerFragment.setArguments(createArguments(eventTag, initialDay));
+        return datePickerFragment;
     }
     
+    public ViewModel getViewModel(FragmentActivity activity)
+    {
+        return ViewModel.getInstance(activity);
+    }
+
 //*********************************************************
 // private methods
 //*********************************************************
 
-    private void maybeInitFromSavedInstanceState(Bundle savedInstanceState)
+    private ViewModel getViewModel()
     {
-        if (savedInstanceState != null) {
-            SerializableWrapper<OnDateSetListener> wrapper =
-                    (SerializableWrapper<OnDateSetListener>) savedInstanceState.getSerializable(
-                            STATE_LISTENER);
-            if (wrapper != null) {
-                mListener = wrapper.data;
-            }
-        }
+        return getViewModel(requireActivity());
     }
 }
