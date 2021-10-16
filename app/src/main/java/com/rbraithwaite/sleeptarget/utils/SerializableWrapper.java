@@ -18,6 +18,7 @@ package com.rbraithwaite.sleeptarget.utils;
 
 import java.io.Serializable;
 
+@Deprecated
 public class SerializableWrapper<T>
         implements Serializable
 {
