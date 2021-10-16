@@ -17,7 +17,11 @@
 
 package com.rbraithwaite.sleeptarget.core.models;
 
-public class Tag
+import com.rbraithwaite.sleeptarget.utils.Constants;
+
+import java.io.Serializable;
+
+public class Tag implements Serializable
 {
 //*********************************************************
 // private properties
@@ -26,6 +30,12 @@ public class Tag
     private int mTagId;
     private String mText;
 
+//*********************************************************
+// public constants
+//*********************************************************
+
+    public static final long serialVersionUID = Constants.SERIAL_VERSION_UID;
+    
 //*********************************************************
 // constructors
 //*********************************************************
