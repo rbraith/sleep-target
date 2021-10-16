@@ -14,13 +14,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.utils;
 
-public class TaggedLiveEvent<ExtraType> extends LiveDataEvent<ExtraType>
+public class TaggedLiveEvent<ExtraType>
+        extends LiveDataEvent<ExtraType>
 {
+//*********************************************************
+// private properties
+//*********************************************************
+
     private String mTag;
     
+//*********************************************************
+// constructors
+//*********************************************************
+
     public TaggedLiveEvent(String tag)
     {
         mTag = tag;
@@ -32,8 +40,20 @@ public class TaggedLiveEvent<ExtraType> extends LiveDataEvent<ExtraType>
         mTag = tag;
     }
     
+//*********************************************************
+// api
+//*********************************************************
+
     public String getTag()
     {
         return mTag;
+    }
+    
+    /**
+     * Only checks for freshness (and consumes the event) if the tag matches.
+     */
+    public boolean isFreshForTag(String tag)
+    {
+        return mTag.equals(tag) && isFresh();
     }
 }

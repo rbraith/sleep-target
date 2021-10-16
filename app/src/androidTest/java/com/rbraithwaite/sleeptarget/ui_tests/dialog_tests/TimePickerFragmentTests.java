@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui_tests.dialog_tests;
 
 import androidx.test.espresso.contrib.PickerActions;
@@ -23,6 +22,7 @@ import com.rbraithwaite.sleeptarget.test_utils.TestUtils;
 import com.rbraithwaite.sleeptarget.test_utils.ui.dialog.DialogTestHelper;
 import com.rbraithwaite.sleeptarget.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleeptarget.ui.common.dialog.TimePickerFragment;
+import com.rbraithwaite.sleeptarget.utils.time.TimeOfDay;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -60,9 +60,7 @@ public class TimePickerFragmentTests
         DialogTestHelper<TimePickerFragment> dialogTestHelper =
                 DialogTestHelper.launchDialogWithArgs(
                         TimePickerFragment.class,
-                        TimePickerFragment.createArguments(
-                                calendar.get(Calendar.HOUR_OF_DAY),
-                                calendar.get(Calendar.MINUTE)));
+                        TimePickerFragment.createArguments("unused", TimeOfDay.of(calendar)));
         
         onTimePicker().check(matches(timePickerWithTime(
                 calendar.get(Calendar.HOUR_OF_DAY),
@@ -74,23 +72,27 @@ public class TimePickerFragmentTests
     {
         GregorianCalendar calendar = new GregorianCalendar(2019, 8, 7, 6, 5);
         
+        TimePickerFragment dialog = new TimePickerFragment();
+        dialog.setArguments(TimePickerFragment.createArguments("unused", TimeOfDay.of(calendar)));
+        
+        DialogTestHelper<TimePickerFragment> helper =
+                DialogTestHelper.launchProvidedInstance(dialog);
+        
         // different from calendar
         final int testHourOfDay = 3;
         final int testMinute = 15;
         
-        TimePickerFragment dialog = new TimePickerFragment();
-        dialog.setArguments(TimePickerFragment.createArguments(
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE)));
-        
         final TestUtils.ThreadBlocker blocker = new TestUtils.ThreadBlocker();
-        dialog.setOnTimeSetListener((view, hourOfDay, minute) -> {
-            assertThat(hourOfDay, is(equalTo(testHourOfDay)));
-            assertThat(minute, is(equalTo(testMinute)));
-            blocker.unblockThread();
+        TestUtils.performSyncedActivityAction(helper.getScenario(), activity -> {
+            dialog.getViewModel(activity).onTimeSet().observe(activity, timeEvent -> {
+                if (timeEvent.isFresh()) {
+                    TimeOfDay timeOfDay = timeEvent.getExtra();
+                    assertThat(timeOfDay.hourOfDay, is(equalTo(testHourOfDay)));
+                    assertThat(timeOfDay.minute, is(equalTo(testMinute)));
+                    blocker.unblockThread();
+                }
+            });
         });
-        DialogTestHelper<TimePickerFragment> helper =
-                DialogTestHelper.launchProvidedInstance(dialog);
         
         // change the time & confirm
         onTimePicker().perform(PickerActions.setTime(testHourOfDay, testMinute));

@@ -56,10 +56,10 @@ public class DateTimeController
     
     /**
      * This is used to distinguish Date/TimePickerFragment view model events. It's assumed that
-     * there can be multiple instances of DateTime components on the screen, each of which would
-     * be observing the shared Date/TimePickerFragment view models. Events are distinguished
-     * between the different DateTime components so that one component doesn't consume an
-     * event meant for another.
+     * there can be multiple instances of DateTime components on the screen, each of which would be
+     * observing the shared Date/TimePickerFragment view models. Events are distinguished between
+     * the different DateTime components so that one component doesn't consume an event meant for
+     * another.
      */
     private String mEventTag;
 
@@ -166,16 +166,33 @@ public class DateTimeController
         DatePickerFragment.ViewModel.getInstance(mParentFragment.requireActivity())
                 .onDateSet()
                 .observe(mLifecycleOwner, dateEvent -> {
+                    // REFACTOR [21-10-16 3:35PM] -- use isFreshForTag here.
                     if (!dateEvent.getTag().equals(mEventTag) || dateEvent.isStale()) {
                         return;
                     }
-    
+                    
                     Day day = dateEvent.getExtra();
                     if (mCallbacks != null &&
                         !mCallbacks.beforeSetDate(day.year, day.month, day.dayOfMonth)) {
                         return;
                     }
                     mViewModel.setDate(day);
+                });
+        
+        TimePickerFragment.ViewModel.getInstance(mParentFragment.requireActivity())
+                .onTimeSet()
+                .observe(mLifecycleOwner, timeEvent -> {
+                    // REFACTOR [21-10-16 3:35PM] -- use isFreshForTag here.
+                    if (!timeEvent.getTag().equals(mEventTag) || timeEvent.isStale()) {
+                        return;
+                    }
+                    
+                    TimeOfDay timeOfDay = timeEvent.getExtra();
+                    if (mCallbacks != null &&
+                        !mCallbacks.beforeSetTimeOfDay(timeOfDay.hourOfDay, timeOfDay.minute)) {
+                        return;
+                    }
+                    mViewModel.setTimeOfDay(timeOfDay);
                 });
     }
     
@@ -192,7 +209,8 @@ public class DateTimeController
                 mViewModel.getDate(),
                 mLifecycleOwner,
                 date -> {
-                    DatePickerFragment datePicker = DatePickerFragment.createInstance(mEventTag, date);
+                    DatePickerFragment datePicker =
+                            DatePickerFragment.createInstance(mEventTag, date);
                     datePicker.show(mFragmentManager, DIALOG_DATE_PICKER);
                 });
     }
@@ -203,21 +221,8 @@ public class DateTimeController
                 mViewModel.getTimeOfDay(),
                 mLifecycleOwner,
                 timeOfDay -> {
-                    TimePickerFragment timePicker = new TimePickerFragment();
-                    // REFACTOR [21-06-16 10:36PM] it would be better to have like a
-                    //  setArgs(hour, minute) method, or a createInstance() static method
-                    //  setArguments is only relevent when the framework is creating the
-                    //  fragment (in these cases I *would* need a createArguments method, but
-                    //  not in this case).
-                    timePicker.setArguments(TimePickerFragment.createArguments(
-                            timeOfDay.hourOfDay, timeOfDay.minute));
-                    timePicker.setOnTimeSetListener((view, hourOfDay, minute) -> {
-                        if (mCallbacks != null &&
-                            !mCallbacks.beforeSetTimeOfDay(hourOfDay, minute)) {
-                            return;
-                        }
-                        mViewModel.setTimeOfDay(new TimeOfDay(hourOfDay, minute));
-                    });
+                    TimePickerFragment timePicker =
+                            TimePickerFragment.createInstance(mEventTag, timeOfDay);
                     timePicker.show(mFragmentManager, DIALOG_TIME_PICKER);
                 });
     }

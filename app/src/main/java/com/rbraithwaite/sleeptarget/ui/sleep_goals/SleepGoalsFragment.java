@@ -29,7 +29,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.DialogFragment;
-import androidx.lifecycle.LiveData;
 
 import com.rbraithwaite.sleeptarget.R;
 import com.rbraithwaite.sleeptarget.ui.BaseFragment;
@@ -40,13 +39,9 @@ import com.rbraithwaite.sleeptarget.ui.common.dialog.TimePickerFragment;
 import com.rbraithwaite.sleeptarget.ui.sleep_goals.data.SleepDurationGoalUIData;
 import com.rbraithwaite.sleeptarget.ui.sleep_goals.streak_calendar.StreakCalendar;
 import com.rbraithwaite.sleeptarget.utils.LiveDataFuture;
-import com.rbraithwaite.sleeptarget.utils.LiveDataUtils;
+import com.rbraithwaite.sleeptarget.utils.time.TimeOfDay;
 
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -67,6 +62,8 @@ public class SleepGoalsFragment
     
     private static final String PICKER_SLEEP_DURATION = "SleepDurationPicker";
     private static final String TAG = "SleepGoalsFragment";
+    
+    private static final String TAG_WAKETIME_TIME_SET = "WakeTimeSet";
 
 //*********************************************************
 // overrides
@@ -112,7 +109,7 @@ public class SleepGoalsFragment
                 streakCalendarFrame.getContext(),
                 viewModel::onCalendarMonthChanged);
         streakCalendarFrame.addView(streakCalendar.getView());
-    
+        
         // OPTIMIZE [21-03-14 10:44PM] -- right now I am using all succeeded goal dates in history -
         //  it would probably be better to only use those relevant to the currently displayed month
         //  of the calendar
@@ -159,6 +156,15 @@ public class SleepGoalsFragment
         
         View helpClickFrame = wakeTimeCard.findViewById(R.id.sleep_goals_waketime_help_click_frame);
         helpClickFrame.setOnClickListener(v -> displayWakeTimeHelpDialog());
+        
+        TimePickerFragment.ViewModel.getInstance(requireActivity()).onTimeSet().observe(
+                getViewLifecycleOwner(),
+                timeEvent -> {
+                    if (timeEvent.isFreshForTag(TAG_WAKETIME_TIME_SET)) {
+                        TimeOfDay timeOfDay = timeEvent.getExtra();
+                        getViewModel().setWakeTime(timeOfDay.hourOfDay, timeOfDay.minute);
+                    }
+                });
     }
     
     // REFACTOR [21-01-29 2:46AM] -- duplicate logic with initWakeTimeGoal()
@@ -301,12 +307,8 @@ public class SleepGoalsFragment
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTimeInMillis(defaultValueDateMillis);
         
-        TimePickerFragment timePicker = new TimePickerFragment();
-        timePicker.setArguments(TimePickerFragment.createArguments(cal.get(Calendar.HOUR_OF_DAY),
-                                                                   cal.get(Calendar.MINUTE)));
-        timePicker.setOnTimeSetListener((view, hourOfDay, minute) -> getViewModel().setWakeTime(
-                hourOfDay,
-                minute));
+        TimePickerFragment timePicker =
+                TimePickerFragment.createInstance(TAG_WAKETIME_TIME_SET, TimeOfDay.of(cal));
         timePicker.show(getChildFragmentManager(), WAKETIME_TIME_PICKER);
     }
 }

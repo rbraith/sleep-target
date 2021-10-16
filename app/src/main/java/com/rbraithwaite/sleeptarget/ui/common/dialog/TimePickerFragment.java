@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.common.dialog;
 
 import android.app.Dialog;
@@ -26,8 +25,13 @@ import android.widget.TimePicker;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModelProvider;
 
-import com.rbraithwaite.sleeptarget.utils.SerializableWrapper;
+import com.rbraithwaite.sleeptarget.utils.TaggedLiveEvent;
+import com.rbraithwaite.sleeptarget.utils.time.TimeOfDay;
 
 // IDEA [20-12-5 8:36PM] -- consider creating a custom TimePickerDialog which has
 //  max/min times (instead of allowing user to pick any time)
@@ -44,43 +48,76 @@ public class TimePickerFragment
         extends DialogFragment
         implements TimePickerDialog.OnTimeSetListener
 {
-    private OnTimeSetListener mListener;
+//*********************************************************
+// private constants
+//*********************************************************
 
-    private static final String ARG_HOUR = "hour";
-    private static final String ARG_MINUTE = "minute";
+    private static final String ARG_TIME_OF_DAY = "ArgTime";
+    private static final String ARG_EVENT_TAG = "ArgEventTag";
     
-    private static final String STATE_LISTENER = "listener";
+//*********************************************************
+// public helpers
+//*********************************************************
 
-    public interface OnTimeSetListener
+    // REFACTOR [21-10-16 3:13PM] -- This duplicates DatePickerFragment.ViewModel
+    public static class ViewModel
+            extends androidx.lifecycle.ViewModel
     {
-        void onTimeSet(TimePicker view, int hourOfDay, int minute);
+        private TimeOfDay mTimeOfDay;
+        private MutableLiveData<TaggedLiveEvent<TimeOfDay>> mOnTimeSetEvent =
+                new MutableLiveData<>();
+        
+        public static ViewModel getInstance(FragmentActivity activity)
+        {
+            return new ViewModelProvider(activity).get(ViewModel.class);
+        }
+        
+        public void init(TimeOfDay timeOfDay)
+        {
+            mTimeOfDay = timeOfDay;
+        }
+        
+        public TimeOfDay getTimeOfDay()
+        {
+            return mTimeOfDay;
+        }
+        
+        public void setTimeOfDay(String tag, TimeOfDay timeOfDay)
+        {
+            mTimeOfDay = timeOfDay;
+            mOnTimeSetEvent.setValue(new TaggedLiveEvent<>(tag, timeOfDay));
+        }
+        
+        public LiveData<TaggedLiveEvent<TimeOfDay>> onTimeSet()
+        {
+            return mOnTimeSetEvent;
+        }
     }
+    
+//*********************************************************
+// overrides
+//*********************************************************
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        TimeOfDay initialTimeOfDay = (TimeOfDay) getArguments().getSerializable(ARG_TIME_OF_DAY);
+        getViewModel().init(initialTimeOfDay);
+    }
+    
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState)
     {
-        maybeInitFromSavedInstanceState(savedInstanceState);
-        
-        Bundle args = getArguments();
+        TimeOfDay timeOfDay = getViewModel().getTimeOfDay();
         
         return new TimePickerDialog(
                 requireContext(),
                 this,
-                args.getInt(ARG_HOUR),
-                args.getInt(ARG_MINUTE),
+                timeOfDay.hourOfDay,
+                timeOfDay.minute,
                 false);
-    }
-    
-    private void maybeInitFromSavedInstanceState(Bundle savedInstanceState)
-    {
-        if (savedInstanceState != null) {
-            SerializableWrapper<OnTimeSetListener> wrapper =
-                    (SerializableWrapper<OnTimeSetListener>) savedInstanceState.getSerializable(STATE_LISTENER);
-            if (wrapper != null) {
-                mListener = wrapper.data;
-            }
-        }
     }
     
     @Override
@@ -93,32 +130,40 @@ public class TimePickerFragment
             return;
         }
         
-        if (mListener != null) {
-            mListener.onTimeSet(view, hourOfDay, minute);
-        }
+        String eventTag = getArguments().getString(ARG_EVENT_TAG);
+        getViewModel().setTimeOfDay(eventTag, new TimeOfDay(hourOfDay, minute));
     }
     
 //*********************************************************
-// overrides
+// api
 //*********************************************************
 
-@Override
-public void onSaveInstanceState(@NonNull Bundle outState)
-{
-    outState.putSerializable(STATE_LISTENER, new SerializableWrapper<>(mListener));
-    super.onSaveInstanceState(outState);
-}
+    public static TimePickerFragment createInstance(String eventTag, TimeOfDay initialTimeOfDay)
+    {
+        TimePickerFragment fragment = new TimePickerFragment();
+        fragment.setArguments(createArguments(eventTag, initialTimeOfDay));
+        return fragment;
+    }
     
-    public static Bundle createArguments(int hourOfDay, int minute)
+    public static Bundle createArguments(String eventTag, TimeOfDay initialTimeOfDay)
     {
         Bundle args = new Bundle();
-        args.putInt(ARG_HOUR, hourOfDay);
-        args.putInt(ARG_MINUTE, minute);
+        args.putSerializable(ARG_TIME_OF_DAY, initialTimeOfDay);
+        args.putString(ARG_EVENT_TAG, eventTag);
         return args;
     }
     
-    public void setOnTimeSetListener(OnTimeSetListener listener)
+    public ViewModel getViewModel(FragmentActivity activity)
     {
-        mListener = listener;
+        return ViewModel.getInstance(activity);
+    }
+
+//*********************************************************
+// private methods
+//*********************************************************
+
+    private ViewModel getViewModel()
+    {
+        return getViewModel(requireActivity());
     }
 }
