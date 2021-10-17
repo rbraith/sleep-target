@@ -16,19 +16,16 @@
  */
 package com.rbraithwaite.sleeptarget.ui.common.views.mood_selector;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
-import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.rbraithwaite.sleeptarget.R;
-import com.rbraithwaite.sleeptarget.test_utils.ui.dialog.DialogTestHelper;
 import com.rbraithwaite.sleeptarget.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleeptarget.ui.common.views.mood_selector.TEMP.MoodView;
 import com.rbraithwaite.sleeptarget.ui.utils.UiUtils;
