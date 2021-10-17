@@ -19,8 +19,10 @@ package com.rbraithwaite.sleeptarget.core.models;
 
 import androidx.annotation.Nullable;
 
+import com.rbraithwaite.sleeptarget.utils.Constants;
 import com.rbraithwaite.sleeptarget.utils.TimeUtils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -59,8 +61,10 @@ public class CurrentSession
      * A static "snapshot" of some CurrentSession's state. This is needed as CurrentSession's
      * duration is always updating in real time - see getOngoingDurationMillis()
      */
-    public static class Snapshot
+    public static class Snapshot implements Serializable
     {
+        public static final long serialVersionUID = Constants.SERIAL_VERSION_UID;
+        
         public Date start;
         public Date end;
         public long durationMillis;

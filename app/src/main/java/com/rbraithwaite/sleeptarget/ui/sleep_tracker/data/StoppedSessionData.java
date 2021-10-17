@@ -18,12 +18,17 @@
 package com.rbraithwaite.sleeptarget.ui.sleep_tracker.data;
 
 import com.rbraithwaite.sleeptarget.core.models.CurrentSession;
+import com.rbraithwaite.sleeptarget.utils.Constants;
 
-public class StoppedSessionData
+import java.io.Serializable;
+
+public class StoppedSessionData implements Serializable
 {
 //*********************************************************
 // public constants
 //*********************************************************
+    
+    public static final long serialVersionUID = Constants.SERIAL_VERSION_UID;
 
     public final CurrentSession.Snapshot currentSessionSnapshot;
     public final PostSleepData postSleepData;
