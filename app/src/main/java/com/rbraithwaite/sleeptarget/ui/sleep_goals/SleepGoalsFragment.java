@@ -33,7 +33,7 @@ import androidx.fragment.app.DialogFragment;
 
 import com.rbraithwaite.sleeptarget.R;
 import com.rbraithwaite.sleeptarget.ui.BaseFragment;
-import com.rbraithwaite.sleeptarget.ui.common.dialog.DialogUtils;
+import com.rbraithwaite.sleeptarget.ui.common.dialog.DeleteDialog;
 import com.rbraithwaite.sleeptarget.ui.common.dialog.DurationPickerFragment;
 import com.rbraithwaite.sleeptarget.ui.common.dialog.TimePickerFragment;
 import com.rbraithwaite.sleeptarget.ui.sleep_goals.data.SleepDurationGoalUIData;
@@ -102,7 +102,7 @@ public class SleepGoalsFragment
             return builder.create();
         }
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -116,7 +116,7 @@ public class SleepGoalsFragment
     {
         return inflater.inflate(R.layout.sleep_goals_fragment, container, false);
     }
-
+    
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState)
     {
@@ -130,7 +130,7 @@ public class SleepGoalsFragment
     {
         return new Properties<>(true, SleepGoalsFragmentViewModel.class);
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -203,6 +203,15 @@ public class SleepGoalsFragment
                         getViewModel().setWakeTime(timeOfDay.hourOfDay, timeOfDay.minute);
                     }
                 });
+        
+        // handle waketime deletion from the dialog
+        getActivityViewModel(DeleteDialog.Actions.class).onPositiveAction().observe(
+                getViewLifecycleOwner(),
+                event -> {
+                    if (event.isFreshForTag(DIALOG_DELETE_WAKETIME)) {
+                        getViewModel().clearWakeTime();
+                    }
+                });
     }
     
     // REFACTOR [21-01-29 2:46AM] -- duplicate logic with initWakeTimeGoal()
@@ -247,6 +256,15 @@ public class SleepGoalsFragment
         View helpClickFrame =
                 sleepDurationCard.findViewById(R.id.sleep_goals_duration_help_click_frame);
         helpClickFrame.setOnClickListener(v -> displaySleepDurationGoalHelpDialog());
+        
+        // handle duration deletion from the dialog
+        getActivityViewModel(DeleteDialog.Actions.class).onPositiveAction().observe(
+                getViewLifecycleOwner(),
+                event -> {
+                    if (event.isFreshForTag(DIALOG_DELETE_DURATION)) {
+                        getViewModel().clearSleepDurationGoal();
+                    }
+                });
     }
     
     private void initSleepDurationGoalLayout(View sleepDurationGoalLayout)
@@ -304,19 +322,19 @@ public class SleepGoalsFragment
     
     private void displaySleepDurationGoalDeleteDialog()
     {
-        DialogUtils
-                .createDeleteDialog(
-                        R.string.sleep_goals_delete_duration_dialog_title,
-                        (dialog, which) -> getViewModel().clearSleepDurationGoal())
+        DeleteDialog.createInstance(
+                DIALOG_DELETE_DURATION,
+                R.string.sleep_goals_delete_duration_dialog_title,
+                null)
                 .show(getChildFragmentManager(), DIALOG_DELETE_DURATION);
     }
     
     private void displayWakeTimeDeleteDialog()
     {
-        DialogUtils
-                .createDeleteDialog(
-                        R.string.sleep_goals_delete_waketime_dialog_title,
-                        (dialog, which) -> getViewModel().clearWakeTime())
+        DeleteDialog.createInstance(
+                DIALOG_DELETE_WAKETIME,
+                R.string.sleep_goals_delete_waketime_dialog_title,
+                null)
                 .show(getChildFragmentManager(), DIALOG_DELETE_WAKETIME);
     }
     

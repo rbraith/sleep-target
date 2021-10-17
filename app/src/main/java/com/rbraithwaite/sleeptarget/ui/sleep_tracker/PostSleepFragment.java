@@ -35,7 +35,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.flexbox.FlexboxLayoutManager;
 import com.rbraithwaite.sleeptarget.R;
 import com.rbraithwaite.sleeptarget.ui.common.data.MoodUiData;
-import com.rbraithwaite.sleeptarget.ui.common.dialog.AlertDialogFragment;
+import com.rbraithwaite.sleeptarget.ui.common.dialog.AlertDialogFragment2;
 import com.rbraithwaite.sleeptarget.ui.common.views.ActionFragment;
 import com.rbraithwaite.sleeptarget.ui.common.views.mood_selector.TEMP.MoodView;
 import com.rbraithwaite.sleeptarget.ui.common.views.tag_selector.SelectedTagAdapter;
@@ -72,6 +72,30 @@ public class PostSleepFragment
         }
     }
 
+    public static class DiscardDialog
+            extends AlertDialogFragment2
+    {
+        public static class Actions
+                extends AlertDialogFragment2.Actions {}
+        
+        @Override
+        protected AlertDialog createAlertDialog()
+        {
+            AlertDialog.Builder builder =
+                    new AlertDialog.Builder(requireContext());
+            
+            Actions actions = getActions(Actions.class);
+            
+            builder.setTitle(R.string.postsleep_discard_title)
+                    .setMessage(R.string.postsleep_discard_warning)
+                    .setNegativeButton(R.string.cancel, null)
+                    .setPositiveButton(R.string.discard,
+                                       ((dialog, which) -> actions.positiveAction()));
+            
+            return builder.create();
+        }
+    }
+    
 //*********************************************************
 // overrides
 //*********************************************************
@@ -111,6 +135,15 @@ public class PostSleepFragment
         initAdditionalComments(view);
         initInterruptions(view);
         initRating(view);
+        
+        // discard dialog callback
+        getActivityViewModel(DiscardDialog.Actions.class).onPositiveAction().observe(
+                getViewLifecycleOwner(),
+                event -> {
+                    if (event.isFresh()) {
+                        getViewModel().onDiscardConfirmed();
+                    }
+                });
     }
     
     @Override
@@ -135,13 +168,13 @@ public class PostSleepFragment
         params.negativeIcon = ICON_OPTION_DELETE;
         return params;
     }
-    
+
     @Override
     protected Properties<PostSleepViewModel> initProperties()
     {
         return new Properties<>(false, PostSleepViewModel.class);
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -150,12 +183,12 @@ public class PostSleepFragment
     {
         return SleepTrackerFragmentDirections.actionSleeptrackerToPostsleep(args).getArguments();
     }
-    
+
     public RecyclerView getInterruptionsRecycler()
     {
         return getView().findViewById(R.id.common_interruptions_recycler);
     }
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
@@ -287,18 +320,7 @@ public class PostSleepFragment
     
     private void displayDiscardDialog()
     {
-        AlertDialogFragment discardDialog =
-                AlertDialogFragment.createInstance((context, inflater) -> {
-                    AlertDialog.Builder builder =
-                            new AlertDialog.Builder(context);
-                    builder.setTitle(R.string.postsleep_discard_title)
-                            .setMessage(R.string.postsleep_discard_warning)
-                            .setNegativeButton(R.string.cancel, null)
-                            .setPositiveButton(R.string.discard,
-                                               (dialog1, which) -> getViewModel().onDiscardConfirmed());
-                    return builder.create();
-                });
-        discardDialog.show(getChildFragmentManager(), POST_SLEEP_DISCARD_DIALOG);
+        new DiscardDialog().show(getChildFragmentManager(), POST_SLEEP_DISCARD_DIALOG);
     }
     
     private void handleAction()

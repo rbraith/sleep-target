@@ -34,7 +34,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.rbraithwaite.sleeptarget.R;
-import com.rbraithwaite.sleeptarget.ui.common.dialog.AlertDialogFragment;
+import com.rbraithwaite.sleeptarget.ui.common.dialog.AlertDialogFragment2;
 import com.rbraithwaite.sleeptarget.ui.common.views.details_fragment.DetailsFragment;
 import com.rbraithwaite.sleeptarget.ui.common.views.details_fragment.DetailsResult;
 import com.rbraithwaite.sleeptarget.ui.common.views.mood_selector.MoodSelectorController;
@@ -97,6 +97,44 @@ public class SessionDetailsFragment
     public static class Args
             extends DetailsFragment.Args<SleepSessionWrapper> {}
 
+    public static class OverlapErrorDialog
+            extends AlertDialogFragment2
+    {
+        public OverlapErrorDialog() {}
+        
+        public OverlapErrorDialog(SessionDetailsFragmentViewModel.OverlappingSessionException e)
+        {
+            Bundle args = new Bundle();
+            args.putString("start", e.start);
+            args.putString("end", e.end);
+            setArguments(args);
+        }
+        
+        @Override
+        protected AlertDialog createAlertDialog()
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            builder.setTitle("Error: Overlapping Sleep Session")
+                    .setView(createOverlapErrorDialogContent())
+                    .setPositiveButton(android.R.string.ok, null);
+            return builder.create();
+        }
+        
+        private View createOverlapErrorDialogContent()
+        {
+            View dialogContent =
+                    getLayoutInflater().inflate(R.layout.session_details_overlap_error, null);
+            
+            TextView start = dialogContent.findViewById(R.id.session_details_overlap_start_value);
+            start.setText(getArguments().getString("start"));
+            
+            TextView end = dialogContent.findViewById(R.id.session_details_overlap_end_value);
+            end.setText(getArguments().getString("end"));
+            
+            return dialogContent;
+        }
+    }
+    
 //*********************************************************
 // overrides
 //*********************************************************
@@ -168,7 +206,7 @@ public class SessionDetailsFragment
             displayOverlapErrorDialog(e);
         }
     }
-    
+
     @Override
     protected DeleteDialogParams getDeleteDialogParams()
     {
@@ -177,7 +215,7 @@ public class SessionDetailsFragment
         params.messageId = R.string.permanent_operation_message;
         return params;
     }
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -205,42 +243,19 @@ public class SessionDetailsFragment
     {
         return mTagSelectorViewModel;
     }
-    
+
     public MoodSelectorViewModel getMoodSelectorViewModel()
     {
         return mMoodSelectorViewModel;
     }
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
 
     private void displayOverlapErrorDialog(SessionDetailsFragmentViewModel.OverlappingSessionException e)
     {
-        AlertDialogFragment dialog = AlertDialogFragment.createInstance((context, inflater) -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setTitle("Error: Overlapping Sleep Session")
-                    .setView(createOverlapErrorDialogContent(e, inflater))
-                    .setPositiveButton(android.R.string.ok, null);
-            return builder.create();
-        });
-        
-        dialog.show(getChildFragmentManager(), DIALOG_OVERLAP_ERROR);
-    }
-    
-    private View createOverlapErrorDialogContent(
-            SessionDetailsFragmentViewModel.OverlappingSessionException e,
-            LayoutInflater inflater)
-    {
-        View dialogContent = inflater.inflate(R.layout.session_details_overlap_error, null);
-        
-        TextView start = dialogContent.findViewById(R.id.session_details_overlap_start_value);
-        start.setText(e.start);
-        
-        TextView end = dialogContent.findViewById(R.id.session_details_overlap_end_value);
-        end.setText(e.end);
-        
-        return dialogContent;
+        new OverlapErrorDialog(e).show(getChildFragmentManager(), DIALOG_OVERLAP_ERROR);
     }
     
     private InterruptionDetailsFragment.Result getInterruptionDetailsResult()

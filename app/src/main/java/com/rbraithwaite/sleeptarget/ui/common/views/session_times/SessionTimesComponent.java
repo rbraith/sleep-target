@@ -18,6 +18,7 @@ package com.rbraithwaite.sleeptarget.ui.common.views.session_times;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TextView;
@@ -28,7 +29,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
 import com.rbraithwaite.sleeptarget.R;
-import com.rbraithwaite.sleeptarget.ui.common.dialog.AlertDialogFragment;
+import com.rbraithwaite.sleeptarget.ui.common.dialog.AlertDialogFragment2;
 import com.rbraithwaite.sleeptarget.ui.common.views.datetime.DateTimeController;
 
 // REFACTOR [21-07-29 5:23PM] -- Should this be a fragment?
@@ -55,6 +56,32 @@ public class SessionTimesComponent
     private static final String DIALOG_ERROR = "DialogError_SessionTimes";
 
 //*********************************************************
+// public helpers
+//*********************************************************
+
+    public static class ErrorDialog
+            extends AlertDialogFragment2
+    {
+        public ErrorDialog() {}
+        
+        public ErrorDialog(int messageId)
+        {
+            Bundle args = new Bundle();
+            args.putInt("message id", messageId);
+            setArguments(args);
+        }
+        
+        @Override
+        protected AlertDialog createAlertDialog()
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            builder.setMessage(getArguments().getInt("message id"))
+                    .setPositiveButton(android.R.string.ok, null);
+            return builder.create();
+        }
+    }
+    
+//*********************************************************
 // constructors
 //*********************************************************
 
@@ -79,7 +106,8 @@ public class SessionTimesComponent
         super(context, attrs, defStyleAttr);
         initComponent(context);
     }
-    
+
+
     public SessionTimesComponent(
             @NonNull Context context,
             @Nullable AttributeSet attrs,
@@ -90,11 +118,10 @@ public class SessionTimesComponent
         initComponent(context);
     }
 
-
-
 //*********************************************************
 // api
 //*********************************************************
+
     
     /**
      * This MUST be called, or else things will break.
@@ -115,7 +142,7 @@ public class SessionTimesComponent
                     }
                 });
     }
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
@@ -249,12 +276,7 @@ public class SessionTimesComponent
     // REFACTOR [21-06-16 10:34PM] this should be extracted somewhere as a common utility.
     private void displayErrorDialog(int messageId)
     {
-        AlertDialogFragment dialog = AlertDialogFragment.createInstance((context, inflater) -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setMessage(messageId)
-                    .setPositiveButton(android.R.string.ok, null);
-            return builder.create();
-        });
+        ErrorDialog dialog = new ErrorDialog(messageId);
         dialog.show(mParentFragment.getChildFragmentManager(), DIALOG_ERROR);
     }
     
