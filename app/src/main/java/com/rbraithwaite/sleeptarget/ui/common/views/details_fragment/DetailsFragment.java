@@ -25,12 +25,12 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.rbraithwaite.sleeptarget.R;
-import com.rbraithwaite.sleeptarget.ui.common.dialog.AlertDialogFragment;
-import com.rbraithwaite.sleeptarget.ui.common.dialog.DialogUtils;
+import com.rbraithwaite.sleeptarget.ui.common.dialog.DeleteDialog;
 import com.rbraithwaite.sleeptarget.ui.common.views.ActionFragment;
 import com.rbraithwaite.sleeptarget.utils.CommonUtils;
 
 import java.io.Serializable;
+
 
 
 /**
@@ -53,6 +53,8 @@ public abstract class DetailsFragment<DataType,
 //*********************************************************
 
     private static final int DATA_ICON_DELETE = R.drawable.ic_baseline_delete_forever_24;
+    
+    private static final String DETAILS_DELETE_TAG = "DetailsFragment";
 
 
 //*********************************************************
@@ -108,6 +110,15 @@ public abstract class DetailsFragment<DataType,
         handleResultAction();
         
         getViewModel().initData(_getDetailsArgs().initialData);
+        
+        // assuming the delete dialog is still used, handle results from it
+        getActivityViewModel(DeleteDialog.Actions.class).onPositiveAction().observe(
+                getViewLifecycleOwner(),
+                event -> {
+                    if (event.isFreshForTag(DETAILS_DELETE_TAG)) {
+                        getViewModel().setResultAction(DetailsResult.Action.DELETED);
+                    }
+                });
     }
     
     @Override
@@ -169,6 +180,7 @@ public abstract class DetailsFragment<DataType,
     }
 
 
+
 //*********************************************************
 // protected api
 //*********************************************************
@@ -219,10 +231,10 @@ public abstract class DetailsFragment<DataType,
     {
         DeleteDialogParams dialogParams = getDeleteDialogParams();
         
-        AlertDialogFragment deleteDialog = DialogUtils.createDeleteDialog(
+        DeleteDialog deleteDialog = DeleteDialog.createInstance(
+                DETAILS_DELETE_TAG,
                 dialogParams.titleId,
-                dialogParams.messageId,
-                (dialog, which) -> getViewModel().setResultAction(DetailsResult.Action.DELETED));
+                dialogParams.messageId);
         
         deleteDialog.show(getChildFragmentManager(), dialogParams.tag);
     }

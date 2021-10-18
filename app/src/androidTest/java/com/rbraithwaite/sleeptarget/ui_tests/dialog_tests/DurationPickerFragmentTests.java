@@ -47,8 +47,7 @@ public class DurationPickerFragmentTests
         
         DurationPickerFragment fragment = DurationPickerFragment.createInstance(
                 expectedHour,
-                expectedMinute,
-                null);
+                expectedMinute);
         
         DialogTestHelper<DurationPickerFragment> helper =
                 DialogTestHelper.launchProvidedInstance(fragment);
@@ -71,8 +70,7 @@ public class DurationPickerFragmentTests
         int validMinute = 23;
         DurationPickerFragment fragment = DurationPickerFragment.createInstance(
                 invalidHour,
-                validMinute,
-                null);
+                validMinute);
     }
     
     @Test(expected = IllegalArgumentException.class)
@@ -82,8 +80,7 @@ public class DurationPickerFragmentTests
         int invalidMinute = -1;
         DurationPickerFragment fragment = DurationPickerFragment.createInstance(
                 validHour,
-                invalidMinute,
-                null);
+                invalidMinute);
     }
     
     @Test(expected = IllegalArgumentException.class)
@@ -93,8 +90,7 @@ public class DurationPickerFragmentTests
         int invalidMinute = 60;
         DurationPickerFragment fragment = DurationPickerFragment.createInstance(
                 validHour,
-                invalidMinute,
-                null);
+                invalidMinute);
     }
     
     // BUG [21-03-26 11:07PM] -- flaky test?

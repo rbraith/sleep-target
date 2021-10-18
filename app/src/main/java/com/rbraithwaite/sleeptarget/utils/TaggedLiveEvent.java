@@ -14,34 +14,46 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+package com.rbraithwaite.sleeptarget.utils;
 
-package com.rbraithwaite.sleeptarget.ui.sleep_tracker.data;
-
-import com.rbraithwaite.sleeptarget.core.models.CurrentSession;
-import com.rbraithwaite.sleeptarget.utils.Constants;
-
-import java.io.Serializable;
-
-public class StoppedSessionData implements Serializable
+public class TaggedLiveEvent<ExtraType>
+        extends LiveDataEvent<ExtraType>
 {
 //*********************************************************
-// public constants
+// private properties
 //*********************************************************
-    
-    public static final long serialVersionUID = Constants.SERIAL_VERSION_UID;
 
-    public final CurrentSession.Snapshot currentSessionSnapshot;
-    public final PostSleepData postSleepData;
+    private String mTag;
     
 //*********************************************************
 // constructors
 //*********************************************************
 
-    public StoppedSessionData(
-            CurrentSession.Snapshot currentSessionSnapshot,
-            PostSleepData postSleepData)
+    public TaggedLiveEvent(String tag)
     {
-        this.currentSessionSnapshot = currentSessionSnapshot;
-        this.postSleepData = postSleepData;
+        mTag = tag;
+    }
+    
+    public TaggedLiveEvent(String tag, ExtraType extra)
+    {
+        super(extra);
+        mTag = tag;
+    }
+    
+//*********************************************************
+// api
+//*********************************************************
+
+    public String getTag()
+    {
+        return mTag;
+    }
+    
+    /**
+     * Only checks for freshness (and consumes the event) if the tag matches.
+     */
+    public boolean isFreshForTag(String tag)
+    {
+        return mTag.equals(tag) && isFresh();
     }
 }

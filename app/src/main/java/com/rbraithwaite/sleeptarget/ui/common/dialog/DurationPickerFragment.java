@@ -17,7 +17,6 @@
 package com.rbraithwaite.sleeptarget.ui.common.dialog;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.NumberPicker;
@@ -26,9 +25,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.rbraithwaite.sleeptarget.R;
-import com.rbraithwaite.sleeptarget.utils.SerializableWrapper;
+import com.rbraithwaite.sleeptarget.utils.LiveDataEvent;
 
 public class DurationPickerFragment
         extends DialogFragment
@@ -37,37 +40,104 @@ public class DurationPickerFragment
 // private properties
 //*********************************************************
 
-    private OnDurationSetListener mListener;
-    private int mHour;
-    private int mMinute;
+    // HACK [21-10-16 5:32PM] -- This false initialization here is cheating a little bit: exploiting
+    //  the fact that the framework uses the default ctor to recreate the fragment on config change.
+    //  So when the fragment is created via createInstance() it is instantiating, and when the
+    //  framework recreates the fragment it isn't.
+    private boolean mInstantiating = false;
 
 //*********************************************************
 // private constants
 //*********************************************************
 
-    private static final String STATE_HOUR = "hour";
-    private static final String STATE_MINUTE = "minute";
-    private static final String STATE_LISTENER = "listener";
+    private static final String ARG_HOUR = "hour";
+    
+    private static final String ARG_MINUTE = "minute";
 
 //*********************************************************
 // public helpers
 //*********************************************************
 
-    public interface OnDurationSetListener
+    public static class Data
     {
-        void onDurationSet(DialogInterface dialog, int which, int hour, int minute);
+        public int hour;
+        public int minute;
+        
+        public Data(int hour, int minute)
+        {
+            this.hour = hour;
+            this.minute = minute;
+        }
+    }
+    
+    public static class ViewModel
+            extends androidx.lifecycle.ViewModel
+    {
+        private int mHour;
+        private int mMinute;
+        private MutableLiveData<LiveDataEvent<Data>> mDurationSetEvent = new MutableLiveData<>();
+        
+        public static ViewModel getInstance(FragmentActivity activity)
+        {
+            return new ViewModelProvider(activity).get(ViewModel.class);
+        }
+        
+        public int getHour()
+        {
+            return mHour;
+        }
+        
+        public void setHour(int hour)
+        {
+            mHour = hour;
+        }
+        
+        public int getMinute()
+        {
+            return mMinute;
+        }
+        
+        public void setMinute(int minute)
+        {
+            mMinute = minute;
+        }
+        
+        public LiveData<LiveDataEvent<Data>> onDurationSet()
+        {
+            return mDurationSetEvent;
+        }
+        
+        public void setDuration()
+        {
+            mDurationSetEvent.setValue(new LiveDataEvent<>(new Data(mHour, mMinute)));
+        }
     }
 
 //*********************************************************
 // overrides
 //*********************************************************
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        
+        if (mInstantiating) {
+            int hour = getArguments().getInt(ARG_HOUR);
+            int minute = getArguments().getInt(ARG_MINUTE);
+            
+            getViewModel().setHour(hour);
+            getViewModel().setMinute(minute);
+            
+            // just to be safe
+            mInstantiating = false;
+        }
+    }
+    
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState)
     {
-        maybeInitFromSavedInstanceState(savedInstanceState);
-        
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
         
         View durationPicker = requireActivity().getLayoutInflater().inflate(
@@ -75,41 +145,31 @@ public class DurationPickerFragment
         
         NumberPicker hourPicker = durationPicker.findViewById(R.id.hour_picker);
         hourPicker.setMaxValue(99);
-        hourPicker.setValue(mHour);
+        hourPicker.setValue(getViewModel().getHour());
         hourPicker.setOnValueChangedListener((picker, oldVal, newVal) -> setHour(newVal));
         
         NumberPicker minutePicker = durationPicker.findViewById(R.id.minute_picker);
         minutePicker.setMaxValue(59);
-        minutePicker.setValue(mMinute);
+        minutePicker.setValue(getViewModel().getMinute());
         minutePicker.setOnValueChangedListener((picker, oldVal, newVal) -> setMinute(newVal));
         
         builder.setView(durationPicker)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton("OK", (dialog, which) -> {
-                    if (mListener != null) {
-                        mListener.onDurationSet(dialog, which, mHour, mMinute);
-                    }
+                    getViewModel().setDuration();
                 });
         return builder.create();
     }
-    
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState)
-    {
-        outState.putInt(STATE_HOUR, mHour);
-        outState.putInt(STATE_MINUTE, mMinute);
-        outState.putSerializable(STATE_LISTENER, new SerializableWrapper<>(mListener));
-        super.onSaveInstanceState(outState);
-    }
-    
+
 //*********************************************************
 // api
 //*********************************************************
 
+    // TODO [21-01-29 7:19PM] -- consider a createInstance(OnDurationSetListener) overload, where
+    //  the hour and minute are set to some default value.
     public static DurationPickerFragment createInstance(
             int initialHour,
-            int initialMinute,
-            OnDurationSetListener onDurationSetListener)
+            int initialMinute)
     {
         if (!isValidHour(initialHour)) {
             throw new IllegalArgumentException(String.format("Invalid hour: %d", initialHour));
@@ -119,14 +179,23 @@ public class DurationPickerFragment
         }
         
         DurationPickerFragment fragment = new DurationPickerFragment();
-        fragment.mHour = initialHour;
-        fragment.mMinute = initialMinute;
-        fragment.mListener = onDurationSetListener;
+        fragment.setArguments(createArguments(initialHour, initialMinute));
+        fragment.mInstantiating = true;
         return fragment;
     }
     
-    // TODO [21-01-29 7:19PM] -- consider a createInstance(OnDurationSetListener) overload, where
-    //  the hour and minute are set to some default value.
+    public static Bundle createArguments(int initialHour, int initialMinute)
+    {
+        Bundle args = new Bundle();
+        args.putInt(ARG_HOUR, initialHour);
+        args.putInt(ARG_MINUTE, initialMinute);
+        return args;
+    }
+    
+    public ViewModel getViewModel(FragmentActivity activity)
+    {
+        return ViewModel.getInstance(activity);
+    }
 
 //*********************************************************
 // private methods
@@ -142,30 +211,18 @@ public class DurationPickerFragment
         return ((minute >= 0) && (minute < 60));
     }
     
-    private void maybeInitFromSavedInstanceState(Bundle savedInstanceState)
+    private ViewModel getViewModel()
     {
-        if (savedInstanceState == null) {
-            return;
-        }
-        
-        mHour = savedInstanceState.getInt(STATE_HOUR, 0);
-        mMinute = savedInstanceState.getInt(STATE_MINUTE, 0);
-        
-        SerializableWrapper<OnDurationSetListener> listenerWrapper =
-                (SerializableWrapper<OnDurationSetListener>) savedInstanceState.getSerializable(
-                        STATE_LISTENER);
-        if (listenerWrapper != null) {
-            mListener = listenerWrapper.data;
-        }
+        return getViewModel(requireActivity());
     }
     
     private void setMinute(int minute)
     {
-        mMinute = minute;
+        getViewModel().setMinute(minute);
     }
     
     private void setHour(int hour)
     {
-        mHour = hour;
+        getViewModel().setHour(hour);
     }
 }

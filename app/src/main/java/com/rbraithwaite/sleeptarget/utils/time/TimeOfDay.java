@@ -14,11 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.utils.time;
 
+import com.rbraithwaite.sleeptarget.utils.Constants;
 import com.rbraithwaite.sleeptarget.utils.TimeUtils;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -26,11 +27,14 @@ import java.util.Date;
 //  com/rbraithwaite/sleeptarget/ui/session_details/controllers/DateTimeViewModel.java
 //  also has a TimeOfDay - that should be using this.
 public class TimeOfDay
+        implements Serializable
 {
 //*********************************************************
 // public constants
 //*********************************************************
 
+    public static final long serialVersionUID = Constants.SERIAL_VERSION_UID;
+    
     public final int hourOfDay;
     public final int minute;
 
@@ -67,7 +71,7 @@ public class TimeOfDay
         if (hourOfDay != timeOfDay.hourOfDay) { return false; }
         return minute == timeOfDay.minute;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************

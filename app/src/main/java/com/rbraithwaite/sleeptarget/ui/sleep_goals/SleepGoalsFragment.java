@@ -18,6 +18,7 @@ package com.rbraithwaite.sleeptarget.ui.sleep_goals;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,24 +31,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.DialogFragment;
-import androidx.lifecycle.LiveData;
 
 import com.rbraithwaite.sleeptarget.R;
 import com.rbraithwaite.sleeptarget.ui.BaseFragment;
-import com.rbraithwaite.sleeptarget.ui.common.dialog.AlertDialogFragment;
-import com.rbraithwaite.sleeptarget.ui.common.dialog.DialogUtils;
+import com.rbraithwaite.sleeptarget.ui.common.dialog.DeleteDialog;
 import com.rbraithwaite.sleeptarget.ui.common.dialog.DurationPickerFragment;
 import com.rbraithwaite.sleeptarget.ui.common.dialog.TimePickerFragment;
 import com.rbraithwaite.sleeptarget.ui.sleep_goals.data.SleepDurationGoalUIData;
 import com.rbraithwaite.sleeptarget.ui.sleep_goals.streak_calendar.StreakCalendar;
 import com.rbraithwaite.sleeptarget.utils.LiveDataFuture;
-import com.rbraithwaite.sleeptarget.utils.LiveDataUtils;
+import com.rbraithwaite.sleeptarget.utils.time.TimeOfDay;
 
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -68,6 +63,50 @@ public class SleepGoalsFragment
     
     private static final String PICKER_SLEEP_DURATION = "SleepDurationPicker";
     private static final String TAG = "SleepGoalsFragment";
+    
+    private static final String TAG_WAKETIME_TIME_SET = "WakeTimeSet";
+
+//*********************************************************
+// public helpers
+//*********************************************************
+
+    public static class DurationTargetHelpDialog
+            extends DialogFragment
+    {
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(@Nullable Bundle savedInstanceState)
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            @SuppressLint("InflateParams")
+            View dialogView = getLayoutInflater().inflate(R.layout.sleep_goals_help_dialog_duration,
+                                                          null);
+            builder.setTitle("How do I hit a sleep duration target?")
+                    // TODO [21-08-29 6:30PM] -- add help dialog content.
+                    .setView(dialogView)
+                    .setPositiveButton(android.R.string.ok, null);
+            return builder.create();
+        }
+    }
+    
+    // REFACTOR [21-10-16 7:01PM] -- Duplicates DurationTargetHelpDialog.
+    public static class WakeTimeHelpDialog
+            extends DialogFragment
+    {
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(@Nullable Bundle savedInstanceState)
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            @SuppressLint("InflateParams")
+            View dialogView = getLayoutInflater().inflate(R.layout.sleep_goals_help_dialog_waketime,
+                                                          null);
+            builder.setTitle("How do I hit a wake-time target?")
+                    .setView(dialogView)
+                    .setPositiveButton(android.R.string.ok, null);
+            return builder.create();
+        }
+    }
 
 //*********************************************************
 // overrides
@@ -113,7 +152,7 @@ public class SleepGoalsFragment
                 streakCalendarFrame.getContext(),
                 viewModel::onCalendarMonthChanged);
         streakCalendarFrame.addView(streakCalendar.getView());
-    
+        
         // OPTIMIZE [21-03-14 10:44PM] -- right now I am using all succeeded goal dates in history -
         //  it would probably be better to only use those relevant to the currently displayed month
         //  of the calendar
@@ -160,6 +199,24 @@ public class SleepGoalsFragment
         
         View helpClickFrame = wakeTimeCard.findViewById(R.id.sleep_goals_waketime_help_click_frame);
         helpClickFrame.setOnClickListener(v -> displayWakeTimeHelpDialog());
+        
+        TimePickerFragment.ViewModel.getInstance(requireActivity()).onTimeSet().observe(
+                getViewLifecycleOwner(),
+                timeEvent -> {
+                    if (timeEvent.isFreshForTag(TAG_WAKETIME_TIME_SET)) {
+                        TimeOfDay timeOfDay = timeEvent.getExtra();
+                        getViewModel().setWakeTime(timeOfDay.hourOfDay, timeOfDay.minute);
+                    }
+                });
+        
+        // handle waketime deletion from the dialog
+        getActivityViewModel(DeleteDialog.Actions.class).onPositiveAction().observe(
+                getViewLifecycleOwner(),
+                event -> {
+                    if (event.isFreshForTag(DIALOG_DELETE_WAKETIME)) {
+                        getViewModel().clearWakeTime();
+                    }
+                });
     }
     
     // REFACTOR [21-01-29 2:46AM] -- duplicate logic with initWakeTimeGoal()
@@ -172,6 +229,16 @@ public class SleepGoalsFragment
                 sleepDurationCard.findViewById(R.id.sleep_goals_new_duration_btn);
         buttonAddNewSleepDuration.setOnClickListener(v -> displaySleepDurationGoalPickerDialog(
                 getViewModel().getDefaultSleepDurationGoal()));
+        
+        // handle duration-set events from the duration picker dialog (could be adding or updating)
+        DurationPickerFragment.ViewModel.getInstance(requireActivity())
+                .onDurationSet()
+                .observe(getViewLifecycleOwner(), durationEvent -> {
+                    if (durationEvent.isFresh()) {
+                        DurationPickerFragment.Data data = durationEvent.getExtra();
+                        getViewModel().setSleepDurationGoal(data.hour, data.minute);
+                    }
+                });
         
         getViewModel().hasSleepDurationGoal().observe(
                 getViewLifecycleOwner(),
@@ -194,6 +261,15 @@ public class SleepGoalsFragment
         View helpClickFrame =
                 sleepDurationCard.findViewById(R.id.sleep_goals_duration_help_click_frame);
         helpClickFrame.setOnClickListener(v -> displaySleepDurationGoalHelpDialog());
+        
+        // handle duration deletion from the dialog
+        getActivityViewModel(DeleteDialog.Actions.class).onPositiveAction().observe(
+                getViewLifecycleOwner(),
+                event -> {
+                    if (event.isFreshForTag(DIALOG_DELETE_DURATION)) {
+                        getViewModel().clearSleepDurationGoal();
+                    }
+                });
     }
     
     private void initSleepDurationGoalLayout(View sleepDurationGoalLayout)
@@ -212,7 +288,6 @@ public class SleepGoalsFragment
         Button deleteButton = sleepDurationGoalLayout.findViewById(R.id.duration_delete_btn);
         deleteButton.setOnClickListener(v -> displaySleepDurationGoalDeleteDialog());
     }
-    
     
     private void initWakeTimeLayout(View wakeTimeLayout)
     {
@@ -234,66 +309,37 @@ public class SleepGoalsFragment
     
     private void displayWakeTimeHelpDialog()
     {
-        DialogFragment dialog = AlertDialogFragment.createInstance((context, inflater) -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            @SuppressLint("InflateParams")
-            View dialogView = inflater.inflate(R.layout.sleep_goals_help_dialog_waketime, null);
-            builder.setTitle("How do I hit a wake-time target?")
-                    .setView(dialogView)
-                    .setPositiveButton(android.R.string.ok, null);
-            return builder.create();
-        });
-        
-        dialog.show(getChildFragmentManager(), DIALOG_WAKETIME_HELP);
+        new WakeTimeHelpDialog().show(getChildFragmentManager(), DIALOG_WAKETIME_HELP);
     }
     
     private void displaySleepDurationGoalHelpDialog()
     {
-        DialogFragment dialog = AlertDialogFragment.createInstance((context, inflater) -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            @SuppressLint("InflateParams")
-            View dialogView = inflater.inflate(R.layout.sleep_goals_help_dialog_duration, null);
-            builder.setTitle("How do I hit a sleep duration target?")
-                    // TODO [21-08-29 6:30PM] -- add help dialog content.
-                    .setView(dialogView)
-                    .setPositiveButton(android.R.string.ok, null);
-            return builder.create();
-        });
-        
-        dialog.show(getChildFragmentManager(), DIALOG_DURATION_HELP);
+        new DurationTargetHelpDialog().show(getChildFragmentManager(), DIALOG_DURATION_HELP);
     }
     
     private void displaySleepDurationGoalPickerDialog(SleepDurationGoalUIData initialValue)
     {
         DurationPickerFragment durationPickerDialog = DurationPickerFragment.createInstance(
                 initialValue.hours,
-                initialValue.remainingMinutes,
-                // BUG [21-09-9 5:10PM] -- This getViewModel() call in this lambda (and other
-                //  similar calls in other lambdas) is likely causing a memory leak when the
-                //  device is rotated (the lambda, stored in the dialog fragment, retains a ref
-                //  to the old SleepGoalsFragment)
-                //  see: https://www.logicbig.com/tutorials/core-java-tutorial/java-language
-                //  /implicit-outer-class-reference.html.
-                (dialog, which, hour, minute) -> getViewModel().setSleepDurationGoal(hour, minute));
+                initialValue.remainingMinutes);
         durationPickerDialog.show(getChildFragmentManager(), PICKER_SLEEP_DURATION);
     }
     
     private void displaySleepDurationGoalDeleteDialog()
     {
-        DialogUtils
-                .createDeleteDialog(
-                        R.string.sleep_goals_delete_duration_dialog_title,
-                        (dialog, which) -> getViewModel().clearSleepDurationGoal())
+        DeleteDialog.createInstance(
+                DIALOG_DELETE_DURATION,
+                R.string.sleep_goals_delete_duration_dialog_title,
+                null)
                 .show(getChildFragmentManager(), DIALOG_DELETE_DURATION);
-        ;
     }
     
     private void displayWakeTimeDeleteDialog()
     {
-        DialogUtils
-                .createDeleteDialog(
-                        R.string.sleep_goals_delete_waketime_dialog_title,
-                        (dialog, which) -> getViewModel().clearWakeTime())
+        DeleteDialog.createInstance(
+                DIALOG_DELETE_WAKETIME,
+                R.string.sleep_goals_delete_waketime_dialog_title,
+                null)
                 .show(getChildFragmentManager(), DIALOG_DELETE_WAKETIME);
     }
     
@@ -304,12 +350,8 @@ public class SleepGoalsFragment
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTimeInMillis(defaultValueDateMillis);
         
-        TimePickerFragment timePicker = new TimePickerFragment();
-        timePicker.setArguments(TimePickerFragment.createArguments(cal.get(Calendar.HOUR_OF_DAY),
-                                                                   cal.get(Calendar.MINUTE)));
-        timePicker.setOnTimeSetListener((view, hourOfDay, minute) -> getViewModel().setWakeTime(
-                hourOfDay,
-                minute));
+        TimePickerFragment timePicker =
+                TimePickerFragment.createInstance(TAG_WAKETIME_TIME_SET, TimeOfDay.of(cal));
         timePicker.show(getChildFragmentManager(), WAKETIME_TIME_PICKER);
     }
 }

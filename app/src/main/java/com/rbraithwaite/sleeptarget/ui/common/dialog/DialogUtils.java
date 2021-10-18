@@ -34,6 +34,7 @@ public class DialogUtils
 // api
 //*********************************************************
 
+    @Deprecated
     public static AlertDialogFragment createDeleteDialog(
             Integer titleId,
             DialogInterface.OnClickListener onDeleteListener)
@@ -42,6 +43,7 @@ public class DialogUtils
     }
     
     // TODO [21-01-27 11:09PM] -- consider unit tests I could write for this.
+    @Deprecated
     public static AlertDialogFragment createDeleteDialog(
             Integer titleId,
             Integer messageId,

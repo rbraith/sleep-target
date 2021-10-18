@@ -23,6 +23,7 @@ import com.rbraithwaite.sleeptarget.test_utils.TestUtils;
 import com.rbraithwaite.sleeptarget.test_utils.ui.dialog.DialogTestHelper;
 import com.rbraithwaite.sleeptarget.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleeptarget.ui.common.dialog.DatePickerFragment;
+import com.rbraithwaite.sleeptarget.utils.time.Day;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,12 +50,9 @@ public class DatePickerFragmentTests
     {
         GregorianCalendar calendar = new GregorianCalendar(2010, 9, 8);
         
-        DialogTestHelper<DatePickerFragment> dialogHelper = DialogTestHelper.launchDialogWithArgs(
+        DialogTestHelper.launchDialogWithArgs(
                 DatePickerFragment.class,
-                DatePickerFragment.createArguments(
-                        calendar.get(Calendar.YEAR),
-                        calendar.get(Calendar.MONTH),
-                        calendar.get(Calendar.DAY_OF_MONTH)));
+                DatePickerFragment.createArguments("unused", Day.of(calendar)));
         
         onDatePicker().check(matches(datePickerWithDate(
                 calendar.get(Calendar.YEAR),
@@ -65,29 +63,31 @@ public class DatePickerFragmentTests
     // TODO [20-11-29 7:14PM] -- test null fragment args.
     
     @Test
-    public void OnDateSetListener_receivesCorrectValues()
+    public void DatePickerViewModel_receivesCorrectValues()
     {
         GregorianCalendar calendar = new GregorianCalendar(2019, 8, 7);
         
+        DatePickerFragment dialog = DatePickerFragment.createInstance("unused", Day.of(calendar));
+        
+        DialogTestHelper<DatePickerFragment> helper =
+                DialogTestHelper.launchProvidedInstance(dialog);
+    
         final int testYear = 2010;
         final int testMonth = 5;
         final int testDayOfMonth = 20;
-        
-        DatePickerFragment dialog = new DatePickerFragment();
-        dialog.setArguments(DatePickerFragment.createArguments(
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)));
-        
+    
         final TestUtils.ThreadBlocker blocker = new TestUtils.ThreadBlocker();
-        dialog.setOnDateSetListener((view, year, month, dayOfMonth) -> {
-            assertThat(year, is(testYear));
-            assertThat(month, is(testMonth));
-            assertThat(dayOfMonth, is(testDayOfMonth));
-            blocker.unblockThread();
+        TestUtils.performSyncedActivityAction(helper.getScenario(), activity -> {
+            dialog.getViewModel(activity).onDateSet().observe(activity, dateEvent -> {
+                if (dateEvent.isFresh()) {
+                    Day day = dateEvent.getExtra();
+                    assertThat(day.year, is(testYear));
+                    assertThat(day.month, is(testMonth));
+                    assertThat(day.dayOfMonth, is(testDayOfMonth));
+                    blocker.unblockThread();
+                }
+            });
         });
-        DialogTestHelper<DatePickerFragment> helper =
-                DialogTestHelper.launchProvidedInstance(dialog);
         
         // change the date & confirm
         onDatePicker().perform(setDatePickerDate(testYear, testMonth, testDayOfMonth));

@@ -17,11 +17,17 @@
 
 package com.rbraithwaite.sleeptarget.ui.sleep_tracker.data;
 
-public class PostSleepData
+import com.rbraithwaite.sleeptarget.utils.Constants;
+
+import java.io.Serializable;
+
+public class PostSleepData implements Serializable
 {
 //*********************************************************
 // public constants
 //*********************************************************
+    
+    public static final long serialVersionUID = Constants.SERIAL_VERSION_UID;
 
     public final float rating;
 

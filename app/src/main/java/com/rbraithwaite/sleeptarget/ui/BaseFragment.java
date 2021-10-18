@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui;
 
 import android.os.Bundle;
@@ -117,6 +116,11 @@ public abstract class BaseFragment<V extends ViewModel>
             mViewModel = new ViewModelProvider(requireActivity()).get(mProperties.viewModelClass);
         }
         return mViewModel;
+    }
+    
+    public <T extends ViewModel> T getActivityViewModel(Class<T> viewModelClass)
+    {
+        return new ViewModelProvider(requireActivity()).get(viewModelClass);
     }
 
 

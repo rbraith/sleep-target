@@ -32,7 +32,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.rbraithwaite.sleeptarget.R;
-import com.rbraithwaite.sleeptarget.ui.common.dialog.AlertDialogFragment;
+import com.rbraithwaite.sleeptarget.ui.common.dialog.AlertDialogFragment2;
 import com.rbraithwaite.sleeptarget.ui.common.views.details_fragment.DetailsFragment;
 import com.rbraithwaite.sleeptarget.ui.common.views.details_fragment.DetailsResult;
 import com.rbraithwaite.sleeptarget.ui.common.views.session_times.SessionTimesComponent;
@@ -74,6 +74,48 @@ public class InterruptionDetailsFragment
     public static class Args
             extends DetailsFragment.Args<InterruptionDetailsData> {}
 
+    public static class OverlapErrorDialog
+            extends AlertDialogFragment2
+    {
+        public OverlapErrorDialog() {}
+        
+        public OverlapErrorDialog(InterruptionDetailsFragmentViewModel.OverlappingInterruptionException e)
+        {
+            Bundle args = new Bundle();
+            args.putString("overlap start", e.overlappedStart);
+            args.putString("overlap end", e.overlappedEnd);
+            setArguments(args);
+        }
+        
+        @Override
+        protected AlertDialog createAlertDialog()
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            builder.setTitle(R.string.interruption_details_overlap_error_title)
+                    .setView(createDialogContent())
+                    .setPositiveButton(android.R.string.ok, null);
+            return builder.create();
+        }
+        
+        private View createDialogContent()
+        {
+            @SuppressLint("InflateParams") View dialogContent =
+                    getLayoutInflater().inflate(R.layout.interruption_details_error, null);
+            
+            TextView message = dialogContent.findViewById(R.id.interruption_details_error_message);
+            message.setText(R.string.interruption_details_overlap_error_message);
+            
+            TextView start =
+                    dialogContent.findViewById(R.id.interruption_details_error_start_value);
+            start.setText(getArguments().getString("overlap start"));
+            
+            TextView end = dialogContent.findViewById(R.id.interruption_details_error_end_value);
+            end.setText(getArguments().getString("overlap end"));
+            
+            return dialogContent;
+        }
+    }
+    
 //*********************************************************
 // overrides
 //*********************************************************
@@ -167,7 +209,7 @@ public class InterruptionDetailsFragment
         params.messageId = R.string.permanent_operation_message;
         return params;
     }
-    
+
     @Override
     protected Properties<InterruptionDetailsFragmentViewModel> initProperties()
     {
@@ -195,7 +237,7 @@ public class InterruptionDetailsFragment
         message.setText(outOfBoundsDetails.messageId);
         sessionTime.setText(outOfBoundsDetails.sessionTimeText);
     }
-
+    
     private SessionTimesViewModel getSessionTimesViewModel()
     {
         mSessionTimesViewModel = CommonUtils.lazyInit(mSessionTimesViewModel, () -> {
@@ -206,7 +248,6 @@ public class InterruptionDetailsFragment
         });
         return mSessionTimesViewModel;
     }
-    
     
     /**
      * If the result interruption is not valid, display an error dialog and return false.
@@ -222,74 +263,8 @@ public class InterruptionDetailsFragment
         }
     }
     
-    // REFACTOR [21-09-12 7:52PM] -- This generic dialog system isn't needed anymore now that
-    //  there's only one type of dialog.
-    private void displayErrorDialog(String tag, int titleId, DialogViewFactory content)
-    {
-        AlertDialogFragment dialog = AlertDialogFragment.createInstance((context, inflater) -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setTitle(titleId)
-//                    .setView(content.createView(inflater))
-                    .setPositiveButton(android.R.string.ok, null);
-            return builder.create();
-        });
-        
-        dialog.show(getChildFragmentManager(), tag);
-    }
-    
     private void displayOverlapErrorDialog(InterruptionDetailsFragmentViewModel.OverlappingInterruptionException e)
     {
-        displayErrorDialog(
-                DIALOG_OVERLAP_ERROR,
-                R.string.interruption_details_overlap_error_title,
-                inflater -> createOverlapErrorDialogContent(inflater, e));
-    }
-    
-    private View createOverlapErrorDialogContent(
-            LayoutInflater inflater,
-            InterruptionDetailsFragmentViewModel.OverlappingInterruptionException e)
-    {
-        return createErrorDialogContent(
-                inflater,
-                R.string.interruption_details_overlap_error_message,
-                e.overlappedStart,
-                e.overlappedEnd);
-    }
-    
-    private View createErrorDialogContent(
-            LayoutInflater inflater,
-            int messageId,
-            String startText,
-            String endText)
-    {
-        // https://stackoverflow.com/questions/26404951/avoid-passing-null-as-the-view-root-warning-when-inflating-view-for-use-by-ale/26596164#comment94222428_26596164
-        // In dialog contexts passing null is appropriate. Ideally setView(int) would be used in
-        // the AlertDialog.Builder then you can find the view from the built dialog, but
-        // setView(int) is API 21+.
-        @SuppressLint("InflateParams")
-        View dialogContent = inflater.inflate(R.layout.interruption_details_error, null);
-        
-        TextView message = dialogContent.findViewById(R.id.interruption_details_error_message);
-        message.setText(messageId);
-        
-        TextView start = dialogContent.findViewById(R.id.interruption_details_error_start_value);
-        start.setText(startText);
-        
-        TextView end = dialogContent.findViewById(R.id.interruption_details_error_end_value);
-        end.setText(endText);
-        
-        return dialogContent;
-    }
-
-//*********************************************************
-// private helpers
-//*********************************************************
-
-    // REFACTOR [21-09-9 3:50PM] -- This was a sort of fast patchwork solution on top of the current
-    //  error dialog display system in this class - the whole system should be reworked and
-    //  simplified. (The problem was passing the right LayoutInflater to the view-creating methods)
-    private interface DialogViewFactory
-    {
-        View createView(LayoutInflater inflater);
+        new OverlapErrorDialog(e).show(getChildFragmentManager(), DIALOG_OVERLAP_ERROR);
     }
 }

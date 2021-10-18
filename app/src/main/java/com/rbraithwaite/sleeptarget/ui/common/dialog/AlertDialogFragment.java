@@ -28,6 +28,7 @@ import androidx.fragment.app.DialogFragment;
 
 import com.rbraithwaite.sleeptarget.utils.SerializableWrapper;
 
+@Deprecated
 public class AlertDialogFragment
         extends DialogFragment
 {
