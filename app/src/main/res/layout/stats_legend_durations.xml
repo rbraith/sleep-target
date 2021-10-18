@@ -37,7 +37,8 @@
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_stats_legend_bar_24" />
+        app:srcCompat="@drawable/ic_stats_legend_bar_24"
+        tools:ignore="ContentDescription" />
 
     <ImageView
         android:id="@+id/stats_durations_legend_rating_icon"
@@ -47,7 +48,8 @@
         android:tint="?attr/colorSecondary"
         app:layout_constraintStart_toStartOf="@+id/stats_durations_legend_bar_icon"
         app:layout_constraintTop_toBottomOf="@+id/stats_durations_legend_bar_icon"
-        app:srcCompat="@drawable/ic_stats_legend_rating_24" />
+        app:srcCompat="@drawable/ic_stats_legend_rating_24"
+        tools:ignore="ContentDescription" />
 
     <ImageView
         android:id="@+id/stats_durations_legend_target_icon"
@@ -59,14 +61,15 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@+id/stats_durations_legend_rating_icon"
         app:layout_constraintTop_toBottomOf="@+id/stats_durations_legend_rating_icon"
-        app:srcCompat="@drawable/ic_stats_legend_line_24" />
+        app:srcCompat="@drawable/ic_stats_legend_line_24"
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/stats_durations_legend_bar_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
-        android:text="Sleep Duration"
+        android:text="@string/sleep_duration"
         app:layout_constraintBottom_toBottomOf="@+id/stats_durations_legend_bar_icon"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -77,7 +80,7 @@
         android:id="@+id/stats_durations_legend_rating_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sleep Rating"
+        android:text="@string/sleep_rating"
         app:layout_constraintBottom_toBottomOf="@+id/stats_durations_legend_rating_icon"
         app:layout_constraintStart_toStartOf="@+id/stats_durations_legend_bar_text"
         app:layout_constraintTop_toTopOf="@+id/stats_durations_legend_rating_icon" />
@@ -86,7 +89,7 @@
         android:id="@+id/stats_durations_legend_target_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Target Sleep Duration"
+        android:text="@string/stats_durations_legend_target_text"
         app:layout_constraintBottom_toBottomOf="@+id/stats_durations_legend_target_icon"
         app:layout_constraintStart_toStartOf="@+id/stats_durations_legend_rating_text"
         app:layout_constraintTop_toTopOf="@+id/stats_durations_legend_target_icon" />

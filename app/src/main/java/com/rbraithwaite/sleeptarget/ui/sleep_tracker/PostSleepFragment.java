@@ -29,6 +29,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -236,7 +237,7 @@ public class PostSleepFragment
                     R.attr.trackerPostDialogNullDataMessageStyle);
             noCommentsMessage.setText(R.string.postsleepdialog_nocomments);
             
-            ScrollView commentsScroll = fragmentRoot.findViewById(R.id.postsleep_comments_scroll);
+            NestedScrollView commentsScroll = fragmentRoot.findViewById(R.id.postsleep_comments_scroll);
             commentsScroll.removeAllViews();
             commentsScroll.addView(noCommentsMessage);
         } else {

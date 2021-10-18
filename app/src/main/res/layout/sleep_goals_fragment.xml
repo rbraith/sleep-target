@@ -55,7 +55,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_marginLeft="8dp"
                     android:layout_marginTop="8dp"
-                    android:text="Wake Time"
+                    android:text="@string/wake_time"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -73,7 +73,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        app:srcCompat="@drawable/ic_baseline_help_outline_24" />
+                        app:srcCompat="@drawable/ic_baseline_help_outline_24"
+                        tools:ignore="ContentDescription"/>
                 </FrameLayout>
 
                 <com.google.android.material.button.MaterialButton
@@ -131,7 +132,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_marginLeft="8dp"
                     android:layout_marginTop="8dp"
-                    android:text="Sleep Duration"
+                    android:text="@string/sleep_duration"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -149,7 +150,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        app:srcCompat="@drawable/ic_baseline_help_outline_24" />
+                        app:srcCompat="@drawable/ic_baseline_help_outline_24"
+                        tools:ignore="ContentDescription"/>
                 </FrameLayout>
 
                 <com.google.android.material.button.MaterialButton

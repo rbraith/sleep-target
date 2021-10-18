@@ -17,7 +17,6 @@
 
 package com.rbraithwaite.sleeptarget.ui.sleep_goals;
 
-import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -42,6 +41,11 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.Executor;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+
+@HiltViewModel
 public class SleepGoalsFragmentViewModel
         extends ViewModel
 {
@@ -77,7 +81,7 @@ public class SleepGoalsFragmentViewModel
 // constructors
 //*********************************************************
 
-    @ViewModelInject
+    @Inject
     public SleepGoalsFragmentViewModel(
             CurrentGoalsRepository currentGoalsRepository,
             SleepSessionRepository sleepSessionRepository,

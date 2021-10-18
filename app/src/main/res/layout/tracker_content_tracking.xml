@@ -58,7 +58,7 @@
         style="@style/TrackerInterruptionsTotal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Error"
+        android:text="@string/error"
         app:layout_constraintBottom_toTopOf="@id/sleep_tracker_button"
         app:layout_constraintStart_toStartOf="@id/sleep_tracker_session_time" />
 
@@ -81,7 +81,7 @@
         android:layout_marginStart="12dp"
         android:layout_marginLeft="12dp"
         android:layout_marginTop="12dp"
-        android:text="Started:"
+        android:text="@string/sleep_tracker_started_text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

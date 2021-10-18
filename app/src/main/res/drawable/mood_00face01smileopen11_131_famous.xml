@@ -1,26 +1,15 @@
-<!--
-  ~ Copyright (c) 2020-2021 Rich Braithwaite (rbraithwaite.dev@gmail.com)
-  ~
-  ~ This program is free software: you can redistribute it and/or modify
-  ~ it under the terms of the GNU General Public License as published by
-  ~ the Free Software Foundation, either version 3 of the License, or
-  ~ (at your option) any later version.
-  ~
-  ~ This program is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
-  -->
-
+<!--~ Copyright (c) 2020-2021 Rich Braithwaite (rbraithwaite.dev@gmail.com) ~ ~ This program is free software: you can redistribute it and/or modify ~ it under the terms of the GNU General Public License as published by ~ the Free Software Foundation, either version 3 of the License, or ~ (at your option) any later version. ~ ~ This program is distributed in the hope that it will be useful, ~ but WITHOUT ANY WARRANTY; without even the implied warranty of ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the ~ GNU General Public License for more details. ~ ~ You should have received a copy of the GNU General Public License ~ along with this program. If not, see <https://www.gnu.org/licenses/>.-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="512dp"
-    android:height="512dp"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:width="200dp"
+    android:height="200dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
-  <path
-      android:fillColor="#FF000000"
-      android:pathData="m12,0c-6.62,0 -12,5.38 -12,12s5.38,12 12,12 12,-5.38 12,-12 -5.38,-12 -12,-12zM3.037,7.879c0.088,-0.271 0.322,-0.469 0.605,-0.51l1.855,-0.27 0.829,-1.682c0.254,-0.512 1.092,-0.512 1.346,0l0.829,1.682 1.855,0.27c0.283,0.041 0.518,0.239 0.605,0.51 0.089,0.271 0.015,0.57 -0.189,0.769l-1.341,1.309 0.317,1.848c0.048,0.282 -0.067,0.566 -0.299,0.734 -0.13,0.095 -0.285,0.143 -0.44,0.143 -0.119,0 -0.239,-0.028 -0.349,-0.086l-1.66,-0.873 -1.66,0.873c-0.252,0.132 -0.561,0.11 -0.789,-0.057 -0.231,-0.168 -0.347,-0.452 -0.299,-0.734l0.317,-1.848 -1.342,-1.309c-0.205,-0.199 -0.279,-0.498 -0.19,-0.769zM12,21.22c-2.935,0 -5.592,-1.422 -7.222,-3.72h14.443c-1.629,2.298 -4.286,3.72 -7.221,3.72zM20.47,14.97c-0.11,0.356 -0.247,0.697 -0.397,1.03h-16.146c-0.15,-0.333 -0.287,-0.674 -0.397,-1.03 -0.07,-0.23 -0.03,-0.47 0.12,-0.66 0.14,-0.2 0.36,-0.31 0.6,-0.31h15.5c0.24,0 0.46,0.11 0.6,0.31 0.15,0.19 0.19,0.43 0.12,0.66zM20.963,7.879c0.089,0.271 0.015,0.57 -0.189,0.769l-1.343,1.309 0.317,1.848c0.048,0.282 -0.067,0.566 -0.299,0.734 -0.13,0.095 -0.285,0.143 -0.44,0.143 -0.119,0 -0.239,-0.028 -0.349,-0.086l-1.66,-0.873 -1.66,0.873c-0.252,0.132 -0.56,0.11 -0.789,-0.057 -0.231,-0.168 -0.347,-0.452 -0.299,-0.734l0.317,-1.848 -1.343,-1.309c-0.204,-0.199 -0.278,-0.498 -0.189,-0.769 0.088,-0.271 0.322,-0.469 0.605,-0.51l1.855,-0.27 0.829,-1.682c0.254,-0.512 1.092,-0.512 1.346,0l0.829,1.682 1.855,0.27c0.285,0.041 0.519,0.238 0.607,0.51z"/>
+    <!-- TODO [21-10-12 11:39PM] - Ignoring the path length here isn't ideal, but this has already
+            been through svgo and avocado, and it seems like the only other option is manually
+            editing the path.-->
+    <path
+        android:fillColor="#FF000000"
+        tools:ignore="VectorPath"
+        android:pathData="M12 0a12.01 12.01 0 0 0 0 24 12.01 12.01 0 0 0 0-24zM3.04 7.88a0.75 0.75 0 0 1 0.6-0.51L5.5 7.1l0.83-1.68c0.25-0.52 1.09-0.52 1.34 0L8.5 7.1l1.86 0.27a0.75 0.75 0 0 1 0.41 1.28l-1.34 1.3 0.32 1.85a0.75 0.75 0 0 1-1.09 0.8L7 11.72 5.34 12.6a0.75 0.75 0 0 1-1.09-0.8l0.32-1.84-1.34-1.31a0.75 0.75 0 0 1-0.2-0.77zM12 21.22a8.83 8.83 0 0 1-7.22-3.72h14.44A8.82 8.82 0 0 1 12 21.22zm8.47-6.25a8.92 8.92 0 0 1-0.4 1.03H3.93a8.92 8.92 0 0 1-0.4-1.03 0.71 0.71 0 0 1 0.12-0.66 0.72 0.72 0 0 1 0.6-0.31h15.5a0.72 0.72 0 0 1 0.6 0.31 0.71 0.71 0 0 1 0.12 0.66zm0.5-7.1a0.75 0.75 0 0 1-0.2 0.78l-1.34 1.3 0.32 1.85a0.75 0.75 0 0 1-1.09 0.8L17 11.72l-1.66 0.88a0.75 0.75 0 0 1-1.09-0.8l0.32-1.84-1.34-1.31a0.75 0.75 0 0 1 0.41-1.28L15.5 7.1l0.83-1.68c0.25-0.52 1.09-0.52 1.34 0L18.5 7.1l1.86 0.27a0.75 0.75 0 0 1 0.6 0.5z" />
 </vector>

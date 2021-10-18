@@ -31,7 +31,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
-        android:text="Durations"
+        android:text="@string/durations"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -66,7 +66,7 @@
         android:layout_marginTop="24dp"
         android:layout_marginBottom="32dp"
         android:gravity="center"
-        android:text="No data"
+        android:text="@string/stats_no_data"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -79,7 +79,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:text="Duration"
+        android:text="@string/duration"
         app:layout_constraintBottom_toTopOf="@+id/stats_durations_range_selector"
         app:layout_constraintEnd_toStartOf="@+id/stats_durations_layout"
         app:layout_constraintHorizontal_chainStyle="packed"
@@ -93,7 +93,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:text="Rating"
+        android:text="@string/rating"
         app:layout_constraintBottom_toTopOf="@+id/stats_durations_range_selector"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/stats_durations_layout"
@@ -112,7 +112,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|center"
-            app:srcCompat="@drawable/ic_baseline_help_outline_24" />
+            app:srcCompat="@drawable/ic_baseline_help_outline_24"
+            tools:ignore="ContentDescription"/>
     </FrameLayout>
 
     <androidx.constraintlayout.widget.Group

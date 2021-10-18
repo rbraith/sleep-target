@@ -17,7 +17,6 @@
 
 package com.rbraithwaite.sleeptarget.ui.stats.chart_intervals;
 
-import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
@@ -38,10 +37,15 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.Executor;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+
 import static com.rbraithwaite.sleeptarget.ui.stats.chart_intervals.data_set.IntervalsDataSet.Resolution.MONTH;
 import static com.rbraithwaite.sleeptarget.ui.stats.chart_intervals.data_set.IntervalsDataSet.Resolution.WEEK;
 import static com.rbraithwaite.sleeptarget.ui.stats.chart_intervals.data_set.IntervalsDataSet.Resolution.YEAR;
 
+@HiltViewModel
 public class IntervalsChartViewModel
         extends ViewModel
 {
@@ -87,7 +91,7 @@ public class IntervalsChartViewModel
 // constructors
 //*********************************************************
 
-    @ViewModelInject
+    @Inject
     public IntervalsChartViewModel(
             SleepSessionRepository sleepSessionRepository,
             CurrentGoalsRepository goalsRepository,

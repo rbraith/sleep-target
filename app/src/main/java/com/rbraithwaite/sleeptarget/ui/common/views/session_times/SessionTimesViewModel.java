@@ -16,7 +16,6 @@
  */
 package com.rbraithwaite.sleeptarget.ui.common.views.session_times;
 
-import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
@@ -36,6 +35,11 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Optional;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+
+@HiltViewModel
 public class SessionTimesViewModel
         extends ViewModel
 {
@@ -79,7 +83,7 @@ public class SessionTimesViewModel
 // constructors
 //*********************************************************
 
-    @ViewModelInject
+    @Inject
     public SessionTimesViewModel(TimeUtils timeUtils)
     {
         mTimeUtils = timeUtils;

@@ -16,6 +16,7 @@
  */
 package com.rbraithwaite.sleeptarget.ui.sleep_goals;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -235,9 +236,10 @@ public class SleepGoalsFragment
     {
         DialogFragment dialog = AlertDialogFragment.createInstance((context, inflater) -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            @SuppressLint("InflateParams")
+            View dialogView = inflater.inflate(R.layout.sleep_goals_help_dialog_waketime, null);
             builder.setTitle("How do I hit a wake-time target?")
-                    .setView(inflater.inflate(R.layout.sleep_goals_help_dialog_waketime,
-                                              null))
+                    .setView(dialogView)
                     .setPositiveButton(android.R.string.ok, null);
             return builder.create();
         });
@@ -249,10 +251,11 @@ public class SleepGoalsFragment
     {
         DialogFragment dialog = AlertDialogFragment.createInstance((context, inflater) -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            @SuppressLint("InflateParams")
+            View dialogView = inflater.inflate(R.layout.sleep_goals_help_dialog_duration, null);
             builder.setTitle("How do I hit a sleep duration target?")
                     // TODO [21-08-29 6:30PM] -- add help dialog content.
-                    .setView(inflater.inflate(R.layout.sleep_goals_help_dialog_duration,
-                                              null))
+                    .setView(dialogView)
                     .setPositiveButton(android.R.string.ok, null);
             return builder.create();
         });

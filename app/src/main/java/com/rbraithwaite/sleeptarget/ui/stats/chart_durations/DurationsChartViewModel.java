@@ -18,7 +18,6 @@
 package com.rbraithwaite.sleeptarget.ui.stats.chart_durations;
 
 import androidx.annotation.Nullable;
-import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
@@ -40,6 +39,11 @@ import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+
+@HiltViewModel
 public class DurationsChartViewModel
         extends ViewModel
 {
@@ -89,7 +93,7 @@ public class DurationsChartViewModel
 // constructors
 //*********************************************************
 
-    @ViewModelInject
+    @Inject
     public DurationsChartViewModel(
             SleepSessionRepository sleepSessionRepository,
             CurrentGoalsRepository currentGoalsRepository,

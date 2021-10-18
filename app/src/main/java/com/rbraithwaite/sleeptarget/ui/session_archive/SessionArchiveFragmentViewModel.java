@@ -17,7 +17,6 @@
 
 package com.rbraithwaite.sleeptarget.ui.session_archive;
 
-import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
@@ -37,6 +36,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+
+@HiltViewModel
 public class SessionArchiveFragmentViewModel
         extends ViewModel
 {
@@ -57,7 +61,7 @@ public class SessionArchiveFragmentViewModel
 // constructors
 //*********************************************************
 
-    @ViewModelInject
+    @Inject
     public SessionArchiveFragmentViewModel(SleepSessionRepository sleepSessionRepository)
     {
         mSleepSessionRepository = sleepSessionRepository;

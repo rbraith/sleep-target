@@ -36,7 +36,8 @@
         app:layout_constraintHorizontal_chainStyle="spread_inside"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_baseline_arrow_left_24" />
+        app:srcCompat="@drawable/ic_baseline_arrow_left_24"
+        android:contentDescription="@string/content_description_stats_range_selector_back"/>
 
     <ImageButton
         android:id="@+id/stats_range_selector_forward"
@@ -49,7 +50,8 @@
         app:layout_constraintEnd_toStartOf="@+id/stats_range_selector_more"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/stats_range_selector_value"
-        app:srcCompat="@drawable/ic_baseline_arrow_right_24" />
+        app:srcCompat="@drawable/ic_baseline_arrow_right_24"
+        android:contentDescription="@string/content_description_stats_range_selector_forward"/>
 
     <TextView
         android:id="@+id/stats_range_selector_value"
@@ -72,5 +74,6 @@
         android:layout_marginRight="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/stats_range_selector_forward"
-        app:srcCompat="@drawable/ic_baseline_more_vert_24" />
+        app:srcCompat="@drawable/ic_baseline_more_vert_24"
+        android:contentDescription="@string/content_description_more_range_options"/>
 </merge>

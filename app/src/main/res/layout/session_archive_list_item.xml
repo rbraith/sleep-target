@@ -39,7 +39,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginLeft="16dp"
             android:layout_marginTop="8dp"
-            android:text="Start:"
+            android:text="@string/session_archive_list_item_start"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/session_archive_list_item_rating" />
 
@@ -62,7 +62,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginLeft="16dp"
             android:layout_marginTop="8dp"
-            android:text="End:"
+            android:text="@string/session_archive_list_item_stop"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/session_archive_list_item_start" />
 
@@ -96,7 +96,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:text="Error"
+            android:text="@string/error"
             android:textColor="?attr/appColorInterruption"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -110,7 +110,8 @@
             android:layout_marginTop="16dp"
             app:layout_constraintStart_toEndOf="@+id/session_archive_time_barrier"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_archive_list_item_comment" />
+            app:srcCompat="@drawable/ic_archive_list_item_comment"
+            android:contentDescription="@string/content_description_session_archive_list_item_comment_icon"/>
 
         <FrameLayout
             android:id="@+id/session_archive_list_item_mood_frame"

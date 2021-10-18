@@ -17,7 +17,6 @@
 package com.rbraithwaite.sleeptarget.ui.common.views.tag_selector;
 
 import androidx.fragment.app.FragmentActivity;
-import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
@@ -36,6 +35,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+
+@HiltViewModel
 public class TagSelectorViewModel
         extends ViewModel
 {
@@ -96,7 +100,7 @@ public class TagSelectorViewModel
 // constructors
 //*********************************************************
 
-    @ViewModelInject
+    @Inject
     public TagSelectorViewModel(TagRepository tagRepository)
     {
         mTagRepository = tagRepository;

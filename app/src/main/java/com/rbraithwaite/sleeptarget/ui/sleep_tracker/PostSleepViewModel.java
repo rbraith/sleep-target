@@ -16,7 +16,6 @@
  */
 package com.rbraithwaite.sleeptarget.ui.sleep_tracker;
 
-import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
@@ -37,6 +36,11 @@ import com.rbraithwaite.sleeptarget.ui.sleep_tracker.data.StoppedSessionData;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+
+@HiltViewModel
 public class PostSleepViewModel
         extends ViewModel
 {
@@ -63,7 +67,7 @@ public class PostSleepViewModel
 // constructors
 //*********************************************************
 
-    @ViewModelInject
+    @Inject
     public PostSleepViewModel(TagRepository tagRepository)
     {
         mTagRepository = tagRepository;

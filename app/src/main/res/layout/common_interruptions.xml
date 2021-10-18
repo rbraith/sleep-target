@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginLeft="32dp"
-        android:text="Total Time"
+        android:text="@string/common_interruptions_total_title"
         app:layout_constraintBaseline_toBaselineOf="@+id/common_interruptions_count_title"
         app:layout_constraintStart_toEndOf="@+id/common_interruptions_count_title" />
 
@@ -37,7 +37,7 @@
         android:id="@+id/common_interruptions_total"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Error"
+        android:text="@string/error"
         android:textColor="?attr/appColorInterruption"
         android:textSize="30sp"
         app:layout_constraintBaseline_toBaselineOf="@+id/common_interruptions_count"
@@ -52,7 +52,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="16dp"
-        android:text="Total Count"
+        android:text="@string/interruptions_count_title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -61,7 +61,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Error"
+        android:text="@string/error"
         android:textColor="?attr/appColorInterruption"
         android:textSize="30sp"
         app:layout_constraintStart_toStartOf="@+id/common_interruptions_count_title"
@@ -71,7 +71,7 @@
     <View
         android:id="@+id/common_interruptions_div"
         android:layout_width="match_parent"
-        android:layout_height="2px"
+        android:layout_height="2px" tools:ignore="PxUsage"
         android:layout_marginTop="16dp"
         android:background="?attr/appColorOnBackgroundFloating2"
         app:layout_constraintTop_toBottomOf="@id/common_interruptions_count" />

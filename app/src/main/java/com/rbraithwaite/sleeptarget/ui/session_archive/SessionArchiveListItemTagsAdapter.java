@@ -229,11 +229,13 @@ public class SessionArchiveListItemTagsAdapter
         TextView moreText = new TextView(new ContextThemeWrapper(context,
                                                                  R.style.ArchiveListItemMoreTagsStyle));
         
+        int remainingTags = mTags.size() - mTagsToDisplayCount;
         moreText.setText(String.format(
                 Locale.CANADA,
-                context.getString(
-                        R.string.session_archive_item_more_tags_text),
-                mTags.size() - mTagsToDisplayCount));
+                context.getResources().getQuantityString(
+                        R.plurals.session_archive_item_more_tags_text,
+                        remainingTags),
+                remainingTags));
         
         return moreText;
     }

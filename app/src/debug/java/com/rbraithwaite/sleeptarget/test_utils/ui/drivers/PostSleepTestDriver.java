@@ -42,6 +42,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static com.rbraithwaite.sleeptarget.test_utils.ui.EspressoActions.betterScrollTo;
 import static com.rbraithwaite.sleeptarget.test_utils.ui.EspressoMatchers.withMoodIndex;
 import static com.rbraithwaite.sleeptarget.test_utils.ui.EspressoMatchers.withRating;
 import static com.rbraithwaite.sleeptarget.test_utils.ui.RecyclerMatchers.withItemAt;
@@ -101,13 +102,13 @@ public class PostSleepTestDriver
         
         public void interruptionsAreUnset()
         {
-            onView(withId(R.id.post_sleep_interruptions_content)).perform(scrollTo());
+            onView(withId(R.id.post_sleep_interruptions_content)).perform(betterScrollTo());
             onView(withId(R.id.post_sleep_interruptions_nodata)).check(matches(isDisplayed()));
         }
         
         public void hasInterruptionCount(int expectedCount)
         {
-            onView(withId(R.id.post_sleep_interruptions_content)).perform(scrollTo());
+            onView(withId(R.id.post_sleep_interruptions_content)).perform(betterScrollTo());
             onView(withId(R.id.common_interruptions_count)).check(matches(withText(String.valueOf(
                     expectedCount))));
             

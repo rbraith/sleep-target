@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
-        android:text="Add Interruption"
+        android:text="@string/session_details_interruptions_addbtn"
         app:icon="@drawable/ic_add_24"
         app:backgroundTint="?attr/appColorInterruption"
         app:layout_constraintBottom_toBottomOf="parent"

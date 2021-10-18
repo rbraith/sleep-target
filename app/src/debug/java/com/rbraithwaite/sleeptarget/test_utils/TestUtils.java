@@ -17,6 +17,7 @@
 
 package com.rbraithwaite.sleeptarget.test_utils;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -413,6 +414,7 @@ public class TestUtils
                 .deleteDatabase(AppDatabase.NAME);
     }
     
+    @SuppressLint("ApplySharedPref") // in tests its better to block
     public static void resetSharedPreferences()
     {
         SharedPreferences.Editor editor =

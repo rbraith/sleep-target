@@ -16,6 +16,7 @@
  */
 package com.rbraithwaite.sleeptarget.ui.stats;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -114,8 +115,10 @@ public class StatsFragment
     {
         AlertDialogFragment dialog = AlertDialogFragment.createInstance((context, inflater) -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            @SuppressLint("InflateParams")
+            View dialogView = inflater.inflate(R.layout.stats_legend_durations, null);
             builder.setTitle("Legend")
-                    .setView(inflater.inflate(R.layout.stats_legend_durations, null));
+                    .setView(dialogView);
             
             return builder.create();
         });
@@ -127,8 +130,10 @@ public class StatsFragment
     {
         AlertDialogFragment dialog = AlertDialogFragment.createInstance((context, inflater) -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            @SuppressLint("InflateParams")
+            View dialogView = inflater.inflate(R.layout.stats_legend_intervals, null);
             builder.setTitle("Legend")
-                    .setView(inflater.inflate(R.layout.stats_legend_intervals, null));
+                    .setView(dialogView);
         
             return builder.create();
         });

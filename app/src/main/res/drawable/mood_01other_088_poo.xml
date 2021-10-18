@@ -1,26 +1,10 @@
-<!--
-  ~ Copyright (c) 2020-2021 Rich Braithwaite (rbraithwaite.dev@gmail.com)
-  ~
-  ~ This program is free software: you can redistribute it and/or modify
-  ~ it under the terms of the GNU General Public License as published by
-  ~ the Free Software Foundation, either version 3 of the License, or
-  ~ (at your option) any later version.
-  ~
-  ~ This program is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
-  -->
-
+<!--~ Copyright (c) 2020-2021 Rich Braithwaite (rbraithwaite.dev@gmail.com) ~ ~ This program is free software: you can redistribute it and/or modify ~ it under the terms of the GNU General Public License as published by ~ the Free Software Foundation, either version 3 of the License, or ~ (at your option) any later version. ~ ~ This program is distributed in the hope that it will be useful, ~ but WITHOUT ANY WARRANTY; without even the implied warranty of ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the ~ GNU General Public License for more details. ~ ~ You should have received a copy of the GNU General Public License ~ along with this program. If not, see <https://www.gnu.org/licenses/>.-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="512dp"
-    android:height="512dp"
+    android:width="200dp"
+    android:height="200dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
-  <path
-      android:fillColor="#FF000000"
-      android:pathData="m21.104,15.45c0.295,-0.568 0.451,-1.202 0.451,-1.86 0,-2.208 -1.776,-4.01 -3.975,-4.051 0.699,-0.952 1.056,-2.119 0.995,-3.322 -0.077,-1.54 -0.829,-2.955 -2.129,-3.926l-3.669,-2.186c-0.232,-0.138 -0.521,-0.141 -0.754,-0.008 -0.235,0.134 -0.38,0.383 -0.38,0.652v2.091c0,1.166 -0.948,2.114 -2.114,2.114 -0.976,0 -1.89,0.383 -2.574,1.077s-1.054,1.615 -1.039,2.59c0.005,0.324 0.069,0.642 0.186,0.937 -2.05,0.199 -3.656,1.932 -3.656,4.032 0,0.658 0.156,1.292 0.451,1.86 -1.696,0.623 -2.897,2.251 -2.897,4.131 0,2.437 1.982,4.419 4.419,4.419h15.162c2.437,0 4.419,-1.982 4.419,-4.419 0,-1.88 -1.201,-3.508 -2.896,-4.131zM8,12.485c0.827,0 1.5,0.673 1.5,1.5s-0.673,1.5 -1.5,1.5 -1.5,-0.673 -1.5,-1.5 0.673,-1.5 1.5,-1.5zM17.467,17.973c-0.749,2.412 -2.946,4.033 -5.467,4.033s-4.718,-1.621 -5.467,-4.033c-0.07,-0.228 -0.028,-0.476 0.113,-0.668s0.366,-0.305 0.604,-0.305h9.5c0.238,0 0.463,0.113 0.604,0.305s0.183,0.44 0.113,0.668zM16,15.485c-0.827,0 -1.5,-0.673 -1.5,-1.5s0.673,-1.5 1.5,-1.5 1.5,0.673 1.5,1.5 -0.673,1.5 -1.5,1.5z"/>
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M21.1 15.45a4.06 4.06 0 0 0-3.52-5.91 5.16 5.16 0 0 0-1.13-7.25L12.78 0.1a0.75 0.75 0 0 0-1.14 0.65v2.09a2.12 2.12 0 0 1-2.11 2.11 3.59 3.59 0 0 0-3.61 3.67A2.66 2.66 0 0 0 6.1 9.56a4.06 4.06 0 0 0-3.2 5.89A4.42 4.42 0 0 0 4.42 24h15.16a4.42 4.42 0 0 0 1.52-8.55zM8 12.49a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm9.47 5.48c-0.75 2.42-2.95 4.04-5.47 4.04s-4.72-1.63-5.47-4.04A0.75 0.75 0 0 1 7.25 17h9.5a0.75 0.75 0 0 1 0.72 0.97zM16 15.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" />
 </vector>

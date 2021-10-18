@@ -23,18 +23,18 @@
         <item
             android:id="@+id/nav_sleeptracker"
             android:icon="@drawable/ic_baseline_nights_stay_24"
-            android:title="Track" />
+            android:title="@string/track" />
         <item
             android:id="@+id/nav_session_archive"
             android:icon="@drawable/ic_bottomnav_archive"
-            android:title="Archive" />
+            android:title="@string/archive" />
         <item
             android:id="@+id/nav_sleepgoals"
             android:icon="@drawable/ic_target_24"
-            android:title="Targets" />
+            android:title="@string/targets" />
         <item
             android:id="@+id/nav_sleepstats"
             android:icon="@drawable/ic_baseline_bar_chart_24"
-            android:title="Stats" />
+            android:title="@string/stats" />
     </group>
 </menu>

@@ -64,7 +64,7 @@ public class MockRepositoryUtils
         when(mockRepo.getCurrentSession()).thenReturn(currentSession);
         doAnswer((Answer<Void>) invocation -> {
             CurrentSession newCurrentSession =
-                    invocation.getArgumentAt(0, CurrentSession.class);
+                    invocation.getArgument(0, CurrentSession.class);
             currentSession.setValue(newCurrentSession);
             return null;
         }).when(mockRepo).setCurrentSession(any(CurrentSession.class));

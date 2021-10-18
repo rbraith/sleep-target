@@ -16,6 +16,7 @@
  */
 package com.rbraithwaite.sleeptarget.ui.interruption_details;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.text.Editable;
@@ -228,7 +229,7 @@ public class InterruptionDetailsFragment
         AlertDialogFragment dialog = AlertDialogFragment.createInstance((context, inflater) -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle(titleId)
-                    .setView(content.createView(inflater))
+//                    .setView(content.createView(inflater))
                     .setPositiveButton(android.R.string.ok, null);
             return builder.create();
         });
@@ -261,6 +262,11 @@ public class InterruptionDetailsFragment
             String startText,
             String endText)
     {
+        // https://stackoverflow.com/questions/26404951/avoid-passing-null-as-the-view-root-warning-when-inflating-view-for-use-by-ale/26596164#comment94222428_26596164
+        // In dialog contexts passing null is appropriate. Ideally setView(int) would be used in
+        // the AlertDialog.Builder then you can find the view from the built dialog, but
+        // setView(int) is API 21+.
+        @SuppressLint("InflateParams")
         View dialogContent = inflater.inflate(R.layout.interruption_details_error, null);
         
         TextView message = dialogContent.findViewById(R.id.interruption_details_error_message);

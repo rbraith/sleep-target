@@ -43,6 +43,7 @@ import java.util.concurrent.TimeUnit;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.eq;
@@ -146,8 +147,10 @@ public class IntervalsChartViewModelTests
         // the resolution changes.
         verify(mockSleepSessionRepository, times(2))
                 .getSleepSessionsInRange(any(Date.class), any(Date.class));
+        // TODO [21-10-12 11:51PM] -- upgrading mockito revealed that sleepSessions has been
+        //  null the whole time - double check that this is the proper behaviour.
         verify(mockSleepIntervalsDataSetGenerator, times(2))
-                .generateFromConfig(anyList(), anyList(), any(IntervalsDataSet.Config.class));
+                .generateFromConfig(isNull(), anyList(), any(IntervalsDataSet.Config.class));
     }
     
     @Test
@@ -171,8 +174,10 @@ public class IntervalsChartViewModelTests
                 .getSleepSessionsInRange(
                         testConfig.dateRange.getStart(),
                         testConfig.dateRange.getEnd());
+        // TODO [21-10-12 11:51PM] -- upgrading mockito revealed that sleepSessions has been
+        //  null the whole time - double check that this is the proper behaviour.
         verify(mockSleepIntervalsDataSetGenerator, times(1))
-                .generateFromConfig(anyList(), anyList(), eq(testConfig));
+                .generateFromConfig(isNull(), anyList(), eq(testConfig));
     }
     
     @Test

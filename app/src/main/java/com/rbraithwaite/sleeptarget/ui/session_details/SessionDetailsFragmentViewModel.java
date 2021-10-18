@@ -16,7 +16,6 @@
  */
 package com.rbraithwaite.sleeptarget.ui.session_details;
 
-import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
@@ -50,10 +49,15 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+
 // REFACTOR [21-01-5 2:30AM] -- passing around Dates and longs for times-of-day or dates is too
 //  much information. Instead there should be TimeOfDay and Date which are simple POJOs and
 //  contain eg hourOfDay & minute fields. Then I can use Date & Calendar in the impls to convert
 //  for storage or display
+@HiltViewModel
 public class SessionDetailsFragmentViewModel
         extends DetailsFragmentViewModel<SleepSessionWrapper>
 {
@@ -100,7 +104,7 @@ public class SessionDetailsFragmentViewModel
 // constructors
 //*********************************************************
 
-    @ViewModelInject
+    @Inject
     public SessionDetailsFragmentViewModel(
             TimeUtils timeUtils,
             SleepSessionOverlapChecker overlapChecker,

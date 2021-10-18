@@ -16,7 +16,6 @@
  */
 package com.rbraithwaite.sleeptarget.ui.interruption_details;
 
-import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
@@ -32,6 +31,11 @@ import com.rbraithwaite.sleeptarget.utils.TimeUtils;
 import java.util.Date;
 import java.util.Optional;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+
+@HiltViewModel
 public class InterruptionDetailsFragmentViewModel
         extends DetailsFragmentViewModel<InterruptionDetailsData>
 {
@@ -94,7 +98,7 @@ public class InterruptionDetailsFragmentViewModel
 // constructors
 //*********************************************************
 
-    @ViewModelInject
+    @Inject
     public InterruptionDetailsFragmentViewModel(TimeUtils timeUtils)
     {
         mTimeUtils = timeUtils;

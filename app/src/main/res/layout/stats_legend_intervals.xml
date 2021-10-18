@@ -37,7 +37,8 @@
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_stats_legend_bar_24" />
+        app:srcCompat="@drawable/ic_stats_legend_bar_24"
+        tools:ignore="ContentDescription"/>
 
     <ImageView
         android:id="@+id/stats_intervals_legend_interruptions_icon"
@@ -47,7 +48,8 @@
         android:tint="?attr/appColorInterruptionDark"
         app:layout_constraintStart_toStartOf="@+id/stats_intervals_legend_bar_icon"
         app:layout_constraintTop_toBottomOf="@+id/stats_intervals_legend_bar_icon"
-        app:srcCompat="@drawable/ic_stats_legend_bar_24" />
+        app:srcCompat="@drawable/ic_stats_legend_bar_24"
+        tools:ignore="ContentDescription" />
 
     <ImageView
         android:id="@+id/stats_intervals_legend_target_icon"
@@ -57,14 +59,15 @@
         android:tint="?attr/appColorTriadic3"
         app:layout_constraintStart_toStartOf="@+id/stats_intervals_legend_interruptions_icon"
         app:layout_constraintTop_toBottomOf="@+id/stats_intervals_legend_interruptions_icon"
-        app:srcCompat="@drawable/ic_stats_legend_line_24" />
+        app:srcCompat="@drawable/ic_stats_legend_line_24"
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/stats_intervals_legend_bar_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
-        android:text="Sleep Session"
+        android:text="@string/sleep_session"
         app:layout_constraintBottom_toBottomOf="@+id/stats_intervals_legend_bar_icon"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -75,7 +78,7 @@
         android:id="@+id/stats_intervals_legend_interruptions_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Interruptions"
+        android:text="@string/interruptions"
         app:layout_constraintBottom_toBottomOf="@+id/stats_intervals_legend_interruptions_icon"
         app:layout_constraintStart_toStartOf="@+id/stats_intervals_legend_bar_text"
         app:layout_constraintTop_toTopOf="@+id/stats_intervals_legend_interruptions_icon" />
@@ -84,7 +87,7 @@
         android:id="@+id/stats_intervals_legend_target_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Target Wake Time"
+        android:text="@string/target_wake_time"
         app:layout_constraintBottom_toBottomOf="@+id/stats_intervals_legend_target_icon"
         app:layout_constraintStart_toStartOf="@+id/stats_intervals_legend_interruptions_text"
         app:layout_constraintTop_toTopOf="@+id/stats_intervals_legend_target_icon" />
@@ -99,13 +102,14 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@+id/stats_intervals_legend_target_icon"
         app:layout_constraintTop_toBottomOf="@+id/stats_intervals_legend_target_icon"
-        app:srcCompat="@drawable/ic_stats_legend_line_24" />
+        app:srcCompat="@drawable/ic_stats_legend_line_24"
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/stats_intervals_legend_midnight_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Midnight"
+        android:text="@string/midnight"
         app:layout_constraintBottom_toBottomOf="@+id/stats_intervals_legend_midnight_icon"
         app:layout_constraintStart_toStartOf="@+id/stats_intervals_legend_target_text"
         app:layout_constraintTop_toTopOf="@+id/stats_intervals_legend_midnight_icon" />

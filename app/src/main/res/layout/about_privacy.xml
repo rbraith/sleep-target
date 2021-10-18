@@ -30,7 +30,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
-        android:text="Privacy Policy"
+        android:text="@string/about_privacy_title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -42,7 +42,7 @@
         android:layout_marginBottom="24dp"
         android:gravity="center"
         android:padding="8dp"
-        android:text="VIEW"
+        android:text="@string/about_view_btn_text"
         android:textColor="?attr/colorPrimary"
         android:textSize="20sp"
         android:textStyle="bold"

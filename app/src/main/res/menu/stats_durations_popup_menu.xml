@@ -23,12 +23,12 @@
         <item
             android:id="@+id/stats_durations_resolution_10"
             android:checked="true"
-            android:title="10" />
+            android:title="@string/stats_durations_resolution_10" />
         <item
             android:id="@+id/stats_durations_resolution_50"
-            android:title="50" />
+            android:title="@string/stats_durations_resolution_50" />
         <item
             android:id="@+id/stats_durations_resolution_100"
-            android:title="100" />
+            android:title="@string/stats_durations_resolution_100" />
     </group>
 </menu>

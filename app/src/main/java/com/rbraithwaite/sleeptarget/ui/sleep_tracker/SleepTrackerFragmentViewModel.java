@@ -17,7 +17,6 @@
 
 package com.rbraithwaite.sleeptarget.ui.sleep_tracker;
 
-import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -45,6 +44,11 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+
+@HiltViewModel
 public class SleepTrackerFragmentViewModel
         extends ViewModel
 {
@@ -78,7 +82,7 @@ public class SleepTrackerFragmentViewModel
 // constructors
 //*********************************************************
 
-    @ViewModelInject
+    @Inject
     public SleepTrackerFragmentViewModel(
             SleepSessionRepository sleepSessionRepository,
             CurrentSessionRepository currentSessionRepository,

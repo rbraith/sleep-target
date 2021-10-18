@@ -20,7 +20,6 @@ package com.rbraithwaite.sleeptarget.dev_tools;
 import android.os.Handler;
 import android.os.Looper;
 
-import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.ViewModel;
 
 import com.rbraithwaite.sleeptarget.data.database.AppDatabase;
@@ -40,9 +39,14 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Executor;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+
 import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.aDate;
 import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.valueOf;
 
+@HiltViewModel
 public class DevToolsFragmentViewModel
         extends ViewModel
 {
@@ -103,7 +107,7 @@ public class DevToolsFragmentViewModel
 // constructors
 //*********************************************************
     
-    @ViewModelInject
+    @Inject
     public DevToolsFragmentViewModel(
             AppDatabase database,
             Executor executor)

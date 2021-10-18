@@ -17,7 +17,6 @@
 package com.rbraithwaite.sleeptarget.ui.common.views.mood_selector;
 
 import androidx.fragment.app.FragmentActivity;
-import androidx.hilt.lifecycle.ViewModelInject;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -25,6 +24,11 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.rbraithwaite.sleeptarget.ui.common.data.MoodUiData;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+
+@HiltViewModel
 public class MoodSelectorViewModel
         extends ViewModel
 {
@@ -38,7 +42,7 @@ public class MoodSelectorViewModel
 // constructors
 //*********************************************************
 
-    @ViewModelInject
+    @Inject
     public MoodSelectorViewModel()
     {
         mMood = new MutableLiveData<>();

@@ -16,6 +16,7 @@
  */
 package com.rbraithwaite.sleeptarget.ui.session_details;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.text.Editable;
@@ -232,6 +233,7 @@ public class SessionDetailsFragment
             SessionDetailsFragmentViewModel.OverlappingSessionException e,
             LayoutInflater inflater)
     {
+        @SuppressLint("InflateParams")
         View dialogContent = inflater.inflate(R.layout.session_details_overlap_error, null);
         
         TextView start = dialogContent.findViewById(R.id.session_details_overlap_start_value);

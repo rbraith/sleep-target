@@ -48,6 +48,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static com.rbraithwaite.sleeptarget.test_utils.ui.EspressoActions.betterScrollTo;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -457,7 +458,7 @@ public class SleepTrackerTestDriver
     
     public void setDetailsFrom(SleepSession sleepSession)
     {
-        onView(withId(R.id.tracker_details_card)).perform(scrollTo());
+        onView(withId(R.id.tracker_details_card)).perform(betterScrollTo());
         setAdditionalComments(sleepSession.getAdditionalComments());
         addNewMood(sleepSession.getMood().asIndex());
         toggleTagSelectionsById(
@@ -469,7 +470,7 @@ public class SleepTrackerTestDriver
     public void startInterruptionWithReason(String reason)
     {
         pressInterruptButton();
-        onInterruptionReasonText().perform(scrollTo());
+        onInterruptionReasonText().perform(betterScrollTo());
         UITestUtils.typeOnMultilineEditText(reason, onInterruptionReasonText());
     }
     
@@ -502,7 +503,7 @@ public class SleepTrackerTestDriver
     
     public void scrollToDetails()
     {
-        onView(withId(R.id.tracker_details_card)).perform(scrollTo());
+        onView(withId(R.id.tracker_details_card)).perform(betterScrollTo());
     }
     
     public void openMoodSelectorDialog()
@@ -615,7 +616,7 @@ public class SleepTrackerTestDriver
     private void pressSleepTrackingButton()
     {
         mInSession = !mInSession;
-        onView(withId(R.id.sleep_tracker_button)).perform(scrollTo());
+        onView(withId(R.id.sleep_tracker_button)).perform(betterScrollTo());
         onView(withId(R.id.sleep_tracker_button)).perform(click());
     }
     

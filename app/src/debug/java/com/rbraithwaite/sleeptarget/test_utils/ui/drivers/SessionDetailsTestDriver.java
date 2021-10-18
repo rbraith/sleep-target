@@ -69,6 +69,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.valueOf;
+import static com.rbraithwaite.sleeptarget.test_utils.ui.EspressoActions.betterScrollTo;
 import static com.rbraithwaite.sleeptarget.test_utils.ui.EspressoMatchers.datePickerWithDate;
 import static com.rbraithwaite.sleeptarget.test_utils.ui.EspressoMatchers.recyclerViewWithCount;
 import static com.rbraithwaite.sleeptarget.test_utils.ui.UITestUtils.onDatePicker;
@@ -472,7 +473,7 @@ public class SessionDetailsTestDriver
     
     public void scrollToInterruptions()
     {
-        onView(withId(R.id.session_details_interruptions_card)).perform(scrollTo());
+        onView(withId(R.id.session_details_interruptions_card)).perform(betterScrollTo());
     }
     
     public void setRating(float rating)

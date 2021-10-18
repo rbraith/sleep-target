@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:layout_marginBottom="32dp"
-        android:text="No sleep sessions to display."
+        android:text="@string/session_archive_no_data_text"
         android:textColor="?attr/appColorSurfaceFloating"
         android:textSize="22sp"
         app:layout_constraintBottom_toBottomOf="parent"

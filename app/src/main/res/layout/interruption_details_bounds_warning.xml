@@ -21,7 +21,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/colorError">
+    android:background="?attr/colorError"
+    tools:ignore="Overdraw">
+    <!-- TODO [21-10-11 9:17PM] - double check the correctness of ignoring this overdraw lint error.-->
 
     <ImageView
         android:id="@+id/interruption_bounds_warning_icon"
@@ -31,7 +33,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_baseline_warning_24" />
+        app:srcCompat="@drawable/ic_baseline_warning_24"
+        tools:ignore="ContentDescription"/>
 
     <TextView
         android:id="@+id/interruption_bounds_warning_message"
@@ -43,7 +46,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="32dp"
         android:layout_marginRight="32dp"
-        android:text="Error"
+        android:text="@string/error"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/interruption_bounds_warning_icon"
@@ -55,7 +58,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Error"
+        android:text="@string/error"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/interruption_bounds_warning_message"
