@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui_tests.sleep_tracker;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -24,12 +23,15 @@ import com.rbraithwaite.sleeptarget.core.models.SleepSession;
 import com.rbraithwaite.sleeptarget.core.models.WakeTimeGoal;
 import com.rbraithwaite.sleeptarget.test_utils.TestUtils;
 import com.rbraithwaite.sleeptarget.test_utils.data.database.DatabaseTestDriver;
+import com.rbraithwaite.sleeptarget.test_utils.rules.RetryInstrumentedTestRule;
+import com.rbraithwaite.sleeptarget.test_utils.rules.RetryTestRule;
 import com.rbraithwaite.sleeptarget.test_utils.ui.drivers.SleepTrackerTestDriver;
 import com.rbraithwaite.sleeptarget.test_utils.ui.fragment_helpers.HiltFragmentTestHelper;
 import com.rbraithwaite.sleeptarget.ui.sleep_tracker.SleepTrackerFragment;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -51,12 +53,20 @@ public class SleepTrackerFragmentTests
     //  - tag editing functionality.
 
 //*********************************************************
+// public properties
+//*********************************************************
+
+    @Rule
+    public RetryInstrumentedTestRule retryInstrumentedTestRule = new RetryInstrumentedTestRule();
+
+//*********************************************************
 // package properties
 //*********************************************************
 
     SleepTrackerTestDriver sleepTracker;
+    
     DatabaseTestDriver database;
-
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -64,9 +74,10 @@ public class SleepTrackerFragmentTests
     @Before
     public void setup()
     {
+        database = new DatabaseTestDriver();
+        
         sleepTracker = new SleepTrackerTestDriver(
                 HiltFragmentTestHelper.launchFragment(SleepTrackerFragment.class));
-        database = new DatabaseTestDriver();
     }
     
     @After
@@ -76,6 +87,8 @@ public class SleepTrackerFragmentTests
         database = null;
     }
     
+    // not really a flaky test, just the test I used to test RetryTestRule on
+    @RetryTestRule.Retry
     @Test
     public void interruptionsDisplayProperly()
     {

@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.test_utils;
 
 import android.annotation.SuppressLint;
@@ -417,13 +416,13 @@ public class TestUtils
     @SuppressLint("ApplySharedPref") // in tests its better to block
     public static void resetSharedPreferences()
     {
-        SharedPreferences.Editor editor =
-                ApplicationProvider.getApplicationContext()
-                        .getSharedPreferences(Prefs.PREFS_FILE_KEY, Context.MODE_PRIVATE)
-                        .edit();
-        
-        editor.clear();
-        editor.commit();
+        getSharedPrefs().edit().clear().commit();
+    }
+    
+    public static SharedPreferences getSharedPrefs()
+    {
+        return ApplicationProvider.getApplicationContext()
+                .getSharedPreferences(Prefs.PREFS_FILE_KEY, Context.MODE_PRIVATE);
     }
     
     // can't run observeForever on instrumentation thread
@@ -507,5 +506,11 @@ public class TestUtils
     public static TimeUtils timeUtilsFixedAt(DateBuilder date)
     {
         return timeUtilsFixedAt(date.build());
+    }
+    
+    public static void resetAppData()
+    {
+        resetDatabase();
+        resetSharedPreferences();
     }
 }

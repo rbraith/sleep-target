@@ -20,11 +20,14 @@ package com.rbraithwaite.sleeptarget.ui_tests;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleeptarget.test_utils.data.database.DatabaseTestDriver;
+import com.rbraithwaite.sleeptarget.test_utils.rules.RetryInstrumentedTestRule;
+import com.rbraithwaite.sleeptarget.test_utils.rules.RetryTestRule;
 import com.rbraithwaite.sleeptarget.test_utils.test_data.builders.SleepSessionBuilder;
 import com.rbraithwaite.sleeptarget.test_utils.ui.drivers.ApplicationTestDriver;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -45,6 +48,9 @@ public class AppTests
 
     private ApplicationTestDriver app;
     private DatabaseTestDriver database;
+    
+    @Rule
+    private RetryInstrumentedTestRule retryInstrumentedTestRule = new RetryInstrumentedTestRule();
 
 //*********************************************************
 // api
@@ -132,6 +138,7 @@ public class AppTests
         app.getSleepTracker().assertThat().interruptionReasonTextIsEmpty();
     }
     
+    @RetryTestRule.Retry
     @Test
     public void interruptionIsAddedToTheDatabase()
     {
