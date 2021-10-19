@@ -39,7 +39,22 @@ def openHtmlReport(htmlReportDir) {
 }
 
 def coverageFileFilter = [
-
+        "**/hilt_aggregated_deps/**/*.*",
+        "**/dagger/hilt/**/*.*",
+        "**/*_Generated*.*",
+        "**/*_Hilt*.*",
+        "**/Hilt_*.*",
+        "**/BuildConfig.*",
+        "**/*_Factory*.*",
+        "**/*_AssistedFactory*.*",
+        "**/*_Provide*.*",
+        "**/*_Impl*.*",
+        "android/**/*.*",
+        "androidx/**/*.*",
+        "com/google/**/*.*",
+        "sun/**/*.*",
+        "net/bytebuddy/**/*.*",
+        "org/**/*.*",
 ]
 
 task jacocoCoverage(type: JacocoReport, dependsOn: ['testDebugUnitTest', 'connectedDebugAndroidTest']) {
