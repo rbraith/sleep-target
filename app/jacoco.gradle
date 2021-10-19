@@ -1,0 +1,93 @@
+/*
+ * Copyright (c) 2020-2021 Rich Braithwaite (rbraithwaite.dev@gmail.com)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+apply plugin: 'jacoco'
+
+jacoco {
+    toolVersion = "0.8.7"
+}
+
+android {
+    jacoco {
+        version = "0.8.7"
+    }
+}
+
+tasks.withType(Test) {
+    jacoco.includeNoLocationClasses = true
+    jacoco.excludes = ['jdk.internal.*']
+}
+
+def openHtmlReport(htmlReportDir) {
+    final reportPath = "$htmlReportDir/index.html"
+
+    exec { commandLine 'cmd', '/c', "start $reportPath" }
+}
+
+def coverageFileFilter = [
+
+]
+
+task jacocoCoverage(type: JacocoReport, dependsOn: ['testDebugUnitTest', 'connectedDebugAndroidTest']) {
+    group = "Coverage"
+    description = "Generate Jacoco coverage reports for local & instrumented tests."
+
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+
+    // REFACTOR [21-09-13 3:06AM] -- These 3 statements are repeated in all these tasks.
+    sourceDirectories.from = files("$project.projectDir/src/main/java")
+    // https://stackoverflow.com/a/59705142
+    classDirectories.from = fileTree(
+            dir: "$project.buildDir/intermediates/javac/debug/classes",
+            excludes: coverageFileFilter
+    )
+    executionData.from = fileTree(
+            dir: project.buildDir,
+            includes: ['**/*.exec', '**/*.ec']
+    )
+
+    doLast {
+        openHtmlReport("$project.buildDir/reports/jacoco/$name/html")
+    }
+}
+
+task jacocoCoverageCheck(type: JacocoCoverageVerification, dependsOn: ['testDebugUnitTest', 'connectedDebugAndroidTest']) {
+    group = "Coverage"
+    description = "Check the test coverage of the project."
+
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.75
+            }
+        }
+    }
+
+    sourceDirectories.from = files("$project.projectDir/src/main/java")
+    // https://stackoverflow.com/a/59705142
+    classDirectories.from = fileTree(
+            dir: "$project.buildDir/intermediates/javac/debug/classes",
+            excludes: coverageFileFilter
+    )
+    executionData.from = fileTree(
+            dir: project.buildDir,
+            includes: ['**/*.exec', '**/*.ec']
+    )
+}
