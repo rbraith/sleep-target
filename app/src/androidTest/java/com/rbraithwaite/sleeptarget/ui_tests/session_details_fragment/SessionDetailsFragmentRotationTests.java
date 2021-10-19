@@ -22,9 +22,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.rbraithwaite.sleeptarget.core.models.SleepSession;
 import com.rbraithwaite.sleeptarget.test_utils.TestUtils;
+import com.rbraithwaite.sleeptarget.test_utils.rules.RetryInstrumentedTestRule;
+import com.rbraithwaite.sleeptarget.test_utils.rules.RetryTestRule;
 import com.rbraithwaite.sleeptarget.test_utils.test_data.builders.DateBuilder;
 import com.rbraithwaite.sleeptarget.test_utils.ui.drivers.SessionDetailsTestDriver;
 
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -35,6 +38,13 @@ import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.valueOf
 @RunWith(AndroidJUnit4.class)
 public class SessionDetailsFragmentRotationTests
 {
+//*********************************************************
+// public properties
+//*********************************************************
+    
+    @Rule
+    public RetryInstrumentedTestRule RetryInstrumentedTestRule = new RetryInstrumentedTestRule();
+    
 //*********************************************************
 // api
 //*********************************************************
@@ -51,6 +61,7 @@ public class SessionDetailsFragmentRotationTests
         sessionDetails.assertThat().displayedValuesMatch(sleepSession);
     }
     
+    @RetryTestRule.Retry
     @Test
     public void changeTimeValueAcrossOrientationChange()
     {

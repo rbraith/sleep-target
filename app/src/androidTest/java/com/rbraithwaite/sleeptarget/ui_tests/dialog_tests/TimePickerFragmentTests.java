@@ -19,6 +19,8 @@ package com.rbraithwaite.sleeptarget.ui_tests.dialog_tests;
 import androidx.test.espresso.contrib.PickerActions;
 
 import com.rbraithwaite.sleeptarget.test_utils.TestUtils;
+import com.rbraithwaite.sleeptarget.test_utils.rules.RetryInstrumentedTestRule;
+import com.rbraithwaite.sleeptarget.test_utils.rules.RetryTestRule;
 import com.rbraithwaite.sleeptarget.test_utils.ui.dialog.DialogTestHelper;
 import com.rbraithwaite.sleeptarget.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleeptarget.ui.common.dialog.TimePickerFragment;
@@ -48,11 +50,15 @@ public class TimePickerFragmentTests
     @Rule
     // protection against potentially infinitely blocked threads
     public Timeout timeout = new Timeout(10, TimeUnit.SECONDS);
+    
+    @Rule
+    public RetryInstrumentedTestRule RetryInstrumentedTestRule = new RetryInstrumentedTestRule();
 
 //*********************************************************
 // api
 //*********************************************************
 
+    @RetryTestRule.Retry
     @Test
     public void positiveArgs_displayProperInitialTime()
     {
