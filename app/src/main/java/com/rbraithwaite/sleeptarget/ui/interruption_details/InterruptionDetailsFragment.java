@@ -32,6 +32,8 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.rbraithwaite.sleeptarget.R;
+import com.rbraithwaite.sleeptarget.databinding.InterruptionDetailsErrorBinding;
+import com.rbraithwaite.sleeptarget.databinding.InterruptionDetailsFragmentBinding;
 import com.rbraithwaite.sleeptarget.ui.common.dialog.AlertDialogFragment2;
 import com.rbraithwaite.sleeptarget.ui.common.views.details_fragment.DetailsFragment;
 import com.rbraithwaite.sleeptarget.ui.common.views.details_fragment.DetailsResult;
@@ -51,6 +53,8 @@ public class InterruptionDetailsFragment
 // private properties
 //*********************************************************
 
+    private InterruptionDetailsFragmentBinding mBinding;
+    
     private SessionTimesViewModel mSessionTimesViewModel;
     private ConstraintLayout mOutOfBoundsWarning;
 
@@ -101,18 +105,15 @@ public class InterruptionDetailsFragment
         {
             @SuppressLint("InflateParams") View dialogContent =
                     getLayoutInflater().inflate(R.layout.interruption_details_error, null);
+            InterruptionDetailsErrorBinding binding = InterruptionDetailsErrorBinding.bind(dialogContent);
             
-            TextView message = dialogContent.findViewById(R.id.interruption_details_error_message);
-            message.setText(R.string.interruption_details_overlap_error_message);
+            binding.message.setText(R.string.interruption_details_overlap_error_message);
             
-            TextView start =
-                    dialogContent.findViewById(R.id.interruption_details_error_start_value);
-            start.setText(getArguments().getString("overlap start"));
+            binding.startValue.setText(getArguments().getString("overlap start"));
             
-            TextView end = dialogContent.findViewById(R.id.interruption_details_error_end_value);
-            end.setText(getArguments().getString("overlap end"));
+            binding.endValue.setText(getArguments().getString("overlap end"));
             
-            return dialogContent;
+            return binding.getRoot();
         }
     }
     
@@ -127,7 +128,8 @@ public class InterruptionDetailsFragment
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState)
     {
-        return inflater.inflate(R.layout.interruption_details_fragment, container, false);
+        mBinding = InterruptionDetailsFragmentBinding.inflate(inflater, container, false);
+        return mBinding.getRoot();
     }
     
     @Override
@@ -150,10 +152,8 @@ public class InterruptionDetailsFragment
         super.onViewCreated(view, savedInstanceState);
         
         // init session times
-        SessionTimesComponent sessionTimes =
-                view.findViewById(R.id.interruption_details_session_times);
         SessionTimesViewModel sessionTimesViewModel = getSessionTimesViewModel();
-        sessionTimes.init(this, sessionTimesViewModel);
+        mBinding.sessionTimes.init(this, sessionTimesViewModel);
         
         sessionTimesViewModel.getStart()
                 .observe(getViewLifecycleOwner(), start -> getViewModel().setStart(start));
@@ -161,11 +161,10 @@ public class InterruptionDetailsFragment
                 .observe(getViewLifecycleOwner(), end -> getViewModel().setEnd(end));
         
         // init reason
-        EditText reasonText = view.findViewById(R.id.interruptions_details_reason);
         getViewModel().getReason()
                 .observe(getViewLifecycleOwner(),
-                         reason -> UiUtils.setEditTextValue(reasonText, reason));
-        reasonText.addTextChangedListener(new AfterTextChangedWatcher()
+                         reason -> UiUtils.setEditTextValue(mBinding.reason, reason));
+        mBinding.reason.addTextChangedListener(new AfterTextChangedWatcher()
         {
             @Override
             public void afterTextChanged(Editable s)
@@ -175,7 +174,6 @@ public class InterruptionDetailsFragment
         });
         
         // init out-of-bounds warning
-        mOutOfBoundsWarning = view.findViewById(R.id.interruption_details_bounds);
         getViewModel().isOutOfBounds().observe(getViewLifecycleOwner(), outOfBoundsDetails -> {
             if (outOfBoundsDetails != null) {
                 displayOutOfBoundsWarning(outOfBoundsDetails);
@@ -222,20 +220,14 @@ public class InterruptionDetailsFragment
 
     private void hideOutOfBoundsWarning()
     {
-        mOutOfBoundsWarning.setVisibility(View.GONE);
+        mBinding.boundsWarning.getRoot().setVisibility(View.GONE);
     }
     
     private void displayOutOfBoundsWarning(InterruptionDetailsFragmentViewModel.OutOfBoundsDetails outOfBoundsDetails)
     {
-        mOutOfBoundsWarning.setVisibility(View.VISIBLE);
-        // OPTIMIZE [21-09-12 7:59PM] -- repetitious findViewById() calls.
-        TextView message =
-                mOutOfBoundsWarning.findViewById(R.id.interruption_bounds_warning_message);
-        TextView sessionTime =
-                mOutOfBoundsWarning.findViewById(R.id.interruption_bounds_warning_time);
-        
-        message.setText(outOfBoundsDetails.messageId);
-        sessionTime.setText(outOfBoundsDetails.sessionTimeText);
+        mBinding.boundsWarning.getRoot().setVisibility(View.VISIBLE);
+        mBinding.boundsWarning.message.setText(outOfBoundsDetails.messageId);
+        mBinding.boundsWarning.time.setText(outOfBoundsDetails.sessionTimeText);
     }
     
     private SessionTimesViewModel getSessionTimesViewModel()

@@ -26,7 +26,7 @@
     <!-- TODO [21-10-11 9:17PM] - double check the correctness of ignoring this overdraw lint error.-->
 
     <ImageView
-        android:id="@+id/interruption_bounds_warning_icon"
+        android:id="@+id/icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -37,7 +37,7 @@
         tools:ignore="ContentDescription"/>
 
     <TextView
-        android:id="@+id/interruption_bounds_warning_message"
+        android:id="@+id/message"
         style="@style/InterruptionDetailsOobMessageStyle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -49,11 +49,11 @@
         android:text="@string/error"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/interruption_bounds_warning_icon"
+        app:layout_constraintTop_toBottomOf="@+id/icon"
         tools:text="@string/interruption_details_oob_start" />
 
     <TextView
-        android:id="@+id/interruption_bounds_warning_time"
+        android:id="@+id/time"
         style="@style/InterruptionDetailsOobTimeStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -61,11 +61,11 @@
         android:text="@string/error"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/interruption_bounds_warning_message"
+        app:layout_constraintTop_toBottomOf="@+id/message"
         tools:text="7:30 pm, Sun Sep 12th" />
 
     <TextView
-        android:id="@+id/textView8"
+        android:id="@+id/message_last"
         style="@style/InterruptionDetailsOobMessageStyle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -79,5 +79,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/interruption_bounds_warning_time" />
+        app:layout_constraintTop_toBottomOf="@+id/time" />
 </androidx.constraintlayout.widget.ConstraintLayout>

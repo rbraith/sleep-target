@@ -32,7 +32,7 @@
         android:theme="@style/InterruptionDetailsFragmentTheme">
 
         <include
-            android:id="@+id/interruption_details_bounds"
+            android:id="@+id/bounds_warning"
             layout="@layout/interruption_details_bounds_warning"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -41,16 +41,16 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <com.rbraithwaite.sleeptarget.ui.common.views.session_times.SessionTimesComponent
-            android:id="@+id/interruption_details_session_times"
+            android:id="@+id/session_times"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/interruption_details_bounds" />
+            app:layout_constraintTop_toBottomOf="@id/bounds_warning" />
 
         <EditText
-            android:id="@+id/interruptions_details_reason"
+            android:id="@+id/reason"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -66,7 +66,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/interruption_details_session_times"
+            app:layout_constraintTop_toBottomOf="@+id/session_times"
             tools:text="This is some placeholder text!!"
             android:importantForAutofill="no" />
 

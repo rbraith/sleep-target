@@ -128,7 +128,7 @@ public class InterruptionDetailsTestDriver
         
         public void reasonMatches(String reason)
         {
-            onView(withId(R.id.interruptions_details_reason)).check(matches(withText(reason)));
+            onView(withId(R.id.reason)).check(matches(withText(reason)));
         }
         
         private ViewInteraction onStartDay()
@@ -224,7 +224,7 @@ public class InterruptionDetailsTestDriver
     public void setReasonTo(String reason)
     {
         UITestUtils.typeOnMultilineEditText(reason,
-                                            onView(withId(R.id.interruptions_details_reason)));
+                                            onView(withId(R.id.reason)));
     }
     
     public void setEndDayTo(Day endDay)
