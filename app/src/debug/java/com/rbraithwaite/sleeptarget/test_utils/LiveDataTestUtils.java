@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.test_utils;
 
 import androidx.lifecycle.LiveData;
@@ -28,8 +27,8 @@ public class LiveDataTestUtils
 //*********************************************************
 
     private LiveDataTestUtils() {/* No instantiation */}
-    
-    
+
+
 //*********************************************************
 // api
 //*********************************************************
@@ -41,5 +40,12 @@ public class LiveDataTestUtils
         //  test utils into here.
         TestUtils.activateLocalLiveData(ld);
         return ld;
+    }
+    
+    // REFACTOR [21-10-21 9:49PM] -- I forget why I made the original activateLocally() take a
+    //  Provider, I should take another look at that.
+    public static <T> LiveData<T> activateLocally(LiveData<T> liveData)
+    {
+        return activateLocally(() -> liveData);
     }
 }

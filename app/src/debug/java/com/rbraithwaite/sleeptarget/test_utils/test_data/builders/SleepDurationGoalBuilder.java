@@ -14,12 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+package com.rbraithwaite.sleeptarget.test_utils.test_data.builders;
 
-package com.rbraithwaite.sleeptarget.test_utils.test_data;
-
-import com.rbraithwaite.sleeptarget.core.models.WakeTimeGoal;
-import com.rbraithwaite.sleeptarget.test_utils.test_data.builders.DateBuilder;
-import com.rbraithwaite.sleeptarget.utils.TimeUtils;
+import com.rbraithwaite.sleeptarget.core.models.SleepDurationGoal;
 import com.rbraithwaite.sleeptarget.utils.interfaces.BuilderOf;
 
 import java.util.Date;
@@ -27,47 +24,47 @@ import java.util.Date;
 import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.aDate;
 import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.valueOf;
 
-public class WakeTimeGoalBuilder
-        implements BuilderOf<WakeTimeGoal>
+public class SleepDurationGoalBuilder
+        implements BuilderOf<SleepDurationGoal>
 {
+//*********************************************************
+// private properties
+//*********************************************************
+
     private Date mEditTime;
-    private int mGoalMillis;
+    private int mMinutes;
     private Boolean hasGoal = true;
     
-    public WakeTimeGoalBuilder()
+//*********************************************************
+// constructors
+//*********************************************************
+
+    public SleepDurationGoalBuilder()
     {
         mEditTime = valueOf(aDate());
-        mGoalMillis = (int) TimeUtils.hoursToMillis(8);
+        ;
+        mMinutes = 8 * 60;
     }
     
+//*********************************************************
+// overrides
+//*********************************************************
+
     @Override
-    public WakeTimeGoal build()
+    public SleepDurationGoal build()
     {
         if (hasGoal) {
-            return new WakeTimeGoal(mEditTime, mGoalMillis);
+            return new SleepDurationGoal(mEditTime, mMinutes);
         } else {
-            return WakeTimeGoal.createWithNoGoal(mEditTime);
+            return SleepDurationGoal.createWithNoGoal(mEditTime);
         }
-    }
-    
-    public WakeTimeGoalBuilder withEditTime(DateBuilder editTime)
-    {
-        mEditTime = editTime.build();
-        return this;
-    }
-    
-    public WakeTimeGoalBuilder withGoal(int hourOfDay, int minutes)
-    {
-        mGoalMillis = (int) TimeUtils.timeToMillis(hourOfDay, minutes, 0, 0);
-        hasGoal = true;
-        return this;
     }
     
 //*********************************************************
 // api
 //*********************************************************
 
-    public WakeTimeGoalBuilder withNoGoalSet()
+    public SleepDurationGoalBuilder withNoGoalSet()
     {
         hasGoal = false;
         return this;

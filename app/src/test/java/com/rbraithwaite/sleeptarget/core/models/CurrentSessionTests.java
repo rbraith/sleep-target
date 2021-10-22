@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.core.models;
 
 import com.rbraithwaite.sleeptarget.test_utils.NowSequence;
@@ -40,6 +39,21 @@ public class CurrentSessionTests
 // api
 //*********************************************************
 
+    @Test
+    public void hasAnyInterruptions_reflectsCurrentSessionInterruptions()
+    {
+        TimeUtils timeUtils = new TimeUtils();
+        CurrentSession currentSession = new CurrentSession(timeUtils.getNow());
+        
+        assertThat(currentSession.hasAnyInterruptions(), is(false));
+        
+        currentSession.interrupt(timeUtils);
+        assertThat(currentSession.hasAnyInterruptions(), is(true));
+        
+        currentSession.resume(timeUtils);
+        assertThat(currentSession.hasAnyInterruptions(), is(true));
+    }
+    
     @Test
     public void getInterruptionsTotalDuration_returnCorrectDuration()
     {

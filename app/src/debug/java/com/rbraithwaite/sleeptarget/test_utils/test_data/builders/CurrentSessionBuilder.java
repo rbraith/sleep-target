@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.test_utils.test_data.builders;
 
 import com.rbraithwaite.sleeptarget.core.models.CurrentSession;
@@ -179,5 +178,16 @@ public class CurrentSessionBuilder
     {
         mSelectedTagIds = new ArrayList<>(Arrays.asList(ids));
         return this;
+    }
+    
+    public CurrentSessionBuilder notStarted()
+    {
+        mStart = null;
+        return this;
+    }
+    
+    public CurrentSessionBuilder fresh()
+    {
+        return notStarted().withNoInterruptions().withNoDetails();
     }
 }

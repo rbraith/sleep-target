@@ -14,13 +14,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.test_utils;
 
+import com.rbraithwaite.sleeptarget.core.models.CurrentSession;
 import com.rbraithwaite.sleeptarget.core.models.SleepSession;
 import com.rbraithwaite.sleeptarget.core.models.Tag;
+import com.rbraithwaite.sleeptarget.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleeptarget.data.database.tables.sleep_session.SleepSessionEntity;
 import com.rbraithwaite.sleeptarget.ui.common.views.tag_selector.TagUiData;
+import com.rbraithwaite.sleeptarget.ui.sleep_tracker.data.StoppedSessionData;
 
 public class TestEqualities
 {
@@ -53,5 +55,34 @@ public class TestEqualities
                ((entity.moodIndex == null && session.getMood() == null) ||
                 entity.moodIndex == session.getMood().asIndex()) &&
                entity.rating == session.getRating();
+    }
+    
+    public static boolean StoppedSessionData_equals_NewSleepSessionData(
+            StoppedSessionData stoppedSessionData,
+            SleepSessionRepository.NewSleepSessionData newSleepSessionData)
+    {
+        return newSleepSessionData.start.equals(stoppedSessionData.currentSessionSnapshot.start) &&
+               newSleepSessionData.end.equals(stoppedSessionData.currentSessionSnapshot.end) &&
+               newSleepSessionData.additionalComments.equals(stoppedSessionData.currentSessionSnapshot.additionalComments) &&
+               newSleepSessionData.durationMillis ==
+               stoppedSessionData.currentSessionSnapshot.durationMillis &&
+               newSleepSessionData.tagIds.equals(stoppedSessionData.currentSessionSnapshot.selectedTagIds) &&
+               newSleepSessionData.mood.equals(stoppedSessionData.currentSessionSnapshot.mood) &&
+               newSleepSessionData.rating == stoppedSessionData.postSleepData.rating &&
+               newSleepSessionData.interruptions.equals(stoppedSessionData.currentSessionSnapshot.interruptions);
+    }
+    
+    public static boolean CurrentSession_equals_CurrentSessionSnapshot(
+            CurrentSession currentSession,
+            CurrentSession.Snapshot snapshot)
+    {
+        return currentSession.getStart().equals(snapshot.start) &&
+               currentSession.getMood().equals(snapshot.mood) &&
+               currentSession.getAdditionalComments().equals(snapshot.additionalComments) &&
+               currentSession.getSelectedTagIds().equals(snapshot.selectedTagIds) &&
+               // This is an awkward condition, but the problem is the act of making a snapshot
+               // adds any ongoing interruption to the snapshot's list.
+               (currentSession.isInterrupted() ||
+                currentSession.getInterruptions().equals(snapshot.interruptions));
     }
 }

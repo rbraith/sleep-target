@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.sleep_tracker;
 
 import android.content.Context;
@@ -43,8 +42,8 @@ public class SleepTrackerAnimations
     public SleepTrackerAnimations(Context context, View fragmentRoot)
     {
         mContext = context;
-        mSleepTrackingLayout = fragmentRoot.findViewById(R.id.tracker_sleep_tracking_layout);
-        mInterruptionsLayout = fragmentRoot.findViewById(R.id.tracker_interruptions_layout);
+        mSleepTrackingLayout = fragmentRoot.findViewById(R.id.tracking_content);
+        mInterruptionsLayout = fragmentRoot.findViewById(R.id.interruptions_content);
     }
 
 //*********************************************************
@@ -70,19 +69,19 @@ public class SleepTrackerAnimations
     public void transitionIntoInterruptionTimer()
     {
         ConstraintSet set = loadConstraintSet(R.layout.tracker_interruptions_interrupted);
-        set.setVisibility(R.id.tracker_interrupt_duration, View.VISIBLE);
-        set.setVisibility(R.id.tracker_interrupt_reason, View.VISIBLE);
+        set.setVisibility(R.id.interrupt_duration, View.VISIBLE);
+        set.setVisibility(R.id.interrupt_reason, View.VISIBLE);
         transitionToKeyframeSet(mInterruptionsLayout, set);
     }
     
     public void transitionOutOfInterruptionTimer()
     {
         ConstraintSet set = loadConstraintSet(R.layout.tracker_interruptions);
-        set.setVisibility(R.id.tracker_interrupt_duration, View.GONE);
-        set.setVisibility(R.id.tracker_interrupt_reason, View.GONE);
+        set.setVisibility(R.id.interrupt_duration, View.GONE);
+        set.setVisibility(R.id.interrupt_reason, View.GONE);
         transitionToKeyframeSet(mInterruptionsLayout, set);
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************

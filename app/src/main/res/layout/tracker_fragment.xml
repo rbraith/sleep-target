@@ -20,13 +20,13 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/tracker_root_scroll"
+    android:id="@+id/root_scroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:scrollbars="none">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/sleep_fragment_root"
+        android:id="@+id/constraint_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:focusable="true"
@@ -34,7 +34,7 @@
         android:paddingBottom="8dp">
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/tracker_tracking_card"
+            android:id="@+id/tracking_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -48,14 +48,14 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <include
-                android:id="@+id/tracker_sleep_tracking_layout"
+                android:id="@+id/tracking_content"
                 layout="@layout/tracker_content_tracking"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/tracker_interruptions_card"
+            android:id="@+id/interruptions_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -65,17 +65,17 @@
             android:layout_marginRight="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tracker_tracking_card">
+            app:layout_constraintTop_toBottomOf="@id/tracking_card">
 
             <include
-                android:id="@+id/tracker_interruptions_layout"
+                android:id="@+id/interruptions_content"
                 layout="@layout/tracker_interruptions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/tracker_no_goals_card"
+            android:id="@+id/no_goals_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -85,9 +85,10 @@
             android:layout_marginRight="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tracker_interruptions_card">
+            app:layout_constraintTop_toBottomOf="@id/interruptions_card">
 
             <include
+                android:id="@+id/no_goal_layout"
                 layout="@layout/tracker_content_no_goal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
@@ -100,7 +101,7 @@
         <!--        existed, but the inner card edges were expanding to a 0dp-margin for the parent on the other side.-->
         <!-- HACK [21-06-27 10:29PM] - There is probably a way to do this flatly with the parent layout. -->
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/constraintLayout"
+            android:id="@+id/goals_constraint_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -109,40 +110,42 @@
             android:layout_marginRight="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tracker_no_goals_card">
+            app:layout_constraintTop_toBottomOf="@+id/no_goals_card">
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/tracker_duration_goal_card"
+                android:id="@+id/duration_goal_card"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
                 android:theme="@style/TrackerDurationTargetTheme"
-                app:layout_constraintEnd_toStartOf="@+id/tracker_waketime_goal_card"
+                app:layout_constraintEnd_toStartOf="@+id/waketime_goal_card"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_goneMarginEnd="0dp">
 
                 <include
+                    android:id="@+id/duration_goal_content"
                     layout="@layout/tracker_content_goal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                android:id="@+id/tracker_waketime_goal_card"
+                android:id="@+id/waketime_goal_card"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:theme="@style/TrackerWakeTimeTargetTheme"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toEndOf="@+id/tracker_duration_goal_card"
+                app:layout_constraintStart_toEndOf="@+id/duration_goal_card"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <include
+                    android:id="@+id/waketime_goal_content"
                     layout="@layout/tracker_content_goal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
@@ -150,7 +153,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/tracker_details_card"
+            android:id="@+id/details_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -161,9 +164,10 @@
             android:layout_marginBottom="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/constraintLayout">
+            app:layout_constraintTop_toBottomOf="@+id/goals_constraint_layout">
 
             <include
+                android:id="@+id/details_content"
                 layout="@layout/tracker_optional_details"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />

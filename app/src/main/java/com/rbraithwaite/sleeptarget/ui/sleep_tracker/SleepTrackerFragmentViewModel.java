@@ -14,17 +14,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.sleep_tracker;
 
+import android.view.View;
+
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
+import com.rbraithwaite.sleeptarget.R;
 import com.rbraithwaite.sleeptarget.core.models.CurrentSession;
 import com.rbraithwaite.sleeptarget.core.models.Interruption;
+import com.rbraithwaite.sleeptarget.core.models.SleepDurationGoal;
+import com.rbraithwaite.sleeptarget.core.models.WakeTimeGoal;
 import com.rbraithwaite.sleeptarget.core.repositories.CurrentGoalsRepository;
 import com.rbraithwaite.sleeptarget.core.repositories.CurrentSessionRepository;
 import com.rbraithwaite.sleeptarget.core.repositories.SleepSessionRepository;
@@ -34,14 +37,17 @@ import com.rbraithwaite.sleeptarget.ui.common.views.tag_selector.TagUiData;
 import com.rbraithwaite.sleeptarget.ui.sleep_tracker.data.PostSleepData;
 import com.rbraithwaite.sleeptarget.ui.sleep_tracker.data.StoppedSessionData;
 import com.rbraithwaite.sleeptarget.utils.CommonUtils;
+import com.rbraithwaite.sleeptarget.utils.LiveDataEvent;
 import com.rbraithwaite.sleeptarget.utils.LiveDataFuture;
 import com.rbraithwaite.sleeptarget.utils.LiveDataSingle;
 import com.rbraithwaite.sleeptarget.utils.LiveDataUtils;
+import com.rbraithwaite.sleeptarget.utils.MergedLiveData;
+import com.rbraithwaite.sleeptarget.utils.SimpleLiveDataEvent;
 import com.rbraithwaite.sleeptarget.utils.TickingLiveData;
 import com.rbraithwaite.sleeptarget.utils.TimeUtils;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -66,15 +72,21 @@ public class SleepTrackerFragmentViewModel
     private LiveData<Boolean> mInSleepSession;
     private LiveData<String> mCurrentSleepSessionDuration;
     private LiveData<String> mOngoingInterruptionDuration;
-    private LiveData<String> mInterruptionsTotal;
+    private LiveData<String> mInterruptionsTotalText;
     
-    private PostSleepData mPostSleepData;
     private LiveData<Boolean> mHasAnyGoal;
     private TickingLiveData<CurrentSession> mTickingCurrentSession = new TickingLiveData<>();
     
+    private LiveData<Integer> mInterruptionsTotalVisibility;
+    
+    private MutableLiveData<LiveDataEvent<StoppedSessionData>> mNavToPostSleepEvent =
+            new MutableLiveData<>();
+    private MutableLiveData<SimpleLiveDataEvent> mInterruptionRecordedEvent =
+            new MutableLiveData<>();
+    
     /**
-     * mCurrentSleepSessionDuration needs special behaviour when it is being observed for the
-     * first time.
+     * mCurrentSleepSessionDuration needs special behaviour when it is being observed for the first
+     * time.
      */
     private boolean mInitializingCurrentSleepSessionDuration = true;
 
@@ -118,52 +130,50 @@ public class SleepTrackerFragmentViewModel
         return mInSleepSession;
     }
     
-    /**
-     * If a new session is started while one is currently ongoing, the ongoing session is discarded.
-     * If you want to retain that session instead, call
-     * {@link SleepTrackerFragmentViewModel#keepSleepSession(StoppedSessionData)}
-     */
-    public void startSleepSession()
+    public void handleAnyReturnFromPostSleep(PostSleepViewModel postSleepViewModel)
     {
-        LiveDataFuture.getValue(
-                getCurrentSession(),
-                currentSession -> {
-                    currentSession.setStart(mTimeUtils.getNow());
-                    LiveDataUtils.refresh(getCurrentSession());
-                    // TODO [21-07-17 8:23PM] -- I should probably persist here.
-                });
-    }
-    
-    /**
-     * This also clears the existing session.
-     */
-    public void keepSleepSession(StoppedSessionData stoppedSession)
-    {
-        mSleepSessionRepository.addSleepSession(prepareNewSleepSession(
-                stoppedSession.currentSessionSnapshot,
-                stoppedSession.postSleepData));
+        Objects.requireNonNull(postSleepViewModel);
         
-        clearSleepSession();
-    }
-    
-    public void clearSleepSession()
-    {
-        if (mCurrentSession != null) {
-            mCurrentSessionRepository.clearCurrentSession();
-            mCurrentSession.setValue(new CurrentSession());
+        int action = postSleepViewModel.consumeAction();
+        
+        switch (action) {
+        case PostSleepViewModel.NO_ACTION:
+            break; // do nothing
+        case PostSleepViewModel.KEEP:
+            keepSleepSession(postSleepViewModel.consumeData());
+            break;
+        case PostSleepViewModel.DISCARD:
+            clearCurrentSleepSession();
+            postSleepViewModel.discardData();
+            break;
+        default:
+            throw new RuntimeException("Invalid PostSleepViewModel action: " + action);
         }
     }
     
+    public LiveData<LiveDataEvent<StoppedSessionData>> onNavToPostSleep()
+    {
+        return mNavToPostSleepEvent;
+    }
+    
+    public LiveData<SimpleLiveDataEvent> onInterruptionRecorded()
+    {
+        return mInterruptionRecordedEvent;
+    }
+    
+    // REFACTOR [21-10-21 9:55PM] -- I need to either rename StoppedSessionData or
+    //  getSleepSessionSnapshot.
     public LiveData<StoppedSessionData> getSleepSessionSnapshot()
     {
         return Transformations.map(
                 getCurrentSession(),
-                currentSession -> new StoppedSessionData(
-                        currentSession.createSnapshot(mTimeUtils),
-                        getPostSleepData()));
+                // TODO [21-10-22 12:07AM] If the post sleep data is null, what's the
+                //  point of providing a StoppedSessionData? shouldn't I just provide the snapshot?
+                currentSession -> new StoppedSessionData(currentSession.createSnapshot(mTimeUtils),
+                                                         null));
     }
     
-    public LiveData<String> getCurrentSleepSessionDuration()
+    public LiveData<String> getCurrentSleepSessionDurationText()
     {
         if (mCurrentSleepSessionDuration != null) {
             return mCurrentSleepSessionDuration;
@@ -205,16 +215,16 @@ public class SleepTrackerFragmentViewModel
         return mCurrentSleepSessionDuration;
     }
     
-    public LiveData<String> getInterruptionsTotal()
+    public LiveData<String> getInterruptionsTotalText()
     {
-        mInterruptionsTotal = CommonUtils.lazyInit(
-                mInterruptionsTotal,
+        mInterruptionsTotalText = CommonUtils.lazyInit(
+                mInterruptionsTotalText,
                 () -> Transformations.switchMap(getCurrentSession(), currentSession -> {
                     if (!currentSession.isStarted()) {
                         // no reason for an update unless the interruptions total is visible
                         return new MutableLiveData<>(null);
                     } else if (!currentSession.isInterrupted()) {
-                        return new MutableLiveData<>(mInterruptionsTotal.getValue());
+                        return new MutableLiveData<>(mInterruptionsTotalText.getValue());
                     } else {
                         return Transformations.map(
                                 getTickingCurrentSession(),
@@ -230,7 +240,7 @@ public class SleepTrackerFragmentViewModel
                                 });
                     }
                 }));
-        return mInterruptionsTotal;
+        return mInterruptionsTotalText;
     }
     
     public LiveData<String> getOngoingInterruptionDuration()
@@ -252,7 +262,7 @@ public class SleepTrackerFragmentViewModel
         return mOngoingInterruptionDuration;
     }
     
-    public LiveData<String> getSessionStartTime()
+    public LiveData<String> getStartTimeText()
     {
         return Transformations.map(
                 getCurrentSession(),
@@ -275,6 +285,14 @@ public class SleepTrackerFragmentViewModel
                 });
     }
     
+    public LiveData<Integer> getWakeTimeGoalVisibility()
+    {
+        return Transformations.map(
+                mCurrentGoalsRepository.getWakeTimeGoal(),
+                wakeTimeGoal -> wakeTimeGoal == null || !wakeTimeGoal.isSet() ?
+                        View.GONE : View.VISIBLE);
+    }
+    
     public LiveData<String> getSleepDurationGoalText()
     {
         return Transformations.map(
@@ -285,6 +303,14 @@ public class SleepTrackerFragmentViewModel
                     }
                     return SleepTrackerFormatting.formatSleepDurationGoal(sleepDurationGoal);
                 });
+    }
+    
+    public LiveData<Integer> getSleepDurationGoalVisibility()
+    {
+        return Transformations.map(
+                mCurrentGoalsRepository.getSleepDurationGoal(),
+                sleepDurationGoal -> sleepDurationGoal == null || !sleepDurationGoal.isSet() ?
+                        View.GONE : View.VISIBLE);
     }
     
     /**
@@ -300,7 +326,7 @@ public class SleepTrackerFragmentViewModel
                 });
     }
     
-    public void setLocalAdditionalComments(String additionalComments)
+    public void setAdditionalComments(String additionalComments)
     {
         if (additionalComments != null && additionalComments.equals("")) {
             additionalComments = null;
@@ -315,7 +341,7 @@ public class SleepTrackerFragmentViewModel
     /**
      * Persist the current state of the UI.
      */
-    public void persistLocalValues()
+    public void onPause()
     {
         LiveDataFuture.getValue(
                 getCurrentSession(),
@@ -332,25 +358,24 @@ public class SleepTrackerFragmentViewModel
     /**
      * This does not update getPersistedMood() until persist() is called.
      */
-    public void setLocalMood(MoodUiData mood)
+    public void setMood(MoodUiData mood)
     {
         // It's easier to convert here and store as a Mood, since CurrentSession stores a Mood,
         //  so the eventual getElse() call works better.
         LiveDataFuture.getValue(getCurrentSession(), currentSession -> {
-            currentSession.setMood(ConvertMood.fromUiData(mood));
+            // TODO [21-10-19 11:27PM] -- Is this condition really nec.? I kept it around to not
+            //  mess with legacy behaviour, but I should investigate removing it & just passing
+            //  mood directly to the converter.
+            if (mood == null || !mood.isSet()) {
+                currentSession.setMood(null);
+            } else {
+                currentSession.setMood(ConvertMood.fromUiData(mood));
+            }
             LiveDataUtils.refresh(getCurrentSession());
         });
     }
     
-    /**
-     * This does not update getPersistedMood() until persist() is called.
-     */
-    public void clearLocalMood()
-    {
-        setLocalMood(null);
-    }
-    
-    public void setLocalSelectedTags(List<TagUiData> selectedTags)
+    public void setSelectedTags(List<TagUiData> selectedTags)
     {
         LiveDataFuture.getValue(getCurrentSession(), currentSession -> {
             currentSession.setSelectedTagIds(getIdsFromTags(selectedTags));
@@ -370,27 +395,37 @@ public class SleepTrackerFragmentViewModel
     
     public LiveData<Boolean> hasAnyGoal()
     {
-        // REFACTOR [21-07-8 9:03PM] -- I need to make a better LiveDataUtils.merge.
-        // REFACTOR [21-06-27 9:29PM] -- replace TestUtils.DoubleRef w/ AtomicReference I guess lol.
-        AtomicReference<Boolean> hasWakeTimeGoal = new AtomicReference<>(false);
-        AtomicReference<Boolean> hasSleepDurationGoal = new AtomicReference<>(false);
-        mHasAnyGoal = CommonUtils.lazyInit(mHasAnyGoal, () -> {
-            MediatorLiveData<Boolean> mediator = new MediatorLiveData<>();
-            mediator.addSource(mCurrentGoalsRepository.getWakeTimeGoal(), wakeTimeGoal -> {
-                hasWakeTimeGoal.set(wakeTimeGoal != null && wakeTimeGoal.isSet());
-                mediator.setValue(hasWakeTimeGoal.get() || hasSleepDurationGoal.get());
-            });
-            mediator.addSource(mCurrentGoalsRepository.getSleepDurationGoal(),
-                               sleepDurationGoal -> {
-                                   hasSleepDurationGoal.set(
-                                           sleepDurationGoal != null && sleepDurationGoal.isSet());
-                                   mediator.setValue(
-                                           hasWakeTimeGoal.get() || hasSleepDurationGoal.get());
-                               });
-            return mediator;
-        });
+        mHasAnyGoal = CommonUtils.lazyInit(mHasAnyGoal, () -> Transformations.map(
+                new MergedLiveData(
+                        mCurrentGoalsRepository.getWakeTimeGoal(),
+                        mCurrentGoalsRepository.getSleepDurationGoal()),
+                update -> {
+                    // wake time
+                    Object value0 = update.values.get(0);
+                    if (value0 != MergedLiveData.NO_VALUE) {
+                        WakeTimeGoal wakeTimeGoal = (WakeTimeGoal) value0;
+                        if (wakeTimeGoal != null && wakeTimeGoal.isSet()) {
+                            return true;
+                        }
+                    }
+                    
+                    // sleep duration
+                    Object value1 = update.values.get(1);
+                    if (value1 != MergedLiveData.NO_VALUE) {
+                        SleepDurationGoal sleepDurationGoal = (SleepDurationGoal) value1;
+                        return sleepDurationGoal != null && sleepDurationGoal.isSet();
+                    }
+                    
+                    return false;
+                }));
         
         return mHasAnyGoal;
+    }
+    
+    public LiveData<Integer> getNoGoalsMessageVisibility()
+    {
+        return Transformations.map(hasAnyGoal(), hasAnyGoal ->
+                hasAnyGoal ? View.GONE : View.VISIBLE);
     }
     
     /**
@@ -411,7 +446,7 @@ public class SleepTrackerFragmentViewModel
                 CurrentSession::getLatestInterruptionReason);
     }
     
-    public void setLocalInterruptionReason(String interruptionReason)
+    public void setInterruptionReason(String interruptionReason)
     {
         LiveDataFuture.getValue(getCurrentSession(), currentSession -> {
             if (currentSession.isInterrupted()) {
@@ -421,6 +456,127 @@ public class SleepTrackerFragmentViewModel
         });
     }
     
+    // TEST NEEDED [21-07-18 12:05AM] -- .
+    public LiveData<String> getLastInterruptionDuration()
+    {
+        return Transformations.map(getCurrentSession(), currentSession -> {
+            Interruption interruption = currentSession.getLastRecordedInterruption();
+            return interruption == null ? null :
+                    SleepTrackerFormatting.formatDuration(interruption.getDurationMillis());
+        });
+    }
+    
+    public void clickTrackingButton()
+    {
+        LiveDataFuture.getValue(
+                inSleepSession(),
+                inSleepSession -> {
+                    if (inSleepSession) {
+                        triggerPostSleepEvent();
+                    } else {
+                        startSleepSession();
+                    }
+                });
+    }
+    
+    /**
+     * The visibility of the interruptions control UI (interrupt button, reason, etc)
+     */
+    public LiveData<Integer> getInterruptionsVisibility()
+    {
+        return Transformations.map(inSleepSession(),
+                                   inSleepSession -> inSleepSession ? View.VISIBLE : View.GONE);
+    }
+    
+    public void clickInterruptionButton()
+    {
+        LiveDataFuture.getValue(isSleepSessionInterrupted(), isInterrupted -> {
+            if (isInterrupted) {
+                resumeSleepSession();
+                triggerInterruptionRecordedEvent();
+            } else {
+                interruptSleepSession();
+            }
+        });
+    }
+    
+    public LiveData<Integer> getSleepTrackingButtonText()
+    {
+        return Transformations.map(inSleepSession(), inSleepSession -> inSleepSession ?
+                R.string.sleep_tracker_button_stop :
+                R.string.sleep_tracker_button_start);
+    }
+    
+    /**
+     * The visibility of the interruptions total displayed with the session timer.
+     */
+    public LiveData<Integer> getInterruptionsTotalVisibility()
+    {
+        mInterruptionsTotalVisibility = CommonUtils.lazyInit(
+                mInterruptionsTotalVisibility,
+                () -> Transformations.map(getCurrentSession(), currentSession ->
+                        currentSession.isStarted() && currentSession.hasAnyInterruptions() ?
+                                View.VISIBLE : View.GONE));
+        return mInterruptionsTotalVisibility;
+    }
+    
+    public LiveData<Integer> getInterruptButtonText()
+    {
+        return Transformations.map(isSleepSessionInterrupted(), isInterrupted -> isInterrupted ?
+                R.string.tracker_interrupt_btn_resume :
+                R.string.tracker_interrupt_btn_interrupt);
+    }
+    
+//*********************************************************
+// protected api
+//*********************************************************
+
+    protected TimeUtils createTimeUtils()
+    {
+        return new TimeUtils();
+    }
+
+//*********************************************************
+// private methods
+//*********************************************************
+
+    
+    /**
+     * If a new session is started while one is currently ongoing, the ongoing session is discarded.
+     * If you want to retain that session instead, call
+     * {@link SleepTrackerFragmentViewModel#keepSleepSession(StoppedSessionData)}
+     */
+    private void startSleepSession()
+    {
+        LiveDataFuture.getValue(
+                getCurrentSession(),
+                currentSession -> {
+                    currentSession.setStart(mTimeUtils.getNow());
+                    LiveDataUtils.refresh(getCurrentSession());
+                    // TODO [21-07-17 8:23PM] -- I should probably persist here.
+                });
+    }
+    
+    /**
+     * This also clears the existing session.
+     */
+    private void keepSleepSession(StoppedSessionData stoppedSession)
+    {
+        mSleepSessionRepository.addSleepSession(prepareNewSleepSession(
+                stoppedSession.currentSessionSnapshot,
+                stoppedSession.postSleepData));
+        
+        clearCurrentSleepSession();
+    }
+    
+    private void clearCurrentSleepSession()
+    {
+        if (mCurrentSession != null) {
+            mCurrentSessionRepository.clearCurrentSession();
+            mCurrentSession.setValue(new CurrentSession());
+        }
+    }
+    
     /**
      * Stop & save the previously ongoing interruption, and resume the session. If the session was
      * not currently interrupted or there was no session, this does nothing.
@@ -428,7 +584,7 @@ public class SleepTrackerFragmentViewModel
      * This is an important state change, so the current session is persisted here (to avoid missing
      * that state change on an application crash)
      */
-    public void resumeSleepSession()
+    private void resumeSleepSession()
     {
         LiveDataFuture.getValue(getCurrentSession(), currentSession -> {
             if (currentSession.resume(mTimeUtils)) {
@@ -445,7 +601,7 @@ public class SleepTrackerFragmentViewModel
      * This is an important state change, so the current session is persisted here (to avoid missing
      * that state change on an application crash)
      */
-    public void interruptSleepSession()
+    private void interruptSleepSession()
     {
         LiveDataFuture.getValue(getCurrentSession(), currentSession -> {
             if (currentSession.interrupt(mTimeUtils)) {
@@ -455,28 +611,18 @@ public class SleepTrackerFragmentViewModel
         });
     }
     
-    // TEST NEEDED [21-07-18 12:05AM] -- .
-    public LiveData<String> getLastInterruptionDuration()
+    private void triggerPostSleepEvent()
     {
-        return Transformations.map(getCurrentSession(), currentSession -> {
-            Interruption interruption = currentSession.getLastRecordedInterruption();
-            return interruption == null ? null :
-                    SleepTrackerFormatting.formatDuration(interruption.getDurationMillis());
-        });
+        LiveDataFuture.getValue(
+                getSleepSessionSnapshot(),
+                stoppedSession ->
+                        mNavToPostSleepEvent.setValue(new LiveDataEvent<>(stoppedSession)));
     }
 
-//*********************************************************
-// protected api
-//*********************************************************
-
-    protected TimeUtils createTimeUtils()
+    private void triggerInterruptionRecordedEvent()
     {
-        return new TimeUtils();
+        mInterruptionRecordedEvent.setValue(new SimpleLiveDataEvent());
     }
-
-//*********************************************************
-// private methods
-//*********************************************************
 
     // SMELL [21-07-14 5:38PM] -- This doesn't seem like a good way to do this - revisit this.
     private LiveData<CurrentSession> getTickingCurrentSession()
@@ -485,16 +631,6 @@ public class SleepTrackerFragmentViewModel
             mTickingCurrentSession.setOnTick(() -> currentSession);
             return mTickingCurrentSession;
         });
-    }
-    
-    private PostSleepData getPostSleepData()
-    {
-        return mPostSleepData;
-    }
-    
-    public void setPostSleepData(PostSleepData postSleepData)
-    {
-        mPostSleepData = postSleepData;
     }
     
     private SleepSessionRepository.NewSleepSessionData prepareNewSleepSession(

@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.test_utils.test_data;
 
 import com.rbraithwaite.sleeptarget.test_utils.test_data.builders.CalendarBuilder;
@@ -24,6 +23,7 @@ import com.rbraithwaite.sleeptarget.test_utils.test_data.builders.InterruptionBu
 import com.rbraithwaite.sleeptarget.test_utils.test_data.builders.MoodBuilder;
 import com.rbraithwaite.sleeptarget.test_utils.test_data.builders.PostSleepDataBuilder;
 import com.rbraithwaite.sleeptarget.test_utils.test_data.builders.SessionBuilder;
+import com.rbraithwaite.sleeptarget.test_utils.test_data.builders.SleepDurationGoalBuilder;
 import com.rbraithwaite.sleeptarget.test_utils.test_data.builders.SleepInterruptionEntityBuilder;
 import com.rbraithwaite.sleeptarget.test_utils.test_data.builders.SleepSessionBuilder;
 import com.rbraithwaite.sleeptarget.test_utils.test_data.builders.SleepSessionEntityBuilder;
@@ -111,6 +111,11 @@ public class TestData
     public static WakeTimeGoalBuilder aWakeTimeGoal()
     {
         return new WakeTimeGoalBuilder();
+    }
+    
+    public static SleepDurationGoalBuilder aSleepDurationGoal()
+    {
+        return new SleepDurationGoalBuilder();
     }
     
     public static <T> List<T> aListOf(BuilderOf<T>... builders)

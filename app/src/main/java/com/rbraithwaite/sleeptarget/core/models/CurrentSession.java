@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.core.models;
 
 import androidx.annotation.Nullable;
@@ -52,19 +51,18 @@ public class CurrentSession
     int mInterruptionsTotalDurationCache = 0;
 
 
+    
 //*********************************************************
 // public helpers
 //*********************************************************
 
-    
     /**
      * A static "snapshot" of some CurrentSession's state. This is needed as CurrentSession's
      * duration is always updating in real time - see getOngoingDurationMillis()
      */
-    public static class Snapshot implements Serializable
+    public static class Snapshot
+            implements Serializable
     {
-        public static final long serialVersionUID = Constants.SERIAL_VERSION_UID;
-        
         public Date start;
         public Date end;
         public long durationMillis;
@@ -72,6 +70,7 @@ public class CurrentSession
         public String additionalComments;
         public List<Integer> selectedTagIds;
         public List<Interruption> interruptions;
+        public static final long serialVersionUID = Constants.SERIAL_VERSION_UID;
         
         public Snapshot(
                 Date start,
@@ -359,6 +358,11 @@ public class CurrentSession
         }
         return mRecordedInterruptions.get(mRecordedInterruptions.size() - 1);
     }
+    
+    public boolean hasAnyInterruptions()
+    {
+        return isInterrupted() || !mRecordedInterruptions.isEmpty();
+    }
 
 //*********************************************************
 // private methods
@@ -402,3 +406,8 @@ public class CurrentSession
         }
     }
 }
+
+//*********************************************************
+// api
+//*********************************************************
+

@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LiveData;
@@ -45,6 +46,7 @@ import com.rbraithwaite.sleeptarget.data.prefs.Prefs;
 import com.rbraithwaite.sleeptarget.test_utils.test_data.builders.DateBuilder;
 import com.rbraithwaite.sleeptarget.ui.stats.chart_intervals.DateRange;
 import com.rbraithwaite.sleeptarget.utils.TimeUtils;
+import com.rbraithwaite.sleeptarget.utils.interfaces.Action;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,6 +56,9 @@ import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Executor;
+
+import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.valueOf;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class TestUtils
 {
@@ -137,8 +142,6 @@ public class TestUtils
             observeLiveDataOnMainThread(liveData, observer, null);
         }
     }
-    
-    // REFACTOR [21-05-8 4:34PM] -- move this to test_utils.data.ArbitraryTestData.
     
     /**
      * Provides fixed, arbitrary data for cases where the specific details of the data aren't
@@ -297,8 +300,8 @@ public class TestUtils
                     "arbitrary reason");
         }
     }
-
-
+    
+    // REFACTOR [21-05-8 4:34PM] -- move this to test_utils.data.ArbitraryTestData.
 
 //*********************************************************
 // package helpers
@@ -340,15 +343,42 @@ public class TestUtils
     }
 
 
+    
 //*********************************************************
 // constructors
 //*********************************************************
 
     private TestUtils() {/* No instantiation */}
 
+
 //*********************************************************
 // api
 //*********************************************************
+
+    
+    /**
+     * Might be useful for simple tests.
+     */
+    public static void parametrizedTest(
+            String tag,
+            Object[][] data,
+            Action<Object[]> runTestIteration)
+    {
+        boolean noIterationsFailed = true;
+        
+        for (int i = 0; i < data.length; i++) {
+            Object[] values = data[i];
+            try {
+                runTestIteration.performOn(values);
+            } catch (Throwable t) {
+                noIterationsFailed = false;
+                Log.e(tag, "Failed iteration " + i + ", values: " + Arrays.toString(values));
+                t.printStackTrace();
+            }
+        }
+        
+        assertThat("There were failing iterations.", noIterationsFailed);
+    }
 
     public static <T extends Activity> void performSyncedActivityAction(
             ActivityScenario<T> scenario,
@@ -512,5 +542,27 @@ public class TestUtils
     {
         resetDatabase();
         resetSharedPreferences();
+    }
+    
+    public static TimeUtils timeUtilsWithNowSequence(DateBuilder... dates)
+    {
+        return new TimeUtils()
+        {
+            private int currentIndex = 0;
+            
+            @Override
+            public Date getNow()
+            {
+                if (currentIndex < dates.length) {
+                    Date now = valueOf(dates[currentIndex]);
+                    currentIndex++;
+                    return now;
+                } else {
+                    // TODO [21-10-21 10:15PM] -- provide an option for looping the sequence.
+                    throw new RuntimeException(
+                            "Tried to access more dates than were available in the sequence.");
+                }
+            }
+        };
     }
 }

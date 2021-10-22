@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.utils;
 
 import androidx.lifecycle.LiveData;
@@ -22,6 +21,7 @@ import androidx.lifecycle.MediatorLiveData;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 /**
  * Clients will need to recast the types of the values in the update.
@@ -35,13 +35,14 @@ public class MergedLiveData
 
     private List<Object> mValues;
     private boolean mAllHaveValues = false;
+    private boolean mUsePost = false;
 
 //*********************************************************
 // public properties
 //*********************************************************
 
     public static Object NO_VALUE = new Object();
-    
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -57,7 +58,7 @@ public class MergedLiveData
             this.updatedIndex = updatedIndex;
         }
     }
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -70,34 +71,38 @@ public class MergedLiveData
             int j = i; // "effectively final"
             addSource(liveData[i], value -> {
                 mValues.set(j, value);
-                MergedLiveData.this.postValue(new Update(mValues, j));
+                MergedLiveData.this.setValue(new Update(mValues, j));
             });
         }
     }
     
     /**
-     * Overload of MergedLiveData which can wait until all the provided live data instances have
-     * a real value before updating itself. (I.e. ilf waitForAll is true, it's guaranteed that none
-     * of the update values will be NO_VALUE)
+     * Overload of MergedLiveData which can wait until all the provided live data instances have a
+     * real value before updating itself. (I.e. ilf waitForAll is true, it's guaranteed that none of
+     * the update values will be NO_VALUE)
      */
     public MergedLiveData(
             boolean waitForAll,
             LiveData<?>... liveData)
     {
         initValues(liveData.length);
-    
+        
         for (int i = 0; i < liveData.length; i++) {
             int j = i; // "effectively final"
             addSource(liveData[i], value -> {
                 mValues.set(j, value);
                 if (!waitForAll || allHaveValues()) {
                     // SMELL [21-10-4 9:11PM] -- the update uses a ref to the private values list
-                    MergedLiveData.this.postValue(new Update(mValues, j));
+                    MergedLiveData.this.setValue(new Update(mValues, j));
                 }
             });
         }
     }
     
+//*********************************************************
+// private methods
+//*********************************************************
+
     private void initValues(int size)
     {
         mValues = new ArrayList<>();

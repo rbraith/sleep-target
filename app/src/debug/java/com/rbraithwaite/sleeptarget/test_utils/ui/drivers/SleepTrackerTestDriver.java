@@ -97,7 +97,7 @@ public class SleepTrackerTestDriver
         
         public void sleepTrackerButtonIsInState(TrackerButtonState state)
         {
-            ViewInteraction sleepTrackerButton = onView(withId(R.id.sleep_tracker_button));
+            ViewInteraction sleepTrackerButton = onView(withId(R.id.tracker_button));
             
             switch (state) {
             case NOT_STARTED:
@@ -111,7 +111,7 @@ public class SleepTrackerTestDriver
         
         public void interruptionButtonIsInState(InterruptButtonState state)
         {
-            ViewInteraction interruptButton = onView(withId(R.id.tracker_interrupt_button));
+            ViewInteraction interruptButton = onView(withId(R.id.interrupt_button));
             
             switch (state) {
             case RESUMED:
@@ -173,17 +173,17 @@ public class SleepTrackerTestDriver
         {
             sleepDurationGoalIsNotDisplayed();
             wakeTimeGoalIsNotDisplayed();
-            onView(withId(R.id.tracker_no_goals_card)).check(matches(isDisplayed()));
+            onView(withId(R.id.no_goals_card)).check(matches(isDisplayed()));
         }
         
         public void sleepDurationGoalIsNotDisplayed()
         {
-            onView(withId(R.id.tracker_duration_goal_card)).check(matches(not(isDisplayed())));
+            onView(withId(R.id.duration_goal_card)).check(matches(not(isDisplayed())));
         }
         
         public void wakeTimeGoalIsNotDisplayed()
         {
-            onView(withId(R.id.tracker_waketime_goal_card)).check(matches(not(isDisplayed())));
+            onView(withId(R.id.waketime_goal_card)).check(matches(not(isDisplayed())));
         }
         
         public void onlyWakeTimeGoalIsDisplayed(WakeTimeGoal expectedWakeTimeGoal)
@@ -194,9 +194,9 @@ public class SleepTrackerTestDriver
         
         public void wakeTimeGoalIsDisplayed(WakeTimeGoal expectedWakeTimeGoal)
         {
-            onView(withId(R.id.tracker_no_goals_card)).check(matches(not(isDisplayed())));
-            onView(allOf(isDescendantOfA(withId(R.id.tracker_waketime_goal_card)),
-                         withId(R.id.tracker_goal_value)))
+            onView(withId(R.id.no_goals_card)).check(matches(not(isDisplayed())));
+            onView(allOf(isDescendantOfA(withId(R.id.waketime_goal_card)),
+                         withId(R.id.value)))
                     .check(matches(allOf(
                             isDisplayed(),
                             withText(SleepTrackerFormatting.formatWakeTimeGoal(
@@ -205,30 +205,30 @@ public class SleepTrackerTestDriver
         
         public void sessionStartTimeIsNotDisplayed()
         {
-            onView(withId(R.id.sleep_tracker_start_time)).check(matches(not(isDisplayed())));
-            onView(withId(R.id.sleep_tracker_started_text)).check(matches(not(isDisplayed())));
+            onView(withId(R.id.start_time)).check(matches(not(isDisplayed())));
+            onView(withId(R.id.started_text)).check(matches(not(isDisplayed())));
         }
         
         public void sessionTimerMatches(int expectedDuration)
         {
-            onView(withId(R.id.sleep_tracker_session_time)).check(matches(withText(
+            onView(withId(R.id.session_time)).check(matches(withText(
                     SleepTrackerFormatting.formatDuration(expectedDuration))));
         }
         
         public void sessionTimerIsDisplayed()
         {
-            onView(withId(R.id.sleep_tracker_session_time)).check(matches(isDisplayed()));
+            onView(withId(R.id.session_time)).check(matches(isDisplayed()));
         }
         
         public void sessionStartTimeMatches(Date expectedStartTime)
         {
-            onView(withId(R.id.sleep_tracker_start_time)).check(matches(withText(
+            onView(withId(R.id.start_time)).check(matches(withText(
                     SleepTrackerFormatting.formatSessionStartTime(expectedStartTime))));
         }
         
         public void sessionStartTimeIsDisplayed()
         {
-            onView(withId(R.id.sleep_tracker_start_time)).check(matches(isDisplayed()));
+            onView(withId(R.id.start_time)).check(matches(isDisplayed()));
         }
         
         public void detailsMatch(SleepSessionBuilder sleepSession)
@@ -247,46 +247,46 @@ public class SleepTrackerTestDriver
         
         public void sessionTimerIsNotDisplayed()
         {
-            onView(withId(R.id.sleep_tracker_start_time)).check(matches(not(isDisplayed())));
+            onView(withId(R.id.start_time)).check(matches(not(isDisplayed())));
         }
         
         public void interruptionsCardIsNotDisplayed()
         {
-            onView(withId(R.id.tracker_interruptions_card)).check(matches(not(isDisplayed())));
+            onView(withId(R.id.interruptions_card)).check(matches(not(isDisplayed())));
         }
         
         public void interruptionsCardIsDisplayed()
         {
-            onView(withId(R.id.tracker_interruptions_card)).check(matches(isDisplayed()));
+            onView(withId(R.id.interruptions_card)).check(matches(isDisplayed()));
         }
         
         public void interruptionTimerIsNotDisplayed()
         {
-            onView(withId(R.id.tracker_interrupt_duration)).check(matches(not(isDisplayed())));
+            onView(withId(R.id.interrupt_duration)).check(matches(not(isDisplayed())));
         }
         
         public void interruptionTimerMatches(int durationMillis)
         {
-            onView(withId(R.id.tracker_interrupt_duration)).check(matches(isDisplayed()));
-            onView(withId(R.id.tracker_interrupt_duration)).check(matches(withText(
+            onView(withId(R.id.interrupt_duration)).check(matches(isDisplayed()));
+            onView(withId(R.id.interrupt_duration)).check(matches(withText(
                     SleepTrackerFormatting.formatDuration(durationMillis))));
         }
         
         public void interruptionsTotalIsNotDisplayed()
         {
-            onView(withId(R.id.sleep_tracker_interruptions_total)).check(matches(not(isDisplayed())));
+            onView(withId(R.id.interruptions_total)).check(matches(not(isDisplayed())));
         }
         
         public void interruptionsTotalMatches(int totalDurationMillis, int count)
         {
-            onView(withId(R.id.sleep_tracker_interruptions_total)).check(matches(isDisplayed()));
-            onView(withId(R.id.sleep_tracker_interruptions_total)).check(matches(withText(
+            onView(withId(R.id.interruptions_total)).check(matches(isDisplayed()));
+            onView(withId(R.id.interruptions_total)).check(matches(withText(
                     SleepTrackerFormatting.formatInterruptionsTotal(totalDurationMillis, count))));
         }
         
         public void interruptionReasonTextMatches(String expectedReason)
         {
-            onView(withId(R.id.tracker_interrupt_reason)).check(matches(withText(expectedReason)));
+            onView(withId(R.id.interrupt_reason)).check(matches(withText(expectedReason)));
         }
         
         public void interruptionReasonTextIsEmpty()
@@ -308,9 +308,9 @@ public class SleepTrackerTestDriver
         
         private void sleepDurationGoalIsDisplayed(SleepDurationGoal expectedSleepDurationGoal)
         {
-            onView(withId(R.id.tracker_no_goals_card)).check(matches(not(isDisplayed())));
-            onView(allOf(isDescendantOfA(withId(R.id.tracker_duration_goal_card)),
-                         withId(R.id.tracker_goal_value)))
+            onView(withId(R.id.no_goals_card)).check(matches(not(isDisplayed())));
+            onView(allOf(isDescendantOfA(withId(R.id.duration_goal_card)),
+                         withId(R.id.value)))
                     .check(matches(allOf(
                             isDisplayed(),
                             withText(SleepTrackerFormatting.formatSleepDurationGoal(
@@ -330,7 +330,7 @@ public class SleepTrackerTestDriver
         {
             // check UI
             // REFACTOR [21-07-11 3:21AM] -- hardcoded string.
-            onView(withId(R.id.sleep_tracker_session_time)).check(matches(withText("Error")));
+            onView(withId(R.id.session_time)).check(matches(withText("Error")));
             
             // check ViewModel
             LiveData<Boolean> inSleepSession = getViewModel().inSleepSession();
@@ -348,11 +348,11 @@ public class SleepTrackerTestDriver
         init(helper, new Assertions(this));
         
         mMoodSelector = new MoodSelectorDriver(
-                withId(R.id.more_context_mood),
+                withId(R.id.mood),
                 getMoodSelectorViewModel());
         mTagSelectorDriver = new TagSelectorDriver(
                 getHelper(),
-                withId(R.id.more_context_tags),
+                withId(R.id.tags),
                 getTagSelectorViewModel());
     }
 
@@ -458,7 +458,7 @@ public class SleepTrackerTestDriver
     
     public void setDetailsFrom(SleepSession sleepSession)
     {
-        onView(withId(R.id.tracker_details_card)).perform(betterScrollTo());
+        onView(withId(R.id.details_card)).perform(betterScrollTo());
         setAdditionalComments(sleepSession.getAdditionalComments());
         addNewMood(sleepSession.getMood().asIndex());
         toggleTagSelectionsById(
@@ -476,7 +476,7 @@ public class SleepTrackerTestDriver
     
     public void pressInterruptButton()
     {
-        onView(withId(R.id.tracker_interrupt_button)).perform(click());
+        onView(withId(R.id.interrupt_button)).perform(click());
     }
     
     public void resumeSession()
@@ -503,7 +503,7 @@ public class SleepTrackerTestDriver
     
     public void scrollToDetails()
     {
-        onView(withId(R.id.tracker_details_card)).perform(betterScrollTo());
+        onView(withId(R.id.details_card)).perform(betterScrollTo());
     }
     
     public void openMoodSelectorDialog()
@@ -610,14 +610,14 @@ public class SleepTrackerTestDriver
     
     private ViewInteraction onInterruptionReasonText()
     {
-        return onView(withId(R.id.tracker_interrupt_reason));
+        return onView(withId(R.id.interrupt_reason));
     }
     
     private void pressSleepTrackingButton()
     {
         mInSession = !mInSession;
-        onView(withId(R.id.sleep_tracker_button)).perform(betterScrollTo());
-        onView(withId(R.id.sleep_tracker_button)).perform(click());
+        onView(withId(R.id.tracker_button)).perform(betterScrollTo());
+        onView(withId(R.id.tracker_button)).perform(click());
     }
     
     /**

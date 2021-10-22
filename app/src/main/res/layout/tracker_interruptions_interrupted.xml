@@ -23,7 +23,7 @@
     android:layout_height="wrap_content">
 
     <Button
-        android:id="@+id/tracker_interrupt_button"
+        android:id="@+id/interrupt_button"
         style="@style/TrackerInterruptButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -36,7 +36,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/tracker_interrupt_reason"
+        android:id="@+id/interrupt_reason"
         style="@style/TrackerAdditionalCommentsStyle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -54,16 +54,16 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tracker_interrupt_button" />
+        app:layout_constraintTop_toBottomOf="@+id/interrupt_button" />
 
     <TextView
-        android:id="@+id/tracker_interrupt_duration"
+        android:id="@+id/interrupt_duration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/error"
         android:textColor="?attr/appColorInterruption"
         android:textSize="32sp"
-        app:layout_constraintBottom_toTopOf="@+id/tracker_interrupt_button"
+        app:layout_constraintBottom_toTopOf="@+id/interrupt_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:text="2h 34m 56s" />
