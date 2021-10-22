@@ -17,6 +17,8 @@
 
 package com.rbraithwaite.sleeptarget.ui.sleep_tracker;
 
+import com.rbraithwaite.sleeptarget.ui.post_sleep.PostSleepFormatting;
+
 import org.junit.Test;
 
 import java.util.GregorianCalendar;

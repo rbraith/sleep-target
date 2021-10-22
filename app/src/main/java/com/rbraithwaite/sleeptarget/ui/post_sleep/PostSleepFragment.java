@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.rbraithwaite.sleeptarget.ui.sleep_tracker;
+package com.rbraithwaite.sleeptarget.ui.post_sleep;
 
 import android.app.AlertDialog;
 import android.content.res.TypedArray;
@@ -24,7 +24,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.RatingBar;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -40,6 +39,7 @@ import com.rbraithwaite.sleeptarget.ui.common.dialog.AlertDialogFragment2;
 import com.rbraithwaite.sleeptarget.ui.common.views.ActionFragment;
 import com.rbraithwaite.sleeptarget.ui.common.views.mood_selector.TEMP.MoodView;
 import com.rbraithwaite.sleeptarget.ui.common.views.tag_selector.SelectedTagAdapter;
+import com.rbraithwaite.sleeptarget.ui.sleep_tracker.SleepTrackerFragmentDirections;
 import com.rbraithwaite.sleeptarget.ui.sleep_tracker.data.StoppedSessionData;
 import com.rbraithwaite.sleeptarget.ui.utils.UiUtils;
 import com.rbraithwaite.sleeptarget.utils.LiveDataFuture;

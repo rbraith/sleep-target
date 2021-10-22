@@ -74,11 +74,11 @@
     </fragment>
     <fragment
         android:id="@+id/nav_postsleep"
-        android:name="com.rbraithwaite.sleeptarget.ui.sleep_tracker.PostSleepFragment"
+        android:name="com.rbraithwaite.sleeptarget.ui.post_sleep.PostSleepFragment"
         android:label="Keep Sleep Session?" >
         <argument
             android:name="args"
-            app:argType="com.rbraithwaite.sleeptarget.ui.sleep_tracker.PostSleepFragment$Args" />
+            app:argType="com.rbraithwaite.sleeptarget.ui.post_sleep.PostSleepFragment$Args" />
     </fragment>
     <fragment
         android:id="@+id/nav_about"

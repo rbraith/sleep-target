@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.rbraithwaite.sleeptarget.ui.sleep_tracker;
+package com.rbraithwaite.sleeptarget.ui.post_sleep;
 
 import android.view.LayoutInflater;
 import android.view.View;

@@ -33,12 +33,14 @@ import com.rbraithwaite.sleeptarget.core.repositories.SleepSessionRepository;
 import com.rbraithwaite.sleeptarget.test_helpers.RobolectricUtils;
 import com.rbraithwaite.sleeptarget.test_utils.TestEqualities;
 import com.rbraithwaite.sleeptarget.test_utils.TestUtils;
+import com.rbraithwaite.sleeptarget.test_utils.rules.RetryTestRule;
 import com.rbraithwaite.sleeptarget.test_utils.test_data.builders.CurrentSessionBuilder;
 import com.rbraithwaite.sleeptarget.test_utils.test_data.builders.DateBuilder;
 import com.rbraithwaite.sleeptarget.test_utils.ui.assertion_utils.AssertOn;
 import com.rbraithwaite.sleeptarget.ui.common.convert.ConvertMood;
 import com.rbraithwaite.sleeptarget.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleeptarget.ui.common.views.tag_selector.TagUiData;
+import com.rbraithwaite.sleeptarget.ui.post_sleep.PostSleepViewModel;
 import com.rbraithwaite.sleeptarget.ui.sleep_goals.SleepGoalsFormatting;
 import com.rbraithwaite.sleeptarget.ui.sleep_tracker.data.StoppedSessionData;
 import com.rbraithwaite.sleeptarget.utils.LiveDataEvent;
@@ -48,6 +50,7 @@ import com.rbraithwaite.sleeptarget.utils.TimeUtils;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -85,6 +88,9 @@ public class SleepTrackerFragmentViewModelTests
 //*********************************************************
 // private properties
 //*********************************************************
+    
+    @Rule
+    public RetryTestRule retryTestRule = new RetryTestRule();
 
     private SleepTrackerFragmentViewModel viewModel;
     
@@ -804,6 +810,7 @@ public class SleepTrackerFragmentViewModelTests
                    is(equalTo(SleepTrackerFormatting.formatDuration(0))));
     }
     
+    @RetryTestRule.Retry
     @Test
     public void getCurrentSessionDuration_updatesWhenInSession()
     {

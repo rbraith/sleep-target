@@ -25,9 +25,9 @@ import com.rbraithwaite.sleeptarget.test_utils.ui.assertion_utils.AssertOn;
 import com.rbraithwaite.sleeptarget.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleeptarget.test_utils.ui.fragment_helpers.ApplicationFragmentTestHelper;
 import com.rbraithwaite.sleeptarget.test_utils.ui.fragment_helpers.HiltFragmentTestHelper;
-import com.rbraithwaite.sleeptarget.ui.sleep_tracker.PostSleepFormatting;
-import com.rbraithwaite.sleeptarget.ui.sleep_tracker.PostSleepFragment;
-import com.rbraithwaite.sleeptarget.ui.sleep_tracker.PostSleepViewModel;
+import com.rbraithwaite.sleeptarget.ui.post_sleep.PostSleepFormatting;
+import com.rbraithwaite.sleeptarget.ui.post_sleep.PostSleepFragment;
+import com.rbraithwaite.sleeptarget.ui.post_sleep.PostSleepViewModel;
 import com.rbraithwaite.sleeptarget.ui.sleep_tracker.data.StoppedSessionData;
 import com.rbraithwaite.sleeptarget.utils.LiveDataFuture;
 
@@ -36,7 +36,6 @@ import java.util.List;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;

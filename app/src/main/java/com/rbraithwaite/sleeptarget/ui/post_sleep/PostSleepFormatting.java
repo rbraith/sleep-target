@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.rbraithwaite.sleeptarget.ui.sleep_tracker;
+package com.rbraithwaite.sleeptarget.ui.post_sleep;
 
 import com.rbraithwaite.sleeptarget.core.models.Interruption;
 import com.rbraithwaite.sleeptarget.ui.common.CommonFormatting;
