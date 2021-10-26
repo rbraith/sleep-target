@@ -20,11 +20,9 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
@@ -32,23 +30,23 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.rbraithwaite.sleeptarget.R;
+import com.rbraithwaite.sleeptarget.databinding.SessionDetailsFragmentBinding;
 import com.rbraithwaite.sleeptarget.ui.common.dialog.AlertDialogFragment2;
 import com.rbraithwaite.sleeptarget.ui.common.views.details_fragment.DetailsFragment;
 import com.rbraithwaite.sleeptarget.ui.common.views.details_fragment.DetailsResult;
 import com.rbraithwaite.sleeptarget.ui.common.views.mood_selector.MoodSelectorController;
 import com.rbraithwaite.sleeptarget.ui.common.views.mood_selector.MoodSelectorViewModel;
-import com.rbraithwaite.sleeptarget.ui.common.views.session_times.SessionTimesComponent;
 import com.rbraithwaite.sleeptarget.ui.common.views.session_times.SessionTimesViewModel;
 import com.rbraithwaite.sleeptarget.ui.common.views.tag_selector.TagSelectorController;
 import com.rbraithwaite.sleeptarget.ui.common.views.tag_selector.TagSelectorViewModel;
-import com.rbraithwaite.sleeptarget.ui.interruption_details.InterruptionDetailsData;
 import com.rbraithwaite.sleeptarget.ui.interruption_details.InterruptionDetailsFragment;
 import com.rbraithwaite.sleeptarget.ui.session_archive.SessionArchiveFragmentDirections;
 import com.rbraithwaite.sleeptarget.ui.session_details.data.SleepSessionWrapper;
+import com.rbraithwaite.sleeptarget.ui.sleep_tracker.AfterTextChangedWatcher;
 import com.rbraithwaite.sleeptarget.ui.utils.AppColors;
+import com.rbraithwaite.sleeptarget.ui.utils.UiUtils;
 import com.rbraithwaite.sleeptarget.utils.CommonUtils;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -66,12 +64,11 @@ public class SessionDetailsFragment
 // private properties
 //*********************************************************
 
-    private RatingBar mRatingBar;
-    private EditText mAdditionalComments;
+    private SessionDetailsFragmentBinding mBinding;
     
-    private MoodSelectorController mMoodSelectorController;
+    private MoodSelectorController mMoodSelectorController; // no gc
     
-    private TagSelectorController mTagSelectorController;
+    private TagSelectorController mTagSelectorController; // no gc
     
     private TagSelectorViewModel mTagSelectorViewModel;
     private MoodSelectorViewModel mMoodSelectorViewModel;
@@ -97,7 +94,7 @@ public class SessionDetailsFragment
     
     public static class Args
             extends DetailsFragment.Args<SleepSessionWrapper> {}
-
+    
     public static class OverlapErrorDialog
             extends AlertDialogFragment2
     {
@@ -135,7 +132,7 @@ public class SessionDetailsFragment
             return dialogContent;
         }
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -147,7 +144,8 @@ public class SessionDetailsFragment
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState)
     {
-        return inflater.inflate(R.layout.session_details_fragment, container, false);
+        mBinding = SessionDetailsFragmentBinding.inflate(inflater, container, false);
+        return mBinding.getRoot();
     }
     
     @Override
@@ -174,14 +172,14 @@ public class SessionDetailsFragment
     {
         super.onViewCreated(view, savedInstanceState);
         
-        handleInterruptionDetailsResult(getInterruptionDetailsResult().consumeResult());
+        getViewModel().handleInterruptionDetailsResult(getInterruptionDetailsResult());
         
-        initSessionTimes(view);
-        initAdditionalComments(view);
-        initMoodSelector(view);
-        initTagSelector(view);
-        initRating(view);
-        initInterruptions(view);
+        initSessionTimes();
+        initAdditionalComments();
+        initMoodSelector();
+        initTagSelector();
+        initRating();
+        initInterruptions();
     }
     
     @Override
@@ -207,7 +205,7 @@ public class SessionDetailsFragment
             displayOverlapErrorDialog(e);
         }
     }
-
+    
     @Override
     protected DeleteDialogParams getDeleteDialogParams()
     {
@@ -216,7 +214,7 @@ public class SessionDetailsFragment
         params.messageId = R.string.permanent_operation_message;
         return params;
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -237,19 +235,19 @@ public class SessionDetailsFragment
     
     public RatingBar getRatingBar()
     {
-        return mRatingBar;
+        return mBinding.ratingBar;
     }
     
     public TagSelectorViewModel getTagSelectorViewModel()
     {
         return mTagSelectorViewModel;
     }
-
+    
     public MoodSelectorViewModel getMoodSelectorViewModel()
     {
         return mMoodSelectorViewModel;
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -264,26 +262,6 @@ public class SessionDetailsFragment
         return new ViewModelProvider(requireActivity()).get(InterruptionDetailsFragment.Result.class);
     }
     
-    private void handleInterruptionDetailsResult(DetailsResult.Result<InterruptionDetailsData> result)
-    {
-        if (result == null) {
-            // we are not returning from the interruption details fragment, so do nothing
-            return;
-        }
-        
-        switch (result.action) {
-        case DELETED:
-            getViewModel().deleteInterruption(result.data);
-            break;
-        case UPDATED:
-            getViewModel().updateInterruption(result.data);
-            break;
-        case ADDED:
-            getViewModel().addInterruption(result.data);
-            break;
-        }
-    }
-    
     private SessionTimesViewModel getSessionTimesViewModel()
     {
         mSessionTimesViewModel = CommonUtils.lazyInit(mSessionTimesViewModel, () -> {
@@ -295,14 +273,10 @@ public class SessionDetailsFragment
         return mSessionTimesViewModel;
     }
     
-    private void initSessionTimes(View fragmentRoot)
+    private void initSessionTimes()
     {
-        // REFACTOR [21-07-29 10:00PM] -- this duplicates InterruptionDetailsFragment.onViewCreated
-        //  do I need to do anything about that?
-        SessionTimesComponent sessionTimes =
-                fragmentRoot.findViewById(R.id.session_details_datetime_content);
         SessionTimesViewModel sessionTimesViewModel = getSessionTimesViewModel();
-        sessionTimes.init(this, sessionTimesViewModel);
+        mBinding.datetimeContent.init(this, sessionTimesViewModel);
         
         sessionTimesViewModel.getStart()
                 .observe(getViewLifecycleOwner(), start -> getViewModel().setStart(start));
@@ -310,81 +284,66 @@ public class SessionDetailsFragment
                 .observe(getViewLifecycleOwner(), end -> getViewModel().setEnd(end));
     }
     
-    private void initInterruptions(View fragmentRoot)
+    private void initInterruptions()
     {
         SessionDetailsFragmentViewModel viewModel = getViewModel();
         
-        View card = fragmentRoot.findViewById(R.id.session_details_interruptions_card);
-        
         // totals
         // ------------------------------------------------------
-        TextView interruptionsTotalCount = card.findViewById(R.id.common_interruptions_count);
-        TextView interruptionsTotalTime = card.findViewById(R.id.common_interruptions_total);
-        
-        interruptionsTotalCount.setText(viewModel.getInterruptionsCountText());
-        interruptionsTotalTime.setText(viewModel.getInterruptionsTotalTimeText());
+        mBinding.interruptionsContent.interruptionsCount.setText(viewModel.getInterruptionsCountText());
+        mBinding.interruptionsContent.interruptionsTotal.setText(viewModel.getInterruptionsTotalTimeText());
         if (viewModel.hasNoInterruptions()) {
             // grey out the totals
             AppColors appColors = AppColors.from(requireContext());
-            interruptionsTotalCount.setTextColor(appColors.appColorOnPrimarySurface2);
-            interruptionsTotalTime.setTextColor(appColors.appColorOnPrimarySurface2);
+            mBinding.interruptionsContent.interruptionsCount.setTextColor(appColors.appColorOnPrimarySurface2);
+            mBinding.interruptionsContent.interruptionsTotal.setTextColor(appColors.appColorOnPrimarySurface2);
         }
         
         // recycler
         // ------------------------------------------------------
-        RecyclerView recycler = fragmentRoot.findViewById(R.id.common_interruptions_recycler);
-        recycler.setLayoutManager(new LinearLayoutManager(requireContext()));
+        mBinding.interruptionsContent.interruptionsRecycler.setLayoutManager(new LinearLayoutManager(
+                requireContext()));
         
         SessionDetailsInterruptionsAdapter adapter = new SessionDetailsInterruptionsAdapter(
-                viewHolder -> navigateToEditInterruptionScreen(viewHolder.data.interruptionId));
+                viewHolder -> navigateToEditInterruptionScreenFor(viewHolder.data.interruptionId));
         
         adapter.setOnAddButtonClickListener(this::navigateToAddInterruptionScreen);
         
         getViewModel().getInterruptionListItems().observe(getViewLifecycleOwner(),
                                                           adapter::setItems);
         
-        recycler.setAdapter(adapter);
+        mBinding.interruptionsContent.interruptionsRecycler.setAdapter(adapter);
     }
     
     private void navigateToAddInterruptionScreen()
     {
-        InterruptionDetailsFragment.Args args = new InterruptionDetailsFragment.Args();
-        args.mode = Mode.ADD;
-        args.initialData = getViewModel().getNewInterruptionDetailsData();
-        
         SessionDetailsFragmentDirections.ActionSessionDetailsToInterruptionDetails
                 toAddInterruptionScreen =
-                SessionDetailsFragmentDirections.actionSessionDetailsToInterruptionDetails(args);
+                SessionDetailsFragmentDirections.actionSessionDetailsToInterruptionDetails(
+                        getViewModel().getInterruptionDetailsArgsForAdd());
         
         getNavController().navigate(toAddInterruptionScreen);
     }
     
-    private void navigateToEditInterruptionScreen(int interruptionId)
+    private void navigateToEditInterruptionScreenFor(int interruptionId)
     {
-        getNavController().navigate(toEditScreenFor(getViewModel().getInterruptionDetailsData(
-                interruptionId)));
-    }
-    
-    private SessionDetailsFragmentDirections.ActionSessionDetailsToInterruptionDetails toEditScreenFor(
-            InterruptionDetailsData data)
-    {
-        InterruptionDetailsFragment.Args args = new InterruptionDetailsFragment.Args();
-        args.mode = Mode.UPDATE;
-        args.initialData = data;
+        SessionDetailsFragmentDirections.ActionSessionDetailsToInterruptionDetails
+                toEditInterruptionScreen =
+                SessionDetailsFragmentDirections.actionSessionDetailsToInterruptionDetails(
+                        getViewModel().getInterruptionDetailsEditArgsFor(interruptionId));
         
-        return SessionDetailsFragmentDirections.actionSessionDetailsToInterruptionDetails(args);
+        getNavController().navigate(toEditInterruptionScreen);
     }
     
-    private void initRating(View fragmentRoot)
+    private void initRating()
     {
-        mRatingBar = fragmentRoot.findViewById(R.id.session_details_rating);
-        mRatingBar.setRating(getViewModel().getRating());
-        
-        mRatingBar.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> getViewModel().setRating(
-                rating));
+        mBinding.ratingBar.setRating(getViewModel().getRating());
+        mBinding.ratingBar.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> getViewModel()
+                .setRating(
+                        rating));
     }
     
-    private void initTagSelector(View fragmentRoot)
+    private void initTagSelector()
     {
         mTagSelectorViewModel = TagSelectorViewModel.getInstanceFrom(requireActivity());
         mTagSelectorViewModel.setSelectedTagIds(getViewModel().getTagIds());
@@ -403,26 +362,20 @@ public class SessionDetailsFragment
                 });
         
         mTagSelectorController = new TagSelectorController(
-                fragmentRoot.findViewById(R.id.session_details_tags),
+                mBinding.tags,
                 mTagSelectorViewModel,
                 getViewLifecycleOwner(),
                 getChildFragmentManager());
     }
     
-    private void initMoodSelector(View fragmentRoot)
+    private void initMoodSelector()
     {
         mMoodSelectorViewModel = MoodSelectorViewModel.getInstanceFrom(requireActivity());
         mMoodSelectorViewModel.setMood(getViewModel().getMood());
-        mMoodSelectorViewModel.getMood().observe(getViewLifecycleOwner(), mood -> {
-            if (mood == null || !mood.isSet()) {
-                getViewModel().clearMood();
-            } else {
-                getViewModel().setMood(mood);
-            }
-        });
+        mMoodSelectorViewModel.getMood().observe(getViewLifecycleOwner(), getViewModel()::setMood);
         
         mMoodSelectorController = new MoodSelectorController(
-                fragmentRoot.findViewById(R.id.session_details_mood),
+                mBinding.mood,
                 // Set the mood selector to the initial mood of the displayed session.
                 // There isn't a need to observe this value, as the mood selector will
                 // handle its own UI updates.
@@ -431,28 +384,16 @@ public class SessionDetailsFragment
                 getChildFragmentManager());
     }
     
-    private void initAdditionalComments(View fragmentRoot)
+    private void initAdditionalComments()
     {
-        mAdditionalComments = fragmentRoot.findViewById(R.id.session_details_comments);
         getViewModel().getAdditionalComments().observe(
                 getViewLifecycleOwner(),
                 s -> {
-                    // REFACTOR [21-07-29 8:00PM] -- getAdditionalComments should never return null,
-                    //  so this can just be like the reason text in InterruptionDetailsFragment
-                    mAdditionalComments.getText().clear();
-                    if (s != null) {
-                        mAdditionalComments.getText().append(s);
-                    }
+                    UiUtils.setEditTextValue(mBinding.comments, s);
                 });
-        // REFACTOR [21-07-22 12:51AM] -- this can be an AfterTextChangedWatcher.
-        mAdditionalComments.addTextChangedListener(new TextWatcher()
+        
+        mBinding.comments.addTextChangedListener(new AfterTextChangedWatcher()
         {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-            
             @Override
             public void afterTextChanged(Editable s)
             {

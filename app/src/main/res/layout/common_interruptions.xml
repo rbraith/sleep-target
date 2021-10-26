@@ -23,29 +23,29 @@
     android:layout_height="wrap_content">
 
     <TextView
-        android:id="@+id/common_interruptions_total_title"
+        android:id="@+id/interruptions_total_title"
         style="@style/TrackerPostSleepSubtitleStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginLeft="32dp"
         android:text="@string/common_interruptions_total_title"
-        app:layout_constraintBaseline_toBaselineOf="@+id/common_interruptions_count_title"
-        app:layout_constraintStart_toEndOf="@+id/common_interruptions_count_title" />
+        app:layout_constraintBaseline_toBaselineOf="@+id/interruptions_count_title"
+        app:layout_constraintStart_toEndOf="@+id/interruptions_count_title" />
 
     <TextView
-        android:id="@+id/common_interruptions_total"
+        android:id="@+id/interruptions_total"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/error"
         android:textColor="?attr/appColorInterruption"
         android:textSize="30sp"
-        app:layout_constraintBaseline_toBaselineOf="@+id/common_interruptions_count"
-        app:layout_constraintStart_toStartOf="@+id/common_interruptions_total_title"
+        app:layout_constraintBaseline_toBaselineOf="@+id/interruptions_count"
+        app:layout_constraintStart_toStartOf="@+id/interruptions_total_title"
         tools:text="3h 45m 45s" />
 
     <TextView
-        android:id="@+id/common_interruptions_count_title"
+        android:id="@+id/interruptions_count_title"
         style="@style/TrackerPostSleepSubtitleStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -57,27 +57,27 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/common_interruptions_count"
+        android:id="@+id/interruptions_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="@string/error"
         android:textColor="?attr/appColorInterruption"
         android:textSize="30sp"
-        app:layout_constraintStart_toStartOf="@+id/common_interruptions_count_title"
-        app:layout_constraintTop_toBottomOf="@+id/common_interruptions_count_title"
+        app:layout_constraintStart_toStartOf="@+id/interruptions_count_title"
+        app:layout_constraintTop_toBottomOf="@+id/interruptions_count_title"
         tools:text="5" />
 
     <View
-        android:id="@+id/common_interruptions_div"
+        android:id="@+id/interruptions_div"
         android:layout_width="match_parent"
         android:layout_height="2px" tools:ignore="PxUsage"
         android:layout_marginTop="16dp"
         android:background="?attr/appColorOnBackgroundFloating2"
-        app:layout_constraintTop_toBottomOf="@id/common_interruptions_count" />
+        app:layout_constraintTop_toBottomOf="@id/interruptions_count" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/common_interruptions_recycler"
+        android:id="@+id/interruptions_recycler"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -90,7 +90,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHeight_max="?attr/interruptionsRecyclerMaxHeight"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/common_interruptions_div"
+        app:layout_constraintTop_toBottomOf="@+id/interruptions_div"
         tools:listitem="?attr/interruptionsListItem" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

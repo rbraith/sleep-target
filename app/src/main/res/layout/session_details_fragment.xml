@@ -20,19 +20,19 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/session_details_scroll"
+    android:id="@+id/root_scroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:scrollbars="none">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/session_details_layout"
+        android:id="@+id/root_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/session_details_rating_card"
+            android:id="@+id/rating_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -49,7 +49,7 @@
                 android:layout_height="match_parent">
 
                 <TextView
-                    android:id="@+id/session_details_rating_title"
+                    android:id="@+id/rating_title"
                     style="@style/SessionDetailsTitleStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -61,7 +61,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <RatingBar
-                    android:id="@+id/session_details_rating"
+                    android:id="@+id/rating_bar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
@@ -69,12 +69,12 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/session_details_rating_title" />
+                    app:layout_constraintTop_toBottomOf="@id/rating_title" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/session_details_datetime_card"
+            android:id="@+id/datetime_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -84,10 +84,10 @@
             android:layout_marginRight="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/session_details_rating_card">
+            app:layout_constraintTop_toBottomOf="@id/rating_card">
 
             <com.rbraithwaite.sleeptarget.ui.common.views.session_times.SessionTimesComponent
-                android:id="@+id/session_details_datetime_content"
+                android:id="@+id/datetime_content"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginBottom="8dp" />
@@ -95,7 +95,7 @@
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/session_details_details_card"
+            android:id="@+id/details_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -105,14 +105,14 @@
             android:layout_marginRight="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/session_details_datetime_card">
+            app:layout_constraintTop_toBottomOf="@id/datetime_card">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
                 <EditText
-                    android:id="@+id/session_details_comments"
+                    android:id="@+id/comments"
                     style="@style/SessionDetailsCommentsStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -131,10 +131,10 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/session_details_mood_tags_barrier" />
+                    app:layout_constraintTop_toBottomOf="@id/mood_tags_barrier" />
 
                 <com.rbraithwaite.sleeptarget.ui.common.views.tag_selector.TEMP.TagSelectorComponent
-                    android:id="@+id/session_details_tags"
+                    android:id="@+id/tags"
                     layout="@layout/tag_selector"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -144,11 +144,11 @@
                     android:layout_marginRight="8dp"
                     android:theme="@style/SessionDetailsTagTheme"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/session_details_mood"
-                    app:layout_constraintTop_toTopOf="@id/session_details_mood" />
+                    app:layout_constraintStart_toEndOf="@+id/mood"
+                    app:layout_constraintTop_toTopOf="@id/mood" />
 
                 <com.rbraithwaite.sleeptarget.ui.common.views.mood_selector.TEMP.MoodSelectorComponent
-                    android:id="@+id/session_details_mood"
+                    android:id="@+id/mood"
                     layout="@layout/mood_selector"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -160,17 +160,17 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <androidx.constraintlayout.widget.Barrier
-                    android:id="@+id/session_details_mood_tags_barrier"
+                    android:id="@+id/mood_tags_barrier"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:barrierDirection="bottom"
-                    app:constraint_referenced_ids="session_details_tags,session_details_mood"
+                    app:constraint_referenced_ids="tags,mood"
                     tools:layout_editor_absoluteY="199dp" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/session_details_interruptions_card"
+            android:id="@+id/interruptions_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -181,14 +181,14 @@
             android:theme="@style/SessionDetailsInterruptionsTheme"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/session_details_details_card">
+            app:layout_constraintTop_toBottomOf="@id/details_card">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
                 <TextView
-                    android:id="@+id/session_details_interruptions_title"
+                    android:id="@+id/interruptions_title"
                     style="@style/SessionDetailsTitleStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -200,10 +200,11 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <include
+                    android:id="@+id/interruptions_content"
                     layout="@layout/common_interruptions"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:layout_constraintTop_toBottomOf="@id/session_details_interruptions_title" />
+                    app:layout_constraintTop_toBottomOf="@id/interruptions_title" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>

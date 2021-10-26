@@ -60,7 +60,6 @@ import java.util.stream.Collectors;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.isDialog;
@@ -162,7 +161,7 @@ public class SessionDetailsTestDriver
         public void additionalCommentsMatch(String additionalComments)
         {
             additionalComments = additionalComments == null ? "" : additionalComments;
-            onView(withId(R.id.session_details_comments)).check(matches(withText(additionalComments)));
+            onView(withId(R.id.comments)).check(matches(withText(additionalComments)));
         }
         
         public void durationMatches(long durationMillis)
@@ -293,7 +292,7 @@ public class SessionDetailsTestDriver
         {
             getOwningDriver().scrollToInterruptions();
             
-            onView(withId(R.id.common_interruptions_recycler)).check(matches(
+            onView(withId(R.id.interruptions_recycler)).check(matches(
                     // + 1 for add button
                     recyclerViewWithCount(interruptionsList.size() + 1)));
             
@@ -306,14 +305,14 @@ public class SessionDetailsTestDriver
         {
             // +1 to account for the add button
             return new InterruptionListItemAssertions(position + 1,
-                                                      R.id.common_interruptions_recycler);
+                                                      R.id.interruptions_recycler);
         }
         
         public void interruptionsCountMatches(int expectedCount)
         {
             getOwningDriver().scrollToInterruptions();
             
-            onView(withId(R.id.common_interruptions_count)).check(matches(withText(
+            onView(withId(R.id.interruptions_count)).check(matches(withText(
                     String.valueOf(expectedCount))));
         }
         
@@ -321,7 +320,7 @@ public class SessionDetailsTestDriver
         {
             getOwningDriver().scrollToInterruptions();
             
-            onView(withId(R.id.common_interruptions_total)).check(matches(withText(
+            onView(withId(R.id.interruptions_total)).check(matches(withText(
                     InterruptionFormatting.formatDuration(durationMillis))));
         }
         
@@ -473,7 +472,7 @@ public class SessionDetailsTestDriver
     
     public void scrollToInterruptions()
     {
-        onView(withId(R.id.session_details_interruptions_card)).perform(betterScrollTo());
+        onView(withId(R.id.interruptions_card)).perform(betterScrollTo());
     }
     
     public void setRating(float rating)
@@ -619,7 +618,7 @@ public class SessionDetailsTestDriver
             mOpenInterruptionDetailsListener.onOpenInterruptionDetails();
         }
         scrollToInterruptions();
-        onView(withId(R.id.common_interruptions_recycler)).perform(RecyclerViewActions.actionOnItemAtPosition(
+        onView(withId(R.id.interruptions_recycler)).perform(RecyclerViewActions.actionOnItemAtPosition(
                 interruptionsListIndex + 1,
                 click()));
     }
@@ -632,7 +631,7 @@ public class SessionDetailsTestDriver
         scrollToInterruptions();
         onView(withId(R.id.session_details_interruptions_addbtn)).perform(click());
     }
-
+    
     public void pressNegativeButton()
     {
         onView(withId(R.id.action_negative)).perform(click());
@@ -676,7 +675,7 @@ public class SessionDetailsTestDriver
     {
         additionalComments = additionalComments == null ? "" : additionalComments;
         UITestUtils.typeOnMultilineEditText(additionalComments,
-                                            onView(withId(R.id.session_details_comments)));
+                                            onView(withId(R.id.comments)));
     }
     
     private ViewInteraction onStartDateTextView()
@@ -723,10 +722,10 @@ public class SessionDetailsTestDriver
     {
         mTagSelector = new TagSelectorDriver(
                 getHelper(),
-                withId(R.id.session_details_tags),
+                withId(R.id.tags),
                 getTagSelectorViewModel());
         mMoodSelector = new MoodSelectorDriver(
-                withId(R.id.session_details_mood),
+                withId(R.id.mood),
                 getMoodSelectorViewModel());
     }
 }

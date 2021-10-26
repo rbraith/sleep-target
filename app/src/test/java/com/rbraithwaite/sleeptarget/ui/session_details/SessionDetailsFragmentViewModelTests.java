@@ -14,13 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.session_details;
 
 import androidx.lifecycle.LiveData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.rbraithwaite.sleeptarget.core.models.Interruption;
 import com.rbraithwaite.sleeptarget.core.models.Interruptions;
 import com.rbraithwaite.sleeptarget.core.models.Mood;
 import com.rbraithwaite.sleeptarget.core.models.SleepSession;
@@ -33,9 +31,11 @@ import com.rbraithwaite.sleeptarget.test_utils.test_data.builders.SleepSessionBu
 import com.rbraithwaite.sleeptarget.ui.common.convert.ConvertMood;
 import com.rbraithwaite.sleeptarget.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleeptarget.ui.common.interruptions.InterruptionListItem;
+import com.rbraithwaite.sleeptarget.ui.common.views.details_fragment.DetailsResult;
 import com.rbraithwaite.sleeptarget.ui.common.views.tag_selector.ConvertTag;
 import com.rbraithwaite.sleeptarget.ui.common.views.tag_selector.TagUiData;
 import com.rbraithwaite.sleeptarget.ui.interruption_details.InterruptionDetailsData;
+import com.rbraithwaite.sleeptarget.ui.interruption_details.InterruptionDetailsFragment;
 import com.rbraithwaite.sleeptarget.ui.session_details.data.SleepSessionWrapper;
 import com.rbraithwaite.sleeptarget.utils.TimeUtils;
 
@@ -56,6 +56,7 @@ import static com.rbraithwaite.sleeptarget.test_utils.test_data.TestData.valueOf
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.mock;
 
@@ -95,21 +96,88 @@ public class SessionDetailsFragmentViewModelTests
     }
     
     @Test
-    public void deleteInterruption_affects_getInterruption()
+    public void handleInterruptionDetailsResult_doesNothingWhenInputIsNull()
     {
-        int expectedId = 123;
-        InterruptionBuilder expected = anInterruption().withId(expectedId);
-        Interruption expectedInterruption = expected.build();
-        viewModel.initData(new SleepSessionWrapper(
-                aSleepSession().withInterruptions(expected).build()));
+        InterruptionBuilder interruption = anInterruption().withId(1);
+        SleepSessionBuilder sleepSession = aSleepSession().withInterruptions(interruption);
         
-        assertThat(viewModel.getInterruptionDetailsData(expectedId).getInterruption(),
-                   is(equalTo(expectedInterruption)));
+        initViewModelWith(sleepSession);
         
-        viewModel.deleteInterruption(new InterruptionDetailsData(expectedInterruption, null));
+        viewModel.handleInterruptionDetailsResult(null);
         
-        assertThat(viewModel.getInterruptionDetailsData(expectedId).getInterruption(),
+        SleepSession resultSleepSession = viewModel.getResult().getModel();
+        assertThat(resultSleepSession.getInterruptions(),
+                   is(equalTo(valueOf(sleepSession).getInterruptions())));
+    }
+    
+    @Test
+    public void handleInterruptionDetailsResult_doesNothingWhenTheResultIsNull()
+    {
+        InterruptionBuilder interruption = anInterruption().withId(1);
+        SleepSessionBuilder sleepSession = aSleepSession().withInterruptions(interruption);
+        
+        initViewModelWith(sleepSession);
+        
+        InterruptionDetailsFragment.Result interruptionDetailsResult =
+                new InterruptionDetailsFragment.Result();
+        interruptionDetailsResult.setResult(null);
+        
+        viewModel.handleInterruptionDetailsResult(interruptionDetailsResult);
+        
+        SleepSession resultSleepSession = viewModel.getResult().getModel();
+        assertThat(resultSleepSession.getInterruptions(),
+                   is(equalTo(valueOf(sleepSession).getInterruptions())));
+    }
+    
+    @Test
+    public void handleInterruptionDetailsResult_deletesInterruption()
+    {
+        InterruptionBuilder interruption = anInterruption().withId(123);
+        SleepSessionBuilder sleepSession = aSleepSession().withInterruptions(interruption);
+        
+        initViewModelWith(sleepSession);
+        
+        viewModel.handleInterruptionDetailsResult(generateInterruptionDetailsResultWith(
+                interruption, sleepSession, DetailsResult.Action.DELETED));
+        
+        SleepSession resultSleepSession = viewModel.getResult().getModel();
+        assertThat(resultSleepSession.hasNoInterruptions(), is(true));
+        assertThat(viewModel.getInterruptionDetailsEditArgsFor(123).initialData.getInterruption(),
                    is(nullValue()));
+    }
+    
+    @Test
+    public void handleInterruptionDetailsResult_updatesInterruption()
+    {
+        InterruptionBuilder interruption = anInterruption().withId(1).withReason("original");
+        SleepSessionBuilder sleepSession = aSleepSession().withInterruptions(interruption);
+        
+        initViewModelWith(sleepSession);
+        
+        viewModel.handleInterruptionDetailsResult(generateInterruptionDetailsResultWith(
+                interruption.withReason("updated"), sleepSession, DetailsResult.Action.UPDATED));
+        
+        SleepSession resultSleepSession = viewModel.getResult().getModel();
+        assertThat(resultSleepSession.getInterruptions().getCount(), is(1));
+        assertThat(resultSleepSession.getInterruption(1).getReason(), is(equalTo("updated")));
+    }
+    
+    @Test
+    public void handleInterruptionDetailsResult_addsInterruption()
+    {
+        InterruptionBuilder interruption = anInterruption().withId(1);
+        SleepSessionBuilder sleepSession = aSleepSession().withInterruptions(interruption);
+        
+        initViewModelWith(sleepSession);
+        SleepSession resultSleepSession = viewModel.getResult().getModel();
+        assertThat(resultSleepSession.getInterruptions().getCount(), is(1));
+        
+        viewModel.handleInterruptionDetailsResult(generateInterruptionDetailsResultWith(
+                interruption, sleepSession, DetailsResult.Action.ADDED));
+        
+        resultSleepSession = viewModel.getResult().getModel();
+        assertThat(resultSleepSession.getInterruptions().getCount(), is(2));
+        assertThat(resultSleepSession.getInterruption(0), is(notNullValue()));
     }
     
     @Test
@@ -150,7 +218,8 @@ public class SessionDetailsFragmentViewModelTests
     @Test
     public void interruptionsReflectSessionData()
     {
-        SleepSession sleepSession = valueOf(aSleepSession().withDurationHours(123).withNoInterruptions());
+        SleepSession sleepSession =
+                valueOf(aSleepSession().withDurationHours(123).withNoInterruptions());
         viewModel.initData(new SleepSessionWrapper(sleepSession));
         LiveData<List<InterruptionListItem>> listItems = viewModel.getInterruptionListItems();
         TestUtils.activateLocalLiveData(listItems);
@@ -170,7 +239,6 @@ public class SessionDetailsFragmentViewModelTests
         assertThat(viewModel.getInterruptionsCountText(), is(equalTo("2")));
         assertThat(viewModel.getInterruptionsTotalTimeText(), is(equalTo("11h 15m 05s")));
     }
-    
     
     @Test
     public void getRating_reflects_setRating()
@@ -304,10 +372,30 @@ public class SessionDetailsFragmentViewModelTests
         
         assertThat(result, is(equalTo(expected)));
     }
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
+
+    private void initViewModelWith(SleepSessionBuilder sleepSession)
+    {
+        viewModel.initData(new SleepSessionWrapper(valueOf(sleepSession)));
+    }
+    
+    private InterruptionDetailsFragment.Result generateInterruptionDetailsResultWith(
+            InterruptionBuilder interruption,
+            SleepSessionBuilder sleepSession,
+            DetailsResult.Action action)
+    {
+        InterruptionDetailsFragment.Result interruptionDetailsResult =
+                new InterruptionDetailsFragment.Result();
+        interruptionDetailsResult.setResult(new DetailsResult.Result<>(
+                new InterruptionDetailsData(valueOf(interruption), valueOf(sleepSession)),
+                action
+        ));
+        
+        return interruptionDetailsResult;
+    }
 
     private void assertDatesAreTheSame(GregorianCalendar a, GregorianCalendar b)
     {

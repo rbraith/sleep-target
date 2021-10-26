@@ -23,6 +23,7 @@ import com.rbraithwaite.sleeptarget.utils.Constants;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 // HACK [21-09-28 8:09PM] -- This shouldn't need to implement serializable.
@@ -59,6 +60,28 @@ public class Interruptions
         public List<Interruption> added = new ArrayList<>();
         public List<Interruption> updated = new ArrayList<>();
         public List<Interruption> deleted = new ArrayList<>();
+    
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) { return true; }
+            if (o == null || getClass() != o.getClass()) { return false; }
+        
+            Updates updates = (Updates) o;
+        
+            if (!added.equals(updates.added)) { return false; }
+            if (!updated.equals(updates.updated)) { return false; }
+            return deleted.equals(updates.deleted);
+        }
+    
+        @Override
+        public int hashCode()
+        {
+            int result = added.hashCode();
+            result = 31 * result + updated.hashCode();
+            result = 31 * result + deleted.hashCode();
+            return result;
+        }
     }
 
 //*********************************************************
@@ -108,6 +131,11 @@ public class Interruptions
         return mInterruptions;
     }
     
+    /**
+     * Get the interruption that has the provided id.
+     * @param interruptionId The id to search for.
+     * @return The interruption, or null if no interruption is found.
+     */
     public Interruption get(int interruptionId)
     {
         return mInterruptions.stream()
@@ -194,6 +222,26 @@ public class Interruptions
         // REFACTOR [21-07-31 9:31PM] -- This should be injected.
         InterruptionOverlapChecker overlapChecker = new InterruptionOverlapChecker(mInterruptions);
         return overlapChecker.checkForOverlapExclusive(interruptionToCheck);
+    }
+    
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        
+        Interruptions that = (Interruptions) o;
+        
+        if (!Objects.equals(mInterruptions, that.mInterruptions)) { return false; }
+        return Objects.equals(mUpdates, that.mUpdates);
+    }
+    
+    @Override
+    public int hashCode()
+    {
+        int result = mInterruptions != null ? mInterruptions.hashCode() : 0;
+        result = 31 * result + (mUpdates != null ? mUpdates.hashCode() : 0);
+        return result;
     }
 
 //*********************************************************

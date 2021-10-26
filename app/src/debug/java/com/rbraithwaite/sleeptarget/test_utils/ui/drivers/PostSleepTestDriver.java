@@ -108,7 +108,7 @@ public class PostSleepTestDriver
         public void hasInterruptionCount(int expectedCount)
         {
             onView(withId(R.id.post_sleep_interruptions_content)).perform(betterScrollTo());
-            onView(withId(R.id.common_interruptions_count)).check(matches(withText(String.valueOf(
+            onView(withId(R.id.interruptions_count)).check(matches(withText(String.valueOf(
                     expectedCount))));
             
             assertOnFragment(fragment -> {

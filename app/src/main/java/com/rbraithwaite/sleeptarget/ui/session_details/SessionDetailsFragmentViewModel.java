@@ -31,10 +31,13 @@ import com.rbraithwaite.sleeptarget.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleeptarget.ui.common.interruptions.ConvertInterruption;
 import com.rbraithwaite.sleeptarget.ui.common.interruptions.InterruptionFormatting;
 import com.rbraithwaite.sleeptarget.ui.common.interruptions.InterruptionListItem;
+import com.rbraithwaite.sleeptarget.ui.common.views.details_fragment.DetailsFragment;
 import com.rbraithwaite.sleeptarget.ui.common.views.details_fragment.DetailsFragmentViewModel;
+import com.rbraithwaite.sleeptarget.ui.common.views.details_fragment.DetailsResult;
 import com.rbraithwaite.sleeptarget.ui.common.views.tag_selector.ConvertTag;
 import com.rbraithwaite.sleeptarget.ui.common.views.tag_selector.TagUiData;
 import com.rbraithwaite.sleeptarget.ui.interruption_details.InterruptionDetailsData;
+import com.rbraithwaite.sleeptarget.ui.interruption_details.InterruptionDetailsFragment;
 import com.rbraithwaite.sleeptarget.ui.session_details.data.SleepSessionWrapper;
 import com.rbraithwaite.sleeptarget.utils.LiveDataUtils;
 import com.rbraithwaite.sleeptarget.utils.TimeUtils;
@@ -193,8 +196,16 @@ public class SessionDetailsFragmentViewModel
     {
         // note: this change is not broadcast with notifySessionChanged(), as the mood selector will
         // handle its own UI updates
-        getOptionalSleepSession().ifPresent(sleepSession -> sleepSession.setMood(ConvertMood.fromUiData(
-                mood)));
+        getOptionalSleepSession().ifPresent(sleepSession -> {
+            if (mood == null || !mood.isSet()) {
+                // TODO [21-10-22 10:13PM] -- setting the mood to null if it is unset is legacy
+                //  behaviour
+                //  and should probably change.
+                sleepSession.setMood(null);
+            } else {
+                sleepSession.setMood(ConvertMood.fromUiData(mood));
+            }
+        });
     }
     
     public void clearMood()
@@ -244,7 +255,7 @@ public class SessionDetailsFragmentViewModel
             if (sleepSession == null) {
                 return new ArrayList<>();
             }
-    
+            
             Interruptions interruptions = sleepSession.getInterruptions();
             return interruptions == null || interruptions.isEmpty() ?
                     new ArrayList<>() :
@@ -311,34 +322,20 @@ public class SessionDetailsFragmentViewModel
         return true;
     }
     
-    public InterruptionDetailsData getInterruptionDetailsData(int interruptionId)
+    public InterruptionDetailsFragment.Args getInterruptionDetailsArgsForAdd()
     {
-        return getOptionalSleepSession()
-                .map(sleepSession -> {
-                    Interruption interruption = sleepSession.getInterruption(interruptionId);
-                    if (interruption != null) {
-                        interruption = interruption.shallowCopy();
-                    }
-                    return new InterruptionDetailsData(interruption, sleepSession);
-                })
-                .orElse(null);
+        InterruptionDetailsFragment.Args args = new InterruptionDetailsFragment.Args();
+        args.mode = DetailsFragment.Mode.ADD;
+        args.initialData = getNewInterruptionDetailsData();
+        return args;
     }
     
-    public InterruptionDetailsData getNewInterruptionDetailsData()
+    public InterruptionDetailsFragment.Args getInterruptionDetailsEditArgsFor(int interruptionId)
     {
-        return getOptionalSleepSession()
-                .map(sleepSession -> new InterruptionDetailsData(
-                        new Interruption(sleepSession.getStart()),
-                        sleepSession))
-                .orElse(null);
-    }
-    
-    public void deleteInterruption(InterruptionDetailsData interruption)
-    {
-        getOptionalSleepSession().ifPresent(sleepSession -> {
-            sleepSession.deleteInterruption(interruption.getInterruption().getId());
-            notifySessionChanged();
-        });
+        InterruptionDetailsFragment.Args args = new InterruptionDetailsFragment.Args();
+        args.mode = DetailsFragment.Mode.UPDATE;
+        args.initialData = getInterruptionDetailsData(interruptionId);
+        return args;
     }
     
     public void setStart(Date start)
@@ -357,7 +354,71 @@ public class SessionDetailsFragmentViewModel
         });
     }
     
-    public void updateInterruption(InterruptionDetailsData interruptionDetailsData)
+    public Session getSession()
+    {
+        return getOptionalSleepSession().orElse(null);
+    }
+    
+    public void handleInterruptionDetailsResult(InterruptionDetailsFragment.Result interruptionDetailsResult)
+    {
+        if (interruptionDetailsResult == null) {
+            return;
+        }
+        
+        DetailsResult.Result<InterruptionDetailsData> result =
+                interruptionDetailsResult.consumeResult();
+        
+        if (result == null) {
+            return;
+        }
+        
+        switch (result.action) {
+        case ADDED:
+            addInterruption(result.data);
+            break;
+        case UPDATED:
+            updateInterruption(result.data);
+            break;
+        case DELETED:
+            deleteInterruption(result.data);
+        }
+    }
+    
+//*********************************************************
+// private methods
+//*********************************************************
+
+    private InterruptionDetailsData getInterruptionDetailsData(int interruptionId)
+    {
+        return getOptionalSleepSession()
+                .map(sleepSession -> {
+                    Interruption interruption = sleepSession.getInterruption(interruptionId);
+                    if (interruption != null) {
+                        interruption = interruption.shallowCopy();
+                    }
+                    return new InterruptionDetailsData(interruption, sleepSession);
+                })
+                .orElse(null);
+    }
+    
+    private InterruptionDetailsData getNewInterruptionDetailsData()
+    {
+        return getOptionalSleepSession()
+                .map(sleepSession -> new InterruptionDetailsData(
+                        new Interruption(sleepSession.getStart()),
+                        sleepSession))
+                .orElse(null);
+    }
+    
+    private void deleteInterruption(InterruptionDetailsData interruption)
+    {
+        getOptionalSleepSession().ifPresent(sleepSession -> {
+            sleepSession.deleteInterruption(interruption.getInterruption().getId());
+            notifySessionChanged();
+        });
+    }
+    
+    private void updateInterruption(InterruptionDetailsData interruptionDetailsData)
     {
         getOptionalSleepSession().ifPresent(sleepSession -> {
             sleepSession.updateInterruption(interruptionDetailsData.getInterruption());
@@ -365,26 +426,15 @@ public class SessionDetailsFragmentViewModel
         });
     }
     
-    public void addInterruption(InterruptionDetailsData data)
+    private void addInterruption(InterruptionDetailsData data)
     {
         getOptionalSleepSession().ifPresent(sleepSession -> {
             sleepSession.addInterruption(data.getInterruption());
             notifySessionChanged();
         });
     }
-    
-    public Session getSession()
-    {
-        return getOptionalSleepSession().orElse(null);
-    }
 
 
-
-//*********************************************************
-// private methods
-//*********************************************************
-
-    
     /**
      * Note: changes made to the sleep session from this method do not notify observers. Use {@link
      * #notifySessionChanged()} in this case.

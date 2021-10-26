@@ -57,6 +57,7 @@ public abstract class DetailsFragment<DataType,
     private static final String DETAILS_DELETE_TAG = "DetailsFragment";
 
 
+
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -246,6 +247,8 @@ public abstract class DetailsFragment<DataType,
     private void handleResultAction()
     {
         getViewModel().getResultAction().observe(getViewLifecycleOwner(), action -> {
+            // Transfer the fragment result to the shared DetailsResult model, along with the
+            // action used on the fragment.
             _getDetailsResult().setResult(new DetailsResult.Result<>(
                     getViewModel().getResult(),
                     action));

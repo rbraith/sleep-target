@@ -72,7 +72,7 @@ public class PostSleepFragment
             this.stoppedSessionData = stoppedSessionData;
         }
     }
-
+    
     public static class DiscardDialog
             extends AlertDialogFragment2
     {
@@ -96,7 +96,7 @@ public class PostSleepFragment
             return builder.create();
         }
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -169,13 +169,13 @@ public class PostSleepFragment
         params.negativeIcon = ICON_OPTION_DELETE;
         return params;
     }
-
+    
     @Override
     protected Properties<PostSleepViewModel> initProperties()
     {
         return new Properties<>(false, PostSleepViewModel.class);
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -184,12 +184,12 @@ public class PostSleepFragment
     {
         return SleepTrackerFragmentDirections.actionSleeptrackerToPostsleep(args).getArguments();
     }
-
+    
     public RecyclerView getInterruptionsRecycler()
     {
-        return getView().findViewById(R.id.common_interruptions_recycler);
+        return getView().findViewById(R.id.interruptions_recycler);
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -270,7 +270,8 @@ public class PostSleepFragment
                     R.attr.trackerPostDialogNullDataMessageStyle);
             noCommentsMessage.setText(R.string.postsleepdialog_nocomments);
             
-            NestedScrollView commentsScroll = fragmentRoot.findViewById(R.id.postsleep_comments_scroll);
+            NestedScrollView commentsScroll =
+                    fragmentRoot.findViewById(R.id.postsleep_comments_scroll);
             commentsScroll.removeAllViews();
             commentsScroll.addView(noCommentsMessage);
         } else {
@@ -296,15 +297,15 @@ public class PostSleepFragment
         View interruptionsLayout =
                 getLayoutInflater().inflate(R.layout.common_interruptions, parent);
         
-        TextView countText = interruptionsLayout.findViewById(R.id.common_interruptions_count);
+        TextView countText = interruptionsLayout.findViewById(R.id.interruptions_count);
         countText.setText(getViewModel().getInterruptionsCountText());
         
         TextView totalTimeText =
-                interruptionsLayout.findViewById(R.id.common_interruptions_total);
+                interruptionsLayout.findViewById(R.id.interruptions_total);
         totalTimeText.setText(getViewModel().getInterruptionsTotalTimeText());
         
         RecyclerView interruptionsRecycler =
-                interruptionsLayout.findViewById(R.id.common_interruptions_recycler);
+                interruptionsLayout.findViewById(R.id.interruptions_recycler);
         interruptionsRecycler.setLayoutManager(new LinearLayoutManager(requireContext()));
         interruptionsRecycler.setAdapter(new PostSleepInterruptionsAdapter(getViewModel().getInterruptionsListItems()));
     }
