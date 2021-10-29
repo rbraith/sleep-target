@@ -2,6 +2,9 @@
 
 ### A simple manual sleep tracking app - set targets for your sleep and track your progress towards them!
 
+<a href='https://play.google.com/store/apps/details?id=com.rbraithwaite.sleeptarget&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'>
+<img height="80" alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'/></a>
+
 # Features
 
 * Set sleep targets for yourself:
