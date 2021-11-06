@@ -88,7 +88,7 @@ public class StatsTestDriver
         public void intervalsChartValueTextMatches(String expected)
         {
             onView(allOf(
-                    withId(R.id.stats_range_selector_value),
+                    withId(R.id.range_value),
                     withParent(withId(R.id.stats_intervals_time_period_selector)))).check(matches(
                     withText(expected)));
         }
@@ -160,13 +160,13 @@ public class StatsTestDriver
     public void pressIntervalsRangeBack()
     {
         onView(allOf(isDescendantOfA(withId(R.id.intervals)),
-                     withId(R.id.stats_range_selector_back))).perform(click());
+                     withId(R.id.back))).perform(click());
     }
     
     public void pressIntervalsRangeForward()
     {
         onView(allOf(isDescendantOfA(withId(R.id.intervals)),
-                     withId(R.id.stats_range_selector_forward))).perform(click());
+                     withId(R.id.forward))).perform(click());
     }
 
 //*********************************************************
@@ -176,7 +176,7 @@ public class StatsTestDriver
     private void openIntervalsMoreMenu()
     {
         onView(allOf(
-                withId(R.id.stats_range_selector_more),
+                withId(R.id.more),
                 withParent(withId(R.id.stats_intervals_time_period_selector)))).perform(click());
     }
 }

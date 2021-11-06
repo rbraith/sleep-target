@@ -22,7 +22,7 @@
     tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
     <ImageButton
-        android:id="@+id/stats_range_selector_back"
+        android:id="@+id/back"
         style="?attr/rangeSelectorBackButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -31,7 +31,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/stats_range_selector_value"
+        app:layout_constraintEnd_toStartOf="@+id/range_value"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintHorizontal_chainStyle="spread_inside"
         app:layout_constraintStart_toStartOf="parent"
@@ -40,40 +40,40 @@
         android:contentDescription="@string/content_description_stats_range_selector_back"/>
 
     <ImageButton
-        android:id="@+id/stats_range_selector_forward"
+        android:id="@+id/forward"
         style="?attr/rangeSelectorForwardButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/stats_range_selector_back"
-        app:layout_constraintEnd_toStartOf="@+id/stats_range_selector_more"
+        app:layout_constraintBottom_toBottomOf="@+id/back"
+        app:layout_constraintEnd_toStartOf="@+id/more"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/stats_range_selector_value"
+        app:layout_constraintStart_toEndOf="@+id/range_value"
         app:srcCompat="@drawable/ic_baseline_arrow_right_24"
         android:contentDescription="@string/content_description_stats_range_selector_forward"/>
 
     <TextView
-        android:id="@+id/stats_range_selector_value"
+        android:id="@+id/range_value"
         style="?attr/rangeSelectorValueTextStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/stats_range_selector_back"
-        app:layout_constraintEnd_toStartOf="@+id/stats_range_selector_forward"
+        app:layout_constraintBottom_toBottomOf="@+id/back"
+        app:layout_constraintEnd_toStartOf="@+id/forward"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/stats_range_selector_back"
+        app:layout_constraintStart_toEndOf="@+id/back"
         tools:text="21/02/22 - 21/02/28" />
 
     <ImageButton
-        android:id="@+id/stats_range_selector_more"
+        android:id="@+id/more"
         style="?attr/rangeSelectorMoreButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/stats_range_selector_forward"
+        app:layout_constraintTop_toTopOf="@+id/forward"
         app:srcCompat="@drawable/ic_baseline_more_vert_24"
         android:contentDescription="@string/content_description_more_range_options"/>
 </merge>

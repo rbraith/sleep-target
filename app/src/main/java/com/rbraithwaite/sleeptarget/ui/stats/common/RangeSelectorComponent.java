@@ -21,6 +21,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -30,22 +31,18 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.rbraithwaite.sleeptarget.R;
+import com.rbraithwaite.sleeptarget.databinding.StatsRangeSelectorBinding;
 
 import java.util.Optional;
 
-// REFACTOR [21-06-5 3:48PM] -- move logic from RangeSelectorController into here, then get rid
-//  of RangeSelectorController.
 public class RangeSelectorComponent
         extends ConstraintLayout
 {
 //*********************************************************
 // private properties
 //*********************************************************
-
-    private ImageButton mBackButton;
-    private ImageButton mForwardButton;
-    private ImageButton mMoreButton;
-    private TextView mRangeValue;
+    
+    private StatsRangeSelectorBinding mBinding;
     private Callbacks mCallbacks;
     
 //*********************************************************
@@ -110,7 +107,7 @@ public class RangeSelectorComponent
     
     public void setRangeValueText(String text)
     {
-        mRangeValue.setText(text);
+        mBinding.rangeValue.setText(text);
     }
     
 //*********************************************************
@@ -120,21 +117,32 @@ public class RangeSelectorComponent
     private void initComponent(Context context)
     {
         inflate(context, R.layout.stats_range_selector, this);
+        mBinding = StatsRangeSelectorBinding.bind(this);
         
-        mBackButton = findViewById(R.id.stats_range_selector_back);
-        mForwardButton = findViewById(R.id.stats_range_selector_forward);
-        mMoreButton = findViewById(R.id.stats_range_selector_more);
-        mRangeValue = findViewById(R.id.stats_range_selector_value);
-        
-        mBackButton.setOnClickListener(v -> getOptionalCallbacks().ifPresent(Callbacks::onBackPressed));
-        mForwardButton.setOnClickListener(v -> getOptionalCallbacks().ifPresent(Callbacks::onForwardPressed));
-        mMoreButton.setOnClickListener(v -> getOptionalCallbacks().ifPresent(callbacks -> {
-            PopupMenu popup = new PopupMenu(getContext(), v);
+        mBinding.back.setOnClickListener(v -> onBackClicked());
+        mBinding.forward.setOnClickListener(v -> onForwardClicked());
+        mBinding.more.setOnClickListener(v -> onMoreClicked());
+    }
+    
+    private void onBackClicked()
+    {
+        getOptionalCallbacks().ifPresent(Callbacks::onBackPressed);
+    }
+    
+    private void onForwardClicked()
+    {
+        getOptionalCallbacks().ifPresent(Callbacks::onForwardPressed);
+    }
+    
+    private void onMoreClicked()
+    {
+        getOptionalCallbacks().ifPresent(callbacks -> {
+            PopupMenu popup = new PopupMenu(getContext(), mBinding.more);
             popup.inflate(callbacks.getMenuId());
             callbacks.onPopupMenuInflated(popup.getMenu());
             popup.setOnMenuItemClickListener(callbacks::onPopupMenuItemClicked);
             popup.show();
-        }));
+        });
     }
     
     private Optional<Callbacks> getOptionalCallbacks()

@@ -433,6 +433,7 @@ public class SleepTrackerFragmentViewModelTests
         viewModel.handleAnyReturnFromPostSleep(null);
     }
     
+    @RetryTestRule.Retry
     @Test
     public void getInterruptionsTotal_returnsCorrectValue()
     {
