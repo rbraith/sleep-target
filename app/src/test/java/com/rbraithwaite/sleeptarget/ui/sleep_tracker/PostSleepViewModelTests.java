@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.sleep_tracker;
 
 import androidx.lifecycle.LiveData;
@@ -82,6 +81,20 @@ public class PostSleepViewModelTests
     {
         mockTagRepository = null;
         viewModel = null;
+    }
+    
+    @Test
+    public void hasAdditionalComments_returnsWhetherThereAreAdditionalComments()
+    {
+        viewModel.init(valueOf(aStoppedSessionData().with(aCurrentSession().withNoComments())));
+        
+        assertThat(viewModel.hasAdditionalComments(), is(false));
+        
+        viewModel.discardData();
+        viewModel.init(valueOf(aStoppedSessionData().with(aCurrentSession().withAdditionalComments(
+                "some comments"))));
+        
+        assertThat(viewModel.hasAdditionalComments(), is(true));
     }
     
     @Test

@@ -19,7 +19,7 @@
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/postsleep_scroll"
+    android:id="@+id/scroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:scrollbars="none"
@@ -30,7 +30,7 @@
         android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/postsleep_rating_title"
+            android:id="@+id/rating_title"
             style="@style/TrackerPostSleepTitleStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -42,25 +42,25 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <RatingBar
-            android:id="@+id/postsleep_star_rating"
+            android:id="@+id/star_rating"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:theme="@style/TrackerPostSleepRatingBarTheme"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/postsleep_rating_title" />
+            app:layout_constraintTop_toBottomOf="@+id/rating_title" />
 
         <View
-            android:id="@+id/postsleep_div1"
+            android:id="@+id/div1"
             android:layout_width="match_parent"
             android:layout_height="4px" tools:ignore="PxUsage"
             android:layout_marginTop="8dp"
             android:background="?attr/appColorOnBackgroundFloating"
-            app:layout_constraintTop_toBottomOf="@+id/postsleep_star_rating" />
+            app:layout_constraintTop_toBottomOf="@+id/star_rating" />
 
         <TextView
-            android:id="@+id/postsleep_details_title"
+            android:id="@+id/details_title"
             style="@style/TrackerPostSleepTitleStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -69,10 +69,10 @@
             android:layout_marginTop="16dp"
             android:text="@string/postsleep_details_title"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/postsleep_div1" />
+            app:layout_constraintTop_toBottomOf="@+id/div1" />
 
         <TextView
-            android:id="@+id/postsleep_start_title"
+            android:id="@+id/start_title"
             style="@style/TrackerPostSleepSubtitleStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -81,29 +81,29 @@
             android:layout_marginTop="16dp"
             android:text="@string/start"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/postsleep_details_title" />
+            app:layout_constraintTop_toBottomOf="@+id/details_title" />
 
         <View
-            android:id="@+id/postsleep_div2"
+            android:id="@+id/div2"
             android:layout_width="match_parent"
             android:layout_height="4px" tools:ignore="PxUsage"
             android:layout_marginTop="32dp"
             android:background="?attr/appColorOnBackgroundFloating"
-            app:layout_constraintTop_toBottomOf="@id/postsleep_comments_scroll" />
+            app:layout_constraintTop_toBottomOf="@id/comments_scroll" />
 
         <TextView
-            android:id="@+id/postsleep_stop_title"
+            android:id="@+id/stop_title"
             style="@style/TrackerPostSleepSubtitleStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
             android:layout_marginLeft="24dp"
             android:text="@string/end"
-            app:layout_constraintBaseline_toBaselineOf="@+id/postsleep_start_title"
-            app:layout_constraintStart_toEndOf="@+id/postsleep_start_value" />
+            app:layout_constraintBaseline_toBaselineOf="@+id/start_title"
+            app:layout_constraintStart_toEndOf="@+id/start_value" />
 
         <TextView
-            android:id="@+id/postsleep_duration"
+            android:id="@+id/duration"
             style="@style/TrackerPostSleepDurationStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -112,29 +112,29 @@
             android:layout_marginTop="8dp"
             android:textSize="30sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/postsleep_start_value"
+            app:layout_constraintTop_toBottomOf="@+id/start_value"
             tools:text="1h 23m 45s" />
 
         <TextView
-            android:id="@+id/postsleep_start_value"
+            android:id="@+id/start_value"
             style="@style/TrackerPostSleepDateStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="@+id/postsleep_start_title"
-            app:layout_constraintTop_toBottomOf="@+id/postsleep_start_title"
+            app:layout_constraintStart_toStartOf="@+id/start_title"
+            app:layout_constraintTop_toBottomOf="@+id/start_title"
             tools:text="2:20 am, Feb 20 2020" />
 
         <TextView
-            android:id="@+id/postsleep_stop_value"
+            android:id="@+id/stop_value"
             style="@style/TrackerPostSleepDateStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="@+id/postsleep_stop_title"
-            app:layout_constraintTop_toBottomOf="@+id/postsleep_stop_title"
+            app:layout_constraintStart_toStartOf="@+id/stop_title"
+            app:layout_constraintTop_toBottomOf="@+id/stop_title"
             tools:text="2:20 am, Feb 20 2020" />
 
         <TextView
-            android:id="@+id/postsleep_comments_title"
+            android:id="@+id/comments_title"
             style="@style/TrackerPostSleepSubtitleStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -143,36 +143,36 @@
             android:layout_marginTop="40dp"
             android:text="@string/postsleep_comments_title"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/postsleep_mood_tags_barrier" />
+            app:layout_constraintTop_toBottomOf="@+id/mood_tags_barrier" />
 
         <androidx.constraintlayout.widget.Barrier
-            android:id="@+id/postsleep_mood_tags_barrier"
+            android:id="@+id/mood_tags_barrier"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="bottom"
-            app:constraint_referenced_ids="postsleep_mood_frame,postsleep_tags_content"
+            app:constraint_referenced_ids="mood_frame,tags_content"
             tools:layout_editor_absoluteY="469dp" />
 
         <androidx.constraintlayout.widget.Barrier
-            android:id="@+id/postsleep_mood_barrier"
+            android:id="@+id/mood_barrier"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="right"
-            app:constraint_referenced_ids="postsleep_mood_title,postsleep_mood_frame"
+            app:constraint_referenced_ids="mood_title,mood_frame"
             tools:layout_editor_absoluteX="411dp" />
 
         <FrameLayout
-            android:id="@+id/postsleep_mood_frame"
+            android:id="@+id/mood_frame"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            app:layout_constraintStart_toStartOf="@+id/postsleep_mood_title"
-            app:layout_constraintTop_toBottomOf="@+id/postsleep_mood_title">
+            app:layout_constraintStart_toStartOf="@+id/mood_title"
+            app:layout_constraintTop_toBottomOf="@+id/mood_title">
 
         </FrameLayout>
 
         <TextView
-            android:id="@+id/postsleep_mood_title"
+            android:id="@+id/mood_title"
             style="@style/TrackerPostSleepSubtitleStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -181,10 +181,10 @@
             android:layout_marginTop="32dp"
             android:text="@string/mood"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/postsleep_duration" />
+            app:layout_constraintTop_toBottomOf="@+id/duration" />
 
         <androidx.core.widget.NestedScrollView
-            android:id="@+id/postsleep_comments_scroll"
+            android:id="@+id/comments_scroll"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -196,10 +196,10 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHeight_max="150dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/postsleep_comments_title">
+            app:layout_constraintTop_toBottomOf="@+id/comments_title">
 
             <TextView
-                android:id="@+id/postsleep_comments_value"
+                android:id="@+id/comments_value"
                 style="@style/TrackerPostSleepCommentsStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -207,7 +207,7 @@
         </androidx.core.widget.NestedScrollView>
 
         <TextView
-            android:id="@+id/postsleep_interruptions_title"
+            android:id="@+id/interruptions_title"
             style="@style/TrackerPostSleepTitleStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -216,18 +216,18 @@
             android:layout_marginTop="16dp"
             android:text="@string/interruptions"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/postsleep_div2" />
+            app:layout_constraintTop_toBottomOf="@id/div2" />
 
         <FrameLayout
-            android:id="@+id/post_sleep_interruptions_content"
+            android:id="@+id/interruptions_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/postsleep_interruptions_title" />
+            app:layout_constraintTop_toBottomOf="@+id/interruptions_title" />
 
         <com.rbraithwaite.sleeptarget.ui.post_sleep.PostSleepTagsComponent
-            android:id="@+id/postsleep_tags_content"
+            android:id="@+id/tags_content"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="32dp"
@@ -235,8 +235,8 @@
             android:layout_marginEnd="16dp"
             android:layout_marginRight="16dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/postsleep_mood_barrier"
-            app:layout_constraintTop_toTopOf="@+id/postsleep_mood_title" />
+            app:layout_constraintStart_toEndOf="@id/mood_barrier"
+            app:layout_constraintTop_toTopOf="@+id/mood_title" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

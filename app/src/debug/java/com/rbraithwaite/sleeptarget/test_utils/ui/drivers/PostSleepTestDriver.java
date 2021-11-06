@@ -84,30 +84,30 @@ public class PostSleepTestDriver
         
         public void moodIsUnset()
         {
-            onView(withParent(withId(R.id.postsleep_mood_frame))).check(matches(withText(R.string.postsleepdialog_nomood)));
+            onView(withParent(withId(R.id.mood_frame))).check(matches(withText(R.string.postsleepdialog_nomood)));
         }
         
         public void tagsAreUnset()
         {
-            onView(withId(R.id.postsleep_tags_recycler)).check(matches(withItemAt(0).matching(
+            onView(withId(R.id.tags_recycler)).check(matches(withItemAt(0).matching(
                     withText(R.string.no_tags))));
         }
         
         public void commentsMatch(String expectedComments)
         {
-            onView(withParent(withId(R.id.postsleep_comments_scroll))).check(matches(withText(
+            onView(withParent(withId(R.id.comments_scroll))).check(matches(withText(
                     expectedComments)));
         }
         
         public void interruptionsAreUnset()
         {
-            onView(withId(R.id.post_sleep_interruptions_content)).perform(betterScrollTo());
+            onView(withId(R.id.interruptions_content)).perform(betterScrollTo());
             onView(withId(R.id.post_sleep_interruptions_nodata)).check(matches(isDisplayed()));
         }
         
         public void hasInterruptionCount(int expectedCount)
         {
-            onView(withId(R.id.post_sleep_interruptions_content)).perform(betterScrollTo());
+            onView(withId(R.id.interruptions_content)).perform(betterScrollTo());
             onView(withId(R.id.interruptions_count)).check(matches(withText(String.valueOf(
                     expectedCount))));
             
@@ -122,7 +122,7 @@ public class PostSleepTestDriver
             if (mood == null) {
                 moodIsUnset();
             } else {
-                onView(withParent(withId(R.id.postsleep_mood_frame))).check(matches(withMoodIndex(
+                onView(withParent(withId(R.id.mood_frame))).check(matches(withMoodIndex(
                         mood.asIndex())));
             }
         }
@@ -144,7 +144,7 @@ public class PostSleepTestDriver
         
         public void durationMatches(long expectedDurationMillis)
         {
-            onView(withId(R.id.postsleep_duration)).check(matches(withText(
+            onView(withId(R.id.duration)).check(matches(withText(
                     PostSleepFormatting.formatDuration(expectedDurationMillis))));
         }
         
@@ -155,19 +155,19 @@ public class PostSleepTestDriver
         
         public void startMatches(Date start)
         {
-            onView(withId(R.id.postsleep_start_value)).check(matches(withText(PostSleepFormatting.formatDate(
+            onView(withId(R.id.start_value)).check(matches(withText(PostSleepFormatting.formatDate(
                     start))));
         }
         
         public void endMatches(Date end)
         {
-            onView(withId(R.id.postsleep_stop_value)).check(matches(withText(PostSleepFormatting.formatDate(
+            onView(withId(R.id.stop_value)).check(matches(withText(PostSleepFormatting.formatDate(
                     end))));
         }
         
         public void ratingMatches(float rating)
         {
-            onView(withId(R.id.postsleep_star_rating)).check(matches(withRating(rating)));
+            onView(withId(R.id.star_rating)).check(matches(withRating(rating)));
         }
         
         public void valuesMatch(StoppedSessionDataBuilder builder)

@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.post_sleep;
 
 import android.content.Context;
@@ -23,6 +22,7 @@ import android.util.AttributeSet;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.rbraithwaite.sleeptarget.R;
 
@@ -67,6 +67,15 @@ public class PostSleepTagsComponent
     {
         super(context, attrs, defStyleAttr, defStyleRes);
         initComponent(context);
+    }
+    
+//*********************************************************
+// api
+//*********************************************************
+
+    public RecyclerView getRecycler()
+    {
+        return findViewById(R.id.tags_recycler);
     }
 
 //*********************************************************

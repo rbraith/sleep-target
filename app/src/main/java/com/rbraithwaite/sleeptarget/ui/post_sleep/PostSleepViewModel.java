@@ -73,6 +73,7 @@ public class PostSleepViewModel
         mTagRepository = tagRepository;
     }
 
+
 //*********************************************************
 // api
 //*********************************************************
@@ -207,5 +208,11 @@ public class PostSleepViewModel
         return mStoppedSessionData.currentSessionSnapshot.interruptions.stream()
                 .map(ConvertInterruption::toListItem)
                 .collect(Collectors.toList());
+    }
+    
+    public boolean hasAdditionalComments()
+    {
+        String additionalComments = getAdditionalComments();
+        return !(additionalComments == null || additionalComments.equals(""));
     }
 }

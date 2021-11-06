@@ -23,17 +23,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.flexbox.FlexboxLayoutManager;
 import com.rbraithwaite.sleeptarget.R;
+import com.rbraithwaite.sleeptarget.databinding.CommonInterruptionsBinding;
+import com.rbraithwaite.sleeptarget.databinding.PostSleepFragmentBinding;
 import com.rbraithwaite.sleeptarget.ui.common.data.MoodUiData;
 import com.rbraithwaite.sleeptarget.ui.common.dialog.AlertDialogFragment2;
 import com.rbraithwaite.sleeptarget.ui.common.views.ActionFragment;
@@ -51,12 +51,19 @@ public class PostSleepFragment
         extends ActionFragment<PostSleepViewModel>
 {
 //*********************************************************
+// private properties
+//*********************************************************
+
+    private PostSleepFragmentBinding mBinding;
+
+//*********************************************************
 // private constants
 //*********************************************************
 
     private static final int ICON_OPTION_DELETE = R.drawable.ic_baseline_delete_forever_24;
+    
     private static final String POST_SLEEP_DISCARD_DIALOG = "PostSleepDiscardDialog";
-
+    
 //*********************************************************
 // public helpers
 //*********************************************************
@@ -108,7 +115,8 @@ public class PostSleepFragment
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState)
     {
-        return inflater.inflate(R.layout.post_sleep_fragment, container, false);
+        mBinding = PostSleepFragmentBinding.inflate(inflater, container, false);
+        return mBinding.getRoot();
     }
     
     @Override
@@ -122,20 +130,17 @@ public class PostSleepFragment
         
         viewModel.init(getArgs().stoppedSessionData);
         
-        TextView startText = view.findViewById(R.id.postsleep_start_value);
-        startText.setText(viewModel.getStartText());
+        mBinding.startValue.setText(viewModel.getStartText());
         
-        TextView endText = view.findViewById(R.id.postsleep_stop_value);
-        endText.setText(viewModel.getEndText());
+        mBinding.stopValue.setText(viewModel.getEndText());
         
-        TextView durationText = view.findViewById(R.id.postsleep_duration);
-        durationText.setText(viewModel.getDurationText());
+        mBinding.duration.setText(viewModel.getDurationText());
         
-        initMood(view);
-        initTags(view);
-        initAdditionalComments(view);
-        initInterruptions(view);
-        initRating(view);
+        initMood();
+        initTags();
+        initAdditionalComments();
+        initInterruptions();
+        initRating();
         
         // discard dialog callback
         getActivityViewModel(DiscardDialog.Actions.class).onPositiveAction().observe(
@@ -187,6 +192,8 @@ public class PostSleepFragment
     
     public RecyclerView getInterruptionsRecycler()
     {
+        // The interruptions recycler gets added dynamically to post_sleep_interruptions_content
+        // (FrameLayout), so no ViewBinding.
         return getView().findViewById(R.id.interruptions_recycler);
     }
 
@@ -200,21 +207,20 @@ public class PostSleepFragment
         return safeArgs.getArgs();
     }
     
-    private void initMood(View fragmentRoot)
+    private void initMood()
     {
         MoodUiData mood = getViewModel().getMood();
         
-        FrameLayout moodFrame = fragmentRoot.findViewById(R.id.postsleep_mood_frame);
-        
         if (mood != null) {
-            moodFrame.addView(createMoodView(mood));
+            mBinding.moodFrame.addView(createMoodView(mood));
         } else {
             TextView noMoodMessage = new TextView(
-                    fragmentRoot.getContext(),
+                    // root context used here so that the style works properly
+                    mBinding.getRoot().getContext(),
                     null,
                     R.attr.trackerPostDialogNullDataMessageStyle);
             noMoodMessage.setText(R.string.postsleepdialog_nomood);
-            moodFrame.addView(noMoodMessage);
+            mBinding.moodFrame.addView(noMoodMessage);
         }
     }
     
@@ -239,11 +245,12 @@ public class PostSleepFragment
         }
     }
     
-    private void initTags(View fragmentRoot)
+    private void initTags()
     {
-        RecyclerView tagsRecycler = fragmentRoot.findViewById(R.id.postsleep_tags_recycler);
+        RecyclerView tagsRecycler = mBinding.tagsContent.getRecycler();
         
-        FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(fragmentRoot.getContext());
+        FlexboxLayoutManager layoutManager =
+                new FlexboxLayoutManager(mBinding.getRoot().getContext());
         tagsRecycler.setLayoutManager(layoutManager);
         
         SelectedTagAdapter adapter = new SelectedTagAdapter();
@@ -255,67 +262,53 @@ public class PostSleepFragment
                 adapter::setSelectedTags);
     }
     
-    private void initAdditionalComments(View fragmentRoot)
+    private void initAdditionalComments()
     {
-        TextView commentsText = fragmentRoot.findViewById(R.id.postsleep_comments_value);
-        String additionalComments = getViewModel().getAdditionalComments();
-        // REFACTOR [21-05-9 3:19PM] -- this text & color stuff is state that should probably be
-        //  handled in the view model.
-        if (additionalComments == null || additionalComments.equals("")) {
+        if (getViewModel().hasAdditionalComments()) {
+            mBinding.commentsValue.setText(getViewModel().getAdditionalComments());
+        } else {
             // display 'No Comments' message instead
-            commentsText.setVisibility(View.GONE);
+            mBinding.commentsValue.setVisibility(View.GONE);
             TextView noCommentsMessage = new TextView(
-                    fragmentRoot.getContext(),
+                    // root context used here for the style to work properly
+                    mBinding.getRoot().getContext(),
                     null,
                     R.attr.trackerPostDialogNullDataMessageStyle);
             noCommentsMessage.setText(R.string.postsleepdialog_nocomments);
             
-            NestedScrollView commentsScroll =
-                    fragmentRoot.findViewById(R.id.postsleep_comments_scroll);
-            commentsScroll.removeAllViews();
-            commentsScroll.addView(noCommentsMessage);
-        } else {
-            commentsText.setText(additionalComments);
+            mBinding.commentsScroll.removeAllViews();
+            mBinding.commentsScroll.addView(noCommentsMessage);
         }
     }
     
-    private void initInterruptions(View fragmentRoot)
+    private void initInterruptions()
     {
-        FrameLayout interruptionsContent =
-                fragmentRoot.findViewById(R.id.post_sleep_interruptions_content);
-        
         if (getViewModel().hasNoInterruptions()) {
             getLayoutInflater().inflate(R.layout.post_sleep_interruptions_nodata,
-                                        interruptionsContent);
+                                        mBinding.interruptionsContent);
         } else {
-            initInterruptionsDataDisplay(interruptionsContent);
+            initInterruptionsDataDisplay(mBinding.interruptionsContent);
         }
     }
     
     private void initInterruptionsDataDisplay(FrameLayout parent)
     {
-        View interruptionsLayout =
-                getLayoutInflater().inflate(R.layout.common_interruptions, parent);
+        CommonInterruptionsBinding interruptions = CommonInterruptionsBinding.inflate(
+                getLayoutInflater(), parent, true);
         
-        TextView countText = interruptionsLayout.findViewById(R.id.interruptions_count);
-        countText.setText(getViewModel().getInterruptionsCountText());
+        interruptions.interruptionsCount.setText(getViewModel().getInterruptionsCountText());
         
-        TextView totalTimeText =
-                interruptionsLayout.findViewById(R.id.interruptions_total);
-        totalTimeText.setText(getViewModel().getInterruptionsTotalTimeText());
+        interruptions.interruptionsTotal.setText(getViewModel().getInterruptionsTotalTimeText());
         
-        RecyclerView interruptionsRecycler =
-                interruptionsLayout.findViewById(R.id.interruptions_recycler);
-        interruptionsRecycler.setLayoutManager(new LinearLayoutManager(requireContext()));
-        interruptionsRecycler.setAdapter(new PostSleepInterruptionsAdapter(getViewModel().getInterruptionsListItems()));
+        interruptions.interruptionsRecycler.setLayoutManager(new LinearLayoutManager(requireContext()));
+        interruptions.interruptionsRecycler.setAdapter(new PostSleepInterruptionsAdapter(
+                getViewModel().getInterruptionsListItems()));
     }
     
-    private void initRating(View fragmentRoot)
+    private void initRating()
     {
-        RatingBar ratingBar = fragmentRoot.findViewById(R.id.postsleep_star_rating);
-        ratingBar.setRating(getViewModel().getRating());
-        
-        ratingBar.setOnRatingBarChangeListener((bar, rating, fromUser) -> {
+        mBinding.starRating.setRating(getViewModel().getRating());
+        mBinding.starRating.setOnRatingBarChangeListener((bar, rating, fromUser) -> {
             getViewModel().setRating(rating);
         });
     }
