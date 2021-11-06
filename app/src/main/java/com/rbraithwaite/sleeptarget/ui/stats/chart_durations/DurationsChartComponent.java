@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.stats.chart_durations;
 
 import android.content.Context;
@@ -70,7 +69,7 @@ public class DurationsChartComponent
 
     @Inject
     Executor mExecutor;
-    
+
 //*********************************************************
 // constructors
 //*********************************************************
@@ -96,7 +95,7 @@ public class DurationsChartComponent
         super(context, attrs, defStyleAttr);
         initComponent(context);
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -109,9 +108,22 @@ public class DurationsChartComponent
         mRangeSelector.setCallbacks(createViewModelRangeCallbacks(viewModel));
     }
     
+    public void setOnLegendClickListener(OnClickListener listener)
+    {
+        View legendButton = getLegendButton();
+        if (legendButton != null) {
+            legendButton.setOnClickListener(listener);
+        }
+    }
+    
 //*********************************************************
 // private methods
 //*********************************************************
+
+    private View getLegendButton()
+    {
+        return findViewById(R.id.stats_durations_legend_click_frame);
+    }
 
     private RangeSelectorComponent.Callbacks createViewModelRangeCallbacks(DurationsChartViewModel viewModel)
     {

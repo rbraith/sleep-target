@@ -159,13 +159,13 @@ public class StatsTestDriver
     
     public void pressIntervalsRangeBack()
     {
-        onView(allOf(isDescendantOfA(withId(R.id.stats_intervals)),
+        onView(allOf(isDescendantOfA(withId(R.id.intervals)),
                      withId(R.id.stats_range_selector_back))).perform(click());
     }
     
     public void pressIntervalsRangeForward()
     {
-        onView(allOf(isDescendantOfA(withId(R.id.stats_intervals)),
+        onView(allOf(isDescendantOfA(withId(R.id.intervals)),
                      withId(R.id.stats_range_selector_forward))).perform(click());
     }
 

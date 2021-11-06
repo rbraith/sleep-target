@@ -30,10 +30,9 @@ import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.rbraithwaite.sleeptarget.R;
+import com.rbraithwaite.sleeptarget.databinding.StatsFragmentBinding;
 import com.rbraithwaite.sleeptarget.ui.BaseFragment;
-import com.rbraithwaite.sleeptarget.ui.stats.chart_durations.DurationsChartComponent;
 import com.rbraithwaite.sleeptarget.ui.stats.chart_durations.DurationsChartViewModel;
-import com.rbraithwaite.sleeptarget.ui.stats.chart_intervals.IntervalsChartComponent;
 import com.rbraithwaite.sleeptarget.ui.stats.chart_intervals.IntervalsChartViewModel;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -46,8 +45,7 @@ public class StatsFragment
 // private properties
 //*********************************************************
 
-    private DurationsChartComponent mDurationsChart;
-    private IntervalsChartComponent mIntervalsChart;
+    private StatsFragmentBinding mBinding;
 
 //*********************************************************
 // private constants
@@ -60,42 +58,33 @@ public class StatsFragment
 // public helpers
 //*********************************************************
 
-    public static class DurationsLegendDialog
+    // REFACTOR [21-11-5 10:00PM] -- Duplicates the dialogs in the targets fragment?
+    public static class LegendDialog
             extends DialogFragment
     {
         @NonNull
         @Override
         public Dialog onCreateDialog(@Nullable Bundle savedInstanceState)
         {
-            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
             @SuppressLint("InflateParams")
-            View dialogView = getLayoutInflater().inflate(R.layout.stats_legend_durations, null);
-            builder.setTitle("Legend")
-                    .setView(dialogView);
+            View dialogView = getLayoutInflater().inflate(getArguments().getInt("layout id"), null);
             
-            return builder.create();
+            return new AlertDialog.Builder(requireContext())
+                    .setTitle(R.string.legend)
+                    .setView(dialogView)
+                    .create();
         }
-    }
-    
-    // REFACTOR [21-10-16 7:23PM] -- Duplicates DurationsLegendDialog & the dialogs in the
-    //  targets fragment.
-    public static class IntervalsLegendDialog
-            extends DialogFragment
-    {
-        @NonNull
-        @Override
-        public Dialog onCreateDialog(@Nullable Bundle savedInstanceState)
+        
+        public static LegendDialog createInstance(int layoutId)
         {
-            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-            @SuppressLint("InflateParams")
-            View dialogView = getLayoutInflater().inflate(R.layout.stats_legend_intervals, null);
-            builder.setTitle("Legend")
-                    .setView(dialogView);
-            
-            return builder.create();
+            Bundle args = new Bundle();
+            args.putInt("layout id", layoutId);
+            LegendDialog dialog = new LegendDialog();
+            dialog.setArguments(args);
+            return dialog;
         }
     }
-    
+
 //*********************************************************
 // overrides
 //*********************************************************
@@ -107,33 +96,28 @@ public class StatsFragment
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState)
     {
-        return inflater.inflate(R.layout.stats_fragment, container, false);
+        mBinding = StatsFragmentBinding.inflate(inflater, container, false);
+        return mBinding.getRoot();
     }
-
+    
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState)
     {
-        mIntervalsChart = view.findViewById(R.id.stats_intervals);
-        mIntervalsChart.bindToViewModel(getIntervalsChartViewModel(), getViewLifecycleOwner());
+        mBinding.intervals.bindToViewModel(getIntervalsChartViewModel(), getViewLifecycleOwner());
+        // REFACTOR [21-11-5 9:42PM] -- should the legend dialog behaviours be integrated into these
+        //  components?
+        mBinding.intervals.setOnLegendClickListener(v -> displayIntervalsLegendDialog());
         
-        mDurationsChart = view.findViewById(R.id.stats_durations);
-        mDurationsChart.bindToViewModel(getDurationsChartViewModel(), getViewLifecycleOwner());
-        
-        View durationsChartLegendButton =
-                view.findViewById(R.id.stats_durations_legend_click_frame);
-        durationsChartLegendButton.setOnClickListener(v -> displayDurationsLegendDialog());
-        
-        View intervalsChartLegendButton =
-                view.findViewById(R.id.stats_intervals_legend_click_frame);
-        intervalsChartLegendButton.setOnClickListener(v -> displayIntervalsLegendDialog());
+        mBinding.durations.bindToViewModel(getDurationsChartViewModel(), getViewLifecycleOwner());
+        mBinding.durations.setOnLegendClickListener(v -> displayDurationsLegendDialog());
     }
-
+    
     @Override
     protected Properties<StatsFragmentViewModel> initProperties()
     {
         return new Properties<>(true, StatsFragmentViewModel.class);
     }
-    
+
 //*********************************************************
 // api
 //*********************************************************
@@ -142,7 +126,7 @@ public class StatsFragment
     {
         return new ViewModelProvider(this).get(IntervalsChartViewModel.class);
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
@@ -154,11 +138,13 @@ public class StatsFragment
     
     private void displayDurationsLegendDialog()
     {
-        new DurationsLegendDialog().show(getChildFragmentManager(), DIALOG_DURATIONS_LEGEND);
+        LegendDialog.createInstance(R.layout.stats_legend_durations)
+                .show(getChildFragmentManager(), DIALOG_DURATIONS_LEGEND);
     }
     
     private void displayIntervalsLegendDialog()
     {
-        new IntervalsLegendDialog().show(getChildFragmentManager(), DIALOG_INTERVALS_LEGEND);
+        LegendDialog.createInstance(R.layout.stats_legend_intervals)
+                .show(getChildFragmentManager(), DIALOG_INTERVALS_LEGEND);
     }
 }

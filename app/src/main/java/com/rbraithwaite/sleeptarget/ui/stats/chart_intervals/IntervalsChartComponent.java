@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 package com.rbraithwaite.sleeptarget.ui.stats.chart_intervals;
 
 import android.content.Context;
@@ -23,7 +22,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -109,10 +107,23 @@ public class IntervalsChartComponent
         viewModel.getIntervalsValueText().observe(lifecycleOwner, this::observeValueText);
         mTimePeriodSelector.setCallbacks(createViewModelTimePeriodCallbacks(viewModel));
     }
-
+    
+    public void setOnLegendClickListener(OnClickListener listener)
+    {
+        View legendButton = getLegendButton();
+        if (legendButton != null) {
+            legendButton.setOnClickListener(listener);
+        }
+    }
+    
 //*********************************************************
 // private methods
 //*********************************************************
+
+    private View getLegendButton()
+    {
+        return findViewById(R.id.stats_intervals_legend_click_frame);
+    }
 
     private void setChartData(IntervalsDataSet dataSet)
     {
