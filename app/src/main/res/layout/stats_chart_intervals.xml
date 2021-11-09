@@ -23,7 +23,7 @@
     android:layout_height="wrap_content">
 
     <TextView
-        android:id="@+id/stats_intervals_title"
+        android:id="@+id/title"
         style="@style/StatsSectionTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <FrameLayout
-        android:id="@+id/stats_intervals_layout"
+        android:id="@+id/chart_layout"
         android:layout_width="0dp"
         android:layout_height="@dimen/stats_chart_height"
         android:layout_marginStart="8dp"
@@ -45,23 +45,23 @@
         android:layout_marginRight="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/stats_intervals_title"
+        app:layout_constraintTop_toBottomOf="@+id/title"
         app:layout_constraintWidth_max="@dimen/stats_max_chart_width">
 
     </FrameLayout>
 
     <com.rbraithwaite.sleeptarget.ui.stats.common.RangeSelectorComponent
-        android:id="@+id/stats_intervals_time_period_selector"
+        android:id="@+id/time_period_selector"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:theme="@style/StatsRangeSelectorTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/stats_intervals_layout"
+        app:layout_constraintTop_toBottomOf="@+id/chart_layout"
         app:layout_constraintWidth_max="@dimen/stats_max_chart_range_selector_width" />
 
     <TextView
-        android:id="@+id/stats_intervals_no_data"
+        android:id="@+id/no_data_message"
         style="@style/StatsNoDataMessage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -72,18 +72,18 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/stats_intervals_time_period_selector" />
+        app:layout_constraintTop_toBottomOf="@+id/time_period_selector" />
 
     <FrameLayout
-        android:id="@+id/stats_intervals_legend_click_frame"
+        android:id="@+id/legend_click_frame"
         android:layout_width="50dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="@id/stats_intervals_title"
+        app:layout_constraintBottom_toBottomOf="@id/title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
-            android:id="@+id/stats_intervals_legend_icon"
+            android:id="@+id/legend_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|center"

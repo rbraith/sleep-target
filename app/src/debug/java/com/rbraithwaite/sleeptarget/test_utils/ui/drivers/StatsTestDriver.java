@@ -89,7 +89,7 @@ public class StatsTestDriver
         {
             onView(allOf(
                     withId(R.id.range_value),
-                    withParent(withId(R.id.stats_intervals_time_period_selector)))).check(matches(
+                    withParent(withId(R.id.time_period_selector)))).check(matches(
                     withText(expected)));
         }
         
@@ -177,6 +177,6 @@ public class StatsTestDriver
     {
         onView(allOf(
                 withId(R.id.more),
-                withParent(withId(R.id.stats_intervals_time_period_selector)))).perform(click());
+                withParent(withId(R.id.time_period_selector)))).perform(click());
     }
 }

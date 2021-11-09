@@ -30,6 +30,7 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 
 import com.rbraithwaite.sleeptarget.R;
+import com.rbraithwaite.sleeptarget.databinding.StatsChartIntervalsBinding;
 import com.rbraithwaite.sleeptarget.ui.stats.chart_intervals.data_set.IntervalsDataSet;
 import com.rbraithwaite.sleeptarget.ui.stats.common.CombinedChartViewFactory;
 import com.rbraithwaite.sleeptarget.ui.stats.common.RangeSelectorComponent;
@@ -49,11 +50,8 @@ public class IntervalsChartComponent
 //*********************************************************
 // private properties
 //*********************************************************
-
-    private TextView mTitle;
-    private FrameLayout mChartLayout;
-    private RangeSelectorComponent mTimePeriodSelector;
-    private TextView mNoDataMessage;
+    
+    private StatsChartIntervalsBinding mBinding;
     
     // REFACTOR [21-06-18 12:24AM] -- This init value should derive from the view model's default
     //  resolution.
@@ -105,28 +103,22 @@ public class IntervalsChartComponent
         viewModel.hasAnyData().observe(lifecycleOwner, this::observeHasAnyData);
         viewModel.getIntervalsDataSet().observe(lifecycleOwner, this::observeDataSet);
         viewModel.getIntervalsValueText().observe(lifecycleOwner, this::observeValueText);
-        mTimePeriodSelector.setCallbacks(createViewModelTimePeriodCallbacks(viewModel));
+        mBinding.timePeriodSelector.setCallbacks(createViewModelTimePeriodCallbacks(viewModel));
     }
     
     public void setOnLegendClickListener(OnClickListener listener)
     {
-        View legendButton = getLegendButton();
-        if (legendButton != null) {
-            legendButton.setOnClickListener(listener);
-        }
+        mBinding.legendClickFrame.setOnClickListener(listener);
     }
     
 //*********************************************************
 // private methods
 //*********************************************************
 
-    private View getLegendButton()
-    {
-        return findViewById(R.id.stats_intervals_legend_click_frame);
-    }
-
     private void setChartData(IntervalsDataSet dataSet)
     {
+        // REFACTOR [21-11-9 5:04PM] -- Should IntervalsChartViewModel itself be directly
+        //  generating these AChartEngine params?
         LiveData<CombinedChartViewFactory.Params> chartParams = null;
         switch (dataSet.config.resolution) {
         case WEEK:
@@ -150,8 +142,8 @@ public class IntervalsChartComponent
         //  be a good place for RxJava, or could I use an async callback in the factory?
         LiveDataFuture.getValue(chartParams, null, params -> {
             View chartView = getChartViewFactory().createFrom(getContext(), params);
-            mChartLayout.removeAllViews();
-            mChartLayout.addView(chartView);
+            mBinding.chartLayout.removeAllViews();
+            mBinding.chartLayout.addView(chartView);
         });
     }
     
@@ -210,7 +202,7 @@ public class IntervalsChartComponent
     private void observeValueText(String valueText)
     {
         if (valueText != null) {
-            mTimePeriodSelector.setRangeValueText(valueText);
+            mBinding.timePeriodSelector.setRangeValueText(valueText);
         }
     }
     
@@ -228,10 +220,7 @@ public class IntervalsChartComponent
     {
         inflate(context, R.layout.stats_chart_intervals, this);
         
-        mTitle = findViewById(R.id.stats_intervals_title);
-        mChartLayout = findViewById(R.id.stats_intervals_layout);
-        mTimePeriodSelector = findViewById(R.id.stats_intervals_time_period_selector);
-        mNoDataMessage = findViewById(R.id.stats_intervals_no_data);
+        mBinding = StatsChartIntervalsBinding.bind(this);
         
         // REFACTOR [21-06-17 1:20AM] -- I should inject this factory somehow.
         mChartParamsFactory = new IntervalsChartParamsFactory(mExecutor, getContext());
@@ -252,14 +241,17 @@ public class IntervalsChartComponent
     
     private void toggleChartDisplay(boolean shouldDisplayChart)
     {
-        if (!shouldDisplayChart) {
-            mChartLayout.setVisibility(View.GONE);
-            mTimePeriodSelector.setVisibility(View.GONE);
-            mNoDataMessage.setVisibility(View.VISIBLE);
-        } else {
-            mChartLayout.setVisibility(View.VISIBLE);
-            mTimePeriodSelector.setVisibility(View.VISIBLE);
-            mNoDataMessage.setVisibility(View.GONE);
+        int chartVisibility = View.GONE;
+        int noDataVisibility = View.VISIBLE;
+        
+        if (shouldDisplayChart) {
+            chartVisibility = View.VISIBLE;
+            noDataVisibility = View.GONE;
         }
+        
+        mBinding.chartLayout.setVisibility(chartVisibility);
+        mBinding.timePeriodSelector.setVisibility(chartVisibility);
+        
+        mBinding.noDataMessage.setVisibility(noDataVisibility);
     }
 }
