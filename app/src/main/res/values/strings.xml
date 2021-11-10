@@ -153,4 +153,6 @@
     <string name="content_description_stats_range_selector_forward">move chart range forward</string>
     <string name="content_description_more_range_options">more range options</string>
     <string name="legend">Legend</string>
+    <string name="duration_target_help_title">How do I hit a sleep duration target?</string>
+    <string name="waketime_target_help_title">How do I hit a wake-time target?</string>
 </resources>

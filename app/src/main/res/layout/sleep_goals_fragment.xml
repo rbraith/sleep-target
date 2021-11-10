@@ -19,19 +19,19 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/sleep_goals_scroll"
+    android:id="@+id/root_scroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:scrollbars="none">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/sleep_goals_layout"
+        android:id="@+id/constraint_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/SleepGoalsTheme">
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/sleep_goals_waketime_card"
+            android:id="@+id/waketime_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -48,7 +48,7 @@
                 android:layout_height="match_parent">
 
                 <TextView
-                    android:id="@+id/sleep_goals_waketime_title"
+                    android:id="@+id/waketime_title"
                     style="@style/SleepGoalsTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -60,16 +60,16 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <FrameLayout
-                    android:id="@+id/sleep_goals_waketime_help_click_frame"
+                    android:id="@+id/waketime_help_click_frame"
                     android:layout_width="40dp"
                     android:layout_height="0dp"
                     android:layout_marginTop="8dp"
-                    app:layout_constraintBottom_toTopOf="@+id/sleep_goals_waketime"
+                    app:layout_constraintBottom_toTopOf="@+id/waketime"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
                     <ImageView
-                        android:id="@+id/sleep_goals_waketime_help_icon"
+                        android:id="@+id/waketime_help_icon"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -78,7 +78,7 @@
                 </FrameLayout>
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/sleep_goals_new_waketime_btn"
+                    android:id="@+id/new_waketime_btn"
                     style="@style/SleepGoalsAddWakeTimeButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -90,10 +90,10 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/sleep_goals_waketime_title" />
+                    app:layout_constraintTop_toBottomOf="@+id/waketime_title" />
 
                 <include
-                    android:id="@+id/sleep_goals_waketime"
+                    android:id="@+id/waketime"
                     layout="@layout/sleep_goals_waketime"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -102,13 +102,13 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/sleep_goals_waketime_title" />
+                    app:layout_constraintTop_toBottomOf="@+id/waketime_title" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/sleep_goals_duration_card"
+            android:id="@+id/duration_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -118,14 +118,14 @@
             android:layout_marginRight="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/sleep_goals_waketime_card">
+            app:layout_constraintTop_toBottomOf="@id/waketime_card">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
                 <TextView
-                    android:id="@+id/sleep_goals_duration_title"
+                    android:id="@+id/duration_title"
                     style="@style/SleepGoalsTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -137,16 +137,16 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <FrameLayout
-                    android:id="@+id/sleep_goals_duration_help_click_frame"
+                    android:id="@+id/duration_help_click_frame"
                     android:layout_width="40dp"
                     android:layout_height="0dp"
                     android:layout_marginTop="8dp"
-                    app:layout_constraintBottom_toTopOf="@+id/sleep_goals_duration"
+                    app:layout_constraintBottom_toTopOf="@+id/duration"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
                     <ImageView
-                        android:id="@+id/sleep_goals_duration_help_icon"
+                        android:id="@+id/duration_help_icon"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
@@ -155,7 +155,7 @@
                 </FrameLayout>
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/sleep_goals_new_duration_btn"
+                    android:id="@+id/new_duration_btn"
                     style="@style/SleepGoalsAddDurationButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -167,10 +167,10 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/sleep_goals_duration_title" />
+                    app:layout_constraintTop_toBottomOf="@+id/duration_title" />
 
                 <include
-                    android:id="@+id/sleep_goals_duration"
+                    android:id="@+id/duration"
                     layout="@layout/sleep_goals_duration"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -179,14 +179,14 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/sleep_goals_duration_title" />
+                    app:layout_constraintTop_toBottomOf="@+id/duration_title" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/sleep_goals_streak_history_card"
+            android:id="@+id/streak_history_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -198,20 +198,16 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/sleep_goals_duration_card">
+            app:layout_constraintTop_toBottomOf="@id/duration_card">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <include
+                android:id="@+id/target_history"
+                layout="@layout/sleep_goals_streaks"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <include
-                    layout="@layout/sleep_goals_streaks"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.cardview.widget.CardView>
 

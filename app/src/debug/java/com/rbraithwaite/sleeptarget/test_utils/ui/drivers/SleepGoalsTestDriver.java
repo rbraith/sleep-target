@@ -57,32 +57,32 @@ public class SleepGoalsTestDriver
         
         public void sleepDurationGoalIsUnset()
         {
-            onView(withId(R.id.sleep_goals_duration)).check(matches(not(isDisplayed())));
-            onView(withId(R.id.sleep_goals_new_duration_btn)).check(matches(isDisplayed()));
+            onView(withId(R.id.duration)).check(matches(not(isDisplayed())));
+            onView(withId(R.id.new_duration_btn)).check(matches(isDisplayed()));
             
             // TODO [21-06-24 9:21PM] -- verify the view model as well?
         }
         
         public void wakeTimeGoalIsUnset()
         {
-            onView(withId(R.id.sleep_goals_waketime)).check(matches(not(isDisplayed())));
-            onView(withId(R.id.sleep_goals_new_waketime_btn)).check(matches(isDisplayed()));
+            onView(withId(R.id.waketime)).check(matches(not(isDisplayed())));
+            onView(withId(R.id.new_waketime_btn)).check(matches(isDisplayed()));
             
             // TODO [21-06-24 9:21PM] -- verify the view model as well?
         }
         
         public void sleepDurationGoalMatches(SleepDurationGoal expectedGoal)
         {
-            onView(withId(R.id.sleep_goals_new_duration_btn)).check(matches(not(isDisplayed())));
-            onView(withId(R.id.sleep_goals_duration)).check(matches(isDisplayed()));
+            onView(withId(R.id.new_duration_btn)).check(matches(not(isDisplayed())));
+            onView(withId(R.id.duration)).check(matches(isDisplayed()));
             onView(withId(R.id.duration_value)).check(matches(withText(
                     SleepGoalsFormatting.formatSleepDurationGoal(expectedGoal))));
         }
         
         public void wakeTimeGoalMatches(WakeTimeGoal expectedGoal)
         {
-            onView(withId(R.id.sleep_goals_new_waketime_btn)).check(matches(not(isDisplayed())));
-            onView(withId(R.id.sleep_goals_waketime)).check(matches(isDisplayed()));
+            onView(withId(R.id.new_waketime_btn)).check(matches(not(isDisplayed())));
+            onView(withId(R.id.waketime)).check(matches(isDisplayed()));
             onView(withId(R.id.waketime_value)).check(matches(withText(
                     SleepGoalsFormatting.formatWakeTimeGoal(expectedGoal))));
         }
@@ -103,7 +103,7 @@ public class SleepGoalsTestDriver
 
     public void addSleepDurationGoal(SleepDurationGoal sleepDurationGoal)
     {
-        onView(withId(R.id.sleep_goals_new_duration_btn)).perform(click());
+        onView(withId(R.id.new_duration_btn)).perform(click());
         setSleepDurationGoalInPicker(sleepDurationGoal);
     }
     
@@ -115,7 +115,7 @@ public class SleepGoalsTestDriver
     
     public void addWakeTimeGoal(WakeTimeGoal expectedGoal)
     {
-        onView(withId(R.id.sleep_goals_new_waketime_btn)).perform(click());
+        onView(withId(R.id.new_waketime_btn)).perform(click());
         setWakeTimeGoalInPicker(expectedGoal);
     }
     
