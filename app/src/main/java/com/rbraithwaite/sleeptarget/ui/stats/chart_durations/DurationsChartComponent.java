@@ -32,6 +32,7 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 
 import com.rbraithwaite.sleeptarget.R;
+import com.rbraithwaite.sleeptarget.databinding.StatsChartDurationsBinding;
 import com.rbraithwaite.sleeptarget.ui.stats.common.CombinedChartViewFactory;
 import com.rbraithwaite.sleeptarget.ui.stats.common.RangeSelectorComponent;
 import com.rbraithwaite.sleeptarget.utils.LiveDataFuture;
@@ -51,12 +52,8 @@ public class DurationsChartComponent
 //*********************************************************
 // private properties
 //*********************************************************
-
-    private TextView mTitle;
-    private FrameLayout mChartLayout;
-    private RangeSelectorComponent mRangeSelector;
-    private TextView mNoDataMessage;
-    private Group mChartGroup;
+    
+    private StatsChartDurationsBinding mBinding;
     
     // REFACTOR [21-06-18 12:25AM] -- this init value should derive from the view model's default
     //  resolution.
@@ -105,25 +102,17 @@ public class DurationsChartComponent
         viewModel.getDataSet()
                 .observe(lifecycleOwner, dataSet -> observeDataSet(dataSet, viewModel));
         viewModel.getRangeText().observe(lifecycleOwner, this::observeRangeText);
-        mRangeSelector.setCallbacks(createViewModelRangeCallbacks(viewModel));
+        mBinding.rangeSelector.setCallbacks(createViewModelRangeCallbacks(viewModel));
     }
     
     public void setOnLegendClickListener(OnClickListener listener)
     {
-        View legendButton = getLegendButton();
-        if (legendButton != null) {
-            legendButton.setOnClickListener(listener);
-        }
+        mBinding.legendClickFrame.setOnClickListener(listener);
     }
     
 //*********************************************************
 // private methods
 //*********************************************************
-
-    private View getLegendButton()
-    {
-        return findViewById(R.id.stats_durations_legend_click_frame);
-    }
 
     private RangeSelectorComponent.Callbacks createViewModelRangeCallbacks(DurationsChartViewModel viewModel)
     {
@@ -184,7 +173,7 @@ public class DurationsChartComponent
     
     private void observeRangeText(String rangeText)
     {
-        mRangeSelector.setRangeValueText(rangeText);
+        mBinding.rangeSelector.setRangeValueText(rangeText);
     }
     
     private void observeDataSet(
@@ -205,6 +194,8 @@ public class DurationsChartComponent
             List<DurationsChartViewModel.DataPoint> dataSet,
             int rangeDistance)
     {
+        // REFACTOR [21-11-9 7:49PM] -- Same issue as intervals chart, should
+        //  DurationsChartViewModel directly return the AChartEngine params?
         LiveData<CombinedChartViewFactory.Params> chartParams = mChartParamsFactory.createParams(
                 dataSet, rangeDistance);
         
@@ -213,8 +204,8 @@ public class DurationsChartComponent
         LiveDataFuture.getValue(chartParams, null, params -> {
             View chartView = chartViewFactory.createFrom(getContext(), params);
             
-            mChartLayout.removeAllViews();
-            mChartLayout.addView(chartView);
+            mBinding.chartLayout.removeAllViews();
+            mBinding.chartLayout.addView(chartView);
             
             toggleChartDisplay(true);
         });
@@ -224,11 +215,7 @@ public class DurationsChartComponent
     {
         inflate(context, R.layout.stats_chart_durations, this);
         
-        mTitle = findViewById(R.id.stats_durations_title);
-        mChartLayout = findViewById(R.id.stats_durations_layout);
-        mChartGroup = findViewById(R.id.stats_durations_chart_group);
-        mRangeSelector = findViewById(R.id.stats_durations_range_selector);
-        mNoDataMessage = findViewById(R.id.stats_durations_no_data);
+        mBinding = StatsChartDurationsBinding.bind(this);
         
         // REFACTOR [21-06-17 1:20AM] -- I should inject this factory somehow.
         mChartParamsFactory = new DurationsChartParamsFactory(mExecutor, getContext());
@@ -237,11 +224,11 @@ public class DurationsChartComponent
     private void toggleChartDisplay(boolean shouldDisplayChart)
     {
         if (shouldDisplayChart) {
-            mChartGroup.setVisibility(View.VISIBLE);
-            mNoDataMessage.setVisibility(View.GONE);
+            mBinding.chartGroup.setVisibility(View.VISIBLE);
+            mBinding.noDataMessage.setVisibility(View.GONE);
         } else {
-            mChartGroup.setVisibility(View.GONE);
-            mNoDataMessage.setVisibility(View.VISIBLE);
+            mBinding.chartGroup.setVisibility(View.GONE);
+            mBinding.noDataMessage.setVisibility(View.VISIBLE);
         }
     }
 }

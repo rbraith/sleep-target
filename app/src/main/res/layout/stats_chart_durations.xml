@@ -24,7 +24,7 @@
     tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
     <TextView
-        android:id="@+id/stats_durations_title"
+        android:id="@+id/title"
         style="@style/StatsSectionTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -36,30 +36,30 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <FrameLayout
-        android:id="@+id/stats_durations_layout"
+        android:id="@+id/chart_layout"
         android:layout_width="0dp"
         android:layout_height="@dimen/stats_chart_height"
         android:layout_marginTop="16dp"
-        app:layout_constraintEnd_toStartOf="@+id/stats_durations_ratings_axis_title"
-        app:layout_constraintStart_toEndOf="@+id/stats_durations_durations_axis_title"
-        app:layout_constraintTop_toBottomOf="@+id/stats_durations_title"
+        app:layout_constraintEnd_toStartOf="@+id/ratings_axis_title"
+        app:layout_constraintStart_toEndOf="@+id/durations_axis_title"
+        app:layout_constraintTop_toBottomOf="@+id/title"
         app:layout_constraintWidth_max="@dimen/stats_max_chart_width">
 
     </FrameLayout>
 
 
     <com.rbraithwaite.sleeptarget.ui.stats.common.RangeSelectorComponent
-        android:id="@+id/stats_durations_range_selector"
+        android:id="@+id/range_selector"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:theme="@style/StatsRangeSelectorTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/stats_durations_layout"
+        app:layout_constraintTop_toBottomOf="@+id/chart_layout"
         app:layout_constraintWidth_max="@dimen/stats_max_chart_range_selector_width" />
 
     <TextView
-        android:id="@+id/stats_durations_no_data"
+        android:id="@+id/no_data_message"
         style="@style/StatsNoDataMessage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -70,45 +70,45 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/stats_durations_range_selector" />
+        app:layout_constraintTop_toBottomOf="@+id/range_selector" />
 
     <com.rbraithwaite.sleeptarget.ui.common.views.VerticalTextView
-        android:id="@+id/stats_durations_durations_axis_title"
+        android:id="@+id/durations_axis_title"
         style="@style/StatsYAxisTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:text="@string/duration"
-        app:layout_constraintBottom_toTopOf="@+id/stats_durations_range_selector"
-        app:layout_constraintEnd_toStartOf="@+id/stats_durations_layout"
+        app:layout_constraintBottom_toTopOf="@+id/range_selector"
+        app:layout_constraintEnd_toStartOf="@+id/chart_layout"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/stats_durations_title" />
+        app:layout_constraintTop_toBottomOf="@+id/title" />
 
     <com.rbraithwaite.sleeptarget.ui.common.views.VerticalTextView
-        android:id="@+id/stats_durations_ratings_axis_title"
+        android:id="@+id/ratings_axis_title"
         style="@style/StatsYAxisTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:text="@string/rating"
-        app:layout_constraintBottom_toTopOf="@+id/stats_durations_range_selector"
+        app:layout_constraintBottom_toTopOf="@+id/range_selector"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/stats_durations_layout"
-        app:layout_constraintTop_toBottomOf="@+id/stats_durations_title" />
+        app:layout_constraintStart_toEndOf="@+id/chart_layout"
+        app:layout_constraintTop_toBottomOf="@+id/title" />
 
     <FrameLayout
-        android:id="@+id/stats_durations_legend_click_frame"
+        android:id="@+id/legend_click_frame"
         android:layout_width="50dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="@id/stats_durations_title"
+        app:layout_constraintBottom_toBottomOf="@id/title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
-            android:id="@+id/stats_duration_legend_icon"
+            android:id="@+id/legend_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|center"
@@ -117,9 +117,9 @@
     </FrameLayout>
 
     <androidx.constraintlayout.widget.Group
-        android:id="@+id/stats_durations_chart_group"
+        android:id="@+id/chart_group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="stats_durations_layout,stats_durations_range_selector,stats_durations_durations_axis_title,stats_durations_ratings_axis_title" />
+        app:constraint_referenced_ids="chart_layout,range_selector,durations_axis_title,ratings_axis_title" />
 
 </merge>
