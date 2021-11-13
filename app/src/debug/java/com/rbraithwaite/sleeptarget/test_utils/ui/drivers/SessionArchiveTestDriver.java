@@ -85,7 +85,7 @@ public class SessionArchiveTestDriver
         public ListItemAssertions listItemAtIndex(int listItemIndex)
         {
             getOwningDriver().scrollToListItemAt(listItemIndex);
-            return new ListItemAssertions(listItemIndex, R.id.session_archive_list);
+            return new ListItemAssertions(listItemIndex, R.id.recycler);
         }
         
         public void listIsEmpty()
@@ -298,7 +298,7 @@ public class SessionArchiveTestDriver
         if (mOnOpenSessionDetailsListener != null) {
             mOnOpenSessionDetailsListener.onOpenSessionDetails();
         }
-        onView(withId(R.id.session_archive_fab)).perform(click());
+        onView(withId(R.id.fab)).perform(click());
     }
     
     /**
@@ -319,7 +319,7 @@ public class SessionArchiveTestDriver
 
     private ViewInteraction onRecyclerView()
     {
-        return onView(withId(R.id.session_archive_list));
+        return onView(withId(R.id.recycler));
     }
     
     private void scrollToListItemAt(int position)

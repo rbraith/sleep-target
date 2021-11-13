@@ -29,6 +29,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.rbraithwaite.sleeptarget.R;
+import com.rbraithwaite.sleeptarget.databinding.SessionArchiveFragmentBinding;
+import com.rbraithwaite.sleeptarget.databinding.SessionDetailsFragmentBinding;
 import com.rbraithwaite.sleeptarget.ui.BaseFragment;
 import com.rbraithwaite.sleeptarget.ui.common.views.details_fragment.DetailsFragment;
 import com.rbraithwaite.sleeptarget.ui.common.views.details_fragment.DetailsResult;
@@ -46,8 +48,8 @@ public class SessionArchiveFragment
 //*********************************************************
 // private properties
 //*********************************************************
-
-    private RecyclerView mRecyclerView;
+    
+    private SessionArchiveFragmentBinding mBinding;
     private SessionArchiveRecyclerViewAdapter mRecyclerViewAdapter;
 
 //*********************************************************
@@ -67,7 +69,8 @@ public class SessionArchiveFragment
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState)
     {
-        return inflater.inflate(R.layout.session_archive_fragment, container, false);
+        mBinding = SessionArchiveFragmentBinding.inflate(inflater, container, false);
+        return mBinding.getRoot();
     }
     
     @Override
@@ -75,8 +78,8 @@ public class SessionArchiveFragment
     {
         handleSessionDetailsResult(getSessionDetailsResult().consumeResult());
         
-        initRecyclerView(view);
-        initFloatingActionButton(view);
+        initRecyclerView();
+        initFloatingActionButton();
     }
     
     @Override
@@ -141,17 +144,14 @@ public class SessionArchiveFragment
     
     private SessionArchiveRecyclerViewAdapter.ItemViewHolder getViewHolderFor(int listItemPosition)
     {
-        return (SessionArchiveRecyclerViewAdapter.ItemViewHolder) mRecyclerView.findViewHolderForAdapterPosition(
-                listItemPosition);
+        return (SessionArchiveRecyclerViewAdapter.ItemViewHolder)
+                mBinding.recycler.findViewHolderForAdapterPosition(listItemPosition);
     }
     
-    private void initFloatingActionButton(View fragmentRoot)
+    private void initFloatingActionButton()
     {
-        FloatingActionButton floatingActionButton =
-                fragmentRoot.findViewById(R.id.session_archive_fab);
-        floatingActionButton.setOnClickListener(v -> navigateToAddSessionScreen());
+        mBinding.fab.setOnClickListener(v -> navigateToAddSessionScreen());
     }
-    
     
     private void navigateToAddSessionScreen()
     {
@@ -181,11 +181,10 @@ public class SessionArchiveFragment
         return SessionArchiveFragmentDirections.actionSessionArchiveToSessionData(args);
     }
     
-    private void initRecyclerView(@NonNull View fragmentRoot)
+    private void initRecyclerView()
     {
-        mRecyclerView = fragmentRoot.findViewById(R.id.session_archive_list);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        mRecyclerView.addItemDecoration(new RecyclerUtils.VerticalMargin(8, requireContext()));
-        mRecyclerView.setAdapter(getRecyclerViewAdapter());
+        mBinding.recycler.setLayoutManager(new LinearLayoutManager(requireContext()));
+        mBinding.recycler.addItemDecoration(new RecyclerUtils.VerticalMargin(8, requireContext()));
+        mBinding.recycler.setAdapter(getRecyclerViewAdapter());
     }
 }

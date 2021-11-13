@@ -25,7 +25,7 @@
     android:orientation="vertical">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/session_archive_list"
+        android:id="@+id/recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -35,7 +35,7 @@
         tools:listitem="@layout/session_archive_list_item" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/session_archive_fab"
+        android:id="@+id/fab"
         style="@style/ArchiveFabStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

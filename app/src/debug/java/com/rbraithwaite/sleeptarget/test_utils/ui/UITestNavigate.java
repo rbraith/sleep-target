@@ -59,7 +59,7 @@ public class UITestNavigate
     
     public static void fromSessionArchive_toAddSession()
     {
-        onView(withId(R.id.session_archive_fab)).perform(click());
+        onView(withId(R.id.fab)).perform(click());
     }
     
     public static void up()
