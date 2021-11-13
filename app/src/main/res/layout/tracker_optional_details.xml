@@ -67,7 +67,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/details_title" />
 
-    <com.rbraithwaite.sleeptarget.ui.common.views.tag_selector.TEMP.TagSelectorComponent
+    <com.rbraithwaite.sleeptarget.ui.common.views.tag_selector.TagSelectorComponent
         android:id="@+id/tags"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

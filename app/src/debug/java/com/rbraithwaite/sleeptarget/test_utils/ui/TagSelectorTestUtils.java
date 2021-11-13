@@ -43,12 +43,12 @@ public class TagSelectorTestUtils
     public static void openTagDialog()
     {
         try {
-            onView(withId(R.id.tag_selector_selected_recycler)).perform(RecyclerViewActions.actionOnItemAtPosition(
+            onView(withId(R.id.ts_selected_recycler)).perform(RecyclerViewActions.actionOnItemAtPosition(
                     0,
                     click()));
         } catch (RuntimeException e) {
             // In case there were no currently selected tags
-            onView(withId(R.id.tag_selector_add_tags_btn)).perform(click());
+            onView(withId(R.id.ts_add_tags_button)).perform(click());
         }
     }
     

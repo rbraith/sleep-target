@@ -39,7 +39,6 @@ import com.rbraithwaite.sleeptarget.ui.common.views.details_fragment.DetailsResu
 import com.rbraithwaite.sleeptarget.ui.common.views.mood_selector.MoodSelectorController;
 import com.rbraithwaite.sleeptarget.ui.common.views.mood_selector.MoodSelectorViewModel;
 import com.rbraithwaite.sleeptarget.ui.common.views.session_times.SessionTimesViewModel;
-import com.rbraithwaite.sleeptarget.ui.common.views.tag_selector.TagSelectorController;
 import com.rbraithwaite.sleeptarget.ui.common.views.tag_selector.TagSelectorViewModel;
 import com.rbraithwaite.sleeptarget.ui.interruption_details.InterruptionDetailsFragment;
 import com.rbraithwaite.sleeptarget.ui.session_archive.SessionArchiveFragmentDirections;
@@ -67,8 +66,6 @@ public class SessionDetailsFragment
     private SessionDetailsFragmentBinding mBinding;
     
     private MoodSelectorController mMoodSelectorController; // no gc
-    
-    private TagSelectorController mTagSelectorController; // no gc
     
     private TagSelectorViewModel mTagSelectorViewModel;
     private MoodSelectorViewModel mMoodSelectorViewModel;
@@ -361,8 +358,7 @@ public class SessionDetailsFragment
                     }
                 });
         
-        mTagSelectorController = new TagSelectorController(
-                mBinding.tags,
+        mBinding.tags.init(
                 mTagSelectorViewModel,
                 getViewLifecycleOwner(),
                 getChildFragmentManager());

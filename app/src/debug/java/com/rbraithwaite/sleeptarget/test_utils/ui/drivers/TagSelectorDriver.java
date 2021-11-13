@@ -29,7 +29,7 @@ import com.rbraithwaite.sleeptarget.test_utils.ui.assertion_utils.AssertionFaile
 import com.rbraithwaite.sleeptarget.test_utils.ui.dialog.DialogTestUtils;
 import com.rbraithwaite.sleeptarget.test_utils.ui.fragment_helpers.FragmentTestHelper;
 import com.rbraithwaite.sleeptarget.ui.BaseFragment;
-import com.rbraithwaite.sleeptarget.ui.common.views.tag_selector.TagSelectorController;
+import com.rbraithwaite.sleeptarget.ui.common.views.tag_selector.TagSelectorComponent;
 import com.rbraithwaite.sleeptarget.ui.common.views.tag_selector.TagSelectorDialogFragment;
 import com.rbraithwaite.sleeptarget.ui.common.views.tag_selector.TagSelectorRecyclerAdapter;
 import com.rbraithwaite.sleeptarget.ui.common.views.tag_selector.TagSelectorViewModel;
@@ -45,7 +45,6 @@ import java.util.stream.Collectors;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.pressImeActionButton;
-import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -100,7 +99,7 @@ public class TagSelectorDriver
         public void thereAreNoSelectedTags()
         {
             onView(allOf(withParent(mOwningTagSelector.mTagSelectorView),
-                         withId(R.id.tag_selector_add_tags_btn))).check(matches(isDisplayed()));
+                         withId(R.id.ts_add_tags_button))).check(matches(isDisplayed()));
         }
         
         public void selectedTagsMatch(List<Integer> expectedSelectedTagIds)
@@ -337,7 +336,7 @@ public class TagSelectorDriver
         mOwningFragment.performSyncedFragmentAction(fragment -> {
             TagSelectorDialogFragment dialog =
                     (TagSelectorDialogFragment) ((BaseFragment<?>) fragment).getDialogByTag(
-                            TagSelectorController.DIALOG_TAG);
+                            TagSelectorComponent.DIALOG_TAG);
             
             if (dialog == null) {
                 // REFACTOR [21-05-7 11:56PM] -- this could be less generic.
@@ -492,13 +491,13 @@ public class TagSelectorDriver
     private void openTagDialog()
     {
         try {
-            onView(withId(R.id.tag_selector_selected_recycler)).perform(RecyclerViewActions.actionOnItemAtPosition(
+            onView(withId(R.id.ts_selected_recycler)).perform(RecyclerViewActions.actionOnItemAtPosition(
                     0,
                     click()));
         } catch (RuntimeException e) {
             // In case there were no currently selected tags
             onView(allOf(withParent(mTagSelectorView),
-                         withId(R.id.tag_selector_add_tags_btn))).perform(click());
+                         withId(R.id.ts_add_tags_button))).perform(click());
         }
     }
     

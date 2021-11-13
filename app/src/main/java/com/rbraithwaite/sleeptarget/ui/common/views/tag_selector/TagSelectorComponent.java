@@ -18,79 +18,115 @@ package com.rbraithwaite.sleeptarget.ui.common.views.tag_selector;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.util.AttributeSet;
 import android.view.View;
-import android.widget.Button;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.flexbox.FlexboxLayoutManager;
 import com.rbraithwaite.sleeptarget.R;
+import com.rbraithwaite.sleeptarget.databinding.TagSelectorBinding;
 
-// REFACTOR [21-04-8 11:08PM] -- maybe I should call this TagManager instead? (or at least that's
-//  what the dialog does).
-public class TagSelectorController
+public class TagSelectorComponent
+        extends ConstraintLayout
 {
 //*********************************************************
 // private properties
 //*********************************************************
 
-    private View mRoot;
-    private RecyclerView mSelectedRecycler;
+    private TagSelectorBinding mBinding;
+    
     private SelectedTagAdapter mSelectedTagAdapter;
-    private Button mAddTagsButton;
-    
     private TagSelectorViewModel mViewModel;
-    
-    private Context mContext;
     private FragmentManager mFragmentManager;
-
+    
 //*********************************************************
 // public constants
 //*********************************************************
 
     public static final String DIALOG_TAG = "TagSelectorController_dialog";
-
+    
 //*********************************************************
 // constructors
 //*********************************************************
 
-    public TagSelectorController(
-            View root,
+    public TagSelectorComponent(@NonNull Context context)
+    {
+        super(context);
+        initComponent(context);
+    }
+    
+    public TagSelectorComponent(
+            @NonNull Context context,
+            @Nullable AttributeSet attrs)
+    {
+        super(context, attrs);
+        initComponent(context);
+    }
+    
+    public TagSelectorComponent(
+            @NonNull Context context,
+            @Nullable AttributeSet attrs, int defStyleAttr)
+    {
+        super(context, attrs, defStyleAttr);
+        initComponent(context);
+    }
+    
+    public TagSelectorComponent(
+            @NonNull Context context,
+            @Nullable AttributeSet attrs,
+            int defStyleAttr,
+            int defStyleRes)
+    {
+        super(context, attrs, defStyleAttr, defStyleRes);
+        initComponent(context);
+    }
+
+//*********************************************************
+// api
+//*********************************************************
+
+    public void init(
             TagSelectorViewModel viewModel,
             LifecycleOwner lifecycleOwner,
             FragmentManager fragmentManager)
     {
-        mRoot = root;
-        mSelectedRecycler = root.findViewById(R.id.tag_selector_selected_recycler);
-        mAddTagsButton = root.findViewById(R.id.tag_selector_add_tags_btn);
-        
-        mContext = mRoot.getContext();
         mFragmentManager = fragmentManager;
         mViewModel = viewModel;
         
-        mAddTagsButton.setOnClickListener(v -> displayTagDialog());
+        mBinding.tsAddTagsButton.setOnClickListener(v -> displayTagDialog());
         
         initSelectedRecycler();
         bindViewModel(lifecycleOwner);
     }
-
+    
 //*********************************************************
 // private methods
 //*********************************************************
 
+    // REFACTOR [21-05-25 1:38PM] -- This pattern is repeated in MoodSelectorComponent
+    //  consider making a ConstraintLayoutComponent base class.
+    private void initComponent(Context context)
+    {
+        inflate(context, R.layout.tag_selector, this);
+        mBinding = TagSelectorBinding.bind(this);
+    }
+    
     private void bindViewModel(LifecycleOwner lifecycleOwner)
     {
         mViewModel.getSelectedTags().observe(
                 lifecycleOwner,
                 selectedTags -> {
                     if (selectedTags.isEmpty()) {
-                        mSelectedRecycler.setVisibility(View.GONE);
-                        mAddTagsButton.setVisibility(View.VISIBLE);
+                        mBinding.tsSelectedRecycler.setVisibility(View.GONE);
+                        mBinding.tsAddTagsButton.setVisibility(View.VISIBLE);
                     } else {
-                        mSelectedRecycler.setVisibility(View.VISIBLE);
-                        mAddTagsButton.setVisibility(View.GONE);
+                        mBinding.tsSelectedRecycler.setVisibility(View.VISIBLE);
+                        mBinding.tsAddTagsButton.setVisibility(View.GONE);
                         
                         mSelectedTagAdapter.setSelectedTags(selectedTags);
                     }
@@ -99,18 +135,18 @@ public class TagSelectorController
     
     private void initSelectedRecycler()
     {
-        FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(mContext);
-        mSelectedRecycler.setLayoutManager(layoutManager);
+        FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(getContext());
+        mBinding.tsSelectedRecycler.setLayoutManager(layoutManager);
         
         mSelectedTagAdapter = new SelectedTagAdapter();
         mSelectedTagAdapter.setOnItemClickedListener(vh -> displayTagDialog());
-        mSelectedRecycler.setAdapter(mSelectedTagAdapter);
+        mBinding.tsSelectedRecycler.setAdapter(mSelectedTagAdapter);
     }
     
     private void displayTagDialog()
     {
         // REFACTOR [21-05-26 9:21PM] -- abstract this stuff, I guess getDialogThemeId().
-        TypedArray ta = mRoot.getContext().obtainStyledAttributes(R.styleable.TagSelectorComponent);
+        TypedArray ta = getContext().obtainStyledAttributes(R.styleable.TagSelectorComponent);
         int dialogThemeId =
                 ta.getResourceId(R.styleable.TagSelectorComponent_tagSelectorDialogTheme, -1);
         ta.recycle();

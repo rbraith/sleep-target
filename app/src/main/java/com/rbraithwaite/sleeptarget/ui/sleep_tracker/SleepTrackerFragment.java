@@ -42,7 +42,6 @@ import com.rbraithwaite.sleeptarget.databinding.TrackerFragmentBinding;
 import com.rbraithwaite.sleeptarget.ui.BaseFragment;
 import com.rbraithwaite.sleeptarget.ui.common.views.mood_selector.MoodSelectorController;
 import com.rbraithwaite.sleeptarget.ui.common.views.mood_selector.MoodSelectorViewModel;
-import com.rbraithwaite.sleeptarget.ui.common.views.tag_selector.TagSelectorController;
 import com.rbraithwaite.sleeptarget.ui.common.views.tag_selector.TagSelectorViewModel;
 import com.rbraithwaite.sleeptarget.ui.post_sleep.PostSleepFragment;
 import com.rbraithwaite.sleeptarget.ui.post_sleep.PostSleepViewModel;
@@ -69,7 +68,6 @@ public class SleepTrackerFragment
     private MoodSelectorController mMoodSelectorController; // no gc
     private MoodSelectorViewModel mMoodSelectorViewModel;
     
-    private TagSelectorController mTagSelectorController; // no gc
     private TagSelectorViewModel mTagSelectorViewModel;
     
     private SleepTrackerAnimations mAnimations;
@@ -214,9 +212,8 @@ public class SleepTrackerFragment
                     tagSelectorViewModel.getSelectedTags().observe(
                             getViewLifecycleOwner(),
                             getViewModel()::setSelectedTags);
-                    
-                    mTagSelectorController = new TagSelectorController(
-                            mBinding.detailsContent.tags,
+    
+                    mBinding.detailsContent.tags.init(
                             tagSelectorViewModel,
                             getViewLifecycleOwner(),
                             getChildFragmentManager());
