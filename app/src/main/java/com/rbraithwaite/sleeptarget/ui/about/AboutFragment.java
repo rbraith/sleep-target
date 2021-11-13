@@ -23,7 +23,6 @@ import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,11 +30,18 @@ import androidx.annotation.Nullable;
 import com.mikepenz.aboutlibraries.LibsBuilder;
 import com.rbraithwaite.sleeptarget.BuildConfig;
 import com.rbraithwaite.sleeptarget.R;
+import com.rbraithwaite.sleeptarget.databinding.AboutFragmentBinding;
 import com.rbraithwaite.sleeptarget.ui.BaseFragment;
 
 public class AboutFragment
         extends BaseFragment<AboutViewModel>
 {
+//*********************************************************
+// private properties
+//*********************************************************
+
+    private AboutFragmentBinding mBinding;
+    
 //*********************************************************
 // overrides
 //*********************************************************
@@ -53,36 +59,27 @@ public class AboutFragment
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState)
     {
-        return inflater.inflate(R.layout.about_fragment, container, false);
+        mBinding = AboutFragmentBinding.inflate(inflater, container, false);
+        return mBinding.getRoot();
     }
     
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
     {
-        TextView versionText = view.findViewById(R.id.about_version_num);
-        versionText.setText(getVersionText());
+        mBinding.aboutHeader.aboutVersionNum.setText(getVersionText());
+        mBinding.aboutHeader.aboutDescription.setMovementMethod(LinkMovementMethod.getInstance());
         
-        // header
-        TextView descriptionText = view.findViewById(R.id.about_description);
-        descriptionText.setMovementMethod(LinkMovementMethod.getInstance());
+        mBinding.aboutLicenses.aboutLicensesViewBtn.setOnClickListener(v -> onDisplayLicenses());
         
-        // licenses
-        TextView thirdPartyLicensesViewButton = view.findViewById(R.id.about_licenses_view_btn);
-        thirdPartyLicensesViewButton.setOnClickListener(v -> onDisplayLicenses());
+        mBinding.aboutPrivacy.aboutPrivacyViewBtn.setOnClickListener(v -> onClickPrivacyPolicyButton());
         
-        // privacy
-        TextView privacyPolicyViewButton = view.findViewById(R.id.about_privacy_view_btn);
-        privacyPolicyViewButton.setOnClickListener(v -> onClickPrivacyPolicyButton());
-        
-        // credits
-        TextView visualsText = view.findViewById(R.id.about_credits_visual);
-        visualsText.setMovementMethod(LinkMovementMethod.getInstance());
+        mBinding.aboutCreditsContent.aboutCreditsVisual.setMovementMethod(LinkMovementMethod.getInstance());
     }
-    
+
 //*********************************************************
 // private methods
 //*********************************************************
-    
+
     private void onDisplayLicenses()
     {
         LibsBuilder libsBuilder = new LibsBuilder()
@@ -97,7 +94,7 @@ public class AboutFragment
         String policyUrl = "https://gist.github.com/rbraith/b0785564704b7a891fd490c3c2aa18b9";
         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(policyUrl)));
     }
-
+    
     // REFACTOR [21-08-24 5:53PM] -- This should go somewhere else - view model? utility class?
     private String getVersionText()
     {

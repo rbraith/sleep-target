@@ -64,6 +64,7 @@
             android:background="?attr/appColorOnPrimarySurface2" />
 
         <include
+            android:id="@+id/about_privacy"
             layout="@layout/about_privacy"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
